@@ -25,7 +25,6 @@
 		33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F22044A3C60003C045 /* Assets.xcassets */; };
 		33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F42044A3C60003C045 /* MainMenu.xib */; };
 		C1EEF86C4FB8DC2DB09FC7EF /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E62699003AFCAB9E12DF6EC8 /* Pods_Runner.framework */; };
-		EB59A87F2BFC7D36001DAD60 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB59A87C2BFC7D36001DAD60 /* PacketTunnelProvider.swift */; };
 		EB68C72C2F95200E007C293A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB68C7252F95200E007C293A /* GoogleService-Info.plist */; };
 		EB68C72D2F95200E007C293A /* Messages.g.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB68C7212F95200E007C293A /* Messages.g.swift */; };
 		EB68C72E2F95200E007C293A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB68C7272F95200E007C293A /* AppDelegate.swift */; };
@@ -35,16 +34,17 @@
 		EB68C7322F95200E007C293A /* Vpn.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB68C7232F95200E007C293A /* Vpn.swift */; };
 		EB68C7332F95200E007C293A /* HostApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB68C7202F95200E007C293A /* HostApi.swift */; };
 		EB74717B2F9648F50001CF81 /* AppStart.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7471792F9648F50001CF81 /* AppStart.swift */; };
-		EB96B2682DCAF5B30013BA79 /* LibXray.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB96B2622DCAF5B30013BA79 /* LibXray.xcframework */; };
-		EB96B2692DCAF5B30013BA79 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB96B2652DCAF5B30013BA79 /* Tools.swift */; };
-		EB96B26A2DCAF5B30013BA79 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB96B2632DCAF5B30013BA79 /* Logger.swift */; };
-		EB96B26B2DCAF5B30013BA79 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB96B2612DCAF5B30013BA79 /* Constants.swift */; };
-		EB96B26C2DCAF5B30013BA79 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB96B2642DCAF5B30013BA79 /* Model.swift */; };
-		EB96B26D2DCAF5B30013BA79 /* LibXray.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB96B2622DCAF5B30013BA79 /* LibXray.xcframework */; };
-		EB96B26E2DCAF5B30013BA79 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB96B2652DCAF5B30013BA79 /* Tools.swift */; };
-		EB96B26F2DCAF5B30013BA79 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB96B2632DCAF5B30013BA79 /* Logger.swift */; };
-		EB96B2702DCAF5B30013BA79 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB96B2612DCAF5B30013BA79 /* Constants.swift */; };
-		EB96B2712DCAF5B30013BA79 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB96B2642DCAF5B30013BA79 /* Model.swift */; };
+		EBE36B3B2F9683C900686880 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B392F9683C900686880 /* PacketTunnelProvider.swift */; };
+		EBE36B442F9683E000686880 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B3F2F9683E000686880 /* Logger.swift */; };
+		EBE36B452F9683E000686880 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B3D2F9683E000686880 /* Constants.swift */; };
+		EBE36B462F9683E000686880 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B402F9683E000686880 /* Model.swift */; };
+		EBE36B472F9683E000686880 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B412F9683E000686880 /* Tools.swift */; };
+		EBE36B482F9683E000686880 /* LibXray.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE36B3E2F9683E000686880 /* LibXray.xcframework */; };
+		EBE36B492F9683E000686880 /* LibXray.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE36B3E2F9683E000686880 /* LibXray.xcframework */; };
+		EBE36B4A2F9683E000686880 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B3F2F9683E000686880 /* Logger.swift */; };
+		EBE36B4B2F9683E000686880 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B3D2F9683E000686880 /* Constants.swift */; };
+		EBE36B4C2F9683E000686880 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B402F9683E000686880 /* Model.swift */; };
+		EBE36B4D2F9683E000686880 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B412F9683E000686880 /* Tools.swift */; };
 		EBEAD85B2B95749600A8D27B /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBEAD85A2B95749600A8D27B /* NetworkExtension.framework */; };
 		EBEAD8632B95749600A8D27B /* tunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EBEAD8592B95749600A8D27B /* tunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EBEAD8892B9578E700A8D27B /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = EBEAD8882B9578E000A8D27B /* libresolv.tbd */; };
@@ -113,7 +113,6 @@
 		E62699003AFCAB9E12DF6EC8 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB210DFC2DE868BA00D76E7A /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/MainMenu.strings; sourceTree = "<group>"; };
 		EB390D832EC84B6500B741BA /* fa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fa; path = fa.lproj/MainMenu.strings; sourceTree = "<group>"; };
-		EB59A87C2BFC7D36001DAD60 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		EB68C71F2F95200E007C293A /* FlutterApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlutterApi.swift; sourceTree = "<group>"; };
 		EB68C7202F95200E007C293A /* HostApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostApi.swift; sourceTree = "<group>"; };
 		EB68C7212F95200E007C293A /* Messages.g.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Messages.g.swift; sourceTree = "<group>"; };
@@ -124,14 +123,15 @@
 		EB68C7292F95200E007C293A /* SystemExtensionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemExtensionManager.swift; sourceTree = "<group>"; };
 		EB7471792F9648F50001CF81 /* AppStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStart.swift; sourceTree = "<group>"; };
 		EB9154212D8EBE7600BFED8B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/MainMenu.strings"; sourceTree = "<group>"; };
-		EB96B2602DCAF5B30013BA79 /* BridgeHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgeHeader.h; sourceTree = "<group>"; };
-		EB96B2612DCAF5B30013BA79 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		EB96B2622DCAF5B30013BA79 /* LibXray.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = LibXray.xcframework; sourceTree = "<group>"; };
-		EB96B2632DCAF5B30013BA79 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
-		EB96B2642DCAF5B30013BA79 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
-		EB96B2652DCAF5B30013BA79 /* Tools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tools.swift; sourceTree = "<group>"; };
-		EB96B2662DCAF5B30013BA79 /* WireGuardKitC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WireGuardKitC.h; sourceTree = "<group>"; };
 		EBAB56E72D81885C0080EC55 /* libXray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libXray.h; sourceTree = "<group>"; };
+		EBE36B392F9683C900686880 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
+		EBE36B3C2F9683E000686880 /* BridgeHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgeHeader.h; sourceTree = "<group>"; };
+		EBE36B3D2F9683E000686880 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		EBE36B3E2F9683E000686880 /* LibXray.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = LibXray.xcframework; sourceTree = "<group>"; };
+		EBE36B3F2F9683E000686880 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		EBE36B402F9683E000686880 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		EBE36B412F9683E000686880 /* Tools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tools.swift; sourceTree = "<group>"; };
+		EBE36B422F9683E000686880 /* WireGuardKitC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WireGuardKitC.h; sourceTree = "<group>"; };
 		EBEAD8592B95749600A8D27B /* tunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = tunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		EBEAD85A2B95749600A8D27B /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 		EBEAD85F2B95749600A8D27B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -144,7 +144,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EB96B2682DCAF5B30013BA79 /* LibXray.xcframework in Frameworks */,
+				EBE36B492F9683E000686880 /* LibXray.xcframework in Frameworks */,
 				EBEAD8892B9578E700A8D27B /* libresolv.tbd in Frameworks */,
 				C1EEF86C4FB8DC2DB09FC7EF /* Pods_Runner.framework in Frameworks */,
 			);
@@ -154,8 +154,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EBE36B482F9683E000686880 /* LibXray.xcframework in Frameworks */,
 				EBEAD85B2B95749600A8D27B /* NetworkExtension.framework in Frameworks */,
-				EB96B26D2DCAF5B30013BA79 /* LibXray.xcframework in Frameworks */,
 				EBEAD88A2B9578F000A8D27B /* libresolv.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -177,7 +177,7 @@
 		33CC10E42044A3C60003C045 = {
 			isa = PBXGroup;
 			children = (
-				EB96B2672DCAF5B30013BA79 /* all */,
+				EBE36B432F9683E000686880 /* All */,
 				EBAB56E92D81885C0080EC55 /* c */,
 				33FAB671232836740065AC1E /* Runner */,
 				33CEB47122A05771004F2AC0 /* Flutter */,
@@ -244,15 +244,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		EB59A87D2BFC7D36001DAD60 /* tunnel */ = {
-			isa = PBXGroup;
-			children = (
-				EB59A87C2BFC7D36001DAD60 /* PacketTunnelProvider.swift */,
-			);
-			name = tunnel;
-			path = ../../swift/tunnel;
-			sourceTree = "<group>";
-		};
 		EB68C7222F95200E007C293A /* pigeon */ = {
 			isa = PBXGroup;
 			children = (
@@ -302,21 +293,6 @@
 			path = ../swift/macOSStore;
 			sourceTree = SOURCE_ROOT;
 		};
-		EB96B2672DCAF5B30013BA79 /* all */ = {
-			isa = PBXGroup;
-			children = (
-				EB96B2602DCAF5B30013BA79 /* BridgeHeader.h */,
-				EB96B2612DCAF5B30013BA79 /* Constants.swift */,
-				EB96B2622DCAF5B30013BA79 /* LibXray.xcframework */,
-				EB96B2632DCAF5B30013BA79 /* Logger.swift */,
-				EB96B2642DCAF5B30013BA79 /* Model.swift */,
-				EB96B2652DCAF5B30013BA79 /* Tools.swift */,
-				EB96B2662DCAF5B30013BA79 /* WireGuardKitC.h */,
-			);
-			name = all;
-			path = ../swift/all;
-			sourceTree = SOURCE_ROOT;
-		};
 		EBAB56E82D81885C0080EC55 /* include */ = {
 			isa = PBXGroup;
 			children = (
@@ -334,10 +310,34 @@
 			path = ../c;
 			sourceTree = SOURCE_ROOT;
 		};
+		EBE36B3A2F9683C900686880 /* Tunnel */ = {
+			isa = PBXGroup;
+			children = (
+				EBE36B392F9683C900686880 /* PacketTunnelProvider.swift */,
+			);
+			name = Tunnel;
+			path = ../swift/Tunnel;
+			sourceTree = SOURCE_ROOT;
+		};
+		EBE36B432F9683E000686880 /* All */ = {
+			isa = PBXGroup;
+			children = (
+				EBE36B3C2F9683E000686880 /* BridgeHeader.h */,
+				EBE36B3D2F9683E000686880 /* Constants.swift */,
+				EBE36B3E2F9683E000686880 /* LibXray.xcframework */,
+				EBE36B3F2F9683E000686880 /* Logger.swift */,
+				EBE36B402F9683E000686880 /* Model.swift */,
+				EBE36B412F9683E000686880 /* Tools.swift */,
+				EBE36B422F9683E000686880 /* WireGuardKitC.h */,
+			);
+			name = All;
+			path = ../swift/All;
+			sourceTree = SOURCE_ROOT;
+		};
 		EBEAD85C2B95749600A8D27B /* tunnel */ = {
 			isa = PBXGroup;
 			children = (
-				EB59A87D2BFC7D36001DAD60 /* tunnel */,
+				EBE36B3A2F9683C900686880 /* Tunnel */,
 				EBEAD85F2B95749600A8D27B /* Info.plist */,
 				EBEAD8602B95749600A8D27B /* tunnel.entitlements */,
 			);
@@ -580,16 +580,16 @@
 			files = (
 				EB68C72D2F95200E007C293A /* Messages.g.swift in Sources */,
 				EB74717B2F9648F50001CF81 /* AppStart.swift in Sources */,
+				EBE36B4A2F9683E000686880 /* Logger.swift in Sources */,
+				EBE36B4B2F9683E000686880 /* Constants.swift in Sources */,
+				EBE36B4C2F9683E000686880 /* Model.swift in Sources */,
+				EBE36B4D2F9683E000686880 /* Tools.swift in Sources */,
 				EB68C72E2F95200E007C293A /* AppDelegate.swift in Sources */,
 				EB68C72F2F95200E007C293A /* MainFlutterWindow.swift in Sources */,
 				EB68C7302F95200E007C293A /* FlutterApi.swift in Sources */,
 				EB68C7312F95200E007C293A /* SystemExtensionManager.swift in Sources */,
 				EB68C7322F95200E007C293A /* Vpn.swift in Sources */,
 				EB68C7332F95200E007C293A /* HostApi.swift in Sources */,
-				EB96B2692DCAF5B30013BA79 /* Tools.swift in Sources */,
-				EB96B26A2DCAF5B30013BA79 /* Logger.swift in Sources */,
-				EB96B26B2DCAF5B30013BA79 /* Constants.swift in Sources */,
-				EB96B26C2DCAF5B30013BA79 /* Model.swift in Sources */,
 				335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -598,11 +598,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EB96B26E2DCAF5B30013BA79 /* Tools.swift in Sources */,
-				EB96B26F2DCAF5B30013BA79 /* Logger.swift in Sources */,
-				EB96B2702DCAF5B30013BA79 /* Constants.swift in Sources */,
-				EB96B2712DCAF5B30013BA79 /* Model.swift in Sources */,
-				EB59A87F2BFC7D36001DAD60 /* PacketTunnelProvider.swift in Sources */,
+				EBE36B442F9683E000686880 /* Logger.swift in Sources */,
+				EBE36B452F9683E000686880 /* Constants.swift in Sources */,
+				EBE36B462F9683E000686880 /* Model.swift in Sources */,
+				EBE36B472F9683E000686880 /* Tools.swift in Sources */,
+				EBE36B3B2F9683C900686880 /* PacketTunnelProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

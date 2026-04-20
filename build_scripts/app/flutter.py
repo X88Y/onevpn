@@ -107,8 +107,6 @@ class FlutterBuilder(Builder):
             "build",
             self.build_type[self.system],
         ]
-        if self.system in ("ios", "macos"):
-            cmd.append("--config-only")
         cmd.extend(self.dart_defines())
         run_command(cmd)
 
