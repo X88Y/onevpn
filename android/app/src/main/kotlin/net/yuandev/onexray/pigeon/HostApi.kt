@@ -295,6 +295,9 @@ class AppHostApi(
     }
 
     // macOS
+    override fun useSystemExtension(callback: (Result<Boolean>) -> Unit) {
+        callback(Result.success(false))
+    }
 
     //ios
     override fun setAppIcon(appIcon: String, callback: (Result<Boolean>) -> Unit) {

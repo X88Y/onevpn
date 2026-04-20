@@ -100,6 +100,7 @@ macos_se/fastlane/AuthKey.p8
 ios/Flutter/AdMob.xcconfig
 swift/AppStore/GoogleService-Info.plist
 swift/macOSSE/GoogleService-Info.plist
+.fvm/
 
 # ai
 .cursor/

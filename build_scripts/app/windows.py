@@ -54,3 +54,11 @@ class WindowsBuilder(Builder):
     def build_app(self):
         self.fastforge_build("zip")
         self.fastforge_build("exe")
+
+    def after_build(self):
+        super().after_build()
+
+        for file_type in (".zip", ".exe"):
+            file_name = self.find_file(file_type)
+            if file_name:
+                self.rename_file(file_name, file_type)

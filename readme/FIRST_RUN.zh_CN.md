@@ -4,7 +4,25 @@
 
 ## 1. 初始化项目
 
-首次拉取代码后，先补齐本地调试所需的配置文件：
+本仓库通过 `.fvmrc` 固定 Flutter 版本。首次拉取代码后，先安装 FVM：
+
+```shell
+# macOS / Linux
+curl -fsSL https://fvm.app/install.sh | bash
+export PATH="$HOME/fvm/bin:$PATH"
+
+# Windows
+choco install fvm
+```
+
+然后在仓库根目录执行：
+
+```shell
+fvm install
+fvm flutter pub get
+```
+
+然后补齐本地调试所需的配置文件：
 
 ```shell
 cp .env.example .env
@@ -13,7 +31,6 @@ cp lib/firebase_options.dart.example lib/firebase_options.dart
 cp android/app/google-services.json.example android/app/google-services.json
 cp swift/AppStore/GoogleService-Info.plist.example swift/AppStore/GoogleService-Info.plist
 cp swift/macOSSE/GoogleService-Info.plist.example swift/macOSSE/GoogleService-Info.plist
-flutter pub get
 ```
 
 这些文件的 `.example` 版本已经足够用于本地开发；如果后续需要联调真实 Firebase / AdMob，再替换成你自己的配置。
@@ -86,8 +103,20 @@ cp ../libXray/bin/xray.exe windows/app/OneXrayCore.exe
 按目标平台执行：
 
 ```shell
-flutter run -d android
-flutter run -d macos
+fvm flutter run -d android
+fvm flutter run -d macos
+```
+
+调试 Linux 前，先安装本地构建依赖：
+
+```shell
+sudo apt-get update
+sudo apt-get install -y \
+  ninja-build clang cmake pkg-config \
+  libgtk-3-dev liblzma-dev libblkid-dev libsecret-1-dev \
+  libayatana-appindicator3-dev \
+  file
+fvm flutter run -d linux
 ```
 
 调试 iOS 前先安装 CocoaPods 依赖：
@@ -96,7 +125,7 @@ flutter run -d macos
 cd ios
 pod install
 cd ..
-flutter run -d ios
+fvm flutter run -d ios
 ```
 
 ## 4. `.env` 说明
@@ -150,8 +179,8 @@ flutter run -d ios
 
 1. 复制 `.example` 配置文件。
 2. 构建 `libXray` 并把产物复制到 OneXray 对应目录。
-3. 执行 `flutter pub get`。
-4. Apple 平台需要时执行 `pod install`。
-5. 用 `flutter run -d <device>` 启动。
+3. 执行 `fvm install` 和 `fvm flutter pub get`。
+4. 按平台安装额外依赖，例如 Apple 平台的 `pod install` 和 Linux 平台的 `libayatana-appindicator3-dev`。
+5. 用 `fvm flutter run -d <device>` 启动。
 
 `playservice.json`、`android/keystore/`、各平台 `AuthKey.p8` 这类发布文件，不属于 debug 环境初始化范围。

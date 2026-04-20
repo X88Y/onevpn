@@ -65,7 +65,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  FLUTTER_VERSION: "3.41.7"
+  FVM_VERSION: "4.0.5"
   GO_VERSION: "1.26.2"
   PYTHON_VERSION: "3.12"
   NDK_VERSION: r29
@@ -101,10 +101,8 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: stable
+      - name: Setup Flutter with FVM
+        run: bash build_scripts/setup_fvm.sh
 
       - name: Install Python build deps
         run: pip install pyyaml requests typer
@@ -189,10 +187,8 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: stable
+      - name: Setup Flutter with FVM
+        run: bash build_scripts/setup_fvm.sh
 
       - name: Install Python build deps
         run: pip install pyyaml requests typer
@@ -271,10 +267,8 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: stable
+      - name: Setup Flutter with FVM
+        run: bash build_scripts/setup_fvm.sh
 
       - name: Install Python build deps
         run: pip install pyyaml requests typer
@@ -363,10 +357,8 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: stable
+      - name: Setup Flutter with FVM
+        run: bash build_scripts/setup_fvm.sh
 
       - name: Setup Android NDK
         # libXray's Android builder invokes `gomobile bind`, which needs an NDK.
@@ -459,10 +451,8 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: stable
+      - name: Setup Flutter with FVM
+        run: bash build_scripts/setup_fvm.sh
 
       - name: Install Python build deps
         run: pip install pyyaml requests typer
@@ -535,10 +525,8 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: stable
+      - name: Setup Flutter with FVM
+        run: bash build_scripts/setup_fvm.sh
 
       - name: Install build dependencies
         run: |
@@ -546,6 +534,7 @@ jobs:
           sudo apt-get install -y \
             ninja-build clang cmake pkg-config \
             libgtk-3-dev liblzma-dev libblkid-dev libsecret-1-dev \
+            libayatana-appindicator3-dev \
             file
 
       - name: Install Python build deps
