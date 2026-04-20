@@ -128,6 +128,11 @@ jobs:
           ASC_KEY_B64: ${{ secrets.FASTLANE_ASC_KEY_BASE64 }}
         run: echo "$ASC_KEY_B64" | base64 -d > ios/fastlane/AuthKey.p8
 
+      - name: Print certs.p12 SHA-256
+        env:
+          APPLE_CERTS_P12_B64: ${{ secrets.APPLE_CERTS_P12_BASE64 }}
+        run: printf '%s' "$APPLE_CERTS_P12_B64" | base64 -d | shasum -a 256 | awk '{print $1}'
+
       - uses: apple-actions/import-codesign-certs@v6
         with:
           p12-file-base64: ${{ secrets.APPLE_CERTS_P12_BASE64 }}
@@ -165,7 +170,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ios
-          path: OneXray/output/OneXray-ios*.ipa
+          path: output/OneXray-ios*.ipa
           if-no-files-found: error
 
   # =================================================================
@@ -223,6 +228,11 @@ jobs:
         env:
           ASC_KEY_B64: ${{ secrets.FASTLANE_ASC_KEY_BASE64 }}
         run: echo "$ASC_KEY_B64" | base64 -d > macos/fastlane/AuthKey.p8
+
+      - name: Print certs.p12 SHA-256
+        env:
+          APPLE_CERTS_P12_B64: ${{ secrets.APPLE_CERTS_P12_BASE64 }}
+        run: printf '%s' "$APPLE_CERTS_P12_B64" | base64 -d | shasum -a 256 | awk '{print $1}'
 
       - uses: apple-actions/import-codesign-certs@v6
         with:
@@ -314,6 +324,11 @@ jobs:
           ASC_KEY_B64: ${{ secrets.FASTLANE_ASC_KEY_BASE64 }}
         run: echo "$ASC_KEY_B64" | base64 -d > macos_se/fastlane/AuthKey.p8
 
+      - name: Print certs.p12 SHA-256
+        env:
+          APPLE_CERTS_P12_B64: ${{ secrets.APPLE_CERTS_P12_BASE64 }}
+        run: printf '%s' "$APPLE_CERTS_P12_B64" | base64 -d | shasum -a 256 | awk '{print $1}'
+
       - uses: apple-actions/import-codesign-certs@v6
         with:
           p12-file-base64: ${{ secrets.APPLE_CERTS_P12_BASE64 }}
@@ -350,7 +365,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: macos_se
-          path: OneXray/output/OneXray-macos-universal*.zip
+          path: output/OneXray-macos-universal*.zip
           if-no-files-found: error
 
   # =================================================================
@@ -445,7 +460,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: android-universal
-          path: OneXray/output/OneXray-android-universal*.apk
+          path: output/OneXray-android-universal*.apk
           if-no-files-found: error
 
   # =================================================================
@@ -510,8 +525,8 @@ jobs:
         with:
           name: windows-x64
           path: |
-            OneXray/output/OneXray-*.zip
-            OneXray/output/OneXray-*.exe
+            output/OneXray-*.zip
+            output/OneXray-*.exe
           if-no-files-found: error
 
   # =================================================================
@@ -595,8 +610,8 @@ jobs:
         with:
           name: linux-${{ matrix.arch }}
           path: |
-            OneXray/output/OneXray-*.zip
-            OneXray/output/OneXray-*.deb
+            output/OneXray-*.zip
+            output/OneXray-*.deb
           if-no-files-found: error
 
   # =================================================================

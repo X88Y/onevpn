@@ -9,7 +9,7 @@ platform :mac do
     build_app(
         scheme: 'Runner',
         configuration: 'Release',
-        output_directory: '../../output',
+        output_directory: '../../../output',
         export_options: {
           method: 'app-store',
           provisioningProfiles: {
