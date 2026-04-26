@@ -6,4 +6,4 @@ dart run ffigen
 flutter pub upgrade --major-versions
 flutter pub upgrade --tighten
 
-sudo setcap cap_net_admin+epi OneXrayCore
+sudo setcap cap_net_admin,cap_net_raw+eip OneXrayCore

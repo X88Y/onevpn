@@ -41,7 +41,7 @@ Please confirm the directory before executing the command.
 
 ```shell
 sudo apt install -y procps libcap2-bin libayatana-appindicator3-1
-sudo setcap cap_net_admin+epi OneXray/bin/OneXrayCore
+sudo setcap cap_net_admin,cap_net_raw+eip OneXray/bin/OneXrayCore
 ```
 
 If you use the deb package, you can use the following commands to install and uninstall.

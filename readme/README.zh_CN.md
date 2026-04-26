@@ -40,7 +40,7 @@
 
 ```shell
 sudo apt install -y procps libcap2-bin libayatana-appindicator3-1
-sudo setcap cap_net_admin+epi OneXray/bin/OneXrayCore
+sudo setcap cap_net_admin,cap_net_raw+eip OneXray/bin/OneXrayCore
 ```
 
 若您使用 deb 包，您可使用如下指令进行安装和卸载。
