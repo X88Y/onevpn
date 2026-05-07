@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mvmvpn/core/db/database/constants.dart';
 import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
@@ -161,12 +162,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
             child: Padding(
               padding: const EdgeInsets.all(32.0),
-              child: ColorFiltered(
+              child: SvgPicture.asset(
+                'assets/app_icon/app_icon.svg',
+                fit: BoxFit.contain,
                 colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                child: Image.asset(
-                  'assets/app_icon/app_icon.png',
-                  fit: BoxFit.contain,
-                ),
               ),
             ),
           ),
