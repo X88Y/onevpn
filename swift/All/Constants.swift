@@ -9,9 +9,9 @@ public enum Constants {
     public static var useSystemExtension = false
 }
 
-private let teamAppGroupId = "WVD5VC7V8N.app.svyatvpn.com"
-private let groupAppGroupId = "group.app.svyatvpn.com"
-private let seGroupAppGroupId = "group.app.svyatvpn.com.se"
+private let teamAppGroupId = "WVD5VC7V8N.apple.svyatvpn.com"
+private let groupAppGroupId = "group.apple.svyatvpn.com"
+private let seGroupAppGroupId = "group.apple.svyatvpn.com.se"
 
 public func appGroupId() -> String {
     #if os(iOS)
@@ -25,8 +25,8 @@ public func appGroupId() -> String {
     #endif
 }
 
-private let tunId = "app.svyatvpn.com.tun"
-private let seTunId = "app.svyatvpn.com.se.tun"
+private let tunId = "apple.svyatvpn.com.tun"
+private let seTunId = "apple.svyatvpn.com.se.tun"
 
 public func packetTunnelId() -> String {
     #if os(iOS)

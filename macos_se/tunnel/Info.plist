@@ -5,7 +5,7 @@
 	<key>NetworkExtension</key>
 	<dict>
 		<key>NEMachServiceName</key>
-		<string>group.app.svyatvpn.com.se</string>
+		<string>group.apple.svyatvpn.com.se</string>
 		<key>NEProviderClasses</key>
 		<dict>
 			<key>com.apple.networkextension.packet-tunnel</key>
