@@ -98,6 +98,26 @@ cp ../libXray/bin/xray.exe windows/app/OneXrayCore.exe
 
 > `windows/app.cmake` also packages `wintun.dll`. That file does not come from `libXray` and must be prepared separately in the Windows development environment.
 
+### Geo Data
+
+Copy the geo data files from `libXray/dat` into `assets/dat/`, and rename `timestamp.txt` to `timestamp`:
+
+```shell
+mkdir -p assets/dat
+cp ../libXray/dat/geoip.dat assets/dat/
+cp ../libXray/dat/geosite.dat assets/dat/
+cp ../libXray/dat/timestamp.txt assets/dat/timestamp
+```
+
+### Generated Code
+
+Generate the FFI bindings and other boilerplate code:
+
+```shell
+fvm dart run ffigen
+fvm dart run build_runner build --delete-conflicting-outputs
+```
+
 ## 3. Start debugging
 
 Run the target platform with:
@@ -179,8 +199,10 @@ For local development and breakpoint debugging, the minimum setup is:
 
 1. Copy the `.example` config files.
 2. Build `libXray` and copy its artifacts into the corresponding OneXray directories.
-3. Run `fvm install` and `fvm flutter pub get`.
-4. Install platform-specific dependencies when needed, such as `pod install` on Apple platforms and `libayatana-appindicator3-dev` on Linux.
-5. Start the app with `fvm flutter run -d <device>`.
+3. Prepare the geo data in `assets/dat/`.
+4. Run `fvm install` and `fvm flutter pub get`.
+5. Run `ffigen` and `build_runner`.
+6. Install platform-specific dependencies when needed, such as `pod install` on Apple platforms and `libayatana-appindicator3-dev` on Linux.
+7. Start the app with `fvm flutter run -d <device>`.
 
 Files such as `playservice.json`, `android/keystore/`, and the platform `AuthKey.p8` files are part of the release workflow, not the debug environment bootstrap.

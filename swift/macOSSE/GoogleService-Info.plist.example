@@ -24,7 +24,7 @@
 	<true></true>
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
-	<key>GOOGLE_APP_ID</key>
+	<key>com.svyatvpn.app</key>
 	<string>1:000000000000:ios:YOUR_MACOSSE_APP_ID</string>
 </dict>
 </plist>

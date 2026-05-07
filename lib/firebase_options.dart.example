@@ -61,7 +61,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'YOUR_IOS_API_KEY',
-    appId: '1:000000000000:ios:YOUR_IOS_APP_ID',
+    appId: '1:000000000000:ios:com.svyatvpn.app',
     messagingSenderId: '000000000000',
     projectId: 'your-project-id',
     storageBucket: 'your-project-id.firebasestorage.app',
@@ -70,7 +70,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'YOUR_IOS_API_KEY',
-    appId: '1:000000000000:ios:YOUR_IOS_APP_ID',
+    appId: '1:000000000000:ios:com.svyatvpn.app',
     messagingSenderId: '000000000000',
     projectId: 'your-project-id',
     storageBucket: 'your-project-id.firebasestorage.app',
