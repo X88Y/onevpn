@@ -23,7 +23,7 @@ final class NotificationService {
     final WindowsInitializationSettings initializationSettingsWindows =
         WindowsInitializationSettings(
           appName: 'OneXray',
-          appUserModelId: 'net.yuandev.onexray',
+          appUserModelId: 'com.svyatvpn.app',
           // Search online for GUID generators to make your own
           guid: '835d7bbd-85bb-4c73-97f8-ce0740f151a7',
         );
@@ -69,7 +69,7 @@ final class NotificationService {
 
   Future<void> _pushAndroidNotification(String message) async {
     const androidNotificationDetails = AndroidNotificationDetails(
-      'net.yuandev.onexray',
+      'com.svyatvpn.app',
       'OneXray',
       channelDescription: 'OneXray',
       importance: Importance.defaultImportance,

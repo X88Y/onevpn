@@ -8,7 +8,7 @@
 	</array>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.net.yuandev.onexray.se</string>
+		<string>group.com.svyatvpn.app.se</string>
 	</array>
 </dict>
 </plist>

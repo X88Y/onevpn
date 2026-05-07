@@ -1,4 +1,4 @@
-package net.yuandev.onexray.pigeon
+package com.svyatvpn.app.pigeon
 
 import com.elvishew.xlog.XLog
 import io.flutter.plugin.common.BinaryMessenger

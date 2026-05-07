@@ -1,4 +1,4 @@
-package net.yuandev.onexray.pigeon
+package com.svyatvpn.app.pigeon
 
 import android.Manifest
 import android.app.Activity.RESULT_OK
@@ -18,7 +18,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import libXray.LibXray
-import net.yuandev.onexray.vpn.VpnController
+import com.svyatvpn.app.vpn.VpnController
 import kotlin.time.Duration.Companion.seconds
 
 class AppHostApi(

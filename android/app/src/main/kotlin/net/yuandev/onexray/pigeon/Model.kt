@@ -1,4 +1,4 @@
-package net.yuandev.onexray.pigeon
+package com.svyatvpn.app.pigeon
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

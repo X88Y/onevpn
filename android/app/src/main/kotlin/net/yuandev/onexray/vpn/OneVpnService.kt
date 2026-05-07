@@ -1,4 +1,4 @@
-package net.yuandev.onexray.vpn
+package com.svyatvpn.app.vpn
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -20,11 +20,11 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import libXray.DialerController
 import libXray.LibXray
-import net.yuandev.onexray.MainActivity
-import net.yuandev.onexray.R
-import net.yuandev.onexray.pigeon.PerAppVPNMode
-import net.yuandev.onexray.pigeon.StartVpnRequest
-import net.yuandev.onexray.pigeon.TunJson
+import com.svyatvpn.app.MainActivity
+import com.svyatvpn.app.R
+import com.svyatvpn.app.pigeon.PerAppVPNMode
+import com.svyatvpn.app.pigeon.StartVpnRequest
+import com.svyatvpn.app.pigeon.TunJson
 import java.io.File
 
 
@@ -35,7 +35,7 @@ class OneVpnService : VpnService() {
 
         const val IPV4_ADDRESS = "198.18.0.1"
         const val IPV6_ADDRESS = "fc00::1"
-        const val ACTION_VPN_STATUS: String = "net.yuandev.onexray.VPN_STATUS"
+        const val ACTION_VPN_STATUS: String = "com.svyatvpn.app.VPN_STATUS"
         const val EXTRA_RUNNING: String = "running"
         const val NOTIFICATION_OPEN_REQUEST_CODE = 1
         const val NOTIFICATION_STOP_REQUEST_CODE = 2
@@ -153,7 +153,7 @@ class OneVpnService : VpnService() {
 
     private fun makeNotification(): Notification {
         val appName = getString(R.string.quick_settings_tile_label)
-        val channelId = "net.yuandev.onexray"
+        val channelId = "com.svyatvpn.app"
         val channel = NotificationChannel(
             channelId,
             appName,

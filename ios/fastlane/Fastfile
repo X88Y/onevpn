@@ -12,8 +12,8 @@ platform :ios do
         export_options: {
           method: 'app-store',
           provisioningProfiles: {
-            'net.yuandev.onexray' => 'OneXrayiOS',
-            'net.yuandev.onexray.tun' => 'OneXrayTuniOS'
+            'com.svyatvpn.app' => 'OneXrayiOS',
+            'com.svyatvpn.app.tun' => 'OneXrayTuniOS'
           }
         })
     api_key = app_store_connect_api_key(

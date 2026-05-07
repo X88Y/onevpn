@@ -39,7 +39,7 @@ private final class ExtensionRequestDriver: NSObject, OSSystemExtensionRequestDe
         case properties(CheckedContinuation<[OSSystemExtensionProperties], Error>)
     }
 
-    private static let delegateQueue = DispatchQueue(label: "net.yuandev.onexray.system-extension")
+    private static let delegateQueue = DispatchQueue(label: "com.svyatvpn.app.system-extension")
 
     private let forceReplace: Bool
     private var waiter: Waiter = .none

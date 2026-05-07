@@ -43,7 +43,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         return nil
     }
 
-    private static let stateQueue = DispatchQueue(label: "net.yuandev.onexray.tunnel.state")
+    private static let stateQueue = DispatchQueue(label: "com.svyatvpn.app.tunnel.state")
     private var startContinuation: CheckedContinuation<Void, Error>?
     private var pendingStartSignal = false
 

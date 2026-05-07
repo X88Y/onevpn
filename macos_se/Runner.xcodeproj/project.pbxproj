@@ -35,7 +35,7 @@
 		EB68C6F82F94D08D007C293A /* HostApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB68C6E42F94D08D007C293A /* HostApi.swift */; };
 		EB68C71C2F9514BF007C293A /* AppStart.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB68C71B2F9514B8007C293A /* AppStart.swift */; };
 		EB7E983A2F93C204002151DD /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBEAD85A2B95749600A8D27B /* NetworkExtension.framework */; };
-		EB7E98442F93C204002151DD /* net.yuandev.onexray.se.tun.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = EB7E98392F93C204002151DD /* net.yuandev.onexray.se.tun.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		EB7E98442F93C204002151DD /* com.svyatvpn.app.se.tun.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = EB7E98392F93C204002151DD /* com.svyatvpn.app.se.tun.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EB7E984F2F93C268002151DD /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7E984C2F93C268002151DD /* main.swift */; };
 		EBB9CF7E2F93C6CE00466352 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = EBEAD8882B9578E000A8D27B /* libresolv.tbd */; };
 		EBE36B562F9684A700686880 /* LibXray.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE36B502F9684A700686880 /* LibXray.xcframework */; };
@@ -86,7 +86,7 @@
 			dstPath = "$(SYSTEM_EXTENSIONS_FOLDER_PATH)";
 			dstSubfolderSpec = 16;
 			files = (
-				EB7E98442F93C204002151DD /* net.yuandev.onexray.se.tun.systemextension in Embed System Extensions */,
+				EB7E98442F93C204002151DD /* com.svyatvpn.app.se.tun.systemextension in Embed System Extensions */,
 			);
 			name = "Embed System Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -123,7 +123,7 @@
 		EB68C6EC2F94D08D007C293A /* SystemExtensionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemExtensionManager.swift; sourceTree = "<group>"; };
 		EB68C6EE2F94D08D007C293A /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		EB68C71B2F9514B8007C293A /* AppStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStart.swift; sourceTree = "<group>"; };
-		EB7E98392F93C204002151DD /* net.yuandev.onexray.se.tun.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = net.yuandev.onexray.se.tun.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB7E98392F93C204002151DD /* com.svyatvpn.app.se.tun.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = com.svyatvpn.app.se.tun.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB7E984B2F93C268002151DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EB7E984C2F93C268002151DD /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		EB7E984D2F93C268002151DD /* tunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = tunnel.entitlements; sourceTree = "<group>"; };
@@ -194,7 +194,7 @@
 			isa = PBXGroup;
 			children = (
 				33CC10ED2044A3C60003C045 /* OneXraySE.app */,
-				EB7E98392F93C204002151DD /* net.yuandev.onexray.se.tun.systemextension */,
+				EB7E98392F93C204002151DD /* com.svyatvpn.app.se.tun.systemextension */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -390,7 +390,7 @@
 			);
 			name = tunnel;
 			productName = tunnel;
-			productReference = EB7E98392F93C204002151DD /* net.yuandev.onexray.se.tun.systemextension */;
+			productReference = EB7E98392F93C204002151DD /* com.svyatvpn.app.se.tun.systemextension */;
 			productType = "com.apple.product-type.system-extension";
 		};
 /* End PBXNativeTarget section */
@@ -708,7 +708,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = net.yuandev.onexray.se;
+				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.se;
 				PROVISIONING_PROFILE_SPECIFIER = OneXraySEmacOS;
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXraySEmacOS;
 				REGISTER_APP_GROUPS = YES;
@@ -861,7 +861,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = net.yuandev.onexray.se;
+				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.se;
 				PROVISIONING_PROFILE_SPECIFIER = OneXraySEmacOS;
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXraySEmacOS;
 				REGISTER_APP_GROUPS = YES;
@@ -893,7 +893,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = net.yuandev.onexray.se;
+				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.se;
 				PROVISIONING_PROFILE_SPECIFIER = OneXraySEmacOS;
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXraySEmacOS;
 				REGISTER_APP_GROUPS = YES;
@@ -969,7 +969,7 @@
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "";
 				OTHER_MODULE_VERIFIER_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = net.yuandev.onexray.se.tun;
+				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.se.tun;
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = OneXraySETunmacOS;
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXraySETunmacOS;
@@ -1036,7 +1036,7 @@
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "";
 				OTHER_MODULE_VERIFIER_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = net.yuandev.onexray.se.tun;
+				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.se.tun;
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = OneXraySETunmacOS;
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXraySETunmacOS;
@@ -1101,7 +1101,7 @@
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "";
 				OTHER_MODULE_VERIFIER_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = net.yuandev.onexray.se.tun;
+				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.se.tun;
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = OneXraySETunmacOS;
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXraySETunmacOS;

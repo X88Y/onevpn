@@ -705,7 +705,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = net.yuandev.onexray;
+				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/../swift/all/BridgeHeader.h";
 				SWIFT_VERSION = 5.0;
@@ -852,7 +852,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = net.yuandev.onexray;
+				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/../swift/all/BridgeHeader.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -882,7 +882,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = net.yuandev.onexray;
+				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app;
 				PROVISIONING_PROFILE_SPECIFIER = OneXraymacOS;
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXraymacOS;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/../swift/all/BridgeHeader.h";
@@ -942,7 +942,7 @@
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "";
 				OTHER_MODULE_VERIFIER_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = net.yuandev.onexray.tun;
+				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.tun;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -990,7 +990,7 @@
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "";
 				OTHER_MODULE_VERIFIER_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = net.yuandev.onexray.tun;
+				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.tun;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = OneXrayTunmacOS;
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXrayTunmacOS;
@@ -1036,7 +1036,7 @@
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "";
 				OTHER_MODULE_VERIFIER_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = net.yuandev.onexray.tun;
+				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.tun;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;

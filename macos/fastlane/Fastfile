@@ -13,8 +13,8 @@ platform :mac do
         export_options: {
           method: 'app-store',
           provisioningProfiles: {
-            'net.yuandev.onexray' => 'OneXraymacOS',
-            'net.yuandev.onexray.tun' => 'OneXrayTunmacOS'
+            'com.svyatvpn.app' => 'OneXraymacOS',
+            'com.svyatvpn.app.tun' => 'OneXrayTunmacOS'
           }
         },
         installer_cert_name: installer_cert_name

@@ -2,7 +2,7 @@
 // See also: https://pub.dev/packages/pigeon
 @file:Suppress("UNCHECKED_CAST", "ArrayInDataClass")
 
-package net.yuandev.onexray.pigeon
+package com.svyatvpn.app.pigeon
 
 import android.util.Log
 import io.flutter.plugin.common.BasicMessageChannel

@@ -8,7 +8,7 @@
 PRODUCT_NAME = OneXray
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = net.yuandev.onexray
+PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2025 Yuan Dev LLC. All rights reserved.

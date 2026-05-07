@@ -1,4 +1,4 @@
-package net.yuandev.onexray.vpn
+package com.svyatvpn.app.vpn
 
 import android.content.ComponentName
 import android.content.Context
@@ -6,7 +6,7 @@ import android.content.Intent
 import android.net.VpnService
 import android.service.quicksettings.TileService
 import androidx.core.content.ContextCompat
-import net.yuandev.onexray.tile.OneQuickSettingsTileService
+import com.svyatvpn.app.tile.OneQuickSettingsTileService
 import java.io.File
 import java.net.InetAddress
 import java.net.NetworkInterface

@@ -1,4 +1,4 @@
-package net.yuandev.onexray.tile
+package com.svyatvpn.app.tile
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
@@ -10,10 +10,10 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import net.yuandev.onexray.MainActivity
-import net.yuandev.onexray.R
-import net.yuandev.onexray.vpn.VpnController
-import net.yuandev.onexray.vpn.OneVpnService
+import com.svyatvpn.app.MainActivity
+import com.svyatvpn.app.R
+import com.svyatvpn.app.vpn.VpnController
+import com.svyatvpn.app.vpn.OneVpnService
 
 class OneQuickSettingsTileService : TileService() {
     private var vpnStatusReceiver: BroadcastReceiver? = null

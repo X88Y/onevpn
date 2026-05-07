@@ -6,7 +6,7 @@ import 'package:pigeon/pigeon.dart';
     dartOptions: DartOptions(),
     kotlinOut:
         'android/app/src/main/kotlin/net/yuandev/onexray/pigeon/Messages.g.kt',
-    kotlinOptions: KotlinOptions(package: "net.yuandev.onexray.pigeon"),
+    kotlinOptions: KotlinOptions(package: "com.svyatvpn.app.pigeon"),
     swiftOut: 'swift/App/pigeon/Messages.g.swift',
     swiftOptions: SwiftOptions(),
     dartPackageName: 'onexray',

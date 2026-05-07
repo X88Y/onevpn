@@ -16,7 +16,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.net.yuandev.onexray.se</string>
+		<string>group.com.svyatvpn.app.se</string>
 	</array>
 	<key>com.apple.security.files.user-selected.read-write</key>
 	<true/>
@@ -26,7 +26,7 @@
 	<true/>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)net.yuandev.onexray.se</string>
+		<string>$(AppIdentifierPrefix)com.svyatvpn.app.se</string>
 	</array>
 </dict>
 </plist>
