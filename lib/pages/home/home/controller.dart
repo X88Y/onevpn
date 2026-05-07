@@ -194,11 +194,30 @@ class HomeController extends Cubit<HomeState> {
   }
 
   Future<void> startVpn(BuildContext context) async {
-    if (state.configId == DBConstants.defaultId) {
-      ContextAlert.showToast(
-        context,
-        AppLocalizations.of(context)!.vpnSelectOneConfig,
-      );
+    int targetConfigId = state.configId;
+
+    if (AuthService().currentUser != null) {
+      var newConfigId = await AuthService().fetchAndSetRandomVpnKey();
+      if (newConfigId == null) {
+        if (context.mounted) {
+          ContextAlert.showToast(context, 'Regenerating subscription key...');
+        }
+        newConfigId = await AuthService().fetchAndSetRandomVpnKey(forceRegenerate: true);
+      }
+
+      if (newConfigId != null) {
+        targetConfigId = newConfigId;
+        updateConfigId(context, newConfigId);
+      }
+    }
+
+    if (targetConfigId == DBConstants.defaultId) {
+      if (context.mounted) {
+        ContextAlert.showToast(
+          context,
+          AppLocalizations.of(context)!.vpnSelectOneConfig,
+        );
+      }
       return;
     }
 
@@ -209,7 +228,7 @@ class HomeController extends Cubit<HomeState> {
       }
       return;
     }
-    await VpnService().startVpn(state.configId);
+    await VpnService().startVpn(targetConfigId);
   }
 
   Future<void> signInWithApple() async {

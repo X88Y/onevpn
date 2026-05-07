@@ -14,9 +14,6 @@ import 'package:mvmvpn/service/tun_setting/interface.dart';
 import 'package:mvmvpn/service/tun_setting/state.dart';
 import 'package:mvmvpn/service/xray/setting/enum.dart';
 import 'package:mvmvpn/service/xray/setting/simple_state.dart';
-import 'package:mvmvpn/core/db/database/constants.dart';
-import 'package:mvmvpn/service/subscription/service.dart';
-import 'package:mvmvpn/core/db/database/database.dart';
 import 'package:path/path.dart' as p;
 
 Future<void> initRouter(BuildContext context) async {
@@ -64,26 +61,9 @@ Future<void> _initApp(BuildContext context) async {
     await _initService(context);
   }
   await _checkSystemDat();
-  await _ensureHardcodedSubscription();
 }
 
-Future<void> _ensureHardcodedSubscription() async {
-  const url = 'https://2.26.112.188:2096/sub/17724a9bf79e414f9dd2b7b86f98be60';
-  final db = AppDatabase();
-  final exists = await db.subscriptionDao.urlExists(url);
-  if (!exists) {
-    final count = await SubscriptionService().insertSubscription('Default', url, false);
-    if (count > 0) {
-      final lastId = await PreferencesKey().readLastConfigId();
-      if (lastId == DBConstants.defaultId) {
-        final configs = await db.select(db.coreConfig).get();
-        if (configs.isNotEmpty) {
-          await PreferencesKey().saveLastConfigId(configs.first.id);
-        }
-      }
-    }
-  }
-}
+
 
 Future<void> _initTheme(BuildContext context) async {
   final eventBus = context.read<AppEventBus>();

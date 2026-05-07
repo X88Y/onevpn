@@ -9,7 +9,8 @@ import 'dart:math';
 import 'package:mvmvpn/core/constants/preferences.dart';
 import 'package:mvmvpn/service/auth/model.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
-
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/service/subscription/service.dart';
 class AuthService {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
@@ -161,6 +162,58 @@ class AuthService {
 
   Future<bool> activateTrial() async {
     return activateTrialForProvider('apple');
+  }
+
+  Future<int?> fetchAndSetRandomVpnKey({bool forceRegenerate = false}) async {
+    final functionName = forceRegenerate ? 'regenerateVpnKey' : 'getRandomVpnKey';
+    debugPrint('[AuthService] fetchAndSetRandomVpnKey called (forceRegenerate: $forceRegenerate)');
+    try {
+      final res = await _functions.httpsCallable(functionName).call();
+      final data = _asStringKeyedMap(res.data);
+      debugPrint('[AuthService] $functionName response: $data');
+      if (data != null && data['ok'] == true) {
+        final keyUrl = data['key'] as String?;
+        debugPrint('[AuthService] keyUrl: $keyUrl');
+        if (keyUrl != null) {
+          final db = AppDatabase();
+          final exists = await db.subscriptionDao.urlExists(keyUrl);
+          debugPrint('[AuthService] urlExists: $exists');
+          if (!exists) {
+            final count = await SubscriptionService().insertSubscription('Premium Subscription', keyUrl, false);
+            debugPrint('[AuthService] insertSubscription count: $count');
+          }
+          
+          final subs = await db.subscriptionDao.allRows;
+          var subId = -1;
+          for (final sub in subs) {
+            if (sub.url == keyUrl) {
+              subId = sub.id;
+              break;
+            }
+          }
+          debugPrint('[AuthService] found subId: $subId');
+          
+          if (subId != -1) {
+            final configs = await db.select(db.coreConfig).get();
+            debugPrint('[AuthService] total configs in db: ${configs.length}');
+            for (final config in configs) {
+              if (config.subId == subId) {
+                debugPrint('[AuthService] found config matching subId: ${config.id}');
+                await PreferencesKey().saveLastConfigId(config.id);
+                return config.id;
+              }
+            }
+            debugPrint('[AuthService] No config found for subId: $subId');
+          }
+        }
+      } else {
+        debugPrint('[AuthService] data ok is false or data is null');
+      }
+    } catch (e, stack) {
+      debugPrint('[AuthService][Backend][fetchAndSetRandomVpnKey] Error: $e\n$stack');
+    }
+    debugPrint('[AuthService] fetchAndSetRandomVpnKey returning null');
+    return null;
   }
 
   Future<bool> activateTrialForProvider(String provider) async {
