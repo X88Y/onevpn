@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mvmvpn/core/db/database/constants.dart';
 import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
@@ -66,7 +67,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     final bubbles = <Widget>[];
     if (user?.isAppleLinked ?? false) {
       bubbles.add(_socialBubble(
-        icon: Icons.apple,
+        icon: FontAwesomeIcons.apple,
         isConnected: true,
         glowColor: Colors.grey[400]!,
         onTap: () => controller.signInWithApple(),
@@ -74,7 +75,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     }
     if (user?.isTelegramLinked ?? false) {
       bubbles.add(_socialBubble(
-        icon: Icons.send,
+        icon: FontAwesomeIcons.telegram,
         isConnected: true,
         glowColor: Colors.blue[400]!,
         onTap: () => controller.connectTelegram(),
@@ -82,7 +83,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     }
     if (user?.isVkLinked ?? false) {
       bubbles.add(_socialBubble(
-        icon: Icons.chat_bubble_outline,
+        icon: FontAwesomeIcons.vk,
         isConnected: true,
         glowColor: const Color(0xFF4C75A3),
         onTap: () => controller.connectVK(),
@@ -108,7 +109,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     if (!(user?.isAppleLinked ?? false)) {
       buttons.add(_authButton(
-        icon: Icons.apple,
+        icon: FontAwesomeIcons.apple,
         iconBgColor: Colors.grey[800]!,
         title: 'FREE one-click subscription',
         onTap: () => controller.signInWithApple(),
@@ -116,7 +117,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     }
     if (!(user?.isTelegramLinked ?? false)) {
       buttons.add(_authButton(
-        icon: Icons.send,
+        icon: FontAwesomeIcons.telegram,
         iconBgColor: Colors.blue[700]!,
         title: 'Connect Telegram',
         onTap: () => controller.connectTelegram(),
@@ -124,7 +125,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     }
     if (!(user?.isVkLinked ?? false)) {
       buttons.add(_authButton(
-        icon: Icons.chat_bubble_outline,
+        icon: FontAwesomeIcons.vk,
         iconBgColor: const Color(0xFF4C75A3),
         title: 'Connect VK',
         onTap: () => controller.connectVK(),
@@ -144,7 +145,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _authButton({
-    required IconData icon,
+    required dynamic icon,
     required Color iconBgColor,
     required String title,
     required VoidCallback onTap,
@@ -167,7 +168,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 color: iconBgColor,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: Colors.white, size: 28),
+              alignment: Alignment.center,
+              child: FaIcon(icon, color: Colors.white, size: 28),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -192,7 +194,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _socialBubble({
-    required IconData icon,
+    required dynamic icon,
     required bool isConnected,
     required Color glowColor,
     required VoidCallback onTap,
@@ -220,7 +222,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ]
               : [],
         ),
-        child: Icon(
+        alignment: Alignment.center,
+        child: FaIcon(
           icon,
           color: isConnected ? Colors.white : Colors.white.withOpacity(0.3),
           size: 26,
