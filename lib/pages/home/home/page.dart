@@ -34,16 +34,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               backgroundColor: const Color(0xFF0F0F0F),
               body: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   child: Column(
                     children: [
-                      _topIcons(context, controller),
-                      const Spacer(flex: 2),
+                      _authButtons(context, controller),
+                      const Spacer(),
                       _centerButton(context, controller, eventState),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 32),
                       _statusText(eventState),
-                      const Spacer(flex: 3),
-                      _subscriptionPill(context),
+                      const Spacer(),
+                      _subscriptionPill(context, eventState, homeState),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -55,33 +56,77 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _topIcons(BuildContext context, HomeController controller) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+  Widget _authButtons(BuildContext context, HomeController controller) {
+    return Column(
       children: [
-        _iconButton(Icons.apple, onPressed: () {}),
-        const SizedBox(width: 16),
-        _iconButton(Icons.telegram, onPressed: () {}),
-        const SizedBox(width: 16),
-        _iconButton(Icons.alternate_email, onPressed: () {}),
-        const Spacer(),
-        _iconButton(Icons.settings, onPressed: () => controller.gotoSettings(context)),
+        _authButton(
+          icon: Icons.apple,
+          iconBgColor: Colors.grey[800]!,
+          title: 'FREE one-click subscription',
+          onTap: () => controller.signInWithApple(),
+        ),
+        const SizedBox(height: 12),
+        _authButton(
+          icon: Icons.send, // Use send for Telegram
+          iconBgColor: Colors.blue[700]!,
+          title: 'Connect Telegram',
+          onTap: () => controller.connectTelegram(),
+        ),
+        const SizedBox(height: 12),
+        _authButton(
+          icon: Icons.chat_bubble_outline, // Placeholder for VK
+          iconBgColor: const Color(0xFF4C75A3),
+          title: 'Connect VK',
+          onTap: () => controller.connectVK(),
+        ),
       ],
     );
   }
 
-  Widget _iconButton(IconData icon, {required VoidCallback onPressed}) {
+  Widget _authButton({
+    required IconData icon,
+    required Color iconBgColor,
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
-      onTap: onPressed,
+      onTap: onTap,
       child: Container(
-        width: 48,
-        height: 48,
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
           color: Colors.white.withOpacity(0.05),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.05)),
         ),
-        child: Icon(icon, color: Colors.white, size: 24),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: Colors.white, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              color: Colors.white.withOpacity(0.3),
+              size: 24,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -94,15 +139,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         alignment: Alignment.center,
         children: [
           Container(
-            width: 180,
-            height: 180,
+            width: 220,
+            height: 220,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: isRunning ? Colors.blue.withOpacity(0.3) : Colors.deepPurple.withOpacity(0.3),
-                  blurRadius: 50,
-                  spreadRadius: 10,
+                  color: const Color(0xFF5D5FEF).withOpacity(isRunning ? 0.6 : 0.3),
+                  blurRadius: 80,
+                  spreadRadius: 20,
                 ),
               ],
             ),
@@ -112,9 +157,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             height: 160,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              image: DecorationImage(
-                image: AssetImage('assets/app_icon/app_icon.png'),
-                fit: BoxFit.cover,
+              color: const Color(0xFF4C4D9A),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: ColorFiltered(
+                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                child: Image.asset(
+                  'assets/app_icon/app_icon.png',
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
           ),
@@ -135,24 +187,66 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _subscriptionPill(BuildContext context) {
+  Widget _subscriptionPill(
+    BuildContext context,
+    AppEventBusState eventState,
+    HomeState homeState,
+  ) {
+    final isRunning = eventState.runningId != DBConstants.defaultId;
+    final user = eventState.userData;
+    final hasActiveSubscription = user?.hasActiveSubscription ?? false;
+    final subscriptionEndsAt = user?.subscriptionEndsAt;
+
+    if (isRunning || hasActiveSubscription) {
+      final statusText = hasActiveSubscription && subscriptionEndsAt != null
+          ? 'Subscription active until ${subscriptionEndsAt.day.toString().padLeft(2, '0')}.${subscriptionEndsAt.month.toString().padLeft(2, '0')}.${subscriptionEndsAt.year}'
+          : 'Subscription active';
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.green.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.green.withOpacity(0.2)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.check_circle, color: Colors.green, size: 20),
+            const SizedBox(width: 12),
+            Text(
+              statusText,
+              style: const TextStyle(
+                color: Colors.green,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.green.withOpacity(0.2)),
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Icon(Icons.check_circle, color: Colors.green, size: 18),
-          SizedBox(width: 12),
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.info_outline,
+            color: Colors.white.withOpacity(0.4),
+            size: 20,
+          ),
+          const SizedBox(width: 12),
           Text(
-            'Subscription until: 10.03.2027',
+            'No active subscription',
             style: TextStyle(
-              color: Colors.green,
-              fontSize: 14,
+              color: Colors.white.withOpacity(0.4),
+              fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
           ),

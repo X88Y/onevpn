@@ -57,6 +57,22 @@
                     android:host="mvmvpn.com"
                     android:scheme="mvmvpn" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="mvmvpn.com"
+                    android:scheme="mvm" />
+                <data
+                    android:host="auth"
+                    android:scheme="mvm" />
+                <data
+                    android:host="auth"
+                    android:scheme="mvmvpn" />
+            </intent-filter>
         </activity>
         <!-- AdMob APPLICATION_ID is injected via manifestPlaceholders from
              the ADMOB_APP_ID_ANDROID env var; falls back to Google's test

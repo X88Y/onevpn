@@ -15,20 +15,28 @@ import 'package:mvmvpn/pages/widget/menu_picker.dart';
 import 'package:mvmvpn/service/background_task/service.dart';
 import 'package:mvmvpn/service/share/service.dart';
 import 'package:mvmvpn/service/toast/service.dart';
+import 'package:mvmvpn/service/auth/model.dart';
+import 'package:mvmvpn/service/auth/service.dart';
 import 'package:mvmvpn/service/vpn/service.dart';
 import 'package:mvmvpn/service/xray/outbound/state.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class HomeState {
   final int configId;
+  final DateTime? subscriptionEndsAt;
 
-  const HomeState({required this.configId});
+  const HomeState({required this.configId, this.subscriptionEndsAt});
 
   factory HomeState.initial() =>
       const HomeState(configId: DBConstants.defaultId);
 
-  HomeState copyWith({int? configId}) {
-    return HomeState(configId: configId ?? this.configId);
+  HomeState copyWith({int? configId, DateTime? subscriptionEndsAt, bool clearSubscriptionEndsAt = false}) {
+    return HomeState(
+      configId: configId ?? this.configId,
+      subscriptionEndsAt: clearSubscriptionEndsAt
+          ? null
+          : (subscriptionEndsAt ?? this.subscriptionEndsAt),
+    );
   }
 }
 
@@ -41,12 +49,34 @@ class HomeController extends Cubit<HomeState> {
   }
 
   late final StreamSubscription<void> _toastSubscription;
+  Timer? _userUpdateTimer;
 
   Future<void> _asyncInit() async {
     _initToastStream();
     final id = await PreferencesKey().readLastConfigId();
     emit(state.copyWith(configId: id));
     await BackgroundTaskService().checkSubscriptionUpdate();
+
+    _startUserUpdateTimer();
+  }
+
+  void _startUserUpdateTimer() {
+    _userUpdateTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      _updateUserData();
+    });
+  }
+
+  Future<void> _updateUserData() async {
+    if (AuthService().currentUser != null) {
+      final userModel = await AuthService().syncUserWithBackend();
+      final subscriptionEndsAt = userModel?.subscriptionEndsAt;
+      if (subscriptionEndsAt != state.subscriptionEndsAt) {
+        emit(state.copyWith(
+          subscriptionEndsAt: subscriptionEndsAt,
+          clearSubscriptionEndsAt: subscriptionEndsAt == null,
+        ));
+      }
+    }
   }
 
   void _initToastStream() {
@@ -181,9 +211,35 @@ class HomeController extends Cubit<HomeState> {
     await VpnService().startVpn(state.configId);
   }
 
+  Future<void> signInWithApple() async {
+    final result = await AuthService().signInWithApple();
+    if (result != null) {
+      await AuthService().activateTrial();
+      final userModel = await AuthService().syncUserWithBackend();
+      final subscriptionEndsAt = userModel?.subscriptionEndsAt;
+      emit(state.copyWith(
+          subscriptionEndsAt: subscriptionEndsAt,
+          clearSubscriptionEndsAt: subscriptionEndsAt == null));
+      ToastService().showToast('Signed in successfully');
+    } else {
+      ToastService().showToast('Sign in failed');
+    }
+  }
+
+  void connectTelegram() {
+    // Placeholder for Telegram connection
+    ToastService().showToast('Telegram connection coming soon');
+  }
+
+  void connectVK() {
+    // Placeholder for VK connection
+    ToastService().showToast('VK connection coming soon');
+  }
+
   @override
   Future<void> close() {
     _toastSubscription.cancel();
+    _userUpdateTimer?.cancel();
     return super.close();
   }
 }

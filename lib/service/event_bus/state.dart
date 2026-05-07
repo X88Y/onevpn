@@ -1,6 +1,7 @@
 import 'package:mvmvpn/core/db/database/constants.dart';
 import 'package:mvmvpn/core/network/model.dart';
 import 'package:mvmvpn/core/network/standard.dart';
+import 'package:mvmvpn/service/auth/model.dart';
 import 'package:mvmvpn/service/event_bus/enum.dart';
 
 class AppEventBusState {
@@ -14,6 +15,7 @@ class AppEventBusState {
   final bool windowClosed;
   final ThemeCode themeCode;
   final LanguageCode languageCode;
+  final UserModel? userData;
 
   const AppEventBusState({
     required this.xraySettingId,
@@ -26,6 +28,7 @@ class AppEventBusState {
     required this.windowClosed,
     required this.themeCode,
     required this.languageCode,
+    this.userData,
   });
 
   factory AppEventBusState.initial() => AppEventBusState(
@@ -38,6 +41,7 @@ class AppEventBusState {
         windowClosed: false,
         themeCode: ThemeCode.system,
         languageCode: LanguageCode.en,
+        userData: null,
       );
 
   AppEventBusState copyWith({
@@ -51,6 +55,7 @@ class AppEventBusState {
     bool? windowClosed,
     ThemeCode? themeCode,
     LanguageCode? languageCode,
+    UserModel? userData,
   }) {
     return AppEventBusState(
       xraySettingId: xraySettingId ?? this.xraySettingId,
@@ -63,6 +68,7 @@ class AppEventBusState {
       windowClosed: windowClosed ?? this.windowClosed,
       themeCode: themeCode ?? this.themeCode,
       languageCode: languageCode ?? this.languageCode,
+      userData: userData ?? this.userData,
     );
   }
 }

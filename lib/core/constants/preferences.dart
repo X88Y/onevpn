@@ -217,4 +217,14 @@ class PreferencesKey {
   Future<void> saveLanguageCode(String value) async {
     await _prefs.setString(_languageCode, value);
   }
+
+  static const _authProvider = "authProvider";
+
+  Future<String?> readAuthProvider() async {
+    return _prefs.getString(_authProvider);
+  }
+
+  Future<void> saveAuthProvider(String value) async {
+    await _prefs.setString(_authProvider, value);
+  }
 }

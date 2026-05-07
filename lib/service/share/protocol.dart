@@ -6,6 +6,7 @@ import 'package:mvmvpn/core/db/database/database.dart';
 import 'package:mvmvpn/core/db/database/enum.dart';
 import 'package:mvmvpn/core/pigeon/host_api.dart';
 import 'package:mvmvpn/core/pigeon/model.dart';
+import 'package:mvmvpn/service/auth/service.dart';
 import 'package:mvmvpn/service/geo_data/enum.dart';
 import 'package:mvmvpn/service/geo_data/service.dart';
 import 'package:mvmvpn/service/geo_data/system_state.dart';
@@ -25,6 +26,7 @@ import 'package:mvmvpn/service/xray/setting/state_validator.dart';
 import 'package:tuple/tuple.dart';
 
 enum DeepLinkPath {
+  auth("/auth"),
   subAdd("/sub/add"),
   configAdd("/config/add"),
   datAdd("/dat/add");
@@ -39,6 +41,16 @@ enum DeepLinkPath {
   static DeepLinkPath? fromString(String name) =>
       DeepLinkPath.values.firstWhereOrNull((value) => value.name == name);
 
+  static DeepLinkPath? fromUri(Uri uri) {
+    if (uri.host == AppShareService.authHost) {
+      return DeepLinkPath.auth;
+    }
+    return DeepLinkPath.values.firstWhereOrNull(
+      (value) =>
+          uri.path == value.name || uri.path.startsWith("${value.name}/"),
+    );
+  }
+
   static List<String> get names {
     return DeepLinkPath.values.map((e) => e.name).toList();
   }
@@ -52,16 +64,29 @@ class AppShareService {
   AppShareService._internal();
 
   static const _appPrefix = "mvmvpn://mvmvpn.com";
-
-  static const _scheme = "mvmvpn";
   static const _host = "mvmvpn.com";
+  static const authHost = "auth";
+  static const _primaryScheme = "mvmvpn";
+  static const _alternateScheme = "mvm";
+  static const _supportedSchemes = {_primaryScheme, _alternateScheme};
 
   static const _pathKeyUrl = "url";
   static const _pathKeyType = "type";
   static const _pathKeyData = "data";
 
   bool checkAppShare(String link) {
-    return link.startsWith(_appPrefix);
+    if (link.startsWith(_appPrefix)) {
+      return true;
+    }
+    final uri = Uri.tryParse(link);
+    if (uri == null) {
+      return false;
+    }
+    if (!_supportedSchemes.contains(uri.scheme)) {
+      return false;
+    }
+    final path = DeepLinkPath.fromUri(uri);
+    return path != null;
   }
 
   Future<Tuple2<List<CoreConfigCompanion>, bool>> parseShareText(
@@ -122,11 +147,14 @@ class AppShareService {
     if (uri == null) {
       return Tuple2(null, success);
     }
-    final path = DeepLinkPath.fromString(uri.path);
+    final path = DeepLinkPath.fromUri(uri);
     if (path == null) {
       return Tuple2(null, success);
     }
     switch (path) {
+      case DeepLinkPath.auth:
+        success = await _readAuth(uri);
+        return Tuple2(null, success);
       case DeepLinkPath.subAdd:
         if (!skipSubscription) {
           success = await _readSubscription(uri);
@@ -149,6 +177,29 @@ class AppShareService {
       return false;
     }
     return addSubscription(url, uri.fragment, false);
+  }
+
+  Future<bool> _readAuth(Uri uri) async {
+    final jwt = _extractJwt(uri);
+    if (jwt == null || jwt.isEmpty) {
+      return false;
+    }
+    return AuthService().handleDeepLinkJwt(jwt);
+  }
+
+  String? _extractJwt(Uri uri) {
+    if (uri.host == authHost) {
+      if (uri.pathSegments.isNotEmpty) {
+        return uri.pathSegments.first;
+      }
+      return uri.queryParameters["jwt"];
+    }
+    final pathSegments = uri.pathSegments;
+    final authIndex = pathSegments.indexOf("auth");
+    if (authIndex == -1 || authIndex + 1 >= pathSegments.length) {
+      return uri.queryParameters["jwt"];
+    }
+    return pathSegments[authIndex + 1];
   }
 
   Future<CoreConfigCompanion?> _readConfig(Uri uri) async {
@@ -274,7 +325,7 @@ class AppShareService {
       _pathKeyData: config.data!,
     };
     final url = Uri(
-      scheme: _scheme,
+      scheme: _primaryScheme,
       host: _host,
       path: DeepLinkPath.configAdd.name,
       queryParameters: queryParameters,
@@ -339,7 +390,7 @@ class AppShareService {
   ) {
     final queryParameters = <String, String>{_pathKeyUrl: subscription.url};
     final url = Uri(
-      scheme: _scheme,
+      scheme: _primaryScheme,
       host: _host,
       path: DeepLinkPath.subAdd.name,
       queryParameters: queryParameters,
@@ -354,7 +405,7 @@ class AppShareService {
       _pathKeyType: geoData.type,
     };
     final url = Uri(
-      scheme: _scheme,
+      scheme: _primaryScheme,
       host: _host,
       path: DeepLinkPath.datAdd.name,
       queryParameters: queryParameters,

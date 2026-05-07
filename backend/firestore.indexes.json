@@ -1,0 +1,29 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "secret_strings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "uid", "order": "ASCENDING"},
+        {"fieldPath": "random", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "secret_strings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "uid", "order": "ASCENDING"},
+        {"fieldPath": "random", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "secret_strings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "uid", "order": "ASCENDING"},
+        {"fieldPath": "createdAt", "order": "DESCENDING"}
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

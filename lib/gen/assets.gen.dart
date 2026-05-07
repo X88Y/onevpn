@@ -14,6 +14,13 @@ import 'package:flutter/widgets.dart';
 class $AssetsAppIconGen {
   const $AssetsAppIconGen();
 
+  /// File path: assets/app_icon/app_icon.png
+  AssetGenImage get appIconPng =>
+      const AssetGenImage('assets/app_icon/app_icon.png');
+
+  /// File path: assets/app_icon/app_icon.svg
+  String get appIconSvg => 'assets/app_icon/app_icon.svg';
+
   /// File path: assets/app_icon/black.png
   AssetGenImage get black => const AssetGenImage('assets/app_icon/black.png');
 
@@ -32,16 +39,17 @@ class $AssetsAppIconGen {
   /// File path: assets/app_icon/red.png
   AssetGenImage get red => const AssetGenImage('assets/app_icon/red.png');
 
-  /// File path: assets/app_icon/app_icon.png
-  AssetGenImage get appIconPng =>
-      const AssetGenImage('assets/app_icon/app_icon.png');
-
-  /// File path: assets/app_icon/app_icon.svg
-  String get appIconSvg => 'assets/app_icon/app_icon.svg';
-
   /// List of all assets
-  List<dynamic> get values =>
-      [black, blue, green, orange, purple, red, appIconPng, appIconSvg];
+  List<dynamic> get values => [
+    appIconPng,
+    appIconSvg,
+    black,
+    blue,
+    green,
+    orange,
+    purple,
+    red,
+  ];
 }
 
 class $AssetsDatGen {
@@ -114,11 +122,7 @@ class Assets {
   static const $AssetsAppIconGen appIcon = $AssetsAppIconGen();
   static const $AssetsDatGen dat = $AssetsDatGen();
   static const $AssetsIconGen icon = $AssetsIconGen();
-  static const AssetGenImage logo = AssetGenImage('assets/app_icon/app_icon.png');
   static const $AssetsMdGen md = $AssetsMdGen();
-
-  /// List of all assets
-  static List<AssetGenImage> get values => [logo];
 }
 
 class AssetGenImage {

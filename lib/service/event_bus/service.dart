@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mvmvpn/core/constants/preferences.dart';
 import 'package:mvmvpn/core/network/model.dart';
+import 'package:mvmvpn/service/auth/model.dart';
 import 'package:mvmvpn/service/event_bus/enum.dart';
 import 'package:mvmvpn/service/event_bus/state.dart';
 import 'package:mvmvpn/service/manager.dart';
@@ -81,6 +82,10 @@ class AppEventBus extends Cubit<AppEventBusState> {
   Future<void> updateLanguageCode(LanguageCode value) async {
     await PreferencesKey().saveLanguageCode(value.name);
     emit(state.copyWith(languageCode: value));
+  }
+  
+  void updateUserData(UserModel? value) {
+    emit(state.copyWith(userData: value));
   }
 
   @override

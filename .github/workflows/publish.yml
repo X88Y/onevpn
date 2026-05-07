@@ -36,7 +36,7 @@
 #     FIREBASE_JSON_BASE64
 #     FIREBASE_OPTIONS_DART_BASE64
 #     ANDROID_GOOGLE_SERVICES_JSON_BASE64
-#     APPLE_GOOGLE_SERVICE_INFO_PLIST_BASE64      shared by iOS + MAS macOS (same bundle id app.svyatvpn.com)
+#     APPLE_GOOGLE_SERVICE_INFO_PLIST_BASE64      shared by iOS + MAS macOS (same bundle id apple.svyatvpn.com)
 #     MACOS_SE_GOOGLE_SERVICE_INFO_PLIST_BASE64   for the SE build  (swift/macOSSE/GoogleService-Info.plist)
 #
 #   AdMob (forwarded to Dart as --dart-define; App IDs consumed by Android
@@ -70,6 +70,7 @@ env:
   NDK_VERSION: r29
   LIBXRAY_REF: main
   BUILD_NUMBER: ${{ github.run_number }}
+  BASE_BUNDLE_IDENTIFIER: apple.svyatvpn.com
 
 jobs:
   # =================================================================
@@ -137,14 +138,14 @@ jobs:
 
       - uses: apple-actions/download-provisioning-profiles@v5
         with:
-          bundle-id: app.svyatvpn.com.se
+          bundle-id: ${{ env.BASE_BUNDLE_IDENTIFIER }}.se
           profile-type: MAC_APP_DIRECT
           issuer-id: ${{ secrets.FASTLANE_ASC_ISSUER_ID }}
           api-key-id: ${{ secrets.FASTLANE_ASC_KEY_ID }}
           api-private-key: ${{ secrets.FASTLANE_ASC_KEY_PEM }}
       - uses: apple-actions/download-provisioning-profiles@v5
         with:
-          bundle-id: app.svyatvpn.com.se.tun
+          bundle-id: ${{ env.BASE_BUNDLE_IDENTIFIER }}.se.tun
           profile-type: MAC_APP_DIRECT
           issuer-id: ${{ secrets.FASTLANE_ASC_ISSUER_ID }}
           api-key-id: ${{ secrets.FASTLANE_ASC_KEY_ID }}

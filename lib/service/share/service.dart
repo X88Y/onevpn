@@ -28,6 +28,11 @@ final class ShareService {
 
   void init() {
     final appLinks = AppLinks();
+    appLinks.getInitialLink().then((uri) {
+      if (uri != null) {
+        _readDeepLink(uri);
+      }
+    });
     _deepLinkSubscription = appLinks.uriLinkStream.listen(
       (uri) => _readDeepLink(uri),
     );
