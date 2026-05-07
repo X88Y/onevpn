@@ -10,7 +10,7 @@ platform :mac do
     zip_path = File.join(output_dir, 'OneXray-macos-universal.zip')
 
     bundle_id = 'com.svyatvpn.app.se'
-    team_id = '2CKAULFA9J'
+    team_id = 'WVD5VC7V8N'
 
     api_key = app_store_connect_api_key(
       key_id: ENV.fetch('FASTLANE_ASC_KEY_ID'),

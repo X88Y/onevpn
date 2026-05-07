@@ -9,7 +9,7 @@ public enum Constants {
     public static var useSystemExtension = false
 }
 
-private let teamAppGroupId = "2CKAULFA9J.com.svyatvpn.app"
+private let teamAppGroupId = "WVD5VC7V8N.com.svyatvpn.app"
 private let groupAppGroupId = "group.com.svyatvpn.app"
 private let seGroupAppGroupId = "group.com.svyatvpn.app.se"
 
