@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               image: DecorationImage(
-                image: AssetImage('assets/vpn_logo.png'),
+                image: AssetImage('assets/app_icon/app_icon.png'),
                 fit: BoxFit.cover,
               ),
             ),

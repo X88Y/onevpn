@@ -32,8 +32,16 @@ class $AssetsAppIconGen {
   /// File path: assets/app_icon/red.png
   AssetGenImage get red => const AssetGenImage('assets/app_icon/red.png');
 
+  /// File path: assets/app_icon/app_icon.png
+  AssetGenImage get appIconPng =>
+      const AssetGenImage('assets/app_icon/app_icon.png');
+
+  /// File path: assets/app_icon/app_icon.svg
+  String get appIconSvg => 'assets/app_icon/app_icon.svg';
+
   /// List of all assets
-  List<AssetGenImage> get values => [black, blue, green, orange, purple, red];
+  List<dynamic> get values =>
+      [black, blue, green, orange, purple, red, appIconPng, appIconSvg];
 }
 
 class $AssetsDatGen {
@@ -106,7 +114,7 @@ class Assets {
   static const $AssetsAppIconGen appIcon = $AssetsAppIconGen();
   static const $AssetsDatGen dat = $AssetsDatGen();
   static const $AssetsIconGen icon = $AssetsIconGen();
-  static const AssetGenImage logo = AssetGenImage('assets/logo.png');
+  static const AssetGenImage logo = AssetGenImage('assets/app_icon/app_icon.png');
   static const $AssetsMdGen md = $AssetsMdGen();
 
   /// List of all assets
