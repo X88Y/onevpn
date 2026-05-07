@@ -42,7 +42,7 @@ class UserModel {
   }
 
   bool get isAppleLinked {
-    return rawData?['externalApple'] != null;
+    return rawData?['externalAppleId'] != null;
   }
 
   bool get isTelegramLinked {
