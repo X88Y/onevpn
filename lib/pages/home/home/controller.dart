@@ -19,6 +19,7 @@ import 'package:mvmvpn/service/auth/model.dart';
 import 'package:mvmvpn/service/auth/service.dart';
 import 'package:mvmvpn/service/vpn/service.dart';
 import 'package:mvmvpn/service/xray/outbound/state.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -194,41 +195,58 @@ class HomeController extends Cubit<HomeState> {
   }
 
   Future<void> startVpn(BuildContext context) async {
-    int targetConfigId = state.configId;
+    final eventBus = AppEventBus.instance;
+    final isRunning = eventBus.state.runningId != DBConstants.defaultId;
+    
+    eventBus.updateVpnLoading(true);
 
-    if (AuthService().currentUser != null) {
-      var newConfigId = await AuthService().fetchAndSetRandomVpnKey();
-      if (newConfigId == null) {
-        if (context.mounted) {
-          ContextAlert.showToast(context, 'Regenerating subscription key...');
+    try {
+      if (isRunning) {
+        await VpnService().startVpn(eventBus.state.runningId);
+        return;
+      }
+
+      int targetConfigId = state.configId;
+
+      if (AuthService().currentUser != null) {
+        var newConfigId = await AuthService().fetchAndSetRandomVpnKey();
+        if (newConfigId == null) {
+          if (context.mounted) {
+            ContextAlert.showToast(context, 'Regenerating subscription key...');
+          }
+          newConfigId = await AuthService().fetchAndSetRandomVpnKey(forceRegenerate: true);
         }
-        newConfigId = await AuthService().fetchAndSetRandomVpnKey(forceRegenerate: true);
+
+        if (newConfigId != null) {
+          targetConfigId = newConfigId;
+          updateConfigId(context, newConfigId);
+        }
       }
 
-      if (newConfigId != null) {
-        targetConfigId = newConfigId;
-        updateConfigId(context, newConfigId);
+      if (targetConfigId == DBConstants.defaultId) {
+        eventBus.updateVpnLoading(false);
+        if (context.mounted) {
+          ContextAlert.showToast(
+            context,
+            AppLocalizations.of(context)!.vpnSelectOneConfig,
+          );
+        }
+        return;
       }
-    }
 
-    if (targetConfigId == DBConstants.defaultId) {
-      if (context.mounted) {
-        ContextAlert.showToast(
-          context,
-          AppLocalizations.of(context)!.vpnSelectOneConfig,
-        );
+      final permission = await VpnService().checkPermission();
+      if (!permission) {
+        eventBus.updateVpnLoading(false);
+        if (context.mounted) {
+          ContextAlert.showPermissionDialog(context);
+        }
+        return;
       }
-      return;
+      await VpnService().startVpn(targetConfigId);
+    } catch (e) {
+      eventBus.updateVpnLoading(false);
+      rethrow;
     }
-
-    final permission = await VpnService().checkPermission();
-    if (!permission) {
-      if (context.mounted) {
-        ContextAlert.showPermissionDialog(context);
-      }
-      return;
-    }
-    await VpnService().startVpn(targetConfigId);
   }
 
   Future<void> signInWithApple() async {

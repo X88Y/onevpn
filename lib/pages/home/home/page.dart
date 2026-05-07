@@ -234,31 +234,55 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _centerButton(BuildContext context, HomeController controller, AppEventBusState eventState) {
     final isRunning = eventState.runningId != DBConstants.defaultId;
+    final isLoading = eventState.vpnLoading;
+
+    Color glowColor = const Color(0xFF5D5FEF);
+    Color buttonColor = const Color(0xFF4C4D9A);
+
+    if (isLoading) {
+      glowColor = const Color(0xFFFFD600);
+      buttonColor = const Color(0xFFFBC02D);
+    } else if (isRunning) {
+      glowColor = const Color(0xFF00E676);
+      buttonColor = const Color(0xFF00C853);
+    }
+
     return GestureDetector(
       onTap: () => controller.startVpn(context),
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
             width: 220,
             height: 220,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF5D5FEF).withOpacity(isRunning ? 0.6 : 0.3),
+                  color: glowColor.withOpacity(isRunning || isLoading ? 0.6 : 0.3),
                   blurRadius: 80,
                   spreadRadius: 20,
                 ),
               ],
             ),
           ),
-          Container(
+          if (isLoading)
+            SizedBox(
+              width: 176,
+              height: 176,
+              child: CircularProgressIndicator(
+                strokeWidth: 4,
+                valueColor: AlwaysStoppedAnimation<Color>(glowColor),
+              ),
+            ),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
             width: 160,
             height: 160,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF4C4D9A),
+              color: buttonColor,
             ),
             child: Padding(
               padding: const EdgeInsets.all(32.0),
@@ -276,8 +300,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _statusText(AppEventBusState eventState) {
     final isRunning = eventState.runningId != DBConstants.defaultId;
+    final isLoading = eventState.vpnLoading;
+
+    String text = isRunning ? 'Connected' : 'Tap to connect';
+    if (isLoading) {
+      text = isRunning ? 'Disconnecting...' : 'Connecting...';
+    }
+
     return Text(
-      isRunning ? 'Connected' : 'Tap to connect',
+      text,
       style: const TextStyle(
         color: Colors.white,
         fontSize: 18,

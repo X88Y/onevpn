@@ -19,28 +19,28 @@ final class ShortCutService {
     if (!AppPlatform.isMobile) {
       return;
     }
-    await quickActions.initialize(_onShortCutClick);
-    var playIcon = "play_light";
-    var pauseIcon = "pause_light";
-    if (context.mounted) {
-      if (Theme.of(context).brightness == Brightness.dark) {
-        playIcon = "play_dark";
-        pauseIcon = "pause_dark";
-      }
-    }
+    // await quickActions.initialize(_onShortCutClick);
+    // var playIcon = "play_light";
+    // var pauseIcon = "pause_light";
+    // if (context.mounted) {
+    //   if (Theme.of(context).brightness == Brightness.dark) {
+    //     playIcon = "play_dark";
+    //     pauseIcon = "pause_dark";
+    //   }
+    // }
 
-    await quickActions.setShortcutItems(<ShortcutItem>[
-      ShortcutItem(
-        type: _ShortCutKey.startVpn.name,
-        localizedTitle: appLocalizationsNoContext().menuBarStartVpn,
-        icon: playIcon,
-      ),
-      ShortcutItem(
-        type: _ShortCutKey.stopVpn.name,
-        localizedTitle: appLocalizationsNoContext().menuBarStopVpn,
-        icon: pauseIcon,
-      ),
-    ]);
+    // await quickActions.setShortcutItems(<ShortcutItem>[
+    //   ShortcutItem(
+    //     type: _ShortCutKey.startVpn.name,
+    //     localizedTitle: appLocalizationsNoContext().menuBarStartVpn,
+    //     icon: playIcon,
+    //   ),
+    //   ShortcutItem(
+    //     type: _ShortCutKey.stopVpn.name,
+    //     localizedTitle: appLocalizationsNoContext().menuBarStopVpn,
+    //     icon: pauseIcon,
+    //   ),
+    // ]);
   }
 
   void dispose() {}
