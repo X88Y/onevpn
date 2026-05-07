@@ -16,7 +16,7 @@ class PreferencesKey {
   Future<bool> readPrivacyAccepted() async {
     final value = await _prefs.getBool(_privacyAccepted);
     if (value == null) {
-      return false;
+      return true;
     }
     return value;
   }

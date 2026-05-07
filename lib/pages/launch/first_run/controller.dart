@@ -16,7 +16,7 @@ class FirstRunState {
   final String interface;
 
   const FirstRunState({
-    this.country = SimpleCountry.cn,
+    this.country = SimpleCountry.ru,
     this.interfaces = const [],
     this.interface = "",
   });

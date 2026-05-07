@@ -37,7 +37,7 @@ class XraySettingSimple {
 class SimpleRouting {
   var domainStrategy = RoutingDomainStrategy.ipIfNonMatch;
   var queryStrategy = DnsQueryStrategy.useIPv4;
-  var directSet = SimpleCountry.cn;
+  var directSet = SimpleCountry.ru;
   var appleDirect = true;
   var localDirect = true;
   var enableIPRule = true;

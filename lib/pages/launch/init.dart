@@ -10,6 +10,10 @@ import 'package:mvmvpn/gen/assets.gen.dart';
 import 'package:mvmvpn/pages/main/url.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
 import 'package:mvmvpn/core/pigeon/constants.dart';
+import 'package:mvmvpn/service/tun_setting/interface.dart';
+import 'package:mvmvpn/service/tun_setting/state.dart';
+import 'package:mvmvpn/service/xray/setting/enum.dart';
+import 'package:mvmvpn/service/xray/setting/simple_state.dart';
 import 'package:path/path.dart' as p;
 
 Future<void> initRouter(BuildContext context) async {
@@ -29,10 +33,26 @@ Future<void> checkFirstRun(BuildContext context) async {
   final firstRun = await PreferencesKey().readFirstRun();
   if (context.mounted) {
     if (firstRun) {
-      context.go(RouterPath.firstRun);
+      await _performFirstRunInit();
+      await PreferencesKey().saveFirstRun(false);
+      context.go(RouterPath.home);
     } else {
       context.go(RouterPath.home);
     }
+  }
+}
+
+Future<void> _performFirstRunInit() async {
+  await PreferencesKey().saveXraySettingId(XraySettingSimple.simpleId);
+  final simple = XraySettingSimple();
+  simple.routing.directSet = SimpleCountry.ru;
+  await simple.saveToPreferences();
+
+  final interfaces = await queryInterfaceList();
+  if (interfaces.isNotEmpty) {
+    final tunSetting = TunSettingState();
+    tunSetting.bindInterface = interfaces.first.name;
+    await tunSetting.saveToPreferences();
   }
 }
 
