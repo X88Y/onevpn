@@ -108,6 +108,8 @@ class AuthService {
 
   Future<void> signOut() async {
     await _auth.signOut();
+    await PreferencesKey().saveUserProfile(null);
+    AppEventBus.instance.updateUserData(null);
   }
 
   Future<UserModel?> syncUserWithBackend() async {
@@ -132,6 +134,7 @@ class AuthService {
       }
 
       final userModel = UserModel.fromMap(userDataMap, uid: _auth.currentUser?.uid);
+      await PreferencesKey().saveUserProfile(userModel.toJson());
       AppEventBus.instance.updateUserData(userModel);
 
       return userModel;

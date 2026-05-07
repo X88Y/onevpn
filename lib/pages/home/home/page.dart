@@ -212,12 +212,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           children: [
             const Icon(Icons.check_circle, color: Colors.green, size: 20),
             const SizedBox(width: 12),
-            Text(
-              statusText,
-              style: const TextStyle(
-                color: Colors.green,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+            Flexible(
+              child: Text(
+                statusText,
+                style: const TextStyle(
+                  color: Colors.green,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.visible,
               ),
             ),
           ],

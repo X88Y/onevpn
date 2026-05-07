@@ -35,7 +35,16 @@ class AppEventBus extends Cubit<AppEventBusState> {
   Future<void> _asyncInitState() async {
     final xraySettingId = await PreferencesKey().readXraySettingId();
     final runningId = await PreferencesKey().readRunningConfigId();
-    emit(state.copyWith(xraySettingId: xraySettingId, runningId: runningId));
+    final userProfile = await PreferencesKey().readUserProfile();
+    UserModel? userData;
+    if (userProfile != null) {
+      userData = UserModel.fromJson(userProfile);
+    }
+    emit(state.copyWith(
+      xraySettingId: xraySettingId,
+      runningId: runningId,
+      userData: userData,
+    ));
   }
 
   void updateXraySettingId(int value) {

@@ -227,4 +227,23 @@ class PreferencesKey {
   Future<void> saveAuthProvider(String value) async {
     await _prefs.setString(_authProvider, value);
   }
+
+  static const _userProfile = "userProfile";
+
+  Future<Map<String, dynamic>?> readUserProfile() async {
+    final value = await _prefs.getString(_userProfile);
+    if (value != null) {
+      return JsonTool.decodeBase64ToJson(value);
+    }
+    return null;
+  }
+
+  Future<void> saveUserProfile(Map<String, dynamic>? value) async {
+    if (value == null) {
+      await _prefs.remove(_userProfile);
+    } else {
+      final text = JsonTool.encodeJsonToBase64(value);
+      await _prefs.setString(_userProfile, text);
+    }
+  }
 }
