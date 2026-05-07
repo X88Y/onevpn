@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mvmvpn/core/db/database/constants.dart';
-import 'package:mvmvpn/core/tools/platform.dart';
 import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
-import 'package:mvmvpn/pages/global/constants.dart';
-import 'package:mvmvpn/pages/home/home/component/outbound/view.dart';
-import 'package:mvmvpn/pages/home/home/component/raw/view.dart';
 import 'package:mvmvpn/pages/home/home/controller.dart';
-import 'package:mvmvpn/pages/theme/color.dart';
-import 'package:mvmvpn/pages/widget/menu_picker.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
 import 'package:mvmvpn/service/event_bus/state.dart';
 
@@ -19,10 +13,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController =
-      TabController(length: 2, vsync: this);
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  late final TabController _tabController = TabController(length: 2, vsync: this);
 
   @override
   void dispose() {
@@ -39,18 +31,22 @@ class _HomePageState extends State<HomePage>
           final controller = context.read<HomeController>();
           return BlocBuilder<AppEventBus, AppEventBusState>(
             builder: (context, eventState) => Scaffold(
-              appBar: AppBar(
-                leading: IconButton(
-                  onPressed: () => controller.gotoSettings(context),
-                  icon: Icon(Icons.settings),
-                ),
-                title: Text(AppLocalizations.of(context)!.homePageTitle),
-                actions: [
-                  _rightButton(context, controller, eventState),
-                ],
-              ),
+              backgroundColor: const Color(0xFF0F0F0F),
               body: SafeArea(
-                child: _body(context, controller, homeState, eventState),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                  child: Column(
+                    children: [
+                      _topIcons(context, controller),
+                      const Spacer(flex: 2),
+                      _centerButton(context, controller, eventState),
+                      const SizedBox(height: 24),
+                      _statusText(eventState),
+                      const Spacer(flex: 3),
+                      _subscriptionPill(context),
+                    ],
+                  ),
+                ),
               ),
             ),
           );
@@ -59,158 +55,109 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _rightButton(
-    BuildContext context,
-    HomeController controller,
-    AppEventBusState eventState,
-  ) {
-    if (eventState.downloading) {
-      return CircularProgressIndicator();
-    } else {
-      return IconMenuPicker(
-        icon: Icons.add,
-        menus: [
-          IconMenuId.manualInput,
-          IconMenuId.subscribeLink,
-          if (AppPlatform.isMobile) IconMenuId.scanQRCode,
-          IconMenuId.pickImage,
-          IconMenuId.pickFile,
-          IconMenuId.readPasteboard,
-        ],
-        callback: (actionId) => controller.addMenuAction(context, actionId),
-      );
-    }
-  }
-
-  Widget _body(
-    BuildContext context,
-    HomeController controller,
-    HomeState homeState,
-    AppEventBusState eventState,
-  ) {
-    return DefaultTextStyle.merge(
-      style: const TextStyle(fontSize: GlobalConstants.bodyFontSize),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _tabBar(context, controller),
-          Expanded(child: _tabBarView(context, controller)),
-          _bottomButton(context, controller, homeState, eventState),
-        ],
-      ),
+  Widget _topIcons(BuildContext context, HomeController controller) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _iconButton(Icons.apple, onPressed: () {}),
+        const SizedBox(width: 16),
+        _iconButton(Icons.telegram, onPressed: () {}),
+        const SizedBox(width: 16),
+        _iconButton(Icons.alternate_email, onPressed: () {}),
+        const Spacer(),
+        _iconButton(Icons.settings, onPressed: () => controller.gotoSettings(context)),
+      ],
     );
   }
 
-  Widget _tabBar(BuildContext context, HomeController controller) {
-    return ColoredBox(
-      color: ColorManager.surface(context),
-      child: TabBar(
-        controller: _tabController,
-        indicatorSize: TabBarIndicatorSize.tab,
-        tabs: [
-          Tab(text: AppLocalizations.of(context)!.homePageTabOutbound),
-          Tab(text: AppLocalizations.of(context)!.homePageTabRaw),
-        ],
-      ),
-    );
-  }
-
-  Widget _tabBarView(BuildContext context, HomeController controller) {
-    return TabBarView(
-      controller: _tabController,
-      children: const [HomeOutboundView(), HomeRawView()],
-    );
-  }
-
-  Widget _bottomButton(
-    BuildContext context,
-    HomeController controller,
-    HomeState homeState,
-    AppEventBusState eventState,
-  ) {
-    return Container(
-      color: ColorManager.surface(context),
-      padding: EdgeInsetsDirectional.symmetric(vertical: 12, horizontal: 16),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(child: _nodeInfo(context, controller, eventState)),
-              _startVpnButton(context, controller, eventState),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _startVpnButton(
-    BuildContext context,
-    HomeController controller,
-    AppEventBusState eventState,
-  ) {
-    if (eventState.vpnLoading) {
-      return const CircularProgressIndicator();
-    } else {
-      final stop = eventState.runningId == DBConstants.defaultId;
-      final color = stop
-          ? ColorManager.buttonStop(context)
-          : Theme.of(context).primaryColor;
-      final icon = stop ? Icons.public : Icons.private_connectivity;
-      final style = ElevatedButton.styleFrom(
-        padding: EdgeInsetsDirectional.zero,
-        backgroundColor: color,
-        iconSize: 30,
-        iconColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusDirectional.circular(12),
+  Widget _iconButton(IconData icon, {required VoidCallback onPressed}) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withOpacity(0.05),
+          border: Border.all(color: Colors.white.withOpacity(0.1)),
         ),
-      );
-      return SizedBox(
-        width: 56,
-        height: 56,
-        child: ElevatedButton(
-          style: style,
-          onPressed: () => controller.startVpn(context),
-          child: Icon(icon),
-        ),
-      );
-    }
+        child: Icon(icon, color: Colors.white, size: 24),
+      ),
+    );
   }
 
-  Widget _nodeInfo(
-    BuildContext context,
-    HomeController controller,
-    AppEventBusState eventState,
-  ) {
-    if (eventState.runningId == DBConstants.defaultId) {
-      return SizedBox(height: 1);
-    } else {
-      final location = eventState.location;
-      final text = controller.formatGeoLocation(context, location);
-      return InkWell(
-        onTap: () => controller.gotoNodeInfo(context),
-        child: Padding(
-          padding: EdgeInsetsDirectional.symmetric(
-            horizontal: 10,
-            vertical: 10,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  text,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: ColorManager.primaryText(context),
-                  ),
+  Widget _centerButton(BuildContext context, HomeController controller, AppEventBusState eventState) {
+    final isRunning = eventState.runningId != DBConstants.defaultId;
+    return GestureDetector(
+      onTap: () => controller.startVpn(context),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 180,
+            height: 180,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: isRunning ? Colors.blue.withOpacity(0.3) : Colors.deepPurple.withOpacity(0.3),
+                  blurRadius: 50,
+                  spreadRadius: 10,
                 ),
-              ),
-              Icon(Icons.chevron_right),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    }
+          Container(
+            width: 160,
+            height: 160,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                image: AssetImage('assets/vpn_logo.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statusText(AppEventBusState eventState) {
+    final isRunning = eventState.runningId != DBConstants.defaultId;
+    return Text(
+      isRunning ? 'Connected' : 'Tap to connect',
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+
+  Widget _subscriptionPill(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.green.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.green.withOpacity(0.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Icon(Icons.check_circle, color: Colors.green, size: 18),
+          SizedBox(width: 12),
+          Text(
+            'Subscription until: 10.03.2027',
+            style: TextStyle(
+              color: Colors.green,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
