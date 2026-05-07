@@ -14,6 +14,8 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
   subscriptionEndsAt: json['subscriptionEndsAt'] == null
       ? null
       : DateTime.parse(json['subscriptionEndsAt'] as String),
+  telegramUrl: json['telegramUrl'] as String?,
+  vkUrl: json['vkUrl'] as String?,
   rawData: json['rawData'] as Map<String, dynamic>?,
 );
 
@@ -23,5 +25,7 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
   'displayName': instance.displayName,
   'photoURL': instance.photoURL,
   'subscriptionEndsAt': instance.subscriptionEndsAt?.toIso8601String(),
+  'telegramUrl': instance.telegramUrl,
+  'vkUrl': instance.vkUrl,
   'rawData': instance.rawData,
 };

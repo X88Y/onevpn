@@ -127,6 +127,9 @@ class AuthService {
         return null;
       }
       final userDataMap = _asStringKeyedMap(responseData['user']);
+      final publicConstant = _asStringKeyedMap(responseData['publicConstant']);
+      final telegramUrl = publicConstant?['tg'] as String?;
+      final vkUrl = publicConstant?['vk'] as String?;
 
       if (userDataMap == null) {
         debugPrint(
@@ -135,7 +138,12 @@ class AuthService {
         return null;
       }
 
-      final userModel = UserModel.fromMap(userDataMap, uid: _auth.currentUser?.uid);
+      final userModel = UserModel.fromMap(
+        userDataMap, 
+        uid: _auth.currentUser?.uid,
+        telegramUrl: telegramUrl,
+        vkUrl: vkUrl,
+      );
       await PreferencesKey().saveUserProfile(userModel.toJson());
       AppEventBus.instance.updateUserData(userModel);
 

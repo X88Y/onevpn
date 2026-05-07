@@ -312,11 +312,13 @@ class HomeController extends Cubit<HomeState> {
   }
 
   void connectTelegram() {
-    launchUrl(Uri.parse('https://t.me/mvmvpnbot'), mode: LaunchMode.externalApplication);
+    final url = AppEventBus.instance.state.userData?.telegramUrl ?? 'https://t.me/mvmvpnbot';
+    launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
   void connectVK() {
-    launchUrl(Uri.parse('https://vk.com/mvmvpn'), mode: LaunchMode.externalApplication);
+    final url = AppEventBus.instance.state.userData?.vkUrl ?? 'https://vk.com/mvmvpn';
+    launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
   Future<void> clearAllData() async {

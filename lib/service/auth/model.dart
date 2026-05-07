@@ -9,6 +9,8 @@ class UserModel {
   final String? displayName;
   final String? photoURL;
   final DateTime? subscriptionEndsAt;
+  final String? telegramUrl;
+  final String? vkUrl;
   final Map<String, dynamic>? rawData;
 
   UserModel({
@@ -17,10 +19,12 @@ class UserModel {
     this.displayName,
     this.photoURL,
     this.subscriptionEndsAt,
+    this.telegramUrl,
+    this.vkUrl,
     this.rawData,
   });
 
-  factory UserModel.fromMap(Map<String, dynamic> map, {String? uid}) {
+  factory UserModel.fromMap(Map<String, dynamic> map, {String? uid, String? telegramUrl, String? vkUrl}) {
     return UserModel(
       uid: uid ?? map['uid'] ?? map['id'] ?? '',
       email: map['email'],
@@ -29,6 +33,8 @@ class UserModel {
       subscriptionEndsAt: map['subscriptionEndsAt'] != null 
           ? DateTime.tryParse(map['subscriptionEndsAt'])?.toLocal()
           : null,
+      telegramUrl: telegramUrl,
+      vkUrl: vkUrl,
       rawData: map,
     );
   }
