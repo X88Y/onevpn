@@ -443,5 +443,29 @@
     "languagePageEnglish": "English",
     "languagePageRussian": "Русский",
     "languagePagePersian": "فارسی",
-    "languagePageChinese": "中文"
+    "languagePageChinese": "中文",
+  "homeFreeSubscription": "اشتراک رایگان با یک کلیک",
+  "homeConnectTelegram": "اتصال به تلگرام",
+  "homeConnectVK": "اتصال به وی‌کی",
+  "homeConnected": "متصل شد",
+  "homeTapToConnect": "برای اتصال ضربه بزنید",
+  "homeDisconnecting": "در حال قطع اتصال...",
+  "homeConnecting": "در حال اتصال...",
+  "homeSubscriptionActiveUntil": "اشتراک فعال تا {date}",
+  "@homeSubscriptionActiveUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "homeSubscriptionActive": "اشتراک فعال است",
+  "homeNoActiveSubscription": "اشتراک فعالی وجود ندارد",
+  "homeDeleteAccount": "حذف حساب کاربری",
+  "homeThirdPartyLicense": "مجوزهای شخص ثالث",
+  "homeTerms": "شرایط و ضوابط",
+  "homePrivacy": "حریم خصوصی",
+  "homeRegeneratingKey": "در حال بازسازی کلید اشتراک...",
+  "homeSignInSuccess": "ورود با موفقیت انجام شد",
+  "homeSignInFailed": "ورود ناموفق بود"
 }

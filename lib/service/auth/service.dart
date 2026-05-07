@@ -233,12 +233,19 @@ class AuthService {
       );
       return true;
     } on FirebaseFunctionsException catch (e, stackTrace) {
-      if (e.code == 'failed-precondition' &&
-          (e.message?.contains('already activated') ?? false)) {
-        debugPrint(
-          '[AuthService][Backend] startTrial: Trial already active, ignoring error',
-        );
-        return true;
+      if (e.code == 'failed-precondition') {
+        if (e.message?.contains('already activated') ?? false) {
+          debugPrint(
+            '[AuthService][Backend] startTrial: Trial already active, ignoring error',
+          );
+          return true;
+        }
+        if (e.message?.contains('not connected for this account') ?? false) {
+          debugPrint(
+            '[AuthService][Backend] startTrial: Service not connected for this account, ignoring error',
+          );
+          return true;
+        }
       }
       debugPrint(
         '[AuthService][Backend][startTrial][FirebaseFunctionsException] '

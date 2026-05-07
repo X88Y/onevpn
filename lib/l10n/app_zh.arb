@@ -443,5 +443,29 @@
   "languagePageEnglish": "English",
   "languagePageRussian": "Русский",
   "languagePagePersian": "فارسی",
-  "languagePageChinese": "中文"
+  "languagePageChinese": "中文",
+  "homeFreeSubscription": "免费一键订阅",
+  "homeConnectTelegram": "连接 Telegram",
+  "homeConnectVK": "连接 VK",
+  "homeConnected": "已连接",
+  "homeTapToConnect": "点击连接",
+  "homeDisconnecting": "正在断开...",
+  "homeConnecting": "正在连接...",
+  "homeSubscriptionActiveUntil": "订阅有效期至 {date}",
+  "@homeSubscriptionActiveUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "homeSubscriptionActive": "订阅已激活",
+  "homeNoActiveSubscription": "无有效订阅",
+  "homeDeleteAccount": "删除账户",
+  "homeThirdPartyLicense": "第三方许可",
+  "homeTerms": "服务条款",
+  "homePrivacy": "隐私政策",
+  "homeRegeneratingKey": "正在重新生成订阅密钥...",
+  "homeSignInSuccess": "登录成功",
+  "homeSignInFailed": "登录失败"
 }

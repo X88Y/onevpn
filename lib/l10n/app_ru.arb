@@ -443,5 +443,29 @@
   "languagePageEnglish": "English",
   "languagePageRussian": "Русский",
   "languagePagePersian": "فارسی",
-  "languagePageChinese": "中文"
+  "languagePageChinese": "中文",
+  "homeFreeSubscription": "БЕСПЛАТНАЯ подписка в один клик",
+  "homeConnectTelegram": "Подключить Telegram",
+  "homeConnectVK": "Подключить VK",
+  "homeConnected": "Подключено",
+  "homeTapToConnect": "Нажмите для подключения",
+  "homeDisconnecting": "Отключение...",
+  "homeConnecting": "Подключение...",
+  "homeSubscriptionActiveUntil": "Подписка активна до {date}",
+  "@homeSubscriptionActiveUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "homeSubscriptionActive": "Подписка активна",
+  "homeNoActiveSubscription": "Нет активной подписки",
+  "homeDeleteAccount": "Удалить аккаунт",
+  "homeThirdPartyLicense": "Сторонние лицензии",
+  "homeTerms": "Условия использования",
+  "homePrivacy": "Приватность",
+  "homeRegeneratingKey": "Обновление ключа подписки...",
+  "homeSignInSuccess": "Вход выполнен успешно",
+  "homeSignInFailed": "Ошибка входа"
 }

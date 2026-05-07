@@ -29,12 +29,14 @@ class HomeState {
   final DateTime? subscriptionEndsAt;
   final bool highlightSocials;
   final bool highlightBubbles;
+  final String? connectingProvider;
 
   const HomeState({
     required this.configId,
     this.subscriptionEndsAt,
     this.highlightSocials = false,
     this.highlightBubbles = false,
+    this.connectingProvider,
   });
 
   factory HomeState.initial() =>
@@ -46,6 +48,8 @@ class HomeState {
     bool clearSubscriptionEndsAt = false,
     bool? highlightSocials,
     bool? highlightBubbles,
+    String? connectingProvider,
+    bool clearConnectingProvider = false,
   }) {
     return HomeState(
       configId: configId ?? this.configId,
@@ -54,6 +58,9 @@ class HomeState {
           : (subscriptionEndsAt ?? this.subscriptionEndsAt),
       highlightSocials: highlightSocials ?? this.highlightSocials,
       highlightBubbles: highlightBubbles ?? this.highlightBubbles,
+      connectingProvider: clearConnectingProvider
+          ? null
+          : (connectingProvider ?? this.connectingProvider),
     );
   }
 }
@@ -259,7 +266,7 @@ class HomeController extends Cubit<HomeState> {
         var newConfigId = await AuthService().fetchAndSetRandomVpnKey();
         if (newConfigId == null) {
           if (context.mounted) {
-            ContextAlert.showToast(context, 'Regenerating subscription key...');
+            ContextAlert.showToast(context, AppLocalizations.of(context)!.homeRegeneratingKey);
           }
           newConfigId = await AuthService().fetchAndSetRandomVpnKey(forceRegenerate: true);
         }
@@ -297,17 +304,26 @@ class HomeController extends Cubit<HomeState> {
   }
 
   Future<void> signInWithApple() async {
-    final result = await AuthService().signInWithApple();
-    if (result != null) {
-      await AuthService().activateTrial();
-      final userModel = await AuthService().syncUserWithBackend();
-      final subscriptionEndsAt = userModel?.subscriptionEndsAt;
-      emit(state.copyWith(
-          subscriptionEndsAt: subscriptionEndsAt,
-          clearSubscriptionEndsAt: subscriptionEndsAt == null));
-      ToastService().showToast('Signed in successfully');
-    } else {
-      ToastService().showToast('Sign in failed');
+    emit(state.copyWith(connectingProvider: 'apple'));
+    try {
+      final result = await AuthService().signInWithApple();
+      if (result != null) {
+        await AuthService().syncUserWithBackend();
+        await AuthService().activateTrial();
+        final userModel = await AuthService().syncUserWithBackend();
+        final subscriptionEndsAt = userModel?.subscriptionEndsAt;
+        emit(state.copyWith(
+            subscriptionEndsAt: subscriptionEndsAt,
+            clearSubscriptionEndsAt: subscriptionEndsAt == null,
+            clearConnectingProvider: true));
+        ToastService().showToast(AppLocalizations.of(context)!.homeSignInSuccess);
+      } else {
+        emit(state.copyWith(clearConnectingProvider: true));
+        ToastService().showToast(AppLocalizations.of(context)!.homeSignInFailed);
+      }
+    } catch (e) {
+      emit(state.copyWith(clearConnectingProvider: true));
+      ToastService().showToast(AppLocalizations.of(context)!.homeSignInFailed);
     }
   }
 

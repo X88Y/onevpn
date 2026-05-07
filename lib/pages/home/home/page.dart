@@ -76,6 +76,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         isConnected: true,
         glowColor: Colors.grey[400]!,
         onTap: () => controller.signInWithApple(),
+        isLoading: homeState.connectingProvider == 'apple',
       ));
     }
     if (isTelegramLinked) {
@@ -85,6 +86,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         glowColor: Colors.blue[400]!,
         onTap: () => controller.connectTelegram(),
         isHighlighted: homeState.highlightBubbles,
+        isLoading: homeState.connectingProvider == 'telegram',
       ));
     }
     if (isVkLinked) {
@@ -94,6 +96,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         glowColor: const Color(0xFF4C75A3),
         onTap: () => controller.connectVK(),
         isHighlighted: homeState.highlightBubbles,
+        isLoading: homeState.connectingProvider == 'vk',
       ));
     }
 
@@ -118,27 +121,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       buttons.add(_authButton(
         icon: FontAwesomeIcons.apple,
         iconBgColor: Colors.grey[800]!,
-        title: 'FREE one-click subscription',
+        title: AppLocalizations.of(context)!.homeFreeSubscription,
         onTap: () => controller.signInWithApple(),
         isHighlighted: homeState.highlightSocials,
+        isLoading: homeState.connectingProvider == 'apple',
       ));
     }
     if (!(user?.isTelegramLinked ?? false)) {
       buttons.add(_authButton(
         icon: FontAwesomeIcons.telegram,
         iconBgColor: Colors.blue[700]!,
-        title: 'Connect Telegram',
+        title: AppLocalizations.of(context)!.homeConnectTelegram,
         onTap: () => controller.connectTelegram(),
         isHighlighted: homeState.highlightSocials || homeState.highlightBubbles,
+        isLoading: homeState.connectingProvider == 'telegram',
       ));
     }
     if (!(user?.isVkLinked ?? false)) {
       buttons.add(_authButton(
         icon: FontAwesomeIcons.vk,
         iconBgColor: const Color(0xFF4C75A3),
-        title: 'Connect VK',
+        title: AppLocalizations.of(context)!.homeConnectVK,
         onTap: () => controller.connectVK(),
         isHighlighted: homeState.highlightSocials || homeState.highlightBubbles,
+        isLoading: homeState.connectingProvider == 'vk',
       ));
     }
 
@@ -160,9 +166,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     required String title,
     required VoidCallback onTap,
     required bool isHighlighted,
+    bool isLoading = false,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: isLoading ? null : onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 1000),
         curve: Curves.easeInOut,
@@ -204,11 +211,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.white.withOpacity(0.3),
-              size: 24,
-            ),
+            isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Icon(
+                    Icons.chevron_right,
+                    color: Colors.white.withOpacity(0.3),
+                    size: 24,
+                  ),
           ],
         ),
       ),
@@ -221,9 +237,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     required Color glowColor,
     required VoidCallback onTap,
     bool isHighlighted = false,
+    bool isLoading = false,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: isLoading ? null : onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 1000),
         curve: Curves.easeInOut,
@@ -249,11 +266,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               : [],
         ),
         alignment: Alignment.center,
-        child: FaIcon(
-          icon,
-          color: (isConnected || isHighlighted) ? Colors.white : Colors.white.withOpacity(0.3),
-          size: 26,
-        ),
+        child: isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : FaIcon(
+                icon,
+                color: (isConnected || isHighlighted) ? Colors.white : Colors.white.withOpacity(0.3),
+                size: 26,
+              ),
       ),
     );
   }
@@ -328,9 +354,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     final isRunning = eventState.runningId != DBConstants.defaultId;
     final isLoading = eventState.vpnLoading;
 
-    String text = isRunning ? 'Connected' : 'Tap to connect';
+    String text = isRunning ? AppLocalizations.of(context)!.homeConnected : AppLocalizations.of(context)!.homeTapToConnect;
     if (isLoading) {
-      text = isRunning ? 'Disconnecting...' : 'Connecting...';
+      text = isRunning ? AppLocalizations.of(context)!.homeDisconnecting : AppLocalizations.of(context)!.homeConnecting;
     }
 
     return Text(
@@ -355,8 +381,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     if (isRunning || hasActiveSubscription) {
       final statusText = hasActiveSubscription && subscriptionEndsAt != null
-          ? 'Subscription active until ${subscriptionEndsAt.day.toString().padLeft(2, '0')}.${subscriptionEndsAt.month.toString().padLeft(2, '0')}.${subscriptionEndsAt.year}'
-          : 'Subscription active';
+          ? AppLocalizations.of(context)!.homeSubscriptionActiveUntil('${subscriptionEndsAt.day.toString().padLeft(2, '0')}.${subscriptionEndsAt.month.toString().padLeft(2, '0')}.${subscriptionEndsAt.year}')
+          : AppLocalizations.of(context)!.homeSubscriptionActive;
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         decoration: BoxDecoration(
@@ -402,7 +428,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
           const SizedBox(width: 12),
           Text(
-            'No active subscription',
+            AppLocalizations.of(context)!.homeNoActiveSubscription,
             style: TextStyle(
               color: Colors.white.withOpacity(0.4),
               fontSize: 16,
@@ -457,7 +483,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 if (showDelete) ...[
                   ListTile(
                     leading: const Icon(Icons.delete_forever, color: Colors.redAccent),
-                    title: const Text('Delete account', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600)),
+                    title: Text(AppLocalizations.of(context)!.homeDeleteAccount, style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600)),
                     onTap: () {
                       Navigator.pop(context);
                       controller.clearAllData();
@@ -467,7 +493,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ],
                 ListTile(
                   leading: const Icon(Icons.description, color: Colors.white70),
-                  title: const Text('Third party license', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                  title: Text(AppLocalizations.of(context)!.homeThirdPartyLicense, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                   onTap: () {
                     Navigator.pop(context);
                     controller.openUrl('https://front-redirect.vercel.app/license');
@@ -475,7 +501,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
                 ListTile(
                   leading: const Icon(Icons.privacy_tip, color: Colors.white70),
-                  title: const Text('Terms', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                  title: Text(AppLocalizations.of(context)!.homeTerms, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                   onTap: () {
                     Navigator.pop(context);
                     controller.openUrl('https://www.aiverge.net/terms');
@@ -483,7 +509,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
                 ListTile(
                   leading: const Icon(Icons.shield, color: Colors.white70),
-                  title: const Text('Privacy', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                  title: Text(AppLocalizations.of(context)!.homePrivacy, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                   onTap: () {
                     Navigator.pop(context);
                     controller.openUrl('https://www.aiverge.net/privacy');

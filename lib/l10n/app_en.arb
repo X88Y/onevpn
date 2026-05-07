@@ -443,5 +443,29 @@
   "languagePageEnglish": "English",
   "languagePageRussian": "Русский",
   "languagePagePersian": "فارسی",
-  "languagePageChinese": "中文"
+  "languagePageChinese": "中文",
+  "homeFreeSubscription": "FREE one-click subscription",
+  "homeConnectTelegram": "Connect Telegram",
+  "homeConnectVK": "Connect VK",
+  "homeConnected": "Connected",
+  "homeTapToConnect": "Tap to connect",
+  "homeDisconnecting": "Disconnecting...",
+  "homeConnecting": "Connecting...",
+  "homeSubscriptionActiveUntil": "Subscription active until {date}",
+  "@homeSubscriptionActiveUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "homeSubscriptionActive": "Subscription active",
+  "homeNoActiveSubscription": "No active subscription",
+  "homeDeleteAccount": "Delete account",
+  "homeThirdPartyLicense": "Third party license",
+  "homeTerms": "Terms",
+  "homePrivacy": "Privacy",
+  "homeRegeneratingKey": "Regenerating subscription key...",
+  "homeSignInSuccess": "Signed in successfully",
+  "homeSignInFailed": "Sign in failed"
 }
