@@ -1,12 +1,12 @@
 import 'package:collection/collection.dart';
-import 'package:onexray/core/model/xray_json.dart';
-import 'package:onexray/core/network/constants.dart';
-import 'package:onexray/core/pigeon/host_api.dart';
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/core/tools/extensions.dart';
-import 'package:onexray/core/pigeon/constants.dart';
-import 'package:onexray/service/xray/setting/enum.dart';
-import 'package:onexray/service/xray/standard.dart';
+import 'package:mvmvpn/core/model/xray_json.dart';
+import 'package:mvmvpn/core/network/constants.dart';
+import 'package:mvmvpn/core/pigeon/host_api.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/core/tools/extensions.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
+import 'package:mvmvpn/service/xray/setting/enum.dart';
+import 'package:mvmvpn/service/xray/standard.dart';
 
 class InboundTunState {
   final listen = NetConstants.proxyHost;
@@ -54,7 +54,7 @@ class InboundTunState {
 }
 
 class InboundTunSettingsState {
-  final name = "OneXrayTun";
+  final name = "MVMVpnTun";
   final mtu = 1500;
   var autoOutboundsInterface = "";
 

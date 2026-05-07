@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/db/table/core_config.dart';
-import 'package:onexray/core/db/table/subscription.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/db/table/core_config.dart';
+import 'package:mvmvpn/core/db/table/subscription.dart';
 
 part 'subscription.g.dart';
 

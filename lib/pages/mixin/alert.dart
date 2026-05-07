@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/service/ping/service.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/service/ping/service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ContextAlert {

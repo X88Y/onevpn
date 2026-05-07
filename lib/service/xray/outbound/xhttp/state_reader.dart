@@ -1,7 +1,7 @@
-import 'package:onexray/core/model/xray_json.dart';
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/service/xray/outbound/xhttp/download/state_reader.dart';
-import 'package:onexray/service/xray/outbound/xhttp/state.dart';
+import 'package:mvmvpn/core/model/xray_json.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/download/state_reader.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/state.dart';
 
 extension XhttpExtraStateReader on XhttpExtraState {
   bool readFromXrayJson(XrayXhttpSettings settings) {

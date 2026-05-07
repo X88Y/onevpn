@@ -1,15 +1,15 @@
 import 'dart:convert';
 
-import 'package:onexray/core/tools/platform.dart';
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/ffi/linux_ffi_api.dart';
-import 'package:onexray/core/ffi/windows_ffi_api.dart';
-import 'package:onexray/core/model/xray_json.dart';
-import 'package:onexray/core/pigeon/messages.g.dart';
-import 'package:onexray/core/pigeon/model.dart';
-import 'package:onexray/core/tools/json.dart';
-import 'package:onexray/core/tools/logger.dart';
-import 'package:onexray/service/xray/standard.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/ffi/linux_ffi_api.dart';
+import 'package:mvmvpn/core/ffi/windows_ffi_api.dart';
+import 'package:mvmvpn/core/model/xray_json.dart';
+import 'package:mvmvpn/core/pigeon/messages.g.dart';
+import 'package:mvmvpn/core/pigeon/model.dart';
+import 'package:mvmvpn/core/tools/json.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
+import 'package:mvmvpn/service/xray/standard.dart';
 
 class AppHostApi {
   final _api = BridgeHostApi();

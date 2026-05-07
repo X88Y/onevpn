@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/core/tools/extensions.dart';
-import 'package:onexray/pages/home/xray/outbound/xhttp/download_settings/params.dart';
-import 'package:onexray/pages/home/xray/outbound/xhttp/params.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/service/xray/outbound/enum.dart';
-import 'package:onexray/service/xray/outbound/xhttp/download/state.dart';
-import 'package:onexray/service/xray/outbound/xhttp/state.dart';
-import 'package:onexray/service/xray/outbound/xhttp/state_validator.dart';
+import 'package:mvmvpn/core/tools/extensions.dart';
+import 'package:mvmvpn/pages/home/xray/outbound/xhttp/download_settings/params.dart';
+import 'package:mvmvpn/pages/home/xray/outbound/xhttp/params.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/service/xray/outbound/enum.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/download/state.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/state.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/state_validator.dart';
 
 class OutboundXhttpHeader {
   final key = TextEditingController();

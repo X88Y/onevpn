@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/model/xray_json.dart';
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/core/tools/json.dart';
-import 'package:onexray/service/xray/outbound/enum.dart';
-import 'package:onexray/service/xray/outbound/state.dart';
-import 'package:onexray/service/xray/outbound/xhttp/state_reader.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/model/xray_json.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/core/tools/json.dart';
+import 'package:mvmvpn/service/xray/outbound/enum.dart';
+import 'package:mvmvpn/service/xray/outbound/state.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/state_reader.dart';
 
 extension OutboundStateReader on OutboundState {
   void readFromDbData(CoreConfigData outbound) {

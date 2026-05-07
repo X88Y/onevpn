@@ -1,18 +1,18 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/core/tools/platform.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/global/constants.dart';
-import 'package:onexray/pages/setting/tun/ui/controller.dart';
-import 'package:onexray/pages/widget/bottom_button.dart';
-import 'package:onexray/pages/widget/bottom_view.dart';
-import 'package:onexray/pages/widget/menu_picker.dart';
-import 'package:onexray/pages/widget/section.dart';
-import 'package:onexray/pages/widget/tag_view.dart';
-import 'package:onexray/pages/widget/text_row.dart';
-import 'package:onexray/service/tun_setting/enum.dart';
-import 'package:onexray/service/tun_setting/state.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/global/constants.dart';
+import 'package:mvmvpn/pages/setting/tun/ui/controller.dart';
+import 'package:mvmvpn/pages/widget/bottom_button.dart';
+import 'package:mvmvpn/pages/widget/bottom_view.dart';
+import 'package:mvmvpn/pages/widget/menu_picker.dart';
+import 'package:mvmvpn/pages/widget/section.dart';
+import 'package:mvmvpn/pages/widget/tag_view.dart';
+import 'package:mvmvpn/pages/widget/text_row.dart';
+import 'package:mvmvpn/service/tun_setting/enum.dart';
+import 'package:mvmvpn/service/tun_setting/state.dart';
 
 class TunSettingUIPage extends StatelessWidget {
   const TunSettingUIPage({super.key});

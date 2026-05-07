@@ -1,4 +1,4 @@
-import 'package:onexray/core/db/database/database.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
 
 enum ConfigQueryRowType { config, subscription, ads }
 

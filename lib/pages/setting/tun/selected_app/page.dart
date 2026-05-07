@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/global/constants.dart';
-import 'package:onexray/pages/setting/tun/selected_app/controller.dart';
-import 'package:onexray/pages/setting/tun/selected_app/params.dart';
-import 'package:onexray/pages/widget/bottom_button.dart';
-import 'package:onexray/pages/widget/bottom_view.dart';
-import 'package:onexray/pages/widget/menu_picker.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/global/constants.dart';
+import 'package:mvmvpn/pages/setting/tun/selected_app/controller.dart';
+import 'package:mvmvpn/pages/setting/tun/selected_app/params.dart';
+import 'package:mvmvpn/pages/widget/bottom_button.dart';
+import 'package:mvmvpn/pages/widget/bottom_view.dart';
+import 'package:mvmvpn/pages/widget/menu_picker.dart';
 
 class SelectedAppPage extends StatelessWidget {
   final SelectedAppParams params;

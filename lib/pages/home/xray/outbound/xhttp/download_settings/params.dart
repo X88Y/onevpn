@@ -1,4 +1,4 @@
-import 'package:onexray/service/xray/outbound/xhttp/download/state.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/download/state.dart';
 
 class XhttpDownloadSettingsParams {
   final XhttpDownloadState state;

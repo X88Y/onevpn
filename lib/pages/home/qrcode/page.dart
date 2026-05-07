@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 
 class QrcodePage extends StatelessWidget {
   const QrcodePage({super.key});

@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:onexray/pages/home/component/ad_row/controller.dart';
-import 'package:onexray/pages/theme/color.dart';
+import 'package:mvmvpn/pages/home/component/ad_row/controller.dart';
+import 'package:mvmvpn/pages/theme/color.dart';
 
 class GoogleAdsRow extends StatelessWidget {
   const GoogleAdsRow({super.key});

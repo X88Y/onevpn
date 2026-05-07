@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:in_app_review/in_app_review.dart';
-import 'package:onexray/core/pigeon/host_api.dart';
-import 'package:onexray/core/tools/logger.dart';
-import 'package:onexray/pages/geo_data/list/params.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/service/doc/helper.dart';
+import 'package:mvmvpn/core/pigeon/host_api.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
+import 'package:mvmvpn/pages/geo_data/list/params.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/service/doc/helper.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -59,7 +59,7 @@ class SettingController extends Cubit<SettingState> {
     context.push(path, extra: params);
   }
 
-  final _enhancedRouting = Uri.parse("https://github.com/OneXray/Routing");
+  final _enhancedRouting = Uri.parse("https://github.com/MVMVpn/Routing");
 
   Future<void> openEnhancedRouting(BuildContext context) async {
     try {
@@ -108,7 +108,7 @@ class SettingController extends Cubit<SettingState> {
     }
   }
 
-  final _telegramChannel = Uri.parse("https://t.me/OneXrayApp");
+  final _telegramChannel = Uri.parse("https://t.me/MVMVpnApp");
 
   Future<void> openTelegram(BuildContext context) async {
     try {
@@ -129,7 +129,7 @@ class SettingController extends Cubit<SettingState> {
   }
 
   final _githubIssue = Uri.parse(
-    "https://github.com/OneXray/OneXray/issues/new",
+    "https://github.com/MVMVpn/MVMVpn/issues/new",
   );
 
   Future<void> submitIssue(BuildContext context) async {
@@ -140,7 +140,7 @@ class SettingController extends Cubit<SettingState> {
     }
   }
 
-  final _github = Uri.parse("https://github.com/OneXray/OneXray");
+  final _github = Uri.parse("https://github.com/MVMVpn/MVMVpn");
   Future<void> openSourceCode(BuildContext context) async {
     try {
       await launchUrl(_github);

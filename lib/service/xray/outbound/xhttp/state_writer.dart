@@ -1,8 +1,8 @@
-import 'package:onexray/core/model/xray_json.dart';
-import 'package:onexray/service/xray/outbound/xhttp/download/state_validator.dart';
-import 'package:onexray/service/xray/outbound/xhttp/download/state_writer.dart';
-import 'package:onexray/service/xray/outbound/xhttp/state.dart';
-import 'package:onexray/service/xray/standard.dart';
+import 'package:mvmvpn/core/model/xray_json.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/download/state_validator.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/download/state_writer.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/state.dart';
+import 'package:mvmvpn/service/xray/standard.dart';
 
 extension XhttpExtraStateWriter on XhttpExtraState {
   XrayXhttpSettings get xrayJson {

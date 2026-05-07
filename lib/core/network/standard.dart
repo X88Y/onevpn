@@ -1,4 +1,4 @@
-import 'package:onexray/core/network/model.dart';
+import 'package:mvmvpn/core/network/model.dart';
 
 extension GeoLocationStandard on GeoLocation {
   static GeoLocation get standard =>

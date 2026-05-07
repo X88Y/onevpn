@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/global/constants.dart';
-import 'package:onexray/pages/home/xray/raw_edit/controller.dart';
-import 'package:onexray/pages/home/xray/raw_edit/params.dart';
-import 'package:onexray/pages/widget/bottom_button.dart';
-import 'package:onexray/pages/widget/bottom_view.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/global/constants.dart';
+import 'package:mvmvpn/pages/home/xray/raw_edit/controller.dart';
+import 'package:mvmvpn/pages/home/xray/raw_edit/params.dart';
+import 'package:mvmvpn/pages/widget/bottom_button.dart';
+import 'package:mvmvpn/pages/widget/bottom_view.dart';
 
 class XrayRawEditPage extends StatefulWidget {
   final XrayRawEditParams params;

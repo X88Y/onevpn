@@ -1,6 +1,6 @@
 # Debug 环境配置
 
-这份文档面向项目开发人员，说明 **OneXray 本地 debug 环境** 的最小配置方式，不覆盖发版、上架、签名或 fastlane 发布流程。
+这份文档面向项目开发人员，说明 **MVMVpn 本地 debug 环境** 的最小配置方式，不覆盖发版、上架、签名或 fastlane 发布流程。
 
 ## 1. 初始化项目
 
@@ -37,7 +37,7 @@ cp swift/macOSSE/GoogleService-Info.plist.example swift/macOSSE/GoogleService-In
 
 ## 2. 准备 libXray 产物
 
-OneXray 本地 debug 依赖同级目录下的 `libXray` 仓库产物。`libXray/build` 对应的主要产物如下：
+MVMVpn 本地 debug 依赖同级目录下的 `libXray` 仓库产物。`libXray/build` 对应的主要产物如下：
 
 - Apple: `LibXray.xcframework`
 - Android: `libXray.aar`、`libXray-sources.jar`
@@ -54,7 +54,7 @@ python3 build/main.py linux
 python3 build/main.py windows
 ```
 
-然后把产物同步到 OneXray 对应目录。
+然后把产物同步到 MVMVpn 对应目录。
 
 ### iOS / macOS
 
@@ -78,22 +78,22 @@ cp ../libXray/libXray-sources.jar android/app/libs/
 
 ### Linux
 
-`linux/app.cmake` 会从 `linux/app/` 链接 `libXray.so`，并安装 `OneXrayCore` 到最终包内。因此需要把 Linux 产物复制到 `linux/app/`，其中 `bin/xray` 需要按 OneXray 约定重命名：
+`linux/app.cmake` 会从 `linux/app/` 链接 `libXray.so`，并安装 `MVMVpnCore` 到最终包内。因此需要把 Linux 产物复制到 `linux/app/`，其中 `bin/xray` 需要按 MVMVpn 约定重命名：
 
 ```shell
 mkdir -p linux/app
 cp ../libXray/linux_so/libXray.so linux/app/
-cp ../libXray/bin/xray linux/app/OneXrayCore
+cp ../libXray/bin/xray linux/app/MVMVpnCore
 ```
 
 ### Windows
 
-`windows/app.cmake` 会从 `windows/app/` 安装 `libXray.dll` 和 `OneXrayCore.exe`。因此需要把 Windows 产物复制到 `windows/app/`，其中 `bin/xray.exe` 需要按 OneXray 约定重命名：
+`windows/app.cmake` 会从 `windows/app/` 安装 `libXray.dll` 和 `MVMVpnCore.exe`。因此需要把 Windows 产物复制到 `windows/app/`，其中 `bin/xray.exe` 需要按 MVMVpn 约定重命名：
 
 ```shell
 mkdir -p windows/app
 cp ../libXray/windows_dll/libXray.dll windows/app/
-cp ../libXray/bin/xray.exe windows/app/OneXrayCore.exe
+cp ../libXray/bin/xray.exe windows/app/MVMVpnCore.exe
 ```
 
 > `windows/app.cmake` 还会打包 `wintun.dll`。这个文件不来自 `libXray`，需要按 Windows 开发环境另行准备。
@@ -163,9 +163,9 @@ fvm flutter run -d ios
 | `android/app/libs/libXray.aar` | Android 使用的 libXray 动态库封装。 |
 | `android/app/libs/libXray-sources.jar` | Android 侧配套 sources jar。 |
 | `linux/app/libXray.so` | Linux 桌面端链接的共享库。 |
-| `linux/app/OneXrayCore` | Linux 桌面端运行的核心二进制。 |
+| `linux/app/MVMVpnCore` | Linux 桌面端运行的核心二进制。 |
 | `windows/app/libXray.dll` | Windows 桌面端加载的动态库。 |
-| `windows/app/OneXrayCore.exe` | Windows 桌面端运行的核心二进制。 |
+| `windows/app/MVMVpnCore.exe` | Windows 桌面端运行的核心二进制。 |
 | `lib/firebase_options.dart` | Flutter 侧 Firebase 初始化配置。 |
 | `android/app/google-services.json` | Android 的 Firebase 配置。 |
 | `swift/AppStore/GoogleService-Info.plist` | iOS / macOS App Store 目标使用的 Firebase plist。 |
@@ -178,7 +178,7 @@ fvm flutter run -d ios
 如果目标是本地开发和断点调试，最小步骤如下：
 
 1. 复制 `.example` 配置文件。
-2. 构建 `libXray` 并把产物复制到 OneXray 对应目录。
+2. 构建 `libXray` 并把产物复制到 MVMVpn 对应目录。
 3. 执行 `fvm install` 和 `fvm flutter pub get`。
 4. 按平台安装额外依赖，例如 Apple 平台的 `pod install` 和 Linux 平台的 `libayatana-appindicator3-dev`。
 5. 用 `fvm flutter run -d <device>` 启动。

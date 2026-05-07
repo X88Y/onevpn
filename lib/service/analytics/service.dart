@@ -1,5 +1,5 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:onexray/core/tools/platform.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
 
 class AnalyticsService {
   static final AnalyticsService _singleton = AnalyticsService._internal();

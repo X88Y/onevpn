@@ -1,14 +1,14 @@
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/core/model/tun_json.dart';
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/service/tun_setting/enum.dart';
-import 'package:onexray/service/tun_setting/interface.dart';
-import 'package:onexray/service/tun_setting/standart.dart';
-import 'package:onexray/core/tools/platform.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/model/tun_json.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/service/tun_setting/enum.dart';
+import 'package:mvmvpn/service/tun_setting/interface.dart';
+import 'package:mvmvpn/service/tun_setting/standart.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
 
 class TunSettingState {
   // linux, windows
-  final tunName = "OneXrayTun";
+  final tunName = "MVMVpnTun";
   var tunPriority = "20";
   var tunDnsIPv4 = "8.8.8.8";
   var tunDnsIPv6 = "2001:4860:4860::8888";

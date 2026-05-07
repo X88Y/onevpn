@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:onexray/core/tools/platform.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:onexray/core/tools/logger.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
 
 /// https://github.com/googleads/googleads-mobile-flutter/blob/main/samples/admob/app_open_example/lib/main.dart
 class AdsService {

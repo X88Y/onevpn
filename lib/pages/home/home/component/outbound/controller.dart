@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/core/db/dao/config_query.dart';
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/service/localizations/service.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/service/event_bus/service.dart';
-import 'package:onexray/service/ping/service.dart';
-import 'package:onexray/service/xray/setting/simple_state.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/db/dao/config_query.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/service/localizations/service.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/service/ping/service.dart';
+import 'package:mvmvpn/service/xray/setting/simple_state.dart';
 
 class HomeOutboundState {
   final String xraySettingName;

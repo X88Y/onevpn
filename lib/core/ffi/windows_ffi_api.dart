@@ -2,8 +2,8 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:ffi/ffi.dart';
-import 'package:onexray/core/ffi/base_ffi_api.dart';
-import 'package:onexray/core/tools/logger.dart';
+import 'package:mvmvpn/core/ffi/base_ffi_api.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
 import 'package:path/path.dart' as p;
 import 'package:tuple/tuple.dart';
 import 'package:win32/win32.dart';
@@ -17,7 +17,7 @@ class WindowsFfiApi extends BaseFfiApi {
 
   //===================================
 
-  static const _coreExe = "OneXrayCore.exe";
+  static const _coreExe = "MVMVpnCore.exe";
 
   var _coreProcess = 0;
 

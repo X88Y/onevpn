@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/core/tools/extensions.dart';
-import 'package:onexray/pages/geo_data/list/params.dart';
-import 'package:onexray/pages/home/xray/setting/routing_rule/params.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/service/xray/setting/routing_rule_state.dart';
+import 'package:mvmvpn/core/tools/extensions.dart';
+import 'package:mvmvpn/pages/geo_data/list/params.dart';
+import 'package:mvmvpn/pages/home/xray/setting/routing_rule/params.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/service/xray/setting/routing_rule_state.dart';
 
 class XrayRuleAttr {
   final key = TextEditingController();

@@ -1,4 +1,4 @@
-import 'package:onexray/service/xray/outbound/state.dart';
+import 'package:mvmvpn/service/xray/outbound/state.dart';
 
 class OutboundUIParams {
   final int id;

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/core/model/geo_dat.dart';
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/pages/geo_data/show/params.dart';
-import 'package:onexray/service/geo_data/service.dart';
-import 'package:onexray/core/pigeon/constants.dart';
+import 'package:mvmvpn/core/model/geo_dat.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/pages/geo_data/show/params.dart';
+import 'package:mvmvpn/service/geo_data/service.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
 
 class GeoDatShowState {
   final List<XrayGeoListCodes> geoDatCodes;

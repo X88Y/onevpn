@@ -1,14 +1,14 @@
 import 'dart:convert';
 
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/model/xray_json.dart';
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/core/tools/json.dart';
-import 'package:onexray/service/xray/setting/simple_state.dart';
-import 'package:onexray/service/xray/setting/simple_state_writer.dart';
-import 'package:onexray/service/xray/setting/state.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/model/xray_json.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/core/tools/json.dart';
+import 'package:mvmvpn/service/xray/setting/simple_state.dart';
+import 'package:mvmvpn/service/xray/setting/simple_state_writer.dart';
+import 'package:mvmvpn/service/xray/setting/state.dart';
 
 extension XraySettingStateReader on XraySettingState {
   void readFromDbData(CoreConfigData setting) {

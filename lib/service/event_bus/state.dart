@@ -1,7 +1,7 @@
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/network/model.dart';
-import 'package:onexray/core/network/standard.dart';
-import 'package:onexray/service/event_bus/enum.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/network/model.dart';
+import 'package:mvmvpn/core/network/standard.dart';
+import 'package:mvmvpn/service/event_bus/enum.dart';
 
 class AppEventBusState {
   final int xraySettingId;

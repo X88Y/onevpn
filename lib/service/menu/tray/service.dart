@@ -1,12 +1,12 @@
 import 'dart:ui';
 
 import 'package:flutter/services.dart';
-import 'package:onexray/service/localizations/service.dart';
-import 'package:onexray/gen/assets.gen.dart';
-import 'package:onexray/service/vpn/service.dart';
+import 'package:mvmvpn/service/localizations/service.dart';
+import 'package:mvmvpn/gen/assets.gen.dart';
+import 'package:mvmvpn/service/vpn/service.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:collection/collection.dart';
-import 'package:onexray/core/tools/platform.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
 import 'package:window_manager/window_manager.dart';
 
 final class TrayService with TrayListener {

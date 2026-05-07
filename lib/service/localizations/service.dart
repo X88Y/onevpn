@@ -1,6 +1,6 @@
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/l10n/localizations/app_localizations_en.dart';
-import 'package:onexray/service/event_bus/service.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations_en.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
 
 AppLocalizations appLocalizationsNoContext() {
   final eventBus = AppEventBus.instance;

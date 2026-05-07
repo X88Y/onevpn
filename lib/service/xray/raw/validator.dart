@@ -1,14 +1,14 @@
 import 'package:collection/collection.dart';
-import 'package:onexray/core/model/xray_json.dart';
-import 'package:onexray/core/pigeon/host_api.dart';
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/core/tools/file.dart';
-import 'package:onexray/core/tools/json.dart';
-import 'package:onexray/service/localizations/service.dart';
-import 'package:onexray/core/pigeon/constants.dart';
-import 'package:onexray/service/xray/raw/fix.dart';
-import 'package:onexray/service/xray/raw/writer.dart';
-import 'package:onexray/service/xray/setting/enum.dart';
+import 'package:mvmvpn/core/model/xray_json.dart';
+import 'package:mvmvpn/core/pigeon/host_api.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/core/tools/file.dart';
+import 'package:mvmvpn/core/tools/json.dart';
+import 'package:mvmvpn/service/localizations/service.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
+import 'package:mvmvpn/service/xray/raw/fix.dart';
+import 'package:mvmvpn/service/xray/raw/writer.dart';
+import 'package:mvmvpn/service/xray/setting/enum.dart';
 import 'package:tuple/tuple.dart';
 
 class XrayRawValidator {

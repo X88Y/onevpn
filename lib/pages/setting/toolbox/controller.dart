@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/core/constants/preferences.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
 import 'package:window_manager/window_manager.dart';
 
 class ToolboxState {

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/core/db/dao/config_query.dart';
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/pages/home/component/subscription_row/controller.dart';
-import 'package:onexray/pages/theme/color.dart';
-import 'package:onexray/pages/widget/date_view.dart';
-import 'package:onexray/pages/widget/menu_picker.dart';
-import 'package:onexray/service/event_bus/service.dart';
-import 'package:onexray/service/event_bus/state.dart';
+import 'package:mvmvpn/core/db/dao/config_query.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/pages/home/component/subscription_row/controller.dart';
+import 'package:mvmvpn/pages/theme/color.dart';
+import 'package:mvmvpn/pages/widget/date_view.dart';
+import 'package:mvmvpn/pages/widget/menu_picker.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/service/event_bus/state.dart';
 
 class SubscriptionRowView extends StatelessWidget {
   final SubscriptionItem item;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/service/sub_update/state.dart';
+import 'package:mvmvpn/service/sub_update/state.dart';
 
 class SubUpdatePageState {
   final SubUpdateState subUpdateState;

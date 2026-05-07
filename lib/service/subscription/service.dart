@@ -1,14 +1,14 @@
 import 'dart:async';
 
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/network/client.dart';
-import 'package:onexray/service/db/config_writer.dart';
-import 'package:onexray/service/event_bus/service.dart';
-import 'package:onexray/service/ping/service.dart';
-import 'package:onexray/service/share/protocol.dart';
-import 'package:onexray/service/share/xray_share_reader.dart';
-import 'package:onexray/service/sub_update/state.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/network/client.dart';
+import 'package:mvmvpn/service/db/config_writer.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/service/ping/service.dart';
+import 'package:mvmvpn/service/share/protocol.dart';
+import 'package:mvmvpn/service/share/xray_share_reader.dart';
+import 'package:mvmvpn/service/sub_update/state.dart';
 
 class SubscriptionService {
   static final SubscriptionService _singleton = SubscriptionService._internal();

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/core/tools/extensions.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/mixin/alert.dart';
-import 'package:onexray/service/ping/state.dart';
+import 'package:mvmvpn/core/tools/extensions.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/mixin/alert.dart';
+import 'package:mvmvpn/service/ping/state.dart';
 
 class PingPageState {
   final PingState pingState;

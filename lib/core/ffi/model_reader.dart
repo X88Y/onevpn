@@ -1,7 +1,7 @@
-import 'package:onexray/core/ffi/model.dart';
-import 'package:onexray/core/pigeon/model.dart';
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/core/tools/json.dart';
+import 'package:mvmvpn/core/ffi/model.dart';
+import 'package:mvmvpn/core/pigeon/model.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/core/tools/json.dart';
 
 extension RunXrayConfigReader on RunXrayConfig {
   static RunXrayConfig readFromStartVpnRequest(StartVpnRequest request) {

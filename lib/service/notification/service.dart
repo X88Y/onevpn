@@ -1,6 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:onexray/core/tools/logger.dart';
-import 'package:onexray/core/tools/platform.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
 
 final class NotificationService {
   static final NotificationService _singleton = NotificationService._internal();
@@ -22,7 +22,7 @@ final class NotificationService {
     );
     final WindowsInitializationSettings initializationSettingsWindows =
         WindowsInitializationSettings(
-          appName: 'OneXray',
+          appName: 'MVMVpn',
           appUserModelId: 'com.svyatvpn.app',
           // Search online for GUID generators to make your own
           guid: '835d7bbd-85bb-4c73-97f8-ce0740f151a7',
@@ -70,11 +70,11 @@ final class NotificationService {
   Future<void> _pushAndroidNotification(String message) async {
     const androidNotificationDetails = AndroidNotificationDetails(
       'com.svyatvpn.app',
-      'OneXray',
-      channelDescription: 'OneXray',
+      'MVMVpn',
+      channelDescription: 'MVMVpn',
       importance: Importance.defaultImportance,
       priority: Priority.defaultPriority,
-      ticker: 'OneXray',
+      ticker: 'MVMVpn',
     );
     const notificationDetails = NotificationDetails(
       android: androidNotificationDetails,

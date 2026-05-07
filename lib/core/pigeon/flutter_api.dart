@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:onexray/core/pigeon/messages.g.dart';
-import 'package:onexray/core/tools/logger.dart';
+import 'package:mvmvpn/core/pigeon/messages.g.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
 
 class AppFlutterApi extends BridgeFlutterApi {
   static final AppFlutterApi _singleton = AppFlutterApi._internal();

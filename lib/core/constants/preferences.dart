@@ -1,5 +1,5 @@
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/tools/json.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/tools/json.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesKey {

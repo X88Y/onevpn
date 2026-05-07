@@ -4,7 +4,7 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/app/libXray.dll"
 
 set(APP_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin")
 
-install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/app/OneXrayCore.exe"
+install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/app/MVMVpnCore.exe"
         DESTINATION "${APP_BIN_DIR}")
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/app/wintun.dll"
         DESTINATION "${APP_BIN_DIR}"

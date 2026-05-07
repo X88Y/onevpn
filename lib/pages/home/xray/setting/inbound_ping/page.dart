@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/global/constants.dart';
-import 'package:onexray/pages/home/xray/setting/inbound_ping/controller.dart';
-import 'package:onexray/pages/home/xray/setting/inbound_ping/params.dart';
-import 'package:onexray/pages/widget/section.dart';
-import 'package:onexray/pages/widget/text_row.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/global/constants.dart';
+import 'package:mvmvpn/pages/home/xray/setting/inbound_ping/controller.dart';
+import 'package:mvmvpn/pages/home/xray/setting/inbound_ping/params.dart';
+import 'package:mvmvpn/pages/widget/section.dart';
+import 'package:mvmvpn/pages/widget/text_row.dart';
 
 class InboundPingPage extends StatelessWidget {
   final InboundPingParams params;

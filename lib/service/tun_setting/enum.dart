@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:onexray/core/tools/platform.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
 
 enum PerAppVPNMode {
   allow("allow"),

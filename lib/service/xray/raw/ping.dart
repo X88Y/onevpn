@@ -1,13 +1,13 @@
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/network/constants.dart';
-import 'package:onexray/core/pigeon/host_api.dart';
-import 'package:onexray/core/tools/file.dart';
-import 'package:onexray/core/tools/json.dart';
-import 'package:onexray/service/ping/state.dart';
-import 'package:onexray/core/pigeon/constants.dart';
-import 'package:onexray/service/xray/raw/fix.dart';
-import 'package:onexray/service/xray/raw/writer.dart';
-import 'package:onexray/service/xray/setting/inbounds_state.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/network/constants.dart';
+import 'package:mvmvpn/core/pigeon/host_api.dart';
+import 'package:mvmvpn/core/tools/file.dart';
+import 'package:mvmvpn/core/tools/json.dart';
+import 'package:mvmvpn/service/ping/state.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
+import 'package:mvmvpn/service/xray/raw/fix.dart';
+import 'package:mvmvpn/service/xray/raw/writer.dart';
+import 'package:mvmvpn/service/xray/setting/inbounds_state.dart';
 
 class XrayRawPing {
   static Future<int> ping(String rawText, PingState pingState) async {

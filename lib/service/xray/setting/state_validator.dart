@@ -1,9 +1,9 @@
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/core/tools/extensions.dart';
-import 'package:onexray/service/localizations/service.dart';
-import 'package:onexray/service/xray/json_writer.dart';
-import 'package:onexray/service/xray/setting/state.dart';
-import 'package:onexray/service/xray/setting/state_writer.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/core/tools/extensions.dart';
+import 'package:mvmvpn/service/localizations/service.dart';
+import 'package:mvmvpn/service/xray/json_writer.dart';
+import 'package:mvmvpn/service/xray/setting/state.dart';
+import 'package:mvmvpn/service/xray/setting/state_writer.dart';
 import 'package:tuple/tuple.dart';
 
 extension XraySettingStateValidator on XraySettingState {

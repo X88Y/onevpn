@@ -20,7 +20,7 @@
         android:name="${applicationName}"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="OneXray"
+        android:label="MVMVpn"
         tools:targetApi="tiramisu">
         <activity
             android:name=".MainActivity"
@@ -54,8 +54,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="onexray.com"
-                    android:scheme="onexray" />
+                    android:host="mvmvpn.com"
+                    android:scheme="mvmvpn" />
             </intent-filter>
         </activity>
         <!-- AdMob APPLICATION_ID is injected via manifestPlaceholders from

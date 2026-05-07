@@ -4,7 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import "package:path/path.dart" as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:onexray/core/tools/platform.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
 import 'package:uuid/uuid.dart';
 
 class ConfigFileType {

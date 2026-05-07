@@ -1,13 +1,13 @@
-import 'package:onexray/core/network/constants.dart';
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/core/tools/extensions.dart';
-import 'package:onexray/service/localizations/service.dart';
-import 'package:onexray/service/xray/json_writer.dart';
-import 'package:onexray/service/xray/outbound/state.dart';
-import 'package:onexray/service/xray/outbound/state_writer.dart';
-import 'package:onexray/service/xray/outbound/xhttp/state_validator.dart';
-import 'package:onexray/service/xray/setting/inbounds_state.dart';
-import 'package:onexray/service/xray/standard.dart';
+import 'package:mvmvpn/core/network/constants.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/core/tools/extensions.dart';
+import 'package:mvmvpn/service/localizations/service.dart';
+import 'package:mvmvpn/service/xray/json_writer.dart';
+import 'package:mvmvpn/service/xray/outbound/state.dart';
+import 'package:mvmvpn/service/xray/outbound/state_writer.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/state_validator.dart';
+import 'package:mvmvpn/service/xray/setting/inbounds_state.dart';
+import 'package:mvmvpn/service/xray/standard.dart';
 import 'package:tuple/tuple.dart';
 
 extension OutboundStateValidator on OutboundState {

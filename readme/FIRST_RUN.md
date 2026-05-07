@@ -1,6 +1,6 @@
 # Debug Environment Setup
 
-This guide is for OneXray developers. It describes the minimum setup for the **local debug environment** and does not cover release, store submission, signing, or fastlane publishing.
+This guide is for MVMVpn developers. It describes the minimum setup for the **local debug environment** and does not cover release, store submission, signing, or fastlane publishing.
 
 ## 1. Initialize the project
 
@@ -37,7 +37,7 @@ The `.example` files are enough for local development. Replace them with your ow
 
 ## 2. Prepare libXray artifacts
 
-Local OneXray debugging depends on artifacts built from the sibling `libXray` repository. The main outputs from `libXray/build` are:
+Local MVMVpn debugging depends on artifacts built from the sibling `libXray` repository. The main outputs from `libXray/build` are:
 
 - Apple: `LibXray.xcframework`
 - Android: `libXray.aar`, `libXray-sources.jar`
@@ -54,7 +54,7 @@ python3 build/main.py linux
 python3 build/main.py windows
 ```
 
-Then copy the artifacts into the corresponding OneXray directories.
+Then copy the artifacts into the corresponding MVMVpn directories.
 
 ### iOS / macOS
 
@@ -78,22 +78,22 @@ cp ../libXray/libXray-sources.jar android/app/libs/
 
 ### Linux
 
-`linux/app.cmake` links `libXray.so` from `linux/app/` and installs `OneXrayCore` into the final bundle. Copy the Linux artifacts into `linux/app/`, and rename `bin/xray` to match OneXray's expected name:
+`linux/app.cmake` links `libXray.so` from `linux/app/` and installs `MVMVpnCore` into the final bundle. Copy the Linux artifacts into `linux/app/`, and rename `bin/xray` to match MVMVpn's expected name:
 
 ```shell
 mkdir -p linux/app
 cp ../libXray/linux_so/libXray.so linux/app/
-cp ../libXray/bin/xray linux/app/OneXrayCore
+cp ../libXray/bin/xray linux/app/MVMVpnCore
 ```
 
 ### Windows
 
-`windows/app.cmake` installs `libXray.dll` and `OneXrayCore.exe` from `windows/app/`. Copy the Windows artifacts into `windows/app/`, and rename `bin/xray.exe` to match OneXray's expected name:
+`windows/app.cmake` installs `libXray.dll` and `MVMVpnCore.exe` from `windows/app/`. Copy the Windows artifacts into `windows/app/`, and rename `bin/xray.exe` to match MVMVpn's expected name:
 
 ```shell
 mkdir -p windows/app
 cp ../libXray/windows_dll/libXray.dll windows/app/
-cp ../libXray/bin/xray.exe windows/app/OneXrayCore.exe
+cp ../libXray/bin/xray.exe windows/app/MVMVpnCore.exe
 ```
 
 > `windows/app.cmake` also packages `wintun.dll`. That file does not come from `libXray` and must be prepared separately in the Windows development environment.
@@ -152,7 +152,7 @@ fvm flutter run -d ios
 
 For local debugging, `.env` can usually stay empty:
 
-- If `ADMOB_APP_ID_ANDROID` or `ADMOB_APP_ID_IOS` is empty, OneXray falls back to Google's official test App ID.
+- If `ADMOB_APP_ID_ANDROID` or `ADMOB_APP_ID_IOS` is empty, MVMVpn falls back to Google's official test App ID.
 - If `ADMOB_AD_UNIT_ID_ANDROID` or `ADMOB_AD_UNIT_ID_IOS` is empty, no real ad unit IDs are injected.
 - `FASTLANE_*` variables are only for release flows and are not required for debugging.
 
@@ -183,9 +183,9 @@ These are the files you will usually touch more often in local development:
 | `android/app/libs/libXray.aar` | Android libXray package. |
 | `android/app/libs/libXray-sources.jar` | Matching sources jar for Android. |
 | `linux/app/libXray.so` | Shared library linked by the Linux desktop app. |
-| `linux/app/OneXrayCore` | Core binary used by the Linux desktop app. |
+| `linux/app/MVMVpnCore` | Core binary used by the Linux desktop app. |
 | `windows/app/libXray.dll` | Dynamic library loaded by the Windows desktop app. |
-| `windows/app/OneXrayCore.exe` | Core binary used by the Windows desktop app. |
+| `windows/app/MVMVpnCore.exe` | Core binary used by the Windows desktop app. |
 | `lib/firebase_options.dart` | Flutter-side Firebase initialization config. |
 | `android/app/google-services.json` | Android Firebase config. |
 | `swift/AppStore/GoogleService-Info.plist` | Firebase plist for the iOS / macOS App Store targets. |
@@ -198,7 +198,7 @@ The repository already provides matching `.example` files. For the first debug s
 For local development and breakpoint debugging, the minimum setup is:
 
 1. Copy the `.example` config files.
-2. Build `libXray` and copy its artifacts into the corresponding OneXray directories.
+2. Build `libXray` and copy its artifacts into the corresponding MVMVpn directories.
 3. Prepare the geo data in `assets/dat/`.
 4. Run `fvm install` and `fvm flutter pub get`.
 5. Run `ffigen` and `build_runner`.

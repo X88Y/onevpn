@@ -206,7 +206,7 @@ class BridgeHostApi {
   final String pigeonVar_messageChannelSuffix;
 
   Future<String> getTunFilesDir() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.getTunFilesDir$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.getTunFilesDir$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -225,7 +225,7 @@ class BridgeHostApi {
   }
 
   Future<void> readVpnStatus() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.readVpnStatus$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.readVpnStatus$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -243,7 +243,7 @@ class BridgeHostApi {
   }
 
   Future<void> startVpn() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.startVpn$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.startVpn$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -261,7 +261,7 @@ class BridgeHostApi {
   }
 
   Future<void> stopVpn() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.stopVpn$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.stopVpn$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -279,7 +279,7 @@ class BridgeHostApi {
   }
 
   Future<String> getFreePorts(int num) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.getFreePorts$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.getFreePorts$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -298,7 +298,7 @@ class BridgeHostApi {
   }
 
   Future<String> convertShareLinksToXrayJson(String base64Text) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.convertShareLinksToXrayJson$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.convertShareLinksToXrayJson$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -317,7 +317,7 @@ class BridgeHostApi {
   }
 
   Future<String> convertXrayJsonToShareLinks(String base64Text) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.convertXrayJsonToShareLinks$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.convertXrayJsonToShareLinks$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -336,7 +336,7 @@ class BridgeHostApi {
   }
 
   Future<String> countGeoData(String base64Text) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.countGeoData$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.countGeoData$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -355,7 +355,7 @@ class BridgeHostApi {
   }
 
   Future<String> readGeoFiles(String base64Text) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.readGeoFiles$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.readGeoFiles$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -374,7 +374,7 @@ class BridgeHostApi {
   }
 
   Future<String> ping(String base64Text) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.ping$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.ping$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -393,7 +393,7 @@ class BridgeHostApi {
   }
 
   Future<String> testXray(String base64Text) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.testXray$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.testXray$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -412,7 +412,7 @@ class BridgeHostApi {
   }
 
   Future<String> runXray(String base64Text) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.runXray$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.runXray$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -431,7 +431,7 @@ class BridgeHostApi {
   }
 
   Future<String> stopXray() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.stopXray$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.stopXray$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -450,7 +450,7 @@ class BridgeHostApi {
   }
 
   Future<String> xrayVersion() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.xrayVersion$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.xrayVersion$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -469,7 +469,7 @@ class BridgeHostApi {
   }
 
   Future<bool> checkVpnPermission() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.checkVpnPermission$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.checkVpnPermission$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -488,7 +488,7 @@ class BridgeHostApi {
   }
 
   Future<List<AndroidAppInfo>> getInstalledApps() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.getInstalledApps$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.getInstalledApps$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -507,7 +507,7 @@ class BridgeHostApi {
   }
 
   Future<bool> useSystemExtension() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.useSystemExtension$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.useSystemExtension$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -526,7 +526,7 @@ class BridgeHostApi {
   }
 
   Future<bool> setAppIcon(String appIcon) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.setAppIcon$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.setAppIcon$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -545,7 +545,7 @@ class BridgeHostApi {
   }
 
   Future<String> getCurrentAppIcon() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.onexray.BridgeHostApi.getCurrentAppIcon$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.mvmvpn.BridgeHostApi.getCurrentAppIcon$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -573,7 +573,7 @@ abstract class BridgeFlutterApi {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.onexray.BridgeFlutterApi.vpnStatusChanged$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.mvmvpn.BridgeFlutterApi.vpnStatusChanged$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);

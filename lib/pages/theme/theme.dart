@@ -1,6 +1,6 @@
 import 'package:flex_seed_scheme/flex_seed_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:onexray/pages/theme/color.dart';
+import 'package:mvmvpn/pages/theme/color.dart';
 
 abstract final class AppTheme {
   static ThemeData get light {

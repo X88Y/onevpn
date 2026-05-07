@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:onexray/core/network/constants.dart';
-import 'package:onexray/core/network/model.dart';
-import 'package:onexray/core/network/standard.dart';
-import 'package:onexray/core/tools/logger.dart';
+import 'package:mvmvpn/core/network/constants.dart';
+import 'package:mvmvpn/core/network/model.dart';
+import 'package:mvmvpn/core/network/standard.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class NetClient {
@@ -43,7 +43,7 @@ class NetClient {
   Future<void> asyncInit() async {
     final packageInfo = await PackageInfo.fromPlatform();
     final userAgent =
-        'OneXray/${packageInfo.version} (${packageInfo.packageName}; build:${packageInfo.buildNumber}; ${Platform.operatingSystem})';
+        'MVMVpn/${packageInfo.version} (${packageInfo.packageName}; build:${packageInfo.buildNumber}; ${Platform.operatingSystem})';
     final headers = <String, String>{'User-Agent': userAgent};
     _downloadClient.options.headers = headers;
   }

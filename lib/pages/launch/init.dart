@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/core/tools/file.dart';
-import 'package:onexray/gen/assets.gen.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/service/event_bus/service.dart';
-import 'package:onexray/core/pigeon/constants.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/tools/file.dart';
+import 'package:mvmvpn/gen/assets.gen.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
 import 'package:path/path.dart' as p;
 
 Future<void> initRouter(BuildContext context) async {

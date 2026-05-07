@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/geo_data/select/controller.dart';
-import 'package:onexray/pages/geo_data/select/params.dart';
-import 'package:onexray/pages/global/constants.dart';
-import 'package:onexray/pages/widget/bottom_button.dart';
-import 'package:onexray/pages/widget/bottom_view.dart';
-import 'package:onexray/pages/widget/tag_view.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/geo_data/select/controller.dart';
+import 'package:mvmvpn/pages/geo_data/select/params.dart';
+import 'package:mvmvpn/pages/global/constants.dart';
+import 'package:mvmvpn/pages/widget/bottom_button.dart';
+import 'package:mvmvpn/pages/widget/bottom_view.dart';
+import 'package:mvmvpn/pages/widget/tag_view.dart';
 
 class GeoDatSelectPage extends StatelessWidget {
   final GeoDatSelectParams params;

@@ -1,7 +1,7 @@
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/core/tools/extensions.dart';
-import 'package:onexray/service/xray/outbound/xhttp/download/state_validator.dart';
-import 'package:onexray/service/xray/outbound/xhttp/state.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/core/tools/extensions.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/download/state_validator.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/state.dart';
 
 extension XhttpExtraStateValidator on XhttpExtraState {
   void removeWhitespace() {

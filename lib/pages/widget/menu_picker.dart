@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:onexray/service/localizations/service.dart';
+import 'package:mvmvpn/service/localizations/service.dart';
 
 typedef TextSelectCallback<T extends Object> = Function(T selected);
 

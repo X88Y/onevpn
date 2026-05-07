@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:onexray/core/model/tun_json.dart';
+import 'package:mvmvpn/core/model/tun_json.dart';
 
 part 'model.g.dart';
 

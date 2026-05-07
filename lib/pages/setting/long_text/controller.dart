@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/mixin/alert.dart';
-import 'package:onexray/pages/setting/long_text/params.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/mixin/alert.dart';
+import 'package:mvmvpn/pages/setting/long_text/params.dart';
 import 'package:share_plus/share_plus.dart';
 
 class LongTextState {

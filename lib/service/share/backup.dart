@@ -5,22 +5,22 @@ import 'package:archive/archive_io.dart';
 import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/tools/file.dart';
-import 'package:onexray/core/tools/logger.dart';
-import 'package:onexray/gen/assets.gen.dart';
-import 'package:onexray/service/db/config_writer.dart';
-import 'package:onexray/service/event_bus/service.dart';
-import 'package:onexray/service/share/protocol.dart';
-import 'package:onexray/core/pigeon/constants.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/tools/file.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
+import 'package:mvmvpn/gen/assets.gen.dart';
+import 'package:mvmvpn/service/db/config_writer.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/service/share/protocol.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:tuple/tuple.dart';
 
 // 文件结构
-// OneXray-date.zip
+// MVMVpn-date.zip
 // -- timestamp.txt
 // -- sha256sum.txt
 // -- data.zip
@@ -50,7 +50,7 @@ class BackupService {
   static const _sha256SumFile = "sha256sum.txt";
   static const _timestampFile = "timestamp.txt";
 
-  static const _zipFilePrefix = "OneXray";
+  static const _zipFilePrefix = "MVMVpn";
 
   // backup zip files dir, in application support directory
   static const _backupName = "backup";

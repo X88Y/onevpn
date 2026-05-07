@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/core/pigeon/host_api.dart';
-import 'package:onexray/core/pigeon/messages.g.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/pages/setting/tun/installed_app/params.dart';
-import 'package:onexray/pages/setting/tun/selected_app/params.dart';
+import 'package:mvmvpn/core/pigeon/host_api.dart';
+import 'package:mvmvpn/core/pigeon/messages.g.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/pages/setting/tun/installed_app/params.dart';
+import 'package:mvmvpn/pages/setting/tun/selected_app/params.dart';
 
 class SelectedAppState {
   final List<AndroidAppInfo> apps;

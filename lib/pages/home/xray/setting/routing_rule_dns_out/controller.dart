@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/pages/home/xray/setting/routing_rule_dns_out/params.dart';
-import 'package:onexray/service/xray/setting/routing_rule_state.dart';
+import 'package:mvmvpn/pages/home/xray/setting/routing_rule_dns_out/params.dart';
+import 'package:mvmvpn/service/xray/setting/routing_rule_state.dart';
 
 class RoutingRuleDnsOutCubitState {
   final RoutingRuleState ruleState;

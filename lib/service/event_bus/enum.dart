@@ -2,8 +2,8 @@ import 'dart:ffi';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:onexray/core/tools/platform.dart';
-import 'package:onexray/service/localizations/service.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
+import 'package:mvmvpn/service/localizations/service.dart';
 
 enum ThemeCode {
   system("system"),

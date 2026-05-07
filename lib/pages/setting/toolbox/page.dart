@@ -1,7 +1,7 @@
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/global/constants.dart';
-import 'package:onexray/pages/setting/toolbox/controller.dart';
-import 'package:onexray/pages/widget/section.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/global/constants.dart';
+import 'package:mvmvpn/pages/setting/toolbox/controller.dart';
+import 'package:mvmvpn/pages/widget/section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/db/database/enum.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/db/database/enum.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 
 extension ConfigReader on CoreConfigData {
   List<String> readTags(BuildContext context) {

@@ -1,5 +1,5 @@
-display_name: OneXray
-package_name: OneXray
+display_name: MVMVpn
+package_name: MVMVpn
 maintainer:
   name: YuanDevLLC
   email: yuan@yuandev.net
@@ -14,13 +14,13 @@ essential: false
 icon: assets/logo.png
 postinstall_scripts:
   - echo "Thanks using our app!"
-  - setcap cap_net_admin,cap_net_raw+eip /usr/share/OneXray/bin/OneXrayCore
+  - setcap cap_net_admin,cap_net_raw+eip /usr/share/MVMVpn/bin/MVMVpnCore
 postuninstall_scripts:
   - echo "Goodbye!"
 keywords:
-  - OneXray
+  - MVMVpn
   - Xray
-generic_name: OneXray
+generic_name: MVMVpn
 categories:
   - Netowrk
 startup_notify: true

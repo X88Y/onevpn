@@ -309,7 +309,7 @@ interface BridgeHostApi {
     fun setUp(binaryMessenger: BinaryMessenger, api: BridgeHostApi?, messageChannelSuffix: String = "") {
       val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.getTunFilesDir$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.getTunFilesDir$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.getTunFilesDir{ result: Result<String> ->
@@ -327,7 +327,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.readVpnStatus$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.readVpnStatus$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.readVpnStatus{ result: Result<Unit> ->
@@ -344,7 +344,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.startVpn$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.startVpn$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.startVpn{ result: Result<Unit> ->
@@ -361,7 +361,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.stopVpn$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.stopVpn$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.stopVpn{ result: Result<Unit> ->
@@ -378,7 +378,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.getFreePorts$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.getFreePorts$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -398,7 +398,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.convertShareLinksToXrayJson$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.convertShareLinksToXrayJson$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -418,7 +418,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.convertXrayJsonToShareLinks$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.convertXrayJsonToShareLinks$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -438,7 +438,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.countGeoData$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.countGeoData$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -458,7 +458,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.readGeoFiles$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.readGeoFiles$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -478,7 +478,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.ping$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.ping$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -498,7 +498,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.testXray$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.testXray$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -518,7 +518,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.runXray$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.runXray$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -538,7 +538,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.stopXray$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.stopXray$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.stopXray{ result: Result<String> ->
@@ -556,7 +556,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.xrayVersion$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.xrayVersion$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.xrayVersion{ result: Result<String> ->
@@ -574,7 +574,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.checkVpnPermission$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.checkVpnPermission$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.checkVpnPermission{ result: Result<Boolean> ->
@@ -592,7 +592,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.getInstalledApps$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.getInstalledApps$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.getInstalledApps{ result: Result<List<AndroidAppInfo>> ->
@@ -610,7 +610,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.useSystemExtension$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.useSystemExtension$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.useSystemExtension{ result: Result<Boolean> ->
@@ -628,7 +628,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.setAppIcon$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.setAppIcon$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -648,7 +648,7 @@ interface BridgeHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.onexray.BridgeHostApi.getCurrentAppIcon$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.mvmvpn.BridgeHostApi.getCurrentAppIcon$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.getCurrentAppIcon{ result: Result<String> ->
@@ -679,7 +679,7 @@ class BridgeFlutterApi(private val binaryMessenger: BinaryMessenger, private val
   fun vpnStatusChanged(statusArg: VpnStatus, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.onexray.BridgeFlutterApi.vpnStatusChanged$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.mvmvpn.BridgeFlutterApi.vpnStatusChanged$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(statusArg)) {
       if (it is List<*>) {

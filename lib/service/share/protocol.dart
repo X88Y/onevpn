@@ -2,26 +2,26 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/db/database/enum.dart';
-import 'package:onexray/core/pigeon/host_api.dart';
-import 'package:onexray/core/pigeon/model.dart';
-import 'package:onexray/service/geo_data/enum.dart';
-import 'package:onexray/service/geo_data/service.dart';
-import 'package:onexray/service/geo_data/system_state.dart';
-import 'package:onexray/service/geo_data/validator.dart';
-import 'package:onexray/service/subscription/service.dart';
-import 'package:onexray/service/subscription/validator.dart';
-import 'package:onexray/service/xray/outbound/state.dart';
-import 'package:onexray/service/xray/outbound/state_db.dart';
-import 'package:onexray/service/xray/outbound/state_reader.dart';
-import 'package:onexray/service/xray/outbound/state_validator.dart';
-import 'package:onexray/service/xray/raw/db.dart';
-import 'package:onexray/service/xray/raw/validator.dart';
-import 'package:onexray/service/xray/setting/state.dart';
-import 'package:onexray/service/xray/setting/state_db.dart';
-import 'package:onexray/service/xray/setting/state_reader.dart';
-import 'package:onexray/service/xray/setting/state_validator.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/db/database/enum.dart';
+import 'package:mvmvpn/core/pigeon/host_api.dart';
+import 'package:mvmvpn/core/pigeon/model.dart';
+import 'package:mvmvpn/service/geo_data/enum.dart';
+import 'package:mvmvpn/service/geo_data/service.dart';
+import 'package:mvmvpn/service/geo_data/system_state.dart';
+import 'package:mvmvpn/service/geo_data/validator.dart';
+import 'package:mvmvpn/service/subscription/service.dart';
+import 'package:mvmvpn/service/subscription/validator.dart';
+import 'package:mvmvpn/service/xray/outbound/state.dart';
+import 'package:mvmvpn/service/xray/outbound/state_db.dart';
+import 'package:mvmvpn/service/xray/outbound/state_reader.dart';
+import 'package:mvmvpn/service/xray/outbound/state_validator.dart';
+import 'package:mvmvpn/service/xray/raw/db.dart';
+import 'package:mvmvpn/service/xray/raw/validator.dart';
+import 'package:mvmvpn/service/xray/setting/state.dart';
+import 'package:mvmvpn/service/xray/setting/state_db.dart';
+import 'package:mvmvpn/service/xray/setting/state_reader.dart';
+import 'package:mvmvpn/service/xray/setting/state_validator.dart';
 import 'package:tuple/tuple.dart';
 
 enum DeepLinkPath {
@@ -51,10 +51,10 @@ class AppShareService {
 
   AppShareService._internal();
 
-  static const _appPrefix = "onexray://onexray.com";
+  static const _appPrefix = "mvmvpn://mvmvpn.com";
 
-  static const _scheme = "onexray";
-  static const _host = "onexray.com";
+  static const _scheme = "mvmvpn";
+  static const _host = "mvmvpn.com";
 
   static const _pathKeyUrl = "url";
   static const _pathKeyType = "type";

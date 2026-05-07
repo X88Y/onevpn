@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/pages/home/xray/setting/outbound_dns/params.dart';
-import 'package:onexray/pages/home/xray/setting/outbound_freedom/params.dart';
-import 'package:onexray/pages/home/xray/setting/outbound_fragment/params.dart';
-import 'package:onexray/pages/home/xray/setting/outbounds/params.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/service/xray/setting/enum.dart';
-import 'package:onexray/service/xray/setting/outbounds_state.dart';
+import 'package:mvmvpn/pages/home/xray/setting/outbound_dns/params.dart';
+import 'package:mvmvpn/pages/home/xray/setting/outbound_freedom/params.dart';
+import 'package:mvmvpn/pages/home/xray/setting/outbound_fragment/params.dart';
+import 'package:mvmvpn/pages/home/xray/setting/outbounds/params.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/service/xray/setting/enum.dart';
+import 'package:mvmvpn/service/xray/setting/outbounds_state.dart';
 
 class OutboundsCubitState {
   final OutboundsState outboundsState;

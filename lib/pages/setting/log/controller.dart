@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/core/tools/file.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/pages/setting/long_text/params.dart';
-import 'package:onexray/pages/widget/menu_picker.dart';
-import 'package:onexray/service/xray/constants.dart';
+import 'package:mvmvpn/core/tools/file.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/pages/setting/long_text/params.dart';
+import 'package:mvmvpn/pages/widget/menu_picker.dart';
+import 'package:mvmvpn/service/xray/constants.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 

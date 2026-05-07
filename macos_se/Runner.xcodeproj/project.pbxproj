@@ -98,7 +98,7 @@
 		23FDE635EE66D56415649160 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		333000ED22D3DE5D00554162 /* Warnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Warnings.xcconfig; sourceTree = "<group>"; };
 		335BBD1A22A9A15E00E9071D /* GeneratedPluginRegistrant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeneratedPluginRegistrant.swift; sourceTree = "<group>"; };
-		33CC10ED2044A3C60003C045 /* OneXraySE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneXraySE.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		33CC10ED2044A3C60003C045 /* MVMVpnSE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MVMVpnSE.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		33CC10F22044A3C60003C045 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Runner/Assets.xcassets; sourceTree = "<group>"; };
 		33CC10F52044A3C60003C045 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		33CC10F72044A3C60003C045 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = Runner/Info.plist; sourceTree = "<group>"; };
@@ -193,7 +193,7 @@
 		33CC10EE2044A3C60003C045 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				33CC10ED2044A3C60003C045 /* OneXraySE.app */,
+				33CC10ED2044A3C60003C045 /* MVMVpnSE.app */,
 				EB7E98392F93C204002151DD /* com.svyatvpn.app.se.tun.systemextension */,
 			);
 			name = Products;
@@ -373,7 +373,7 @@
 			);
 			name = Runner;
 			productName = Runner;
-			productReference = 33CC10ED2044A3C60003C045 /* OneXraySE.app */;
+			productReference = 33CC10ED2044A3C60003C045 /* MVMVpnSE.app */;
 			productType = "com.apple.product-type.application";
 		};
 		EB7E98382F93C204002151DD /* tunnel */ = {
@@ -701,7 +701,7 @@
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = WVD5VC7V8N;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Runner/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = OneXraySE;
+				INFOPLIST_KEY_CFBundleDisplayName = MVMVpnSE;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -709,8 +709,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.se;
-				PROVISIONING_PROFILE_SPECIFIER = OneXraySEmacOS;
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXraySEmacOS;
+				PROVISIONING_PROFILE_SPECIFIER = MVMVpnSEmacOS;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = MVMVpnSEmacOS;
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/../swift/all/BridgeHeader.h";
 				SWIFT_VERSION = 5.0;
@@ -854,7 +854,7 @@
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = WVD5VC7V8N;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Runner/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = OneXraySE;
+				INFOPLIST_KEY_CFBundleDisplayName = MVMVpnSE;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -862,8 +862,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.se;
-				PROVISIONING_PROFILE_SPECIFIER = OneXraySEmacOS;
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXraySEmacOS;
+				PROVISIONING_PROFILE_SPECIFIER = MVMVpnSEmacOS;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = MVMVpnSEmacOS;
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/../swift/all/BridgeHeader.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -886,7 +886,7 @@
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = WVD5VC7V8N;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Runner/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = OneXraySE;
+				INFOPLIST_KEY_CFBundleDisplayName = MVMVpnSE;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -894,8 +894,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.se;
-				PROVISIONING_PROFILE_SPECIFIER = OneXraySEmacOS;
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXraySEmacOS;
+				PROVISIONING_PROFILE_SPECIFIER = MVMVpnSEmacOS;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = MVMVpnSEmacOS;
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/../swift/all/BridgeHeader.h";
 				SWIFT_VERSION = 5.0;
@@ -971,8 +971,8 @@
 				OTHER_MODULE_VERIFIER_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.se.tun;
 				PRODUCT_NAME = "$(inherited)";
-				PROVISIONING_PROFILE_SPECIFIER = OneXraySETunmacOS;
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXraySETunmacOS;
+				PROVISIONING_PROFILE_SPECIFIER = MVMVpnSETunmacOS;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = MVMVpnSETunmacOS;
 				REGISTER_APP_GROUPS = YES;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -1038,8 +1038,8 @@
 				OTHER_MODULE_VERIFIER_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.se.tun;
 				PRODUCT_NAME = "$(inherited)";
-				PROVISIONING_PROFILE_SPECIFIER = OneXraySETunmacOS;
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXraySETunmacOS;
+				PROVISIONING_PROFILE_SPECIFIER = MVMVpnSETunmacOS;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = MVMVpnSETunmacOS;
 				REGISTER_APP_GROUPS = YES;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -1103,8 +1103,8 @@
 				OTHER_MODULE_VERIFIER_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.se.tun;
 				PRODUCT_NAME = "$(inherited)";
-				PROVISIONING_PROFILE_SPECIFIER = OneXraySETunmacOS;
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = OneXraySETunmacOS;
+				PROVISIONING_PROFILE_SPECIFIER = MVMVpnSETunmacOS;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = MVMVpnSETunmacOS;
 				REGISTER_APP_GROUPS = YES;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;

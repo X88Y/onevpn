@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:quick_actions/quick_actions.dart';
-import 'package:onexray/service/localizations/service.dart';
-import 'package:onexray/service/vpn/service.dart';
+import 'package:mvmvpn/service/localizations/service.dart';
+import 'package:mvmvpn/service/vpn/service.dart';
 import 'package:collection/collection.dart';
-import 'package:onexray/core/tools/platform.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
 
 final class ShortCutService {
   static final ShortCutService _singleton = ShortCutService._internal();

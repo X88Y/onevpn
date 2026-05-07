@@ -2,12 +2,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:onexray/core/pigeon/flutter_api.dart';
-import 'package:onexray/core/pigeon/host_api.dart';
-import 'package:onexray/core/pigeon/messages.g.dart';
-import 'package:onexray/core/tools/platform.dart';
-import 'package:onexray/firebase_options.dart';
-import 'package:onexray/pages/main/router.dart';
+import 'package:mvmvpn/core/pigeon/flutter_api.dart';
+import 'package:mvmvpn/core/pigeon/host_api.dart';
+import 'package:mvmvpn/core/pigeon/messages.g.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
+import 'package:mvmvpn/firebase_options.dart';
+import 'package:mvmvpn/pages/main/router.dart';
 import 'package:window_manager/window_manager.dart';
 
 Future<void> main() async {

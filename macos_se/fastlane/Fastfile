@@ -5,9 +5,9 @@ default_platform :mac
 platform :mac do
   lane :deploy do
     output_dir = File.expand_path('../../../output', __dir__)
-    product_name = 'OneXraySE'
+    product_name = 'MVMVpnSE'
     app_path = File.join(output_dir, "#{product_name}.app")
-    zip_path = File.join(output_dir, 'OneXray-macos-universal.zip')
+    zip_path = File.join(output_dir, 'MVMVpn-macos-universal.zip')
 
     bundle_id = 'com.svyatvpn.app.se'
     team_id = 'WVD5VC7V8N'
@@ -28,8 +28,8 @@ platform :mac do
         signingStyle: 'manual',
         teamID: team_id,
         provisioningProfiles: {
-          'com.svyatvpn.app.se' => 'OneXraySEmacOS',
-          'com.svyatvpn.app.se.tun' => 'OneXraySETunmacOS'
+          'com.svyatvpn.app.se' => 'MVMVpnSEmacOS',
+          'com.svyatvpn.app.se.tun' => 'MVMVpnSETunmacOS'
         }
       }
     )

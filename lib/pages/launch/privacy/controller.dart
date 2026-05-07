@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/core/tools/logger.dart';
-import 'package:onexray/gen/assets.gen.dart';
-import 'package:onexray/pages/launch/init.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
+import 'package:mvmvpn/gen/assets.gen.dart';
+import 'package:mvmvpn/pages/launch/init.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PrivacyState {

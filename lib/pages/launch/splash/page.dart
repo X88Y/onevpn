@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:onexray/pages/launch/init.dart';
+import 'package:mvmvpn/pages/launch/init.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});

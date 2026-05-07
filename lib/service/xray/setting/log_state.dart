@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
-import 'package:onexray/core/model/xray_json.dart';
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/service/xray/constants.dart';
-import 'package:onexray/service/xray/standard.dart';
+import 'package:mvmvpn/core/model/xray_json.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/service/xray/constants.dart';
+import 'package:mvmvpn/service/xray/standard.dart';
 
 enum XrayLogLevel {
   debug("debug"),

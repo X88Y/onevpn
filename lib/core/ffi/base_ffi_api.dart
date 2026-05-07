@@ -2,14 +2,14 @@ import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
 import 'package:isolate_manager/isolate_manager.dart';
-import 'package:onexray/core/ffi/generated_bindings.dart';
-import 'package:onexray/core/ffi/model_reader.dart';
-import 'package:onexray/core/ffi/model_writer.dart';
-import 'package:onexray/core/pigeon/flutter_api.dart';
-import 'package:onexray/core/pigeon/messages.g.dart';
-import 'package:onexray/core/pigeon/model_reader.dart';
+import 'package:mvmvpn/core/ffi/generated_bindings.dart';
+import 'package:mvmvpn/core/ffi/model_reader.dart';
+import 'package:mvmvpn/core/ffi/model_writer.dart';
+import 'package:mvmvpn/core/pigeon/flutter_api.dart';
+import 'package:mvmvpn/core/pigeon/messages.g.dart';
+import 'package:mvmvpn/core/pigeon/model_reader.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:onexray/core/tools/platform.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
 
 abstract class BaseFfiApi {
   Future<String> getTunFilesDir() async {

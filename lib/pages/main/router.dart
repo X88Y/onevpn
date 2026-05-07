@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/pages/theme/theme.dart';
-import 'package:onexray/service/event_bus/service.dart';
-import 'package:onexray/service/event_bus/state.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/pages/theme/theme.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/service/event_bus/state.dart';
 
 class GoRouteApp extends StatelessWidget {
   const GoRouteApp({super.key});
@@ -22,7 +22,7 @@ class GoRouteApp extends StatelessWidget {
   Widget _buildApp(BuildContext context, AppEventBusState state) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: "OneXray",
+      title: "MVMVpn",
       themeMode: state.themeCode.themeMode,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,

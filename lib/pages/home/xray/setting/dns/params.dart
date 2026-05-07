@@ -1,4 +1,4 @@
-import 'package:onexray/service/xray/setting/dns_state.dart';
+import 'package:mvmvpn/service/xray/setting/dns_state.dart';
 
 class DnsParams {
   final DnsState state;

@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/core/model/ping_json.dart';
-import 'package:onexray/core/tools/empty.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/model/ping_json.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
 
 enum PingUrl {
   cloudflare("Cloudflare", "https://cp.cloudflare.com/"),

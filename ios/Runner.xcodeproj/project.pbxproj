@@ -649,7 +649,7 @@
 				DEVELOPMENT_TEAM = WVD5VC7V8N;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = OneXray;
+				INFOPLIST_KEY_CFBundleDisplayName = MVMVpn;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -796,7 +796,7 @@
 				DEVELOPMENT_TEAM = WVD5VC7V8N;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = OneXray;
+				INFOPLIST_KEY_CFBundleDisplayName = MVMVpn;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -827,7 +827,7 @@
 				DEVELOPMENT_TEAM = WVD5VC7V8N;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = OneXray;
+				INFOPLIST_KEY_CFBundleDisplayName = MVMVpn;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -920,7 +920,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.svyatvpn.app.tun;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = OneXrayTuniOS;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = MVMVpnTuniOS;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/../swift/all/BridgeHeader.h";

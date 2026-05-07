@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/core/tools/extensions.dart';
-import 'package:onexray/service/localizations/service.dart';
-import 'package:onexray/service/tun_setting/state.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/core/tools/extensions.dart';
+import 'package:mvmvpn/service/localizations/service.dart';
+import 'package:mvmvpn/service/tun_setting/state.dart';
 import 'package:tuple/tuple.dart';
 
 extension TunSettingStateValidator on TunSettingState {

@@ -1,8 +1,8 @@
-import 'package:onexray/pages/home/xray/setting/inbound_ping/params.dart';
-import 'package:onexray/pages/home/xray/setting/inbound_tun/params.dart';
-import 'package:onexray/pages/home/xray/setting/inbounds/params.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/service/xray/setting/inbounds_state.dart';
+import 'package:mvmvpn/pages/home/xray/setting/inbound_ping/params.dart';
+import 'package:mvmvpn/pages/home/xray/setting/inbound_tun/params.dart';
+import 'package:mvmvpn/pages/home/xray/setting/inbounds/params.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/service/xray/setting/inbounds_state.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

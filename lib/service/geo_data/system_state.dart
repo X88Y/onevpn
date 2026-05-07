@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/service/geo_data/enum.dart';
-import 'package:onexray/service/geo_data/service.dart';
-import 'package:onexray/core/pigeon/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/service/geo_data/enum.dart';
+import 'package:mvmvpn/service/geo_data/service.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
 import 'package:path/path.dart' as p;
 
 enum SystemGeoDatId {

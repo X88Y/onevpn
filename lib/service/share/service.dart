@@ -4,17 +4,17 @@ import 'dart:io';
 import 'package:app_links/app_links.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
-import 'package:onexray/core/tools/platform.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:onexray/core/tools/logger.dart';
-import 'package:onexray/service/localizations/service.dart';
-import 'package:onexray/service/db/config_writer.dart';
-import 'package:onexray/service/event_bus/service.dart';
-import 'package:onexray/service/share/protocol.dart';
-import 'package:onexray/service/share/xray_share_reader.dart';
-import 'package:onexray/service/toast/service.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
+import 'package:mvmvpn/service/localizations/service.dart';
+import 'package:mvmvpn/service/db/config_writer.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/service/share/protocol.dart';
+import 'package:mvmvpn/service/share/xray_share_reader.dart';
+import 'package:mvmvpn/service/toast/service.dart';
 import 'package:zxing2/qrcode.dart';
 
 final class ShareService {

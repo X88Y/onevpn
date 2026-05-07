@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:onexray/core/ffi/model.dart';
-import 'package:onexray/core/tools/json.dart';
-import 'package:onexray/core/pigeon/constants.dart';
+import 'package:mvmvpn/core/ffi/model.dart';
+import 'package:mvmvpn/core/tools/json.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
 
 extension RunXrayConfigWriter on RunXrayConfig {
   Future<String> writeToFile() async {

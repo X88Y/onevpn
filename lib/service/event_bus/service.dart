@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/core/network/model.dart';
-import 'package:onexray/service/event_bus/enum.dart';
-import 'package:onexray/service/event_bus/state.dart';
-import 'package:onexray/service/manager.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/network/model.dart';
+import 'package:mvmvpn/service/event_bus/enum.dart';
+import 'package:mvmvpn/service/event_bus/state.dart';
+import 'package:mvmvpn/service/manager.dart';
 
 class AppEventBus extends Cubit<AppEventBusState> {
   static late AppEventBus instance;

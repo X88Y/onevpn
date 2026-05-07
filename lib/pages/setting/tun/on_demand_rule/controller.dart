@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/pages/setting/tun/on_demand_rule/params.dart';
-import 'package:onexray/service/tun_setting/enum.dart';
-import 'package:onexray/service/tun_setting/state.dart';
-import 'package:onexray/service/tun_setting/state_validator.dart';
+import 'package:mvmvpn/pages/setting/tun/on_demand_rule/params.dart';
+import 'package:mvmvpn/service/tun_setting/enum.dart';
+import 'package:mvmvpn/service/tun_setting/state.dart';
+import 'package:mvmvpn/service/tun_setting/state_validator.dart';
 
 class OnDemandRulePageState {
   final OnDemandRuleState ruleState;

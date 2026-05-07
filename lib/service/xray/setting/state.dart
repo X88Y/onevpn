@@ -1,9 +1,9 @@
-import 'package:onexray/service/xray/constants.dart';
-import 'package:onexray/service/xray/setting/dns_state.dart';
-import 'package:onexray/service/xray/setting/inbounds_state.dart';
-import 'package:onexray/service/xray/setting/log_state.dart';
-import 'package:onexray/service/xray/setting/outbounds_state.dart';
-import 'package:onexray/service/xray/setting/routing_state.dart';
+import 'package:mvmvpn/service/xray/constants.dart';
+import 'package:mvmvpn/service/xray/setting/dns_state.dart';
+import 'package:mvmvpn/service/xray/setting/inbounds_state.dart';
+import 'package:mvmvpn/service/xray/setting/log_state.dart';
+import 'package:mvmvpn/service/xray/setting/outbounds_state.dart';
+import 'package:mvmvpn/service/xray/setting/routing_state.dart';
 
 abstract final class RoutingRuleTag {
   static const dnsQuery = "dnsQuery";

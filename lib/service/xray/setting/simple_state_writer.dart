@@ -1,11 +1,11 @@
-import 'package:onexray/service/xray/setting/dns_server_state.dart';
-import 'package:onexray/service/xray/setting/dns_state.dart';
-import 'package:onexray/service/xray/setting/enum.dart';
-import 'package:onexray/service/xray/setting/log_state.dart';
-import 'package:onexray/service/xray/setting/routing_rule_state.dart';
-import 'package:onexray/service/xray/setting/routing_state.dart';
-import 'package:onexray/service/xray/setting/simple_state.dart';
-import 'package:onexray/service/xray/setting/state.dart';
+import 'package:mvmvpn/service/xray/setting/dns_server_state.dart';
+import 'package:mvmvpn/service/xray/setting/dns_state.dart';
+import 'package:mvmvpn/service/xray/setting/enum.dart';
+import 'package:mvmvpn/service/xray/setting/log_state.dart';
+import 'package:mvmvpn/service/xray/setting/routing_rule_state.dart';
+import 'package:mvmvpn/service/xray/setting/routing_state.dart';
+import 'package:mvmvpn/service/xray/setting/simple_state.dart';
+import 'package:mvmvpn/service/xray/setting/state.dart';
 
 extension XraySettingSimpleWriter on XraySettingSimple {
   XraySettingState get xraySettingState {

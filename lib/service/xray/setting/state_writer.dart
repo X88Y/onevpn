@@ -1,12 +1,12 @@
-import 'package:onexray/core/model/xray_json.dart';
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/service/tun_setting/state.dart';
-import 'package:onexray/core/pigeon/constants.dart';
-import 'package:onexray/service/xray/setting/enum.dart';
-import 'package:onexray/service/xray/setting/inbounds_state.dart';
-import 'package:onexray/service/xray/setting/state.dart';
-import 'package:onexray/service/xray/setting/state_reader.dart';
-import 'package:onexray/service/xray/standard.dart';
+import 'package:mvmvpn/core/model/xray_json.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/service/tun_setting/state.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
+import 'package:mvmvpn/service/xray/setting/enum.dart';
+import 'package:mvmvpn/service/xray/setting/inbounds_state.dart';
+import 'package:mvmvpn/service/xray/setting/state.dart';
+import 'package:mvmvpn/service/xray/setting/state_reader.dart';
+import 'package:mvmvpn/service/xray/standard.dart';
 
 extension XraySettingStateWriter on XraySettingState {
   XrayJson get xrayJson {

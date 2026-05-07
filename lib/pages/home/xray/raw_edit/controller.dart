@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/core/tools/json.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/home/xray/raw_edit/params.dart';
-import 'package:onexray/pages/mixin/alert.dart';
+import 'package:mvmvpn/core/tools/json.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/home/xray/raw_edit/params.dart';
+import 'package:mvmvpn/pages/mixin/alert.dart';
 
 class XrayRawEditController {
   final XrayRawEditParams params;

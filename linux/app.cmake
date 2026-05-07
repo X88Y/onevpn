@@ -7,5 +7,5 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/app/libXray.so"
 
 set(APP_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin")
 
-install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/app/OneXrayCore"
+install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/app/MVMVpnCore"
         DESTINATION "${APP_BIN_DIR}")

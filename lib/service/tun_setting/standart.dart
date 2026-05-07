@@ -1,4 +1,4 @@
-import 'package:onexray/core/model/tun_json.dart';
+import 'package:mvmvpn/core/model/tun_json.dart';
 
 extension TunJsonStandard on TunJson {
   static TunJson get standard => TunJson(

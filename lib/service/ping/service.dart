@@ -3,18 +3,18 @@ import 'dart:convert';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
-import 'package:onexray/core/tools/platform.dart';
-import 'package:onexray/service/event_bus/service.dart';
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/db/database/enum.dart';
-import 'package:onexray/core/tools/empty.dart';
-import 'package:onexray/service/localizations/service.dart';
-import 'package:onexray/service/ping/state.dart';
-import 'package:onexray/service/xray/outbound/state.dart';
-import 'package:onexray/service/xray/outbound/state_ping.dart';
-import 'package:onexray/service/xray/outbound/state_reader.dart';
-import 'package:onexray/service/xray/raw/ping.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/db/database/enum.dart';
+import 'package:mvmvpn/core/tools/empty.dart';
+import 'package:mvmvpn/service/localizations/service.dart';
+import 'package:mvmvpn/service/ping/state.dart';
+import 'package:mvmvpn/service/xray/outbound/state.dart';
+import 'package:mvmvpn/service/xray/outbound/state_ping.dart';
+import 'package:mvmvpn/service/xray/outbound/state_reader.dart';
+import 'package:mvmvpn/service/xray/raw/ping.dart';
 
 class PingService {
   static final PingService _singleton = PingService._internal();

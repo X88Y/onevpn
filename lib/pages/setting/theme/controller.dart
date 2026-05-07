@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/service/event_bus/enum.dart';
-import 'package:onexray/service/event_bus/service.dart';
+import 'package:mvmvpn/service/event_bus/enum.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
 
 class ThemeState {
   final ThemeCode themeCode;

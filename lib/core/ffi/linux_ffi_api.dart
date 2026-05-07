@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:onexray/core/ffi/base_ffi_api.dart';
-import 'package:onexray/core/tools/logger.dart';
+import 'package:mvmvpn/core/ffi/base_ffi_api.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
 import 'package:path/path.dart' as p;
 import 'package:process/process.dart';
 
@@ -18,7 +18,7 @@ class LinuxFfiApi extends BaseFfiApi {
   }
 
   //===================================
-  static const _coreBin = "OneXrayCore";
+  static const _coreBin = "MVMVpnCore";
   final _processManager = LocalProcessManager();
 
   @override

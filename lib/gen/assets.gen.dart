@@ -40,16 +40,16 @@ class $AssetsDatGen {
   const $AssetsDatGen();
 
   /// File path: assets/dat/geoip.dat
-  String get geoipDat => 'assets/dat/geoip.dat';
+  String get geoip => 'assets/dat/geoip.dat';
 
   /// File path: assets/dat/geosite.dat
-  String get geositeDat => 'assets/dat/geosite.dat';
+  String get geosite => 'assets/dat/geosite.dat';
+
+  /// File path: assets/dat/timestamp
+  String get timestamp => 'assets/dat/timestamp';
 
   /// List of all assets
-  List<String> get values => [
-    geoipDat,
-    geositeDat,
-  ];
+  List<String> get values => [geoip, geosite, timestamp];
 }
 
 class $AssetsIconGen {

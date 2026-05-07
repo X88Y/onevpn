@@ -1,4 +1,4 @@
-import 'package:onexray/service/xray/setting/routing_rule_state.dart';
+import 'package:mvmvpn/service/xray/setting/routing_rule_state.dart';
 
 class RoutingRuleParams {
   final RoutingRuleState state;

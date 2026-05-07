@@ -1,5 +1,5 @@
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/service/localizations/service.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/service/localizations/service.dart';
 import 'package:tuple/tuple.dart';
 
 class SubscriptionValidator {

@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:onexray/core/model/xray_json.dart';
-import 'package:onexray/core/network/constants.dart';
-import 'package:onexray/core/pigeon/host_api.dart';
-import 'package:onexray/core/tools/file.dart';
-import 'package:onexray/core/tools/json.dart';
-import 'package:onexray/core/tools/logger.dart';
-import 'package:onexray/service/ping/state.dart';
-import 'package:onexray/core/pigeon/constants.dart';
-import 'package:onexray/service/xray/constants.dart';
+import 'package:mvmvpn/core/model/xray_json.dart';
+import 'package:mvmvpn/core/network/constants.dart';
+import 'package:mvmvpn/core/pigeon/host_api.dart';
+import 'package:mvmvpn/core/tools/file.dart';
+import 'package:mvmvpn/core/tools/json.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
+import 'package:mvmvpn/service/ping/state.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
+import 'package:mvmvpn/service/xray/constants.dart';
 
 extension XrayJsonWriter on XrayJson {
   Future<String> test() async {

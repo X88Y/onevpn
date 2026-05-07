@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/db/database/enum.dart';
-import 'package:onexray/pages/home/share/params.dart';
-import 'package:onexray/pages/home/xray/outbound/params.dart';
-import 'package:onexray/pages/home/xray/raw/params.dart';
-import 'package:onexray/pages/home/xray/setting/ui/params.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/pages/widget/menu_picker.dart';
-import 'package:onexray/service/xray/outbound/state.dart';
-import 'package:onexray/service/xray/setting/simple_state.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/db/database/enum.dart';
+import 'package:mvmvpn/pages/home/share/params.dart';
+import 'package:mvmvpn/pages/home/xray/outbound/params.dart';
+import 'package:mvmvpn/pages/home/xray/raw/params.dart';
+import 'package:mvmvpn/pages/home/xray/setting/ui/params.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/pages/widget/menu_picker.dart';
+import 'package:mvmvpn/service/xray/outbound/state.dart';
+import 'package:mvmvpn/service/xray/setting/simple_state.dart';
 
 class ConfigRowController {
   Future<void> moreAction(

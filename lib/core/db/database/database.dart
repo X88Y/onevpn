@@ -1,13 +1,13 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:onexray/core/db/dao/core_config.dart';
-import 'package:onexray/core/db/dao/geo_data.dart';
-import 'package:onexray/core/db/dao/subscription.dart';
-import 'package:onexray/core/db/table/core_config.dart';
-import 'package:onexray/core/db/table/geo_data.dart';
-import 'package:onexray/core/db/table/subscription.dart';
+import 'package:mvmvpn/core/db/dao/core_config.dart';
+import 'package:mvmvpn/core/db/dao/geo_data.dart';
+import 'package:mvmvpn/core/db/dao/subscription.dart';
+import 'package:mvmvpn/core/db/table/core_config.dart';
+import 'package:mvmvpn/core/db/table/geo_data.dart';
+import 'package:mvmvpn/core/db/table/subscription.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:onexray/core/tools/platform.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
 
 part 'database.g.dart';
 

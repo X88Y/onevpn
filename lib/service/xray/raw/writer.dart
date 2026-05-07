@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:onexray/core/tools/file.dart';
+import 'package:mvmvpn/core/tools/file.dart';
 
 class XrayRawWriter {
   static Future<String> writeConfig(String rawText) async {

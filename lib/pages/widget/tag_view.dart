@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:onexray/pages/theme/color.dart';
+import 'package:mvmvpn/pages/theme/color.dart';
 
 class TagView extends StatelessWidget {
   final String tag;

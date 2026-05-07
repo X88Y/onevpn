@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/core/db/dao/config_query.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/global/constants.dart';
-import 'package:onexray/pages/home/component/ad_row/view.dart';
-import 'package:onexray/pages/home/component/config_row/enum.dart';
-import 'package:onexray/pages/home/component/config_row/view.dart';
-import 'package:onexray/pages/home/component/subscription_row/view.dart';
-import 'package:onexray/pages/home/setting_list/controller.dart';
-import 'package:onexray/pages/widget/bottom_button.dart';
-import 'package:onexray/pages/widget/bottom_view.dart';
-import 'package:onexray/pages/widget/menu_picker.dart';
+import 'package:mvmvpn/core/db/dao/config_query.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/global/constants.dart';
+import 'package:mvmvpn/pages/home/component/ad_row/view.dart';
+import 'package:mvmvpn/pages/home/component/config_row/enum.dart';
+import 'package:mvmvpn/pages/home/component/config_row/view.dart';
+import 'package:mvmvpn/pages/home/component/subscription_row/view.dart';
+import 'package:mvmvpn/pages/home/setting_list/controller.dart';
+import 'package:mvmvpn/pages/widget/bottom_button.dart';
+import 'package:mvmvpn/pages/widget/bottom_view.dart';
+import 'package:mvmvpn/pages/widget/menu_picker.dart';
 
 class XraySettingListPage extends StatelessWidget {
   const XraySettingListPage({super.key});

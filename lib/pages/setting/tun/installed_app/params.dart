@@ -1,4 +1,4 @@
-import 'package:onexray/core/pigeon/messages.g.dart';
+import 'package:mvmvpn/core/pigeon/messages.g.dart';
 
 class InstalledAppParams {
   final List<AndroidAppInfo> allApps;

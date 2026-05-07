@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/tools/platform.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/global/constants.dart';
-import 'package:onexray/pages/home/home/component/outbound/view.dart';
-import 'package:onexray/pages/home/home/component/raw/view.dart';
-import 'package:onexray/pages/home/home/controller.dart';
-import 'package:onexray/pages/theme/color.dart';
-import 'package:onexray/pages/widget/menu_picker.dart';
-import 'package:onexray/service/event_bus/service.dart';
-import 'package:onexray/service/event_bus/state.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/global/constants.dart';
+import 'package:mvmvpn/pages/home/home/component/outbound/view.dart';
+import 'package:mvmvpn/pages/home/home/component/raw/view.dart';
+import 'package:mvmvpn/pages/home/home/controller.dart';
+import 'package:mvmvpn/pages/theme/color.dart';
+import 'package:mvmvpn/pages/widget/menu_picker.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/service/event_bus/state.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

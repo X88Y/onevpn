@@ -1,5 +1,5 @@
 #
-# Publishes OneXray across all supported platforms.
+# Publishes MVMVpn across all supported platforms.
 #
 # Trigger:
 #   - workflow_dispatch: manual trigger from the Actions tab
@@ -49,7 +49,7 @@
 # Layout:
 #   build_scripts/app/builder.py#build_core expects the XTLS/libXray source checkout
 #   to live as a sibling of this repo (same parent directory). Every job therefore
-#   checks out this repo to `OneXray/` and libXray to `libXray/` at the workspace
+#   checks out this repo to `MVMVpn/` and libXray to `libXray/` at the workspace
 #   root; fastforge/fastlane/flutter all produce their outputs under `<workspace>/output`.
 
 name: Publish
@@ -83,11 +83,11 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_26.4.app/Contents/Developer
     defaults:
       run:
-        working-directory: OneXray
+        working-directory: MVMVpn
     steps:
       - uses: actions/checkout@v6
         with:
-          path: OneXray
+          path: MVMVpn
 
       - uses: actions/checkout@v6
         with:
@@ -156,13 +156,13 @@ jobs:
           FASTLANE_ASC_ISSUER_ID: ${{ secrets.FASTLANE_ASC_ISSUER_ID }}
           ADMOB_AD_UNIT_ID_ANDROID: ${{ secrets.ADMOB_AD_UNIT_ID_ANDROID }}
           ADMOB_AD_UNIT_ID_IOS: ${{ secrets.ADMOB_AD_UNIT_ID_IOS }}
-        run: python3 build_scripts/main.py OneXray macos_se
+        run: python3 build_scripts/main.py MVMVpn macos_se
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
           name: macos_se
-          path: output/OneXray-macos-universal*.zip
+          path: output/MVMVpn-macos-universal*.zip
           if-no-files-found: error
 
   # =================================================================
@@ -173,11 +173,11 @@ jobs:
     timeout-minutes: 60
     defaults:
       run:
-        working-directory: OneXray
+        working-directory: MVMVpn
     steps:
       - uses: actions/checkout@v6
         with:
-          path: OneXray
+          path: MVMVpn
 
       - uses: actions/checkout@v6
         with:
@@ -251,13 +251,13 @@ jobs:
           ADMOB_APP_ID_ANDROID: ${{ secrets.ADMOB_APP_ID_ANDROID }}
           ADMOB_AD_UNIT_ID_ANDROID: ${{ secrets.ADMOB_AD_UNIT_ID_ANDROID }}
           ADMOB_AD_UNIT_ID_IOS: ${{ secrets.ADMOB_AD_UNIT_ID_IOS }}
-        run: python3 build_scripts/main.py OneXray android
+        run: python3 build_scripts/main.py MVMVpn android
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
           name: android-universal
-          path: output/OneXray-android-universal*.apk
+          path: output/MVMVpn-android-universal*.apk
           if-no-files-found: error
 
   # =================================================================
@@ -272,11 +272,11 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: OneXray
+        working-directory: MVMVpn
     steps:
       - uses: actions/checkout@v6
         with:
-          path: OneXray
+          path: MVMVpn
 
       - uses: actions/checkout@v6
         with:
@@ -315,15 +315,15 @@ jobs:
         env:
           ADMOB_AD_UNIT_ID_ANDROID: ${{ secrets.ADMOB_AD_UNIT_ID_ANDROID }}
           ADMOB_AD_UNIT_ID_IOS: ${{ secrets.ADMOB_AD_UNIT_ID_IOS }}
-        run: python build_scripts/main.py OneXray windows
+        run: python build_scripts/main.py MVMVpn windows
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
           name: windows-x64
           path: |
-            output/OneXray-*.zip
-            output/OneXray-*.exe
+            output/MVMVpn-*.zip
+            output/MVMVpn-*.exe
           if-no-files-found: error
 
   # =================================================================
@@ -348,11 +348,11 @@ jobs:
     timeout-minutes: 60
     defaults:
       run:
-        working-directory: OneXray
+        working-directory: MVMVpn
     steps:
       - uses: actions/checkout@v6
         with:
-          path: OneXray
+          path: MVMVpn
 
       - uses: actions/checkout@v6
         with:
@@ -400,15 +400,15 @@ jobs:
         env:
           ADMOB_AD_UNIT_ID_ANDROID: ${{ secrets.ADMOB_AD_UNIT_ID_ANDROID }}
           ADMOB_AD_UNIT_ID_IOS: ${{ secrets.ADMOB_AD_UNIT_ID_IOS }}
-        run: python3 build_scripts/main.py OneXray linux
+        run: python3 build_scripts/main.py MVMVpn linux
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
           name: linux-${{ matrix.arch }}
           path: |
-            output/OneXray-*.zip
-            output/OneXray-*.deb
+            output/MVMVpn-*.zip
+            output/MVMVpn-*.deb
           if-no-files-found: error
 
   # =================================================================

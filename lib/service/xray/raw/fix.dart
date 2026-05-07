@@ -1,8 +1,8 @@
-import 'package:onexray/service/tun_setting/state.dart';
-import 'package:onexray/core/pigeon/constants.dart';
-import 'package:onexray/service/xray/constants.dart';
-import 'package:onexray/service/xray/setting/enum.dart';
-import 'package:onexray/service/xray/setting/inbounds_state.dart';
+import 'package:mvmvpn/service/tun_setting/state.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
+import 'package:mvmvpn/service/xray/constants.dart';
+import 'package:mvmvpn/service/xray/setting/enum.dart';
+import 'package:mvmvpn/service/xray/setting/inbounds_state.dart';
 
 class XrayRawFix {
   static Future<void> fixConfig(

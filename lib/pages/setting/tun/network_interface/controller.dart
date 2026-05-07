@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/pages/setting/tun/network_interface/params.dart';
-import 'package:onexray/service/tun_setting/interface.dart';
+import 'package:mvmvpn/pages/setting/tun/network_interface/params.dart';
+import 'package:mvmvpn/service/tun_setting/interface.dart';
 
 class NetworkInterfaceState {
   final String currentInterface;

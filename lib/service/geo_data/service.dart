@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/model/geo_dat.dart';
-import 'package:onexray/core/network/client.dart';
-import 'package:onexray/core/pigeon/host_api.dart';
-import 'package:onexray/core/pigeon/model.dart';
-import 'package:onexray/core/tools/file.dart';
-import 'package:onexray/core/tools/json.dart';
-import 'package:onexray/service/event_bus/service.dart';
-import 'package:onexray/service/geo_data/enum.dart';
-import 'package:onexray/core/pigeon/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/model/geo_dat.dart';
+import 'package:mvmvpn/core/network/client.dart';
+import 'package:mvmvpn/core/pigeon/host_api.dart';
+import 'package:mvmvpn/core/pigeon/model.dart';
+import 'package:mvmvpn/core/tools/file.dart';
+import 'package:mvmvpn/core/tools/json.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/service/geo_data/enum.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
 import 'package:path/path.dart' as p;
 
 class GeoDataService {

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/pages/home/component/config_row/enum.dart';
-import 'package:onexray/pages/home/component/config_row/controller.dart';
-import 'package:onexray/pages/theme/color.dart';
-import 'package:onexray/pages/widget/menu_picker.dart';
-import 'package:onexray/pages/widget/tag_view.dart';
-import 'package:onexray/service/db/config_reader.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/pages/home/component/config_row/enum.dart';
+import 'package:mvmvpn/pages/home/component/config_row/controller.dart';
+import 'package:mvmvpn/pages/theme/color.dart';
+import 'package:mvmvpn/pages/widget/menu_picker.dart';
+import 'package:mvmvpn/pages/widget/tag_view.dart';
+import 'package:mvmvpn/service/db/config_reader.dart';
 
 class ConfigRowView extends StatelessWidget {
   final CoreConfigData data;

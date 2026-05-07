@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
-import 'package:onexray/core/tools/platform.dart';
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/core/db/dao/config_query.dart';
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/db/database/enum.dart';
-import 'package:onexray/core/db/table/core_config.dart';
-import 'package:onexray/core/db/table/subscription.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/db/dao/config_query.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/db/database/enum.dart';
+import 'package:mvmvpn/core/db/table/core_config.dart';
+import 'package:mvmvpn/core/db/table/subscription.dart';
 
 part 'core_config.g.dart';
 

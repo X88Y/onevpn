@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/core/db/dao/config_query.dart';
-import 'package:onexray/pages/home/component/config_row/enum.dart';
-import 'package:onexray/pages/home/component/config_row/view.dart';
-import 'package:onexray/pages/home/home/controller.dart';
-import 'package:onexray/pages/widget/menu_picker.dart';
-import 'package:onexray/service/event_bus/service.dart';
+import 'package:mvmvpn/core/db/dao/config_query.dart';
+import 'package:mvmvpn/pages/home/component/config_row/enum.dart';
+import 'package:mvmvpn/pages/home/component/config_row/view.dart';
+import 'package:mvmvpn/pages/home/home/controller.dart';
+import 'package:mvmvpn/pages/widget/menu_picker.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
 
 /// A config row that reacts to selected and running state changes.
 class SelectableConfigRow extends StatelessWidget {

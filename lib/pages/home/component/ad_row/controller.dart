@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:onexray/core/tools/logger.dart';
-import 'package:onexray/service/ads/service.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
+import 'package:mvmvpn/service/ads/service.dart';
 
 class GoogleAdsRowState {
   final NativeAd? nativeAd;

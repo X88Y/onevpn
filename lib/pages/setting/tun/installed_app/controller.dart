@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/core/pigeon/messages.g.dart';
-import 'package:onexray/pages/setting/tun/installed_app/params.dart';
+import 'package:mvmvpn/core/pigeon/messages.g.dart';
+import 'package:mvmvpn/pages/setting/tun/installed_app/params.dart';
 
 class InstalledAppState {
   final List<AndroidAppInfo> apps;

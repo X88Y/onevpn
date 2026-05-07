@@ -1,8 +1,8 @@
-import 'package:onexray/core/tools/extensions.dart';
+import 'package:mvmvpn/core/tools/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/pages/home/xray/setting/dns_hosts/params.dart';
+import 'package:mvmvpn/pages/home/xray/setting/dns_hosts/params.dart';
 
 class XrayHostAddress {
   final host = TextEditingController();

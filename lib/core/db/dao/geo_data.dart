@@ -1,6 +1,6 @@
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/db/table/geo_data.dart';
-import 'package:onexray/service/geo_data/enum.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/db/table/geo_data.dart';
+import 'package:mvmvpn/service/geo_data/enum.dart';
 import 'package:drift/drift.dart';
 
 part 'geo_data.g.dart';

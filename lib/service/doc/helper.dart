@@ -1,9 +1,9 @@
-import 'package:onexray/core/tools/logger.dart';
-import 'package:onexray/service/event_bus/enum.dart';
-import 'package:onexray/service/event_bus/service.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
+import 'package:mvmvpn/service/event_bus/enum.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
 
 class DocURLHelper {
-  static const _domain = "onexray.com";
+  static const _domain = "mvmvpn.com";
 
   static Uri docUri() {
     var path = "/";

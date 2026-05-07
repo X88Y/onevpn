@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/main/menu/controller.dart';
-import 'package:onexray/service/event_bus/service.dart';
-import 'package:onexray/service/event_bus/state.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/main/menu/controller.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/service/event_bus/state.dart';
 
 class MenuMainScaffold extends StatefulWidget {
   const MenuMainScaffold({super.key, required this.child});
@@ -18,7 +18,7 @@ class _MenuMainScaffoldState extends State<MenuMainScaffold> {
   final controller = MenuPageController();
 
   static const _appMenu = PlatformMenu(
-    label: 'OneXray',
+    label: 'MVMVpn',
     menus: <PlatformMenuItem>[
       PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.about),
       PlatformProvidedMenuItem(

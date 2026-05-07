@@ -1,5 +1,5 @@
-import 'package:onexray/pages/home/xray/setting/inbound_ping/params.dart';
-import 'package:onexray/service/xray/setting/inbounds_state.dart';
+import 'package:mvmvpn/pages/home/xray/setting/inbound_ping/params.dart';
+import 'package:mvmvpn/service/xray/setting/inbounds_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class InboundPingCubitState {

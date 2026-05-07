@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/core/db/dao/config_query.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/service/ping/service.dart';
+import 'package:mvmvpn/core/db/dao/config_query.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/service/ping/service.dart';
 
 class HomeRawState {
   final List<ConfigQueryRow> configs;

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:onexray/service/subscription/service.dart';
+import 'package:mvmvpn/service/subscription/service.dart';
 
 class BackgroundTaskService {
   static final BackgroundTaskService _singleton =

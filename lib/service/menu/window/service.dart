@@ -1,6 +1,6 @@
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/service/event_bus/service.dart';
-import 'package:onexray/core/tools/platform.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/core/tools/platform.dart';
 import 'package:window_manager/window_manager.dart';
 
 final class WindowService with WindowListener {

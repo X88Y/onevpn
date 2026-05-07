@@ -1,5 +1,5 @@
 PROJECT_CONFIG = {
-    "OneXray": {
+    "MVMVpn": {
         "build_number.base": 300,
         "core.dir": "libXray",
         "core.lib.src.files.ios": ["LibXray.xcframework"],
@@ -14,9 +14,9 @@ PROJECT_CONFIG = {
         "core.lib.dst.dir.windows": "app",
         "core.dat.dst.dir": "../assets/dat",
         "core.bin.src.file.linux": "bin/xray",
-        "core.bin.dst.file.linux": "app/OneXrayCore",
+        "core.bin.dst.file.linux": "app/MVMVpnCore",
         "core.bin.src.file.windows": "bin/xray.exe",
-        "core.bin.dst.file.windows": "app/OneXrayCore.exe",
+        "core.bin.dst.file.windows": "app/MVMVpnCore.exe",
         "app.release.dir.android": "../build/app/outputs",
         "app.release.dir.linux": "../dist",
         "app.release.dir.windows": "../dist",

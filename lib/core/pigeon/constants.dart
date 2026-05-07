@@ -1,4 +1,4 @@
-import 'package:onexray/core/pigeon/host_api.dart';
+import 'package:mvmvpn/core/pigeon/host_api.dart';
 import 'package:path/path.dart' as p;
 
 class VpnConstants {

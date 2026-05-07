@@ -25,11 +25,11 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_26.4.app/Contents/Developer
     defaults:
       run:
-        working-directory: OneXray
+        working-directory: MVMVpn
     steps:
       - uses: actions/checkout@v6
         with:
-          path: OneXray
+          path: MVMVpn
 
       - uses: actions/checkout@v6
         with:
@@ -99,13 +99,13 @@ jobs:
           ADMOB_APP_ID_IOS: ${{ secrets.ADMOB_APP_ID_IOS }}
           ADMOB_AD_UNIT_ID_ANDROID: ${{ secrets.ADMOB_AD_UNIT_ID_ANDROID }}
           ADMOB_AD_UNIT_ID_IOS: ${{ secrets.ADMOB_AD_UNIT_ID_IOS }}
-        run: python3 build_scripts/main.py OneXray ios
+        run: python3 build_scripts/main.py MVMVpn ios
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
           name: ios
-          path: output/OneXray-ios*.ipa
+          path: output/MVMVpn-ios*.ipa
           if-no-files-found: error
 
   # =================================================================
@@ -118,11 +118,11 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_26.4.app/Contents/Developer
     defaults:
       run:
-        working-directory: OneXray
+        working-directory: MVMVpn
     steps:
       - uses: actions/checkout@v6
         with:
-          path: OneXray
+          path: MVMVpn
 
       - uses: actions/checkout@v6
         with:
@@ -192,7 +192,7 @@ jobs:
           FASTLANE_MAS_INSTALLER_CERT: ${{ secrets.FASTLANE_MAS_INSTALLER_CERT }}
           ADMOB_AD_UNIT_ID_ANDROID: ${{ secrets.ADMOB_AD_UNIT_ID_ANDROID }}
           ADMOB_AD_UNIT_ID_IOS: ${{ secrets.ADMOB_AD_UNIT_ID_IOS }}
-        run: python3 build_scripts/main.py OneXray macos
+        run: python3 build_scripts/main.py MVMVpn macos
 
   # =================================================================
   # Create a GitHub Release and attach non-store artifacts.

@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/service/tun_setting/interface.dart';
-import 'package:onexray/service/tun_setting/state.dart';
-import 'package:onexray/service/xray/setting/enum.dart';
-import 'package:onexray/service/xray/setting/simple_state.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/service/tun_setting/interface.dart';
+import 'package:mvmvpn/service/tun_setting/state.dart';
+import 'package:mvmvpn/service/xray/setting/enum.dart';
+import 'package:mvmvpn/service/xray/setting/simple_state.dart';
 
 class FirstRunState {
   final SimpleCountry country;

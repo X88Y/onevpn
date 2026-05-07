@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onexray/core/db/dao/config_query.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/global/constants.dart';
-import 'package:onexray/pages/home/component/ad_row/view.dart';
-import 'package:onexray/pages/home/component/config_row/selectable_view.dart';
-import 'package:onexray/pages/home/component/subscription_row/view.dart';
-import 'package:onexray/pages/home/home/component/raw/controller.dart';
+import 'package:mvmvpn/core/db/dao/config_query.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/global/constants.dart';
+import 'package:mvmvpn/pages/home/component/ad_row/view.dart';
+import 'package:mvmvpn/pages/home/component/config_row/selectable_view.dart';
+import 'package:mvmvpn/pages/home/component/subscription_row/view.dart';
+import 'package:mvmvpn/pages/home/home/component/raw/controller.dart';
 
 class HomeRawView extends StatelessWidget {
   const HomeRawView({super.key});

@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/db/database/enum.dart';
-import 'package:onexray/core/tools/json.dart';
-import 'package:onexray/service/xray/setting/state.dart';
-import 'package:onexray/service/xray/setting/state_writer.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/db/database/enum.dart';
+import 'package:mvmvpn/core/tools/json.dart';
+import 'package:mvmvpn/service/xray/setting/state.dart';
+import 'package:mvmvpn/service/xray/setting/state_writer.dart';
 
 extension XraySettingStateDb on XraySettingState {
   CoreConfigCompanion configCompanion() {

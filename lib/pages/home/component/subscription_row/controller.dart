@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/home/share/params.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/pages/mixin/alert.dart';
-import 'package:onexray/pages/subscription/edit/params.dart';
-import 'package:onexray/pages/widget/menu_picker.dart';
-import 'package:onexray/service/event_bus/service.dart';
-import 'package:onexray/service/subscription/service.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/home/share/params.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/pages/mixin/alert.dart';
+import 'package:mvmvpn/pages/subscription/edit/params.dart';
+import 'package:mvmvpn/pages/widget/menu_picker.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/service/subscription/service.dart';
 
 class SubscriptionRowController {
   Future<void> updateExpanded(

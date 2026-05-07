@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onexray/core/constants/preferences.dart';
-import 'package:onexray/l10n/localizations/app_localizations.dart';
-import 'package:onexray/pages/main/url.dart';
-import 'package:onexray/pages/mixin/alert.dart';
-import 'package:onexray/pages/setting/tun/network_interface/params.dart';
-import 'package:onexray/pages/setting/tun/on_demand_rule/params.dart';
-import 'package:onexray/pages/setting/tun/selected_app/params.dart';
-import 'package:onexray/service/tun_setting/enum.dart';
-import 'package:onexray/service/tun_setting/state.dart';
-import 'package:onexray/service/tun_setting/state_validator.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/pages/mixin/alert.dart';
+import 'package:mvmvpn/pages/setting/tun/network_interface/params.dart';
+import 'package:mvmvpn/pages/setting/tun/on_demand_rule/params.dart';
+import 'package:mvmvpn/pages/setting/tun/selected_app/params.dart';
+import 'package:mvmvpn/service/tun_setting/enum.dart';
+import 'package:mvmvpn/service/tun_setting/state.dart';
+import 'package:mvmvpn/service/tun_setting/state_validator.dart';
 
 class TunSettingUIState {
   final TunSettingState tunSettingState;

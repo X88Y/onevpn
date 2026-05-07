@@ -1,4 +1,4 @@
-import 'package:onexray/service/xray/outbound/enum.dart';
+import 'package:mvmvpn/service/xray/outbound/enum.dart';
 
 class XhttpDownloadState {
   var address = "";

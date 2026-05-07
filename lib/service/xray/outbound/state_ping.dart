@@ -1,10 +1,10 @@
-import 'package:onexray/core/db/database/constants.dart';
-import 'package:onexray/service/ping/state.dart';
-import 'package:onexray/service/xray/json_writer.dart';
-import 'package:onexray/service/xray/outbound/state.dart';
-import 'package:onexray/service/xray/outbound/state_writer.dart';
-import 'package:onexray/service/xray/setting/inbounds_state.dart';
-import 'package:onexray/service/xray/standard.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/service/ping/state.dart';
+import 'package:mvmvpn/service/xray/json_writer.dart';
+import 'package:mvmvpn/service/xray/outbound/state.dart';
+import 'package:mvmvpn/service/xray/outbound/state_writer.dart';
+import 'package:mvmvpn/service/xray/setting/inbounds_state.dart';
+import 'package:mvmvpn/service/xray/standard.dart';
 
 extension OutboundStatePing on OutboundState {
   Future<int> ping(PingState pingState) async {

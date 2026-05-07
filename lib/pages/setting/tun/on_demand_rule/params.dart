@@ -1,4 +1,4 @@
-import 'package:onexray/service/tun_setting/state.dart';
+import 'package:mvmvpn/service/tun_setting/state.dart';
 
 class OnDemandRuleParams {
   final OnDemandRuleState state;

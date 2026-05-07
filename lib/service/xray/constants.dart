@@ -1,4 +1,4 @@
-import 'package:onexray/core/pigeon/constants.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
 import 'package:path/path.dart' as p;
 
 class XrayStateConstants {

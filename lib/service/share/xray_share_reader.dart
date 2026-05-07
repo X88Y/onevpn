@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:onexray/core/db/database/database.dart';
-import 'package:onexray/core/model/xray_json.dart';
-import 'package:onexray/core/pigeon/host_api.dart';
-import 'package:onexray/core/tools/file.dart';
-import 'package:onexray/core/tools/logger.dart';
-import 'package:onexray/service/xray/outbound/state.dart';
-import 'package:onexray/service/xray/outbound/state_db.dart';
-import 'package:onexray/service/xray/outbound/state_reader.dart';
-import 'package:onexray/service/xray/outbound/state_validator.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/model/xray_json.dart';
+import 'package:mvmvpn/core/pigeon/host_api.dart';
+import 'package:mvmvpn/core/tools/file.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
+import 'package:mvmvpn/service/xray/outbound/state.dart';
+import 'package:mvmvpn/service/xray/outbound/state_db.dart';
+import 'package:mvmvpn/service/xray/outbound/state_reader.dart';
+import 'package:mvmvpn/service/xray/outbound/state_validator.dart';
 
 class XrayShareReader {
   Future<List<CoreConfigCompanion>> parseShareFile(String filePath) async {

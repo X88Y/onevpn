@@ -1,4 +1,4 @@
-import 'package:onexray/service/xray/setting/log_state.dart';
+import 'package:mvmvpn/service/xray/setting/log_state.dart';
 
 class XrayLogParams {
   final LogState state;

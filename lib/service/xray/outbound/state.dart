@@ -1,7 +1,7 @@
-import 'package:onexray/service/xray/constants.dart';
-import 'package:onexray/service/xray/outbound/enum.dart';
-import 'package:onexray/service/xray/outbound/xhttp/state.dart';
-import 'package:onexray/service/xray/setting/enum.dart';
+import 'package:mvmvpn/service/xray/constants.dart';
+import 'package:mvmvpn/service/xray/outbound/enum.dart';
+import 'package:mvmvpn/service/xray/outbound/xhttp/state.dart';
+import 'package:mvmvpn/service/xray/setting/enum.dart';
 
 class OutboundState {
   var name = XrayStateConstants.defaultName;

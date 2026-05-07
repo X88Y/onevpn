@@ -40,8 +40,8 @@ public func packetTunnelId() -> String {
     #endif
 }
 
-private let serverAddress = "OneXray"
-private let seServerAddress = "OneXraySE"
+private let serverAddress = "MVMVpn"
+private let seServerAddress = "MVMVpnSE"
 
 public func vpnServerAddress() -> String {
     #if os(iOS)
