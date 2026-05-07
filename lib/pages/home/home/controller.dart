@@ -27,18 +27,33 @@ import 'package:url_launcher/url_launcher.dart';
 class HomeState {
   final int configId;
   final DateTime? subscriptionEndsAt;
+  final bool highlightSocials;
+  final bool highlightBubbles;
 
-  const HomeState({required this.configId, this.subscriptionEndsAt});
+  const HomeState({
+    required this.configId,
+    this.subscriptionEndsAt,
+    this.highlightSocials = false,
+    this.highlightBubbles = false,
+  });
 
   factory HomeState.initial() =>
       const HomeState(configId: DBConstants.defaultId);
 
-  HomeState copyWith({int? configId, DateTime? subscriptionEndsAt, bool clearSubscriptionEndsAt = false}) {
+  HomeState copyWith({
+    int? configId,
+    DateTime? subscriptionEndsAt,
+    bool clearSubscriptionEndsAt = false,
+    bool? highlightSocials,
+    bool? highlightBubbles,
+  }) {
     return HomeState(
       configId: configId ?? this.configId,
       subscriptionEndsAt: clearSubscriptionEndsAt
           ? null
           : (subscriptionEndsAt ?? this.subscriptionEndsAt),
+      highlightSocials: highlightSocials ?? this.highlightSocials,
+      highlightBubbles: highlightBubbles ?? this.highlightBubbles,
     );
   }
 }
@@ -195,6 +210,24 @@ class HomeController extends Cubit<HomeState> {
     emit(state.copyWith(configId: value));
   }
 
+  void triggerSocialHighlight() {
+    emit(state.copyWith(highlightSocials: true));
+    Future.delayed(const Duration(milliseconds: 5000), () {
+      if (!isClosed) {
+        emit(state.copyWith(highlightSocials: false));
+      }
+    });
+  }
+
+  void triggerBubbleHighlight() {
+    emit(state.copyWith(highlightBubbles: true));
+    Future.delayed(const Duration(milliseconds: 5000), () {
+      if (!isClosed) {
+        emit(state.copyWith(highlightBubbles: false));
+      }
+    });
+  }
+
   Future<void> startVpn(BuildContext context) async {
     final eventBus = AppEventBus.instance;
     final isRunning = eventBus.state.runningId != DBConstants.defaultId;
@@ -204,6 +237,19 @@ class HomeController extends Cubit<HomeState> {
     try {
       if (isRunning) {
         await VpnService().startVpn(eventBus.state.runningId);
+        return;
+      }
+
+      if (AuthService().currentUser == null) {
+        eventBus.updateVpnLoading(false);
+        triggerSocialHighlight();
+        return;
+      }
+
+      final user = eventBus.state.userData;
+      if (user != null && !user.hasActiveSubscription) {
+        eventBus.updateVpnLoading(false);
+        triggerBubbleHighlight();
         return;
       }
 

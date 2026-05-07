@@ -39,9 +39,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   child: Column(
                     children: [
-                      _socialBubbles(context, eventState),
+                      _socialBubbles(context, eventState, homeState),
                       const SizedBox(height: 16),
-                      _authButtons(context, controller, eventState),
+                      _authButtons(context, controller, eventState, homeState),
                       const Spacer(),
                       _centerButton(context, controller, eventState),
                       const SizedBox(height: 32),
@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _socialBubbles(BuildContext context, AppEventBusState eventState) {
+  Widget _socialBubbles(BuildContext context, AppEventBusState eventState, HomeState homeState) {
     final user = eventState.userData;
     final controller = context.read<HomeController>();
 
@@ -84,6 +84,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         isConnected: true,
         glowColor: Colors.blue[400]!,
         onTap: () => controller.connectTelegram(),
+        isHighlighted: homeState.highlightBubbles,
       ));
     }
     if (isVkLinked) {
@@ -92,6 +93,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         isConnected: true,
         glowColor: const Color(0xFF4C75A3),
         onTap: () => controller.connectVK(),
+        isHighlighted: homeState.highlightBubbles,
       ));
     }
 
@@ -108,7 +110,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _authButtons(BuildContext context, HomeController controller, AppEventBusState eventState) {
+  Widget _authButtons(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState) {
     final user = eventState.userData;
     final buttons = <Widget>[];
 
@@ -118,6 +120,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         iconBgColor: Colors.grey[800]!,
         title: 'FREE one-click subscription',
         onTap: () => controller.signInWithApple(),
+        isHighlighted: homeState.highlightSocials,
       ));
     }
     if (!(user?.isTelegramLinked ?? false)) {
@@ -126,6 +129,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         iconBgColor: Colors.blue[700]!,
         title: 'Connect Telegram',
         onTap: () => controller.connectTelegram(),
+        isHighlighted: homeState.highlightSocials || homeState.highlightBubbles,
       ));
     }
     if (!(user?.isVkLinked ?? false)) {
@@ -134,6 +138,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         iconBgColor: const Color(0xFF4C75A3),
         title: 'Connect VK',
         onTap: () => controller.connectVK(),
+        isHighlighted: homeState.highlightSocials || homeState.highlightBubbles,
       ));
     }
 
@@ -154,15 +159,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     required Color iconBgColor,
     required String title,
     required VoidCallback onTap,
+    required bool isHighlighted,
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 1000),
+        curve: Curves.easeInOut,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: isHighlighted ? Colors.green.withOpacity(0.1) : Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          border: Border.all(color: isHighlighted ? Colors.green.withOpacity(0.6) : Colors.white.withOpacity(0.05)),
+          boxShadow: isHighlighted
+              ? [
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.4),
+                    blurRadius: 25,
+                    spreadRadius: 6,
+                  ),
+                ]
+              : [],
         ),
         child: Row(
           children: [
@@ -203,26 +220,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     required bool isConnected,
     required Color glowColor,
     required VoidCallback onTap,
+    bool isHighlighted = false,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 1000),
+        curve: Curves.easeInOut,
         width: 54,
         height: 54,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: isConnected ? Colors.white.withOpacity(0.15) : Colors.white.withOpacity(0.05),
           border: Border.all(
-            color: isConnected ? Colors.white.withOpacity(0.2) : Colors.white.withOpacity(0.05),
-            width: 1,
+            color: isHighlighted 
+                ? Colors.green.withOpacity(0.6) 
+                : (isConnected ? Colors.white.withOpacity(0.2) : Colors.white.withOpacity(0.05)),
+            width: isHighlighted ? 2 : 1,
           ),
-          boxShadow: isConnected
+          boxShadow: isHighlighted || isConnected
               ? [
                   BoxShadow(
-                    color: glowColor.withOpacity(0.4),
-                    blurRadius: 15,
-                    spreadRadius: 2,
+                    color: (isHighlighted ? Colors.green : glowColor).withOpacity(0.4),
+                    blurRadius: isHighlighted ? 25 : 15,
+                    spreadRadius: isHighlighted ? 6 : 2,
                   ),
                 ]
               : [],
@@ -230,7 +251,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         alignment: Alignment.center,
         child: FaIcon(
           icon,
-          color: isConnected ? Colors.white : Colors.white.withOpacity(0.3),
+          color: (isConnected || isHighlighted) ? Colors.white : Colors.white.withOpacity(0.3),
           size: 26,
         ),
       ),
@@ -353,7 +374,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 statusText,
                 style: const TextStyle(
                   color: Colors.green,
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
                 overflow: TextOverflow.visible,
