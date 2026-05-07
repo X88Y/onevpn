@@ -20,7 +20,7 @@ import 'package:mvmvpn/service/auth/service.dart';
 import 'package:mvmvpn/service/vpn/service.dart';
 import 'package:mvmvpn/service/xray/outbound/state.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -132,12 +132,8 @@ class HomeController extends Cubit<HomeState> {
       case IconMenuId.subscribeLink:
         _addSubscription(context);
         break;
-      case IconMenuId.scanQRCode:
-        await _scanQrCode(context);
-        break;
-      case IconMenuId.pickImage:
-        await ShareService().pickImage();
-        break;
+
+
       case IconMenuId.pickFile:
         await ShareService().pickFile();
         break;
@@ -170,21 +166,7 @@ class HomeController extends Cubit<HomeState> {
     context.push(RouterPath.subscriptionAdd);
   }
 
-  Future<void> _scanQrCode(BuildContext context) async {
-    final status = await Permission.camera.request();
-    if (status.isGranted) {
-      if (context.mounted) {
-        final result = await context.push<String>(RouterPath.qrcode);
-        if (result != null) {
-          await ShareService().readShareText(result);
-        }
-      }
-    } else {
-      if (context.mounted) {
-        await ContextAlert.showPermissionDialog(context);
-      }
-    }
-  }
+
 
   String formatGeoLocation(BuildContext context, GeoLocation location) {
     var text = "";

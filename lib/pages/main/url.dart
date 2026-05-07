@@ -9,7 +9,7 @@ import 'package:mvmvpn/pages/geo_data/show/page.dart';
 import 'package:mvmvpn/pages/geo_data/show/params.dart';
 import 'package:mvmvpn/pages/home/home/page.dart';
 import 'package:mvmvpn/pages/home/node_info/page.dart';
-import 'package:mvmvpn/pages/home/qrcode/page.dart';
+
 import 'package:mvmvpn/pages/home/setting_list/page.dart';
 import 'package:mvmvpn/pages/home/share/page.dart';
 import 'package:mvmvpn/pages/home/share/params.dart';
@@ -127,7 +127,7 @@ abstract final class RouterPath {
   static const xhttpDownloadSettings = "/xhttpDownloadSettings";
   static const xrayRaw = "/xrayRaw";
   static const xrayRawEdit = "/xrayRawEdit";
-  static const qrcode = "/qrcode";
+
   static const share = "/share";
   static const subscriptionAdd = "/subscriptionAdd";
   static const subscriptionEdit = "/subscriptionEdit";
@@ -300,10 +300,7 @@ abstract final class RouterPath {
         builder: (_, state) =>
             XrayRawEditPage(params: state.extra as XrayRawEditParams),
       ),
-      GoRoute(
-        path: RouterPath.qrcode,
-        builder: (_, state) => const QrcodePage(),
-      ),
+
       GoRoute(
         path: RouterPath.share,
         builder: (_, state) =>

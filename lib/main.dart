@@ -1,5 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mvmvpn/core/pigeon/flutter_api.dart';
@@ -57,7 +57,4 @@ Future<void> _initFirebase() async {
     options = DefaultFirebaseOptions.currentPlatform;
   }
   await Firebase.initializeApp(options: options);
-  if (kReleaseMode) {
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-  }
 }

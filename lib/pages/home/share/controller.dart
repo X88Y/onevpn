@@ -24,7 +24,7 @@ import 'package:mvmvpn/service/xray/standard.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 import 'package:tuple/tuple.dart';
-import 'package:zxing2/qrcode.dart';
+
 
 class ShareState {
   final bool showLinkSection;
@@ -329,46 +329,5 @@ class ShareController extends Cubit<ShareState> {
 }
 
 Uint8List? _drawQrcode(String shareLink, String name) {
-  try {
-    final qrcode = Encoder.encode(shareLink, ErrorCorrectionLevel.h);
-    final matrix = qrcode.matrix!;
-    var scale = (800 / matrix.width).toInt();
-    if (scale < 1) {
-      scale = 1;
-    }
-    final padding = 80;
-    final width = matrix.width * scale + padding * 2;
-    final height = matrix.height * scale + padding * 2;
-
-    final image = img.Image(width: width, height: height, numChannels: 4);
-    img.fill(image, color: img.ColorRgb8(255, 255, 255));
-
-    for (var x = 0; x < matrix.width; x++) {
-      for (var y = 0; y < matrix.height; y++) {
-        if (matrix.get(x, y) == 1) {
-          img.fillRect(
-            image,
-            x1: x * scale + padding,
-            y1: y * scale + padding,
-            x2: x * scale + scale + padding,
-            y2: y * scale + scale + padding,
-            color: img.ColorRgb8(0, 0, 0),
-          );
-        }
-      }
-    }
-
-    img.drawString(
-      image,
-      name,
-      font: img.arial48,
-      x: padding,
-      y: height - padding + 10,
-      color: img.ColorRgb8(0, 0, 0),
-    );
-
-    return img.encodePng(image);
-  } catch (_) {
-    return null;
-  }
+  return null;
 }

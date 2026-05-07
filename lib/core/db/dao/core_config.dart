@@ -18,8 +18,6 @@ class CoreConfigDao extends DatabaseAccessor<AppDatabase>
     with _$CoreConfigDaoMixin {
   CoreConfigDao(super.db);
 
-  static const int adsInterval = 10;
-  static const int adsFixedCount = 5;
 
   CoreConfigData _convertRowToCoreConfigData(TypedResult row) {
     final id = row.read(coreConfig.id);
@@ -59,21 +57,9 @@ class CoreConfigDao extends DatabaseAccessor<AppDatabase>
         final outboundItem = ConfigItem(data, ConfigQueryRowType.config);
         group.configs.add(outboundItem);
         group.count += 1;
-        if (AppPlatform.isMobile) {
-          if (group.count % adsInterval == 0) {
-            final adsItem = AdsItem(ConfigQueryRowType.ads);
-            group.configs.add(adsItem);
-          }
-        }
       }
     }
-    // fix ads
     for (final group in groups.values) {
-      if (group.count > adsFixedCount &&
-          group.count < adsInterval &&
-          AppPlatform.isMobile) {
-        group.configs.add(AdsItem(ConfigQueryRowType.ads));
-      }
       group.subscription.count = group.count;
     }
     // fix local count

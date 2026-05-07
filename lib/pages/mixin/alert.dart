@@ -4,7 +4,7 @@ import 'package:mvmvpn/service/ping/service.dart';
 import 'package:delightful_toast/delight_toast.dart';
 import 'package:delightful_toast/toast/components/toast_card.dart';
 import 'package:delightful_toast/toast/utils/enums.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 class ContextAlert {
   static Future<void> showPermissionDialog(BuildContext context) async {
     await showDialog<void>(
@@ -20,7 +20,6 @@ class ContextAlert {
             child: Text(AppLocalizations.of(context)!.buttonOK),
             onPressed: () {
               Navigator.pop(ctx);
-              openAppSettings();
             },
           ),
         ],
