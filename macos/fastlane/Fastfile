@@ -13,8 +13,8 @@ platform :mac do
         export_options: {
           method: 'app-store',
           provisioningProfiles: {
-            'com.svyatvpn.app' => 'MVMVpnmacOS',
-            'com.svyatvpn.app.tun' => 'MVMVpnTunmacOS'
+            'app.svyatvpn.com' => 'MVMVpnmacOS',
+            'app.svyatvpn.com.tun' => 'MVMVpnTunmacOS'
           }
         },
         installer_cert_name: installer_cert_name

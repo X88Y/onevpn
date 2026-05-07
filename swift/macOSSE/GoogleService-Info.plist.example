@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.svyatvpn.app.se</string>
+	<string>app.svyatvpn.com.se</string>
 	<key>PROJECT_ID</key>
 	<string>your-project-id</string>
 	<key>STORAGE_BUCKET</key>
@@ -24,7 +24,7 @@
 	<true></true>
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
-	<key>com.svyatvpn.app</key>
+	<key>app.svyatvpn.com</key>
 	<string>1:000000000000:ios:YOUR_MACOSSE_APP_ID</string>
 </dict>
 </plist>

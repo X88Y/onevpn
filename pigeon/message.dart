@@ -6,7 +6,7 @@ import 'package:pigeon/pigeon.dart';
     dartOptions: DartOptions(),
     kotlinOut:
         'android/app/src/main/kotlin/com/svyatvpn/app/pigeon/Messages.g.kt',
-    kotlinOptions: KotlinOptions(package: "com.svyatvpn.app.pigeon"),
+    kotlinOptions: KotlinOptions(package: "app.svyatvpn.com.pigeon"),
     swiftOut: 'swift/App/pigeon/Messages.g.swift',
     swiftOptions: SwiftOptions(),
     dartPackageName: 'mvmvpn',

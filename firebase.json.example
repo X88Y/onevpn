@@ -11,7 +11,7 @@
       "ios": {
         "default": {
           "projectId": "your-project-id",
-          "appId": "1:000000000000:ios:com.svyatvpn.app",
+          "appId": "1:000000000000:ios:app.svyatvpn.com",
           "uploadDebugSymbols": true,
           "fileOutput": "ios/Runner/GoogleService-Info.plist"
         }
@@ -19,7 +19,7 @@
       "macos": {
         "default": {
           "projectId": "your-project-id",
-          "appId": "1:000000000000:ios:com.svyatvpn.app",
+          "appId": "1:000000000000:ios:app.svyatvpn.com",
           "uploadDebugSymbols": true,
           "fileOutput": "macos/Runner/GoogleService-Info.plist"
         }
@@ -29,8 +29,8 @@
           "projectId": "your-project-id",
           "configurations": {
             "android": "1:000000000000:android:YOUR_ANDROID_APP_ID",
-            "ios": "1:000000000000:ios:com.svyatvpn.app",
-            "macos": "1:000000000000:ios:com.svyatvpn.app"
+            "ios": "1:000000000000:ios:app.svyatvpn.com",
+            "macos": "1:000000000000:ios:app.svyatvpn.com"
           }
         }
       }

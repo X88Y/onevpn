@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:000000000000:android:YOUR_ANDROID_APP_ID",
         "android_client_info": {
-          "package_name": "com.svyatvpn.app"
+          "package_name": "app.svyatvpn.com"
         }
       },
       "oauth_client": [],

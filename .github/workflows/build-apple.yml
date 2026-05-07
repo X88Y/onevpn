@@ -79,14 +79,14 @@ jobs:
 
       - uses: apple-actions/download-provisioning-profiles@v5
         with:
-          bundle-id: com.svyatvpn.app
+          bundle-id: app.svyatvpn.com
           profile-type: IOS_APP_STORE
           issuer-id: ${{ secrets.FASTLANE_ASC_ISSUER_ID }}
           api-key-id: ${{ secrets.FASTLANE_ASC_KEY_ID }}
           api-private-key: ${{ secrets.FASTLANE_ASC_KEY_PEM }}
       - uses: apple-actions/download-provisioning-profiles@v5
         with:
-          bundle-id: com.svyatvpn.app.tun
+          bundle-id: app.svyatvpn.com.tun
           profile-type: IOS_APP_STORE
           issuer-id: ${{ secrets.FASTLANE_ASC_ISSUER_ID }}
           api-key-id: ${{ secrets.FASTLANE_ASC_KEY_ID }}
@@ -172,14 +172,14 @@ jobs:
 
       - uses: apple-actions/download-provisioning-profiles@v5
         with:
-          bundle-id: com.svyatvpn.app
+          bundle-id: app.svyatvpn.com
           profile-type: MAC_APP_STORE
           issuer-id: ${{ secrets.FASTLANE_ASC_ISSUER_ID }}
           api-key-id: ${{ secrets.FASTLANE_ASC_KEY_ID }}
           api-private-key: ${{ secrets.FASTLANE_ASC_KEY_PEM }}
       - uses: apple-actions/download-provisioning-profiles@v5
         with:
-          bundle-id: com.svyatvpn.app.tun
+          bundle-id: app.svyatvpn.com.tun
           profile-type: MAC_APP_STORE
           issuer-id: ${{ secrets.FASTLANE_ASC_ISSUER_ID }}
           api-key-id: ${{ secrets.FASTLANE_ASC_KEY_ID }}

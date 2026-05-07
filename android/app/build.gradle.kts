@@ -26,7 +26,7 @@ val keystoreProperties: Properties? = if (keystoreFile.exists()) {
 }
 
 android {
-    namespace = "com.svyatvpn.app"
+    namespace = "app.svyatvpn.com"
     compileSdk = 36
     ndkVersion = "29.0.14206865"
 
@@ -37,7 +37,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.svyatvpn.app"
+        applicationId = "app.svyatvpn.com"
         minSdk = 29
         targetSdk = 36
         versionCode = flutter.versionCode

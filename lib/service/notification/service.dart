@@ -23,7 +23,7 @@ final class NotificationService {
     final WindowsInitializationSettings initializationSettingsWindows =
         WindowsInitializationSettings(
           appName: 'MVMVpn',
-          appUserModelId: 'com.svyatvpn.app',
+          appUserModelId: 'app.svyatvpn.com',
           // Search online for GUID generators to make your own
           guid: '835d7bbd-85bb-4c73-97f8-ce0740f151a7',
         );
@@ -69,7 +69,7 @@ final class NotificationService {
 
   Future<void> _pushAndroidNotification(String message) async {
     const androidNotificationDetails = AndroidNotificationDetails(
-      'com.svyatvpn.app',
+      'app.svyatvpn.com',
       'MVMVpn',
       channelDescription: 'MVMVpn',
       importance: Importance.defaultImportance,

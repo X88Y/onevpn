@@ -1,4 +1,4 @@
-package com.svyatvpn.app.pigeon
+package app.svyatvpn.com.pigeon
 
 import com.elvishew.xlog.XLog
 import io.flutter.plugin.common.BinaryMessenger

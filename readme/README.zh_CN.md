@@ -14,7 +14,7 @@
 | -------- | ---------------------- | -------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------- |
 | Windows  | Windows 10, Windows 11 | x86_64               | exe        | [MVMVpn-windows-amd64.exe](https://github.com/MVMVpn/MVMVpn/releases/latest/download/MVMVpn-windows-amd64.exe)         |
 | Windows  | Windows 10, Windows 11 | x86_64               | zip        | [MVMVpn-windows-amd64.zip](https://github.com/MVMVpn/MVMVpn/releases/latest/download/MVMVpn-windows-amd64.zip)         |
-| Android  | Android 10.0 及以上    | arm32, arm64, x86_64 | aab        | [Google Play Store](https://play.google.com/store/apps/details?id=com.svyatvpn.app)                                     |
+| Android  | Android 10.0 及以上    | arm32, arm64, x86_64 | aab        | [Google Play Store](https://play.google.com/store/apps/details?id=app.svyatvpn.com)                                     |
 | Android  | Android 10.0 及以上    | arm32, arm64, x86_64 | apk        | [MVMVpn-android-universal.apk](https://github.com/MVMVpn/MVMVpn/releases/latest/download/MVMVpn-android-universal.apk) |
 | iOS      | iOS 15.0 及以上        | arm64                | ipa        | [App Store](https://apps.apple.com/us/app/mvmvpn/id6745748773)                                                            |
 | iOS      | iOS 15.0 及以上        | arm64                | ipa        | [MVMVpn-ios.ipa](https://github.com/MVMVpn/MVMVpn/releases/latest/download/MVMVpn-ios.ipa)                             |

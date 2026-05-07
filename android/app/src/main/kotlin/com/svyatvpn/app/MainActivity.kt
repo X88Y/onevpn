@@ -1,4 +1,4 @@
-package com.svyatvpn.app
+package app.svyatvpn.com
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
@@ -9,10 +9,10 @@ import android.os.Build
 import com.elvishew.xlog.XLog
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
-import com.svyatvpn.app.pigeon.AppFlutterApi
-import com.svyatvpn.app.pigeon.AppHostApi
-import com.svyatvpn.app.pigeon.BridgeHostApi
-import com.svyatvpn.app.vpn.OneVpnService
+import app.svyatvpn.com.pigeon.AppFlutterApi
+import app.svyatvpn.com.pigeon.AppHostApi
+import app.svyatvpn.com.pigeon.BridgeHostApi
+import app.svyatvpn.com.vpn.OneVpnService
 
 class MainActivity : FlutterFragmentActivity() {
 

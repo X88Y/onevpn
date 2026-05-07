@@ -1,4 +1,4 @@
-package com.svyatvpn.app.pigeon
+package app.svyatvpn.com.pigeon
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

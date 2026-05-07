@@ -9,7 +9,7 @@ platform :mac do
     app_path = File.join(output_dir, "#{product_name}.app")
     zip_path = File.join(output_dir, 'MVMVpn-macos-universal.zip')
 
-    bundle_id = 'com.svyatvpn.app.se'
+    bundle_id = 'app.svyatvpn.com.se'
     team_id = 'WVD5VC7V8N'
 
     api_key = app_store_connect_api_key(
@@ -28,8 +28,8 @@ platform :mac do
         signingStyle: 'manual',
         teamID: team_id,
         provisioningProfiles: {
-          'com.svyatvpn.app.se' => 'MVMVpnSEmacOS',
-          'com.svyatvpn.app.se.tun' => 'MVMVpnSETunmacOS'
+          'app.svyatvpn.com.se' => 'MVMVpnSEmacOS',
+          'app.svyatvpn.com.se.tun' => 'MVMVpnSETunmacOS'
         }
       }
     )

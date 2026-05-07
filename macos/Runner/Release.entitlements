@@ -14,7 +14,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>$(TeamIdentifierPrefix)com.svyatvpn.app</string>
+		<string>$(TeamIdentifierPrefix)app.svyatvpn.com</string>
 	</array>
 	<key>com.apple.security.files.user-selected.read-write</key>
 	<true/>
@@ -24,7 +24,7 @@
 	<true/>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)com.svyatvpn.app</string>
+		<string>$(AppIdentifierPrefix)app.svyatvpn.com</string>
 	</array>
 </dict>
 </plist>
