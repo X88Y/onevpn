@@ -20,6 +20,7 @@ import 'package:mvmvpn/service/auth/service.dart';
 import 'package:mvmvpn/service/vpn/service.dart';
 import 'package:mvmvpn/service/xray/outbound/state.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeState {
   final int configId;
@@ -227,13 +228,11 @@ class HomeController extends Cubit<HomeState> {
   }
 
   void connectTelegram() {
-    // Placeholder for Telegram connection
-    ToastService().showToast('Telegram connection coming soon');
+    launchUrl(Uri.parse('https://t.me/mvmvpnbot'), mode: LaunchMode.externalApplication);
   }
 
   void connectVK() {
-    // Placeholder for VK connection
-    ToastService().showToast('VK connection coming soon');
+    launchUrl(Uri.parse('https://vk.com/mvmvpn'), mode: LaunchMode.externalApplication);
   }
 
   @override

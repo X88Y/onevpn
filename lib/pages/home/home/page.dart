@@ -38,7 +38,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   child: Column(
                     children: [
-                      _authButtons(context, controller),
+                      _socialBubbles(context, eventState),
+                      const SizedBox(height: 16),
+                      _authButtons(context, controller, eventState),
                       const Spacer(),
                       _centerButton(context, controller, eventState),
                       const SizedBox(height: 32),
@@ -57,29 +59,86 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _authButtons(BuildContext context, HomeController controller) {
+  Widget _socialBubbles(BuildContext context, AppEventBusState eventState) {
+    final user = eventState.userData;
+    final controller = context.read<HomeController>();
+
+    final bubbles = <Widget>[];
+    if (user?.isAppleLinked ?? false) {
+      bubbles.add(_socialBubble(
+        icon: Icons.apple,
+        isConnected: true,
+        glowColor: Colors.grey[400]!,
+        onTap: () => controller.signInWithApple(),
+      ));
+    }
+    if (user?.isTelegramLinked ?? false) {
+      bubbles.add(_socialBubble(
+        icon: Icons.send,
+        isConnected: true,
+        glowColor: Colors.blue[400]!,
+        onTap: () => controller.connectTelegram(),
+      ));
+    }
+    if (user?.isVkLinked ?? false) {
+      bubbles.add(_socialBubble(
+        icon: Icons.chat_bubble_outline,
+        isConnected: true,
+        glowColor: const Color(0xFF4C75A3),
+        onTap: () => controller.connectVK(),
+      ));
+    }
+
+    if (bubbles.isEmpty) return const SizedBox.shrink();
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        for (var i = 0; i < bubbles.length; i++) ...[
+          bubbles[i],
+          if (i < bubbles.length - 1) const SizedBox(width: 16),
+        ],
+      ],
+    );
+  }
+
+  Widget _authButtons(BuildContext context, HomeController controller, AppEventBusState eventState) {
+    final user = eventState.userData;
+    final buttons = <Widget>[];
+
+    if (!(user?.isAppleLinked ?? false)) {
+      buttons.add(_authButton(
+        icon: Icons.apple,
+        iconBgColor: Colors.grey[800]!,
+        title: 'FREE one-click subscription',
+        onTap: () => controller.signInWithApple(),
+      ));
+    }
+    if (!(user?.isTelegramLinked ?? false)) {
+      buttons.add(_authButton(
+        icon: Icons.send,
+        iconBgColor: Colors.blue[700]!,
+        title: 'Connect Telegram',
+        onTap: () => controller.connectTelegram(),
+      ));
+    }
+    if (!(user?.isVkLinked ?? false)) {
+      buttons.add(_authButton(
+        icon: Icons.chat_bubble_outline,
+        iconBgColor: const Color(0xFF4C75A3),
+        title: 'Connect VK',
+        onTap: () => controller.connectVK(),
+      ));
+    }
+
+    if (buttons.isEmpty) return const SizedBox.shrink();
+
     return Column(
       children: [
-        _authButton(
-          icon: Icons.apple,
-          iconBgColor: Colors.grey[800]!,
-          title: 'FREE one-click subscription',
-          onTap: () => controller.signInWithApple(),
-        ),
-        const SizedBox(height: 12),
-        _authButton(
-          icon: Icons.send, // Use send for Telegram
-          iconBgColor: Colors.blue[700]!,
-          title: 'Connect Telegram',
-          onTap: () => controller.connectTelegram(),
-        ),
-        const SizedBox(height: 12),
-        _authButton(
-          icon: Icons.chat_bubble_outline, // Placeholder for VK
-          iconBgColor: const Color(0xFF4C75A3),
-          title: 'Connect VK',
-          onTap: () => controller.connectVK(),
-        ),
+        for (var i = 0; i < buttons.length; i++) ...[
+          buttons[i],
+          if (i < buttons.length - 1) const SizedBox(height: 12),
+        ],
       ],
     );
   }
@@ -127,6 +186,44 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               size: 24,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _socialBubble({
+    required IconData icon,
+    required bool isConnected,
+    required Color glowColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: 54,
+        height: 54,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isConnected ? Colors.white.withOpacity(0.15) : Colors.white.withOpacity(0.05),
+          border: Border.all(
+            color: isConnected ? Colors.white.withOpacity(0.2) : Colors.white.withOpacity(0.05),
+            width: 1,
+          ),
+          boxShadow: isConnected
+              ? [
+                  BoxShadow(
+                    color: glowColor.withOpacity(0.4),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ]
+              : [],
+        ),
+        child: Icon(
+          icon,
+          color: isConnected ? Colors.white : Colors.white.withOpacity(0.3),
+          size: 26,
         ),
       ),
     );

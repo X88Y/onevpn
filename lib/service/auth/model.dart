@@ -40,4 +40,24 @@ class UserModel {
     if (subscriptionEndsAt == null) return false;
     return subscriptionEndsAt!.isAfter(DateTime.now());
   }
+
+  bool get isAppleLinked {
+    return rawData?['externalApple'] != null;
+  }
+
+  bool get isTelegramLinked {
+    return rawData?['externalTg'] != null;
+  }
+
+  bool get isVkLinked {
+    return rawData?['externalVk'] != null;
+  }
+
+  List<String> get connectedSocials {
+    final list = <String>[];
+    if (isAppleLinked) list.add('apple');
+    if (isTelegramLinked) list.add('telegram');
+    if (isVkLinked) list.add('vk');
+    return list;
+  }
 }
