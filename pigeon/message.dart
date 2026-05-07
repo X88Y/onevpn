@@ -5,7 +5,7 @@ import 'package:pigeon/pigeon.dart';
     dartOut: 'lib/core/pigeon/messages.g.dart',
     dartOptions: DartOptions(),
     kotlinOut:
-        'android/app/src/main/kotlin/net/yuandev/mvmvpn/pigeon/Messages.g.kt',
+        'android/app/src/main/kotlin/com/svyatvpn/app/pigeon/Messages.g.kt',
     kotlinOptions: KotlinOptions(package: "com.svyatvpn.app.pigeon"),
     swiftOut: 'swift/App/pigeon/Messages.g.swift',
     swiftOptions: SwiftOptions(),

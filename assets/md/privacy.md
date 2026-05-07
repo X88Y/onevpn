@@ -70,4 +70,4 @@ We may update this Privacy Policy from time to time. Any changes will be effecti
 ## 8. Contact Us
 If you have any questions or concerns regarding this Privacy Policy, please contact us at:
 
-**Email:** [yuan@yuandev.net](mailto:yuan@yuandev.net)
+**Email:** [support@mvmvpn.com](mailto:support@mvmvpn.com)

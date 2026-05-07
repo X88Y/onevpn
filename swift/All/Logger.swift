@@ -3,7 +3,7 @@ import Foundation
 import os
 
 @available(macOS 11.0, iOS 14.0, watchOS 7.0, tvOS 14.0, *)
-let logger = Logger(subsystem: "net.yuandev.log", category: "debug")
+let logger = Logger(subsystem: "com.svyatvpn.log", category: "debug")
 
 func YGLog(_ message: Any?) {
     if #available(macOS 11.0, iOS 14.0, watchOS 7.0, tvOS 14.0, *) {

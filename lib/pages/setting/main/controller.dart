@@ -118,7 +118,7 @@ class SettingController extends Cubit<SettingState> {
     }
   }
 
-  final _email = Uri.parse("mailto:yuan@yuandev.net");
+  final _email = Uri.parse("mailto:support@mvmvpn.com");
 
   Future<void> sendEmail(BuildContext context) async {
     try {
