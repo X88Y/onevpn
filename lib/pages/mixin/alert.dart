@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 import 'package:mvmvpn/service/ping/service.dart';
+import 'package:delightful_toast/delight_toast.dart';
+import 'package:delightful_toast/toast/components/toast_card.dart';
+import 'package:delightful_toast/toast/utils/enums.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 class ContextAlert {
   static Future<void> showPermissionDialog(BuildContext context) async {
     await showDialog<void>(
@@ -47,8 +49,25 @@ class ContextAlert {
   }
 
   static void showToast(BuildContext context, String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    DelightToastBar(
+      autoDismiss: true,
+      position: DelightSnackbarPosition.bottom,
+      builder: (context) => ToastCard(
+        color: const Color(0xFF1E1E1E),
+        leading: const Icon(
+          Icons.info_outline,
+          size: 28,
+          color: Colors.white,
+        ),
+        title: Text(
+          message,
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 14,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    ).show(context);
   }
 }

@@ -56,6 +56,7 @@ class AppEventBusState {
     ThemeCode? themeCode,
     LanguageCode? languageCode,
     UserModel? userData,
+    bool clearUserData = false,
   }) {
     return AppEventBusState(
       xraySettingId: xraySettingId ?? this.xraySettingId,
@@ -68,7 +69,7 @@ class AppEventBusState {
       windowClosed: windowClosed ?? this.windowClosed,
       themeCode: themeCode ?? this.themeCode,
       languageCode: languageCode ?? this.languageCode,
-      userData: userData ?? this.userData,
+      userData: clearUserData ? null : (userData ?? this.userData),
     );
   }
 }

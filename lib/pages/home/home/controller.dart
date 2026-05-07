@@ -21,6 +21,7 @@ import 'package:mvmvpn/service/vpn/service.dart';
 import 'package:mvmvpn/service/xray/outbound/state.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomeState {
@@ -270,6 +271,17 @@ class HomeController extends Cubit<HomeState> {
 
   void connectVK() {
     launchUrl(Uri.parse('https://vk.com/mvmvpn'), mode: LaunchMode.externalApplication);
+  }
+
+  Future<void> clearAllData() async {
+    final prefs = SharedPreferencesAsync();
+    await prefs.clear();
+    await AuthService().signOut();
+    emit(HomeState.initial());
+  }
+
+  void openUrl(String url) {
+    launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
   @override

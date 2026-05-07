@@ -94,7 +94,10 @@ class AppEventBus extends Cubit<AppEventBusState> {
   }
   
   void updateUserData(UserModel? value) {
-    emit(state.copyWith(userData: value));
+    emit(state.copyWith(
+      userData: value,
+      clearUserData: value == null,
+    ));
   }
 
   @override

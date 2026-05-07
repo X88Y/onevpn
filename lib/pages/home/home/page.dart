@@ -65,7 +65,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     final controller = context.read<HomeController>();
 
     final bubbles = <Widget>[];
-    if (user?.isAppleLinked ?? false) {
+    final isAppleLinked = user?.isAppleLinked ?? false;
+    final isTelegramLinked = user?.isTelegramLinked ?? false;
+    final isVkLinked = user?.isVkLinked ?? false;
+    final hasSocials = isAppleLinked || isTelegramLinked || isVkLinked;
+
+    if (isAppleLinked) {
       bubbles.add(_socialBubble(
         icon: FontAwesomeIcons.apple,
         isConnected: true,
@@ -73,7 +78,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         onTap: () => controller.signInWithApple(),
       ));
     }
-    if (user?.isTelegramLinked ?? false) {
+    if (isTelegramLinked) {
       bubbles.add(_socialBubble(
         icon: FontAwesomeIcons.telegram,
         isConnected: true,
@@ -81,7 +86,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         onTap: () => controller.connectTelegram(),
       ));
     }
-    if (user?.isVkLinked ?? false) {
+    if (isVkLinked) {
       bubbles.add(_socialBubble(
         icon: FontAwesomeIcons.vk,
         isConnected: true,
@@ -90,10 +95,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ));
     }
 
-    if (bubbles.isEmpty) return const SizedBox.shrink();
+    bubbles.insert(0, _accountBubble(context, controller, isSmall: !hasSocials));
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: hasSocials ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: [
         for (var i = 0; i < bubbles.length; i++) ...[
           bubbles[i],
@@ -385,6 +390,89 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
         ],
       ),
+    );
+  }
+
+  Widget _accountBubble(BuildContext context, HomeController controller, {bool isSmall = false}) {
+    final size = isSmall ? 36.0 : 54.0;
+    final iconSize = isSmall ? 18.0 : 26.0;
+    return GestureDetector(
+      onTap: () => _showAccountModal(context, controller, showDelete: !isSmall),
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withOpacity(0.05),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.1),
+            width: 1,
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Icon(
+          Icons.person_outline,
+          color: Colors.white,
+          size: iconSize,
+        ),
+      ),
+    );
+  }
+
+  void _showAccountModal(BuildContext context, HomeController controller, {required bool showDelete}) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showDelete) ...[
+                  ListTile(
+                    leading: const Icon(Icons.delete_forever, color: Colors.redAccent),
+                    title: const Text('Delete account', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600)),
+                    onTap: () {
+                      Navigator.pop(context);
+                      controller.clearAllData();
+                    },
+                  ),
+                  const Divider(color: Colors.white10),
+                ],
+                ListTile(
+                  leading: const Icon(Icons.description, color: Colors.white70),
+                  title: const Text('Third party license', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    controller.openUrl('https://front-redirect.vercel.app/license');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.privacy_tip, color: Colors.white70),
+                  title: const Text('Terms', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    controller.openUrl('https://www.aiverge.net/terms');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.shield, color: Colors.white70),
+                  title: const Text('Privacy', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    controller.openUrl('https://www.aiverge.net/privacy');
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
