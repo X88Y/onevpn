@@ -108,6 +108,7 @@ def _payment_method_keyboard(plan_key: str) -> InlineKeyboardMarkup:
                 InlineKeyboardButton(
                     text=f"🏦 СБП (Platega) — {plan['rub']} ₽",
                     callback_data=f"buy:{plan_key}:platega",
+                    **{"style": "success"},
                 ),
             ],
             [
