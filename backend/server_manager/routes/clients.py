@@ -431,7 +431,6 @@ async def regenerate_client(payload: ProvisionRequest) -> RegenerateResponse:
         "subId": new_sub_id,
         "subscriptionUrl": new_sub_url,
         "perServer": new_per_server,
-        "oldServer": old_per_server,
         "lastTraffic": {"up": 0, "down": 0, "total": 0},
         "regeneratedAt": firestore.SERVER_TIMESTAMP,
         "regenerationCount": new_count,
