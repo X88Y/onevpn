@@ -410,19 +410,12 @@ async def regenerate_client(payload: ProvisionRequest) -> RegenerateResponse:
 
     if not candidates:
         # No alternative healthy servers available — signal the client to retry later.
-        for info in old_per_server.values():
-            h = _extract_host_from_url(info.get("subUrl"))
-            if h:
-                current_hosts.remove(h)
+        current_hosts = [current_host]
         candidates = [
             s for s in healthy
             if _server_host(s.to_dict() or {}) not in current_hosts
         ]    
-        if not candidates:
-            raise HTTPException(
-                status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="No alternative VPN servers are available right now. Please try again later.",
-            )
+
     random.shuffle(candidates)
 
     new_per_server, _written = await _provision_missing(
@@ -438,6 +431,7 @@ async def regenerate_client(payload: ProvisionRequest) -> RegenerateResponse:
         "subId": new_sub_id,
         "subscriptionUrl": new_sub_url,
         "perServer": new_per_server,
+        "oldServer": old_per_server,
         "lastTraffic": {"up": 0, "down": 0, "total": 0},
         "regeneratedAt": firestore.SERVER_TIMESTAMP,
         "regenerationCount": new_count,
