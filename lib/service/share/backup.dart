@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:archive/archive_io.dart';
 import 'package:crypto/crypto.dart';
-import 'package:file_picker/file_picker.dart';
+
 import 'package:intl/intl.dart';
 import 'package:mvmvpn/core/constants/preferences.dart';
 import 'package:mvmvpn/core/db/database/constants.dart';
@@ -64,24 +64,7 @@ class BackupService {
   }
 
   Future<bool> importBackup() async {
-    final result = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ["zip"],
-    );
-    if (result == null) {
-      return false;
-    }
-    final file = result.files.single;
-    if (file.path == null) {
-      return false;
-    }
-    final filePath = file.path!;
-    final check = await _testBackupFile(filePath);
-    if (!check.item1) {
-      return false;
-    }
-    await _saveBackupFile(filePath, check.item2);
-    return true;
+    return false;
   }
 
   Future<Tuple2<bool, DateTime>> _testBackupFile(String filePath) async {

@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
+
 import 'package:flutter/services.dart';
-import "package:path/path.dart" as p;
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:mvmvpn/core/tools/platform.dart';
 import 'package:uuid/uuid.dart';
@@ -80,26 +80,7 @@ class FileTool {
     String name,
     String extension,
   ) async {
-    Uint8List? bytes = data;
-    if (AppPlatform.isDesktop) {
-      bytes = null;
-    }
-    String? outputFile = await FilePicker.saveFile(
-      fileName: name,
-      type: FileType.custom,
-      allowedExtensions: [extension],
-      bytes: bytes,
-    );
-
-    if (outputFile == null) {
-      return false;
-    }
-
-    if (AppPlatform.isDesktop) {
-      await File(outputFile).writeAsBytes(data);
-    }
-
-    return true;
+    return false;
   }
 
   static Future<void> copyAssets(List<String> assets, String dstDir) async {

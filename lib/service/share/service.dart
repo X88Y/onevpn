@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:io';
+
 
 import 'package:app_links/app_links.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
-import 'package:mvmvpn/core/tools/platform.dart';
+
 
 import 'package:mvmvpn/core/tools/logger.dart';
 import 'package:mvmvpn/service/localizations/service.dart';
@@ -47,31 +46,7 @@ final class ShareService {
   }
 
 
-  Future<void> pickFile() async {
-    final textFiles = <String>["txt", "json", "yaml"];
-    final allowedExtensions = <String>[];
-    allowedExtensions.addAll(textFiles);
-    final result = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: allowedExtensions,
-    );
-
-    if (result != null) {
-      final file = result.files.single;
-      if (file.path != null) {
-        final pFile = File(file.path!);
-        final text = await pFile.readAsString();
-        ygLogger('Picked file content: $text');
-        await readShareText(text);
-      } else {
-        ToastService().showToast(
-          appLocalizationsNoContext().homeOutboundViewNoValidConfig,
-        );
-      }
-    } else {
-      ygLogger('User canceled file picking');
-    }
-  }
+  Future<void> pickFile() async {}
 
   Future<void> readPasteboard() async {
     final hasStrings = await Clipboard.hasStrings();
