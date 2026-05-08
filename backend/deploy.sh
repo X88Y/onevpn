@@ -13,7 +13,7 @@ echo "--- Starting Deployment to $REMOTE_HOST ---"
 
 # 1. Prepare remote directory
 echo "Preparing remote directory..."
-ssh $REMOTE_USER@$REMOTE_HOST "mkdir -p $REMOTE_DIR/backend"
+ssh $REMOTE_USER@$REMOTE_HOST "mkdir -p $REMOTE_DIR/backend && apt-get update && apt-get install -y rsync"
 
 # 2. Upload code
 echo "Uploading backend code..."
