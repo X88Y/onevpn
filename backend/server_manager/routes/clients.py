@@ -54,6 +54,24 @@ def _primary_sub_url(per_server: Dict[str, Dict[str, Any]]) -> Optional[str]:
     return None
 
 
+def _extract_host_from_url(url: Optional[str]) -> Optional[str]:
+    """Extracts the hostname/IP from a subscription URL like https://1.2.3.4:2096/sub/..."""
+    if not url:
+        return None
+    try:
+        without_scheme = url.split("://", 1)[-1]
+        host_port = without_scheme.split("/")[0]
+        host = host_port.rsplit(":", 1)[0]
+        return host if host else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _server_host(server_data: Dict[str, Any]) -> Optional[str]:
+    """Returns the public host of a server document."""
+    return server_data.get("serverPublicHost") or server_data.get("host") or None
+
+
 def _isoformat(value: Any) -> Optional[str]:
     if value is None:
         return None
@@ -370,12 +388,31 @@ async def regenerate_client(payload: ProvisionRequest) -> RegenerateResponse:
 
     healthy = await asyncio.to_thread(_healthy_servers_from_db, db)
 
-    # Exclude the server(s) the user was previously on so they get a fresh endpoint.
-    old_server_ids = set(old_per_server.keys())
-    candidates = [s for s in healthy if s.id not in old_server_ids]
+    # Determine the current server's host so we never give the user the same IP again.
+    current_sub_url = str(data.get("subscriptionUrl") or "")
+    current_host = _extract_host_from_url(current_sub_url)
+
+    # Also collect hosts from all per-server sub-URLs as a fallback.
+    current_hosts: set = set()
+    if current_host:
+        current_hosts.add(current_host)
+    for info in old_per_server.values():
+        h = _extract_host_from_url(info.get("subUrl"))
+        if h:
+            current_hosts.add(h)
+
+    # Exclude any server whose public host matches one the user currently has.
+    candidates = [
+        s for s in healthy
+        if _server_host(s.to_dict() or {}) not in current_hosts
+    ]
+
     if not candidates:
-        # All healthy servers were old ones — fall back to the full pool.
-        candidates = list(healthy)
+        # No alternative healthy servers available — signal the client to retry later.
+        raise HTTPException(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="No alternative VPN servers are available right now. Please try again later.",
+        )
 
     new_per_server, _written = await _provision_missing(
         healthy_missing=candidates,
