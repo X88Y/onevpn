@@ -37,7 +37,7 @@ final class TrayService with TrayListener {
     if (!AppPlatform.isDesktop) {
       return;
     }
-
+    return;
     var running = VpnService().vpnRunning;
 
     await _setTrayIcon(running);

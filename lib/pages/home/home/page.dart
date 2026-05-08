@@ -1,7 +1,4 @@
-import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mvmvpn/core/db/database/constants.dart';
@@ -9,6 +6,14 @@ import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 import 'package:mvmvpn/pages/home/home/controller.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
 import 'package:mvmvpn/service/event_bus/state.dart';
+
+import 'component/home_painters.dart';
+import 'component/ambient_orbs.dart';
+import 'component/social_bubble.dart';
+import 'component/auth_button.dart';
+import 'component/subscription_pill.dart';
+import 'component/account_bubble.dart';
+import 'component/home_center_button.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,7 +34,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late Animation<double> _bgAnim;
   late Animation<double> _floatAnim;
 
-  final List<_Particle> _particles = List.generate(40, (_) => _Particle());
+  final List<HomeParticle> _particles = List.generate(40, (_) => HomeParticle());
 
   @override
   void initState() {
@@ -82,19 +87,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                           radius: 1.4,
                           colors: isRunning
-                              ? [
-                                  const Color(0xFF003320),
-                                  const Color(0xFF050814),
-                                ]
+                              ? [const Color(0xFF003320), const Color(0xFF050814)]
                               : isLoading
-                                  ? [
-                                      const Color(0xFF1A1200),
-                                      const Color(0xFF050814),
-                                    ]
-                                  : [
-                                      const Color(0xFF0D0A2E),
-                                      const Color(0xFF050814),
-                                    ],
+                                  ? [const Color(0xFF1A1200), const Color(0xFF050814)]
+                                  : [const Color(0xFF0D0A2E), const Color(0xFF050814)],
                         ),
                       ),
                       child: child,
@@ -108,26 +104,33 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           child: AnimatedBuilder(
                             animation: _particleController,
                             builder: (_, __) => CustomPaint(
-                              painter: _ParticlePainter(_particles, _particleController.value),
+                              painter: HomeParticlePainter(_particles, _particleController.value),
                             ),
                           ),
                         ),
                         // Ambient orbs background
-                        _AmbientOrbs(floatAnim: _floatAnim, bgAnim: _bgAnim, isRunning: isRunning),
+                        AmbientOrbs(floatAnim: _floatAnim, bgAnim: _bgAnim, isRunning: isRunning),
                         // Main content
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                           child: Column(
                             children: [
-                              _topBar(context, controller, eventState, homeState),
+                              _buildTopBar(context, controller, eventState, homeState),
                               const SizedBox(height: 20),
-                              _authButtons(context, controller, eventState, homeState),
+                              _buildAuthButtons(context, controller, eventState, homeState),
                               const Spacer(),
-                              _centerButton(context, controller, eventState, isRunning, isLoading),
+                              HomeCenterButton(
+                                controller: controller,
+                                isRunning: isRunning,
+                                isLoading: isLoading,
+                                orbitController: _orbitController,
+                                sonarController: _sonarController,
+                                pulseAnim: _pulseAnim,
+                              ),
                               const SizedBox(height: 28),
-                              _statusText(eventState, isRunning, isLoading),
+                              _buildStatusText(eventState, isRunning, isLoading),
                               const Spacer(),
-                              _subscriptionPill(context, eventState, homeState),
+                              SubscriptionPill(eventState: eventState, shimmerController: _bgController),
                               const SizedBox(height: 16),
                             ],
                           ),
@@ -144,7 +147,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _topBar(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState) {
+  Widget _buildTopBar(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState) {
     final user = eventState.userData;
     final isAppleLinked = user?.isAppleLinked ?? false;
     final isTelegramLinked = user?.isTelegramLinked ?? false;
@@ -153,12 +156,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     return Row(
       children: [
-        // Account bubble
-        _accountBubble(context, controller, isSmall: !hasSocials),
+        AccountBubble(controller: controller, isSmall: !hasSocials),
         const Spacer(),
-        // Connected social bubbles on the right
         if (isAppleLinked) ...[
-          _socialBubble(
+          SocialBubble(
             icon: FontAwesomeIcons.apple,
             glowColor: Colors.grey[300]!,
             onTap: () => controller.signInWithApple(),
@@ -168,7 +169,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           const SizedBox(width: 10),
         ],
         if (isTelegramLinked) ...[
-          _socialBubble(
+          SocialBubble(
             icon: FontAwesomeIcons.telegram,
             glowColor: const Color(0xFF2AABEE),
             onTap: () => controller.connectTelegram(),
@@ -178,7 +179,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           const SizedBox(width: 10),
         ],
         if (isVkLinked)
-          _socialBubble(
+          SocialBubble(
             icon: FontAwesomeIcons.vk,
             glowColor: const Color(0xFF4C75A3),
             onTap: () => controller.connectVK(),
@@ -189,56 +190,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _socialBubble({
-    required dynamic icon,
-    required Color glowColor,
-    required VoidCallback onTap,
-    bool isHighlighted = false,
-    bool isLoading = false,
-  }) {
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.easeInOut,
-        width: 46,
-        height: 46,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isHighlighted ? glowColor.withOpacity(0.2) : Colors.white.withOpacity(0.08),
-          border: Border.all(
-            color: isHighlighted ? glowColor.withOpacity(0.8) : Colors.white.withOpacity(0.15),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: glowColor.withOpacity(isHighlighted ? 0.5 : 0.2),
-              blurRadius: isHighlighted ? 20 : 10,
-              spreadRadius: isHighlighted ? 3 : 0,
-            ),
-          ],
-        ),
-        alignment: Alignment.center,
-        child: isLoading
-            ? SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(glowColor),
-                ),
-              )
-            : FaIcon(icon, color: Colors.white, size: 20),
-      ),
-    );
-  }
-
-  Widget _authButtons(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState) {
+  Widget _buildAuthButtons(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState) {
     final user = eventState.userData;
     final buttons = <Widget>[];
 
     if (!(user?.isAppleLinked ?? false)) {
-      buttons.add(_authButton(
+      buttons.add(HomeAuthButton(
         icon: FontAwesomeIcons.apple,
         gradient: const LinearGradient(colors: [Color(0xFF4A4A4A), Color(0xFF2A2A2A)]),
         glowColor: Colors.grey[400]!,
@@ -249,7 +206,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       ));
     }
     if (!(user?.isTelegramLinked ?? false)) {
-      buttons.add(_authButton(
+      buttons.add(HomeAuthButton(
         icon: FontAwesomeIcons.telegram,
         gradient: const LinearGradient(colors: [Color(0xFF1E88E5), Color(0xFF0D47A1)]),
         glowColor: const Color(0xFF2AABEE),
@@ -260,7 +217,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       ));
     }
     if (!(user?.isVkLinked ?? false)) {
-      buttons.add(_authButton(
+      buttons.add(HomeAuthButton(
         icon: FontAwesomeIcons.vk,
         gradient: const LinearGradient(colors: [Color(0xFF4C75A3), Color(0xFF2D4F7A)]),
         glowColor: const Color(0xFF4C75A3),
@@ -283,182 +240,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _authButton({
-    required dynamic icon,
-    required LinearGradient gradient,
-    required Color glowColor,
-    required String title,
-    required VoidCallback onTap,
-    required bool isHighlighted,
-    bool isLoading = false,
-  }) {
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.white.withOpacity(0.04),
-          border: Border.all(
-            color: isHighlighted ? glowColor.withOpacity(0.7) : Colors.white.withOpacity(0.08),
-            width: 1.5,
-          ),
-          boxShadow: isHighlighted
-              ? [BoxShadow(color: glowColor.withOpacity(0.4), blurRadius: 24, spreadRadius: 4)]
-              : [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8)],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                gradient: gradient,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [BoxShadow(color: glowColor.withOpacity(0.3), blurRadius: 8)],
-              ),
-              alignment: Alignment.center,
-              child: FaIcon(icon, color: Colors.white, size: 22),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600, letterSpacing: 0.2),
-              ),
-            ),
-            isLoading
-                ? SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(glowColor)),
-                  )
-                : Icon(Icons.arrow_forward_ios_rounded, color: Colors.white.withOpacity(0.3), size: 16),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _centerButton(BuildContext context, HomeController controller, AppEventBusState eventState, bool isRunning, bool isLoading) {
-    Color primaryColor = const Color(0xFF6C63FF);
-    Color secondaryColor = const Color(0xFF3B3AAF);
-    Color glowColor = const Color(0xFF6C63FF);
-
-    if (isLoading) {
-      primaryColor = const Color(0xFFFFC107);
-      secondaryColor = const Color(0xFFFF8F00);
-      glowColor = const Color(0xFFFFC107);
-    } else if (isRunning) {
-      primaryColor = const Color(0xFF00E676);
-      secondaryColor = const Color(0xFF00897B);
-      glowColor = const Color(0xFF00E676);
-    }
-
-    return GestureDetector(
-      onTap: () => controller.startVpn(context),
-      child: AnimatedBuilder(
-        animation: Listenable.merge([_orbitController, _pulseAnim]),
-        builder: (context, child) {
-          return SizedBox(
-            width: 240,
-            height: 240,
-            child: Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.center,
-              children: [
-                // Sonar rings (now inside button stack for perfect centering)
-                if (isRunning || isLoading)
-                  AnimatedBuilder(
-                    animation: _sonarController,
-                    builder: (_, __) => CustomPaint(
-                      size: const Size(240, 240),
-                      painter: _SonarPainter(
-                        progress: _sonarController.value,
-                        color: isRunning ? const Color(0xFF00E676) : const Color(0xFFFFC107),
-                      ),
-                    ),
-                  ),
-                // Outer glow
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  width: 220,
-                  height: 220,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: glowColor.withOpacity(isRunning ? 0.35 : isLoading ? 0.4 : 0.2),
-                        blurRadius: 80,
-                        spreadRadius: 20,
-                      ),
-                    ],
-                  ),
-                ),
-                // Orbiting ring 1
-                Transform.rotate(
-                  angle: _orbitController.value * 2 * pi,
-                  child: CustomPaint(
-                    size: const Size(200, 200),
-                    painter: _OrbitRingPainter(color: glowColor.withOpacity(0.25), dashCount: 12),
-                  ),
-                ),
-                // Orbiting ring 2 (reverse)
-                Transform.rotate(
-                  angle: -_orbitController.value * 2 * pi * 0.7,
-                  child: CustomPaint(
-                    size: const Size(170, 170),
-                    painter: _OrbitRingPainter(color: glowColor.withOpacity(0.15), dashCount: 8),
-                  ),
-                ),
-                // Loading spinner
-                if (isLoading)
-                  SizedBox(
-                    width: 148,
-                    height: 148,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      valueColor: AlwaysStoppedAnimation<Color>(glowColor.withOpacity(0.7)),
-                    ),
-                  ),
-                // Main button with pulse
-                Transform.scale(
-                  scale: isRunning ? _pulseAnim.value : 1.0,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 500),
-                    width: 136,
-                    height: 136,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [primaryColor, secondaryColor],
-                        center: const Alignment(-0.3, -0.3),
-                      ),
-                      boxShadow: [
-                        BoxShadow(color: glowColor.withOpacity(0.5), blurRadius: 30, spreadRadius: 5),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(30),
-                      child: SvgPicture.asset(
-                        'assets/app_icon/app_icon.svg',
-                        fit: BoxFit.contain,
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _statusText(AppEventBusState eventState, bool isRunning, bool isLoading) {
+  Widget _buildStatusText(AppEventBusState eventState, bool isRunning, bool isLoading) {
     String text = isRunning ? AppLocalizations.of(context)!.homeConnected : AppLocalizations.of(context)!.homeTapToConnect;
     if (isLoading) {
       text = isRunning ? AppLocalizations.of(context)!.homeDisconnecting : AppLocalizations.of(context)!.homeConnecting;
@@ -479,355 +261,4 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       child: Text(text),
     );
   }
-
-  Widget _subscriptionPill(BuildContext context, AppEventBusState eventState, HomeState homeState) {
-    final isRunning = eventState.runningId != DBConstants.defaultId;
-    final user = eventState.userData;
-    final hasActiveSubscription = user?.hasActiveSubscription ?? false;
-    final subscriptionEndsAt = user?.subscriptionEndsAt;
-
-    if (isRunning || hasActiveSubscription) {
-      final statusText = hasActiveSubscription && subscriptionEndsAt != null
-          ? AppLocalizations.of(context)!.homeSubscriptionActiveUntil(
-              '${subscriptionEndsAt.day.toString().padLeft(2, '0')}.${subscriptionEndsAt.month.toString().padLeft(2, '0')}.${subscriptionEndsAt.year}')
-          : AppLocalizations.of(context)!.homeSubscriptionActive;
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          gradient: LinearGradient(
-            colors: [
-              Colors.green.withOpacity(0.15),
-              Colors.teal.withOpacity(0.1),
-            ],
-          ),
-          border: Border.all(color: Colors.green.withOpacity(0.3)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.green.withOpacity(0.15),
-              blurRadius: 16,
-            )
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(18),
-          child: Stack(
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.verified_rounded, color: Colors.green, size: 18),
-                  const SizedBox(width: 10),
-                  Flexible(
-                    child: Text(
-                      statusText,
-                      style: const TextStyle(
-                        color: Colors.green,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      overflow: TextOverflow.visible,
-                    ),
-                  ),
-                ],
-              ),
-              // Shimmer overlay
-              Positioned.fill(
-                child: AnimatedBuilder(
-                  animation: _bgController,
-                  builder: (context, child) {
-                    return FractionallySizedBox(
-                      widthFactor: 0.3,
-                      alignment: Alignment(-1.5 + (_bgController.value * 3), 0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.white.withOpacity(0),
-                              Colors.white.withOpacity(0.2),
-                              Colors.white.withOpacity(0),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        color: Colors.white.withOpacity(0.04),
-        border: Border.all(color: Colors.white.withOpacity(0.07)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.lock_outline_rounded, color: Colors.white.withOpacity(0.35), size: 18),
-          const SizedBox(width: 10),
-          Text(
-            AppLocalizations.of(context)!.homeNoActiveSubscription,
-            style: TextStyle(color: Colors.white.withOpacity(0.35), fontSize: 14, fontWeight: FontWeight.w500),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _accountBubble(BuildContext context, HomeController controller, {bool isSmall = false}) {
-    final size = isSmall ? 36.0 : 46.0;
-    final iconSize = isSmall ? 16.0 : 20.0;
-    return GestureDetector(
-      onTap: () => _showAccountModal(context, controller, showDelete: !isSmall),
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white.withOpacity(0.07),
-          border: Border.all(color: Colors.white.withOpacity(0.12), width: 1.5),
-        ),
-        alignment: Alignment.center,
-        child: Icon(Icons.person_outline_rounded, color: Colors.white.withOpacity(0.8), size: iconSize),
-      ),
-    );
-  }
-
-  void _showAccountModal(BuildContext context, HomeController controller, {required bool showDelete}) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) {
-        return BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF0F1120).withOpacity(0.8),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
-            ),
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).padding.bottom + 20,
-              top: 20,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (showDelete) ...[
-                  ListTile(
-                    leading: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
-                    title: Text(AppLocalizations.of(context)!.homeDeleteAccount,
-                        style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600)),
-                    onTap: () {
-                      Navigator.pop(context);
-                      controller.clearAllData();
-                    },
-                  ),
-                  Divider(color: Colors.white.withOpacity(0.08)),
-                ],
-                ListTile(
-                  leading: Icon(Icons.description_outlined, color: Colors.white.withOpacity(0.7)),
-                  title: Text(AppLocalizations.of(context)!.homeThirdPartyLicense,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-                  onTap: () {
-                    Navigator.pop(context);
-                    controller.openUrl('https://front-redirect.vercel.app/license');
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.privacy_tip_outlined, color: Colors.white.withOpacity(0.7)),
-                  title: Text(AppLocalizations.of(context)!.homeTerms, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-                  onTap: () {
-                    Navigator.pop(context);
-                    controller.openUrl('https://www.aiverge.net/terms');
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.shield_outlined, color: Colors.white.withOpacity(0.7)),
-                  title: Text(AppLocalizations.of(context)!.homePrivacy, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-                  onTap: () {
-                    Navigator.pop(context);
-                    controller.openUrl('https://www.aiverge.net/privacy');
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
-
-// ── Ambient floating orbs ────────────────────────────────────────────────────
-class _AmbientOrbs extends StatelessWidget {
-  final Animation<double> floatAnim;
-  final Animation<double> bgAnim;
-  final bool isRunning;
-
-  const _AmbientOrbs({required this.floatAnim, required this.bgAnim, required this.isRunning});
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final c1 = isRunning ? const Color(0xFF00E676) : const Color(0xFF6C63FF);
-    final c2 = isRunning ? const Color(0xFF00897B) : const Color(0xFF3B3AAF);
-    return AnimatedBuilder(
-      animation: floatAnim,
-      builder: (context, _) {
-        return Stack(
-          children: [
-            Positioned(
-              top: size.height * 0.08 + floatAnim.value,
-              right: -40,
-              child: _orb(120, c1.withOpacity(0.12)),
-            ),
-            Positioned(
-              top: size.height * 0.15 - floatAnim.value * 0.5,
-              left: -30,
-              child: _orb(90, c2.withOpacity(0.10)),
-            ),
-            Positioned(
-              bottom: size.height * 0.12 + floatAnim.value * 0.7,
-              right: 20,
-              child: _orb(70, c1.withOpacity(0.08)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _orb(double size, Color color) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
-        boxShadow: [BoxShadow(color: color, blurRadius: size * 0.8, spreadRadius: size * 0.1)],
-      ),
-    );
-  }
-}
-
-// ── Dashed orbit ring painter ────────────────────────────────────────────────
-class _OrbitRingPainter extends CustomPainter {
-  final Color color;
-  final int dashCount;
-
-  _OrbitRingPainter({required this.color, required this.dashCount});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
-    final dashAngle = (2 * pi) / dashCount;
-    final gapRatio = 0.4;
-    for (var i = 0; i < dashCount; i++) {
-      final startAngle = i * dashAngle;
-      final sweepAngle = dashAngle * (1 - gapRatio);
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        startAngle,
-        sweepAngle,
-        false,
-        paint,
-      );
-    }
-    // Draw dot at the leading edge of first dash
-    final dotAngle = dashAngle * (1 - gapRatio);
-    final dotPos = Offset(center.dx + radius * cos(dotAngle), center.dy + radius * sin(dotAngle));
-    canvas.drawCircle(dotPos, 3, Paint()..color = color..style = PaintingStyle.fill);
-  }
-
-  @override
-  bool shouldRepaint(_OrbitRingPainter old) => old.color != color;
-}
-
-// ── Sonar expanding rings ────────────────────────────────────────────────────
-class _SonarPainter extends CustomPainter {
-  final double progress;
-  final Color color;
-  _SonarPainter({required this.progress, required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    for (var i = 0; i < 3; i++) {
-      final t = ((progress + i / 3) % 1.0);
-      final radius = 60 + t * (size.width * 1.2); // Scaled relative to button size
-      final opacity = (1.0 - t) * 0.35;
-      canvas.drawCircle(
-        center,
-        radius,
-        Paint()
-          ..color = color.withOpacity(opacity)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_SonarPainter old) => old.progress != progress || old.color != color;
-}
-
-// ── Particle model & painter ─────────────────────────────────────────────────
-class _Particle {
-  final double x;
-  final double y;
-  final double speed;
-  final double size;
-  final double opacity;
-  _Particle()
-      : x = Random().nextDouble(),
-        y = Random().nextDouble(),
-        speed = 0.005 + Random().nextDouble() * 0.015,
-        size = 1.0 + Random().nextDouble() * 2.0,
-        opacity = 0.2 + Random().nextDouble() * 0.5;
-}
-
-class _ParticlePainter extends CustomPainter {
-  final List<_Particle> particles;
-  final double tick;
-  _ParticlePainter(this.particles, this.tick);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (final p in particles) {
-      final y = (p.y + tick * p.speed) % 1.0;
-      canvas.drawCircle(
-        Offset(p.x * size.width, y * size.height),
-        p.size,
-        Paint()..color = Colors.white.withOpacity(p.opacity * (0.6 + 0.4 * sin(tick * 2 * pi + p.x * 10))),
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_ParticlePainter old) => old.tick != tick;
-}
-
