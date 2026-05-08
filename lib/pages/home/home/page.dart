@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           return BlocBuilder<AppEventBus, AppEventBusState>(
             builder: (context, eventState) {
               final isRunning = eventState.runningId != DBConstants.defaultId;
-              final isLoading = eventState.vpnLoading;
+              final isLoading = eventState.vpnLoading || eventState.isUpdatingSubscription;
               return Scaffold(
                 backgroundColor: const Color(0xFF050814),
                 body: AnimatedBuilder(
@@ -86,10 +86,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             -0.5 + _bgAnim.value * 0.3,
                           ),
                           radius: 1.4,
-                          colors: isRunning
-                              ? [const Color(0xFF003320), const Color(0xFF050814)]
-                              : isLoading
-                                  ? [const Color(0xFF1A1200), const Color(0xFF050814)]
+                          colors: isLoading
+                              ? [const Color(0xFF1A1200), const Color(0xFF050814)]
+                              : isRunning && !eventState.isUpdatingSubscription
+                                  ? [const Color(0xFF003320), const Color(0xFF050814)]
                                   : [const Color(0xFF0D0A2E), const Color(0xFF050814)],
                         ),
                       ),
@@ -115,9 +115,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                           child: Column(
                             children: [
-                              _buildTopBar(context, controller, eventState, homeState),
+                              _buildTopBar(context, controller, eventState, homeState, isLoading),
                               const SizedBox(height: 20),
-                              _buildAuthButtons(context, controller, eventState, homeState),
+                              _buildAuthButtons(context, controller, eventState, homeState, isLoading),
                               const Spacer(),
                               HomeCenterButton(
                                 controller: controller,
@@ -147,7 +147,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTopBar(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState) {
+  Widget _buildTopBar(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState, bool isLoading) {
     final user = eventState.userData;
     final isAppleLinked = user?.isAppleLinked ?? false;
     final isTelegramLinked = user?.isTelegramLinked ?? false;
@@ -157,6 +157,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Row(
       children: [
         AccountBubble(controller: controller, isSmall: !hasSocials),
+        SocialBubble(
+          icon: FontAwesomeIcons.arrowsRotate,
+          glowColor: const Color(0xFFFFC107),
+          onTap: () => controller.regenerateTokenForce(),
+          isLoading: isLoading,
+        ),
         const Spacer(),
         if (isAppleLinked) ...[
           SocialBubble(
@@ -190,7 +196,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildAuthButtons(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState) {
+  Widget _buildAuthButtons(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState, bool isLoading) {
     final user = eventState.userData;
     final buttons = <Widget>[];
 
@@ -241,14 +247,26 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget _buildStatusText(AppEventBusState eventState, bool isRunning, bool isLoading) {
-    String text = isRunning ? AppLocalizations.of(context)!.homeConnected : AppLocalizations.of(context)!.homeTapToConnect;
-    if (isLoading) {
-      text = isRunning ? AppLocalizations.of(context)!.homeDisconnecting : AppLocalizations.of(context)!.homeConnecting;
-    }
+    final isUpdatingSubscription = eventState.isUpdatingSubscription;
 
-    Color textColor = Colors.white.withOpacity(0.7);
-    if (isRunning) textColor = const Color(0xFF00E676);
-    if (isLoading) textColor = const Color(0xFFFFC107);
+    // While a subscription update is in progress, always show the loading
+    // status regardless of the actual VPN connected/disconnected state.
+    String text;
+    Color textColor;
+
+    if (isUpdatingSubscription) {
+      text = AppLocalizations.of(context)!.homeConnecting;
+      textColor = const Color(0xFFFFC107);
+    } else {
+      text = isRunning ? AppLocalizations.of(context)!.homeConnected : AppLocalizations.of(context)!.homeTapToConnect;
+      if (isLoading) {
+        text = isRunning ? AppLocalizations.of(context)!.homeDisconnecting : AppLocalizations.of(context)!.homeConnecting;
+      }
+
+      textColor = Colors.white.withOpacity(0.7);
+      if (isRunning) textColor = const Color(0xFF00E676);
+      if (isLoading) textColor = const Color(0xFFFFC107);
+    }
 
     return AnimatedDefaultTextStyle(
       duration: const Duration(milliseconds: 400),

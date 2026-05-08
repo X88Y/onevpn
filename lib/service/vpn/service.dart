@@ -95,7 +95,8 @@ final class VpnService {
         break;
       case VpnStatus.connected:
         _vpnRunning = true;
-        eventBus.updateVpnLoading(false);
+        // Keep vpnLoading=true here — the HomeController will clear it once
+        // a Google reachability check passes (or triggers regeneration).
         await _updateRunningId(_lastConfigId);
         await TrayService().refreshTrayManager();
         await _startDurationTimer();

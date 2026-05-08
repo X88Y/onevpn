@@ -16,6 +16,9 @@ class AppEventBusState {
   final ThemeCode themeCode;
   final LanguageCode languageCode;
   final UserModel? userData;
+  /// True while a subscription update / regeneration is in progress.
+  /// The UI should show only a loading status during this phase.
+  final bool isUpdatingSubscription;
 
   const AppEventBusState({
     required this.xraySettingId,
@@ -29,6 +32,7 @@ class AppEventBusState {
     required this.themeCode,
     required this.languageCode,
     this.userData,
+    this.isUpdatingSubscription = false,
   });
 
   factory AppEventBusState.initial() => AppEventBusState(
@@ -42,6 +46,7 @@ class AppEventBusState {
         themeCode: ThemeCode.system,
         languageCode: LanguageCode.en,
         userData: null,
+        isUpdatingSubscription: false,
       );
 
   AppEventBusState copyWith({
@@ -57,6 +62,7 @@ class AppEventBusState {
     LanguageCode? languageCode,
     UserModel? userData,
     bool clearUserData = false,
+    bool? isUpdatingSubscription,
   }) {
     return AppEventBusState(
       xraySettingId: xraySettingId ?? this.xraySettingId,
@@ -70,6 +76,7 @@ class AppEventBusState {
       themeCode: themeCode ?? this.themeCode,
       languageCode: languageCode ?? this.languageCode,
       userData: clearUserData ? null : (userData ?? this.userData),
+      isUpdatingSubscription: isUpdatingSubscription ?? this.isUpdatingSubscription,
     );
   }
 }

@@ -449,7 +449,7 @@
   "homeConnectVK": "Connect VK",
   "homeConnected": "Connected",
   "homeTapToConnect": "Tap to connect",
-  "homeDisconnecting": "Disconnecting...",
+  "homeDisconnecting": "Wait...",
   "homeConnecting": "Connecting...",
   "homeSubscriptionActiveUntil": "Subscription active until {date}",
   "@homeSubscriptionActiveUntil": {

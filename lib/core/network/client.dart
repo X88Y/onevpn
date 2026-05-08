@@ -116,4 +116,16 @@ class NetClient {
       return false;
     }
   }
+
+  Future<bool> checkGoogle(String port) async {
+    _proxyPort = port;
+    try {
+      final res = await _proxyClient.get("https://www.google.com",
+          options: Options(validateStatus: (status) => true));
+      return res.statusCode == 200;
+    } catch (e) {
+      ygLogger("checkGoogle error: $e");
+      return false;
+    }
+  }
 }

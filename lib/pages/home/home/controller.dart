@@ -21,6 +21,10 @@ import 'package:mvmvpn/service/vpn/service.dart';
 import 'package:mvmvpn/service/xray/outbound/state.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
 
+import 'package:mvmvpn/core/network/client.dart';
+import 'package:mvmvpn/core/pigeon/flutter_api.dart';
+import 'package:mvmvpn/core/pigeon/messages.g.dart';
+import 'package:mvmvpn/core/pigeon/model_reader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -74,10 +78,12 @@ class HomeController extends Cubit<HomeState> {
   }
 
   late final StreamSubscription<void> _toastSubscription;
+  StreamSubscription<VpnStatus>? _vpnStatusSubscription;
   Timer? _userUpdateTimer;
 
   Future<void> _asyncInit() async {
     _initToastStream();
+    _initVpnStatusListener();
     final id = await PreferencesKey().readLastConfigId();
     emit(state.copyWith(configId: id));
     await BackgroundTaskService().checkSubscriptionUpdate();
@@ -114,6 +120,42 @@ class HomeController extends Cubit<HomeState> {
     if (context.mounted) {
       ContextAlert.showToast(context, message);
     }
+  }
+
+  void _initVpnStatusListener() {
+    _vpnStatusSubscription?.cancel();
+    _vpnStatusSubscription = AppFlutterApi().vpnStatusController.stream.listen((status) async {
+      if (status == VpnStatus.connected) {
+        // Check if we can reach google.com via the VPN tunnel.
+        final request = await StartVpnRequestReader.readFromStartFile();
+        final port = request.pingPort;
+
+        if (port != null) {
+          bool isGoogleReachable = false;
+          final stopwatch = Stopwatch()..start();
+          
+          // Retry connectivity check every 200ms for up to 10 seconds.
+          while (stopwatch.elapsed < const Duration(seconds: 10)) {
+            isGoogleReachable = await NetClient().checkGoogle(port);
+            if (isGoogleReachable) break;
+            await Future.delayed(const Duration(milliseconds: 200));
+          }
+
+          if (isGoogleReachable) {
+            // Google is reachable — VPN is healthy. Clear loading & update flags.
+            AppEventBus.instance.updateVpnLoading(false);
+            AppEventBus.instance.updateSubscriptionUpdating(false);
+          } else {
+            // Google not reachable after 10s — regenerate the key (loading stays true).
+            await regenerateTokenForce();
+          }
+        } else {
+          // No ping port available — just clear the loading flag.
+          AppEventBus.instance.updateVpnLoading(false);
+          AppEventBus.instance.updateSubscriptionUpdating(false);
+        }
+      }
+    });
   }
 
   void gotoSettings(BuildContext context) {
@@ -326,6 +368,50 @@ class HomeController extends Cubit<HomeState> {
     emit(HomeState.initial());
   }
 
+  Future<void> regenerateTokenForce() async {
+    final eventBus = AppEventBus.instance;
+    eventBus.updateVpnLoading(true);
+    // Signal the UI to suppress on/off statuses and show only loading.
+    eventBus.updateSubscriptionUpdating(true);
+    try {
+      ToastService().showToast(AppLocalizations.of(context)!.homeRegeneratingKey);
+
+      // Stop VPN before applying the new key so the DB write isn't
+      // blocked by an active tunnel using the old config.
+      final wasRunning = eventBus.state.runningId != DBConstants.defaultId;
+      if (wasRunning) {
+        await VpnService().stopDefaultVpn();
+        // Give the tunnel a moment to tear down fully.
+        await Future.delayed(const Duration(seconds: 4));
+      }
+
+      final newConfigId = await AuthService().fetchAndSetRandomVpnKey(forceRegenerate: true);
+
+      if (newConfigId != null) {
+        updateConfigId(context, newConfigId);
+        if (wasRunning) {
+          // Restart with the freshly written config.
+          // vpnLoading and isUpdatingSubscription will be cleared by the
+          // Google reachability check in _initVpnStatusListener once connected.
+          await VpnService().startVpn(newConfigId);
+        } else {
+          // Not running — clear flags now.
+          eventBus.updateVpnLoading(false);
+          eventBus.updateSubscriptionUpdating(false);
+        }
+      } else {
+        // Key fetch failed — clear flags and notify user.
+        eventBus.updateVpnLoading(false);
+        eventBus.updateSubscriptionUpdating(false);
+        ToastService().showToast('Key regeneration failed, please try again');
+      }
+    } catch (e) {
+      eventBus.updateVpnLoading(false);
+      eventBus.updateSubscriptionUpdating(false);
+      ToastService().showToast(e.toString());
+    }
+  }
+
   void openUrl(String url) {
     launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
@@ -333,6 +419,7 @@ class HomeController extends Cubit<HomeState> {
   @override
   Future<void> close() {
     _toastSubscription.cancel();
+    _vpnStatusSubscription?.cancel();
     _userUpdateTimer?.cancel();
     return super.close();
   }

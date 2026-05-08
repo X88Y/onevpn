@@ -100,6 +100,12 @@ class AppEventBus extends Cubit<AppEventBusState> {
     ));
   }
 
+  /// Set [true] while a subscription update/regeneration is in progress so the
+  /// UI can suppress the connected/disconnected statuses and show only loading.
+  void updateSubscriptionUpdating(bool value) {
+    emit(state.copyWith(isUpdatingSubscription: value));
+  }
+
   @override
   Future<void> close() {
     ServiceManager.serviceDispose();

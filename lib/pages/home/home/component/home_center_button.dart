@@ -58,7 +58,7 @@ class HomeCenterButton extends StatelessWidget {
                       size: const Size(240, 240),
                       painter: SonarPainter(
                         progress: sonarController.value,
-                        color: isRunning ? const Color(0xFF00E676) : const Color(0xFFFFC107),
+                        color: (isRunning && !isLoading) ? const Color(0xFF00E676) : const Color(0xFFFFC107),
                       ),
                     ),
                   ),
@@ -71,7 +71,7 @@ class HomeCenterButton extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: glowColor.withOpacity(isRunning ? 0.35 : isLoading ? 0.4 : 0.2),
+                        color: glowColor.withOpacity(isRunning && !isLoading ? 0.35 : isLoading ? 0.4 : 0.2),
                         blurRadius: 80,
                         spreadRadius: 20,
                       ),
@@ -106,7 +106,7 @@ class HomeCenterButton extends StatelessWidget {
                   ),
                 // Main button with pulse
                 Transform.scale(
-                  scale: isRunning ? pulseAnim.value : 1.0,
+                  scale: (isRunning && !isLoading) ? pulseAnim.value : 1.0,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 500),
                     width: 136,

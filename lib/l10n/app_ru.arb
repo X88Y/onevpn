@@ -449,7 +449,7 @@
   "homeConnectVK": "Подключить VK",
   "homeConnected": "Подключено",
   "homeTapToConnect": "Нажмите для подключения",
-  "homeDisconnecting": "Отключение...",
+  "homeDisconnecting": "Ждите...",
   "homeConnecting": "Подключение...",
   "homeSubscriptionActiveUntil": "Подписка активна до {date}",
   "@homeSubscriptionActiveUntil": {
