@@ -118,7 +118,7 @@ class AuthService {
       final myUserRes = await FirebaseFunctions.instance
           .httpsCallable('getMyUser')
           .call();
-      debugPrint('[AuthService][Backend][Info] myUserRes: ${myUserRes.data}');
+
       final responseData = _asStringKeyedMap(myUserRes.data);
       if (responseData == null) {
         debugPrint(
