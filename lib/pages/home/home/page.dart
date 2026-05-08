@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -22,9 +23,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late AnimationController _pulseController;
   late AnimationController _bgController;
   late AnimationController _floatController;
+  late AnimationController _sonarController;
+  late AnimationController _particleController;
   late Animation<double> _pulseAnim;
   late Animation<double> _bgAnim;
   late Animation<double> _floatAnim;
+
+  final List<_Particle> _particles = List.generate(40, (_) => _Particle());
 
   @override
   void initState() {
@@ -33,6 +38,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _pulseController = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
     _bgController = AnimationController(vsync: this, duration: const Duration(seconds: 6))..repeat(reverse: true);
     _floatController = AnimationController(vsync: this, duration: const Duration(seconds: 4))..repeat(reverse: true);
+    _sonarController = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat();
+    _particleController = AnimationController(vsync: this, duration: const Duration(seconds: 20))..repeat();
     _pulseAnim = Tween<double>(begin: 0.92, end: 1.08).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
     _bgAnim = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _bgController, curve: Curves.easeInOut));
     _floatAnim = Tween<double>(begin: -8.0, end: 8.0).animate(CurvedAnimation(parent: _floatController, curve: Curves.easeInOut));
@@ -45,6 +52,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _pulseController.dispose();
     _bgController.dispose();
     _floatController.dispose();
+    _sonarController.dispose();
+    _particleController.dispose();
     super.dispose();
   }
 
@@ -94,6 +103,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   child: SafeArea(
                     child: Stack(
                       children: [
+                        // Particle starfield
+                        Positioned.fill(
+                          child: AnimatedBuilder(
+                            animation: _particleController,
+                            builder: (_, __) => CustomPaint(
+                              painter: _ParticlePainter(_particles, _particleController.value),
+                            ),
+                          ),
+                        ),
                         // Ambient orbs background
                         _AmbientOrbs(floatAnim: _floatAnim, bgAnim: _bgAnim, isRunning: isRunning),
                         // Main content
@@ -348,8 +366,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             width: 240,
             height: 240,
             child: Stack(
+              clipBehavior: Clip.none,
               alignment: Alignment.center,
               children: [
+                // Sonar rings (now inside button stack for perfect centering)
+                if (isRunning || isLoading)
+                  AnimatedBuilder(
+                    animation: _sonarController,
+                    builder: (_, __) => CustomPaint(
+                      size: const Size(240, 240),
+                      painter: _SonarPainter(
+                        progress: _sonarController.value,
+                        color: isRunning ? const Color(0xFF00E676) : const Color(0xFFFFC107),
+                      ),
+                    ),
+                  ),
                 // Outer glow
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
@@ -465,24 +496,66 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18),
           gradient: LinearGradient(
-            colors: [Colors.green.withOpacity(0.15), Colors.teal.withOpacity(0.1)],
+            colors: [
+              Colors.green.withOpacity(0.15),
+              Colors.teal.withOpacity(0.1),
+            ],
           ),
           border: Border.all(color: Colors.green.withOpacity(0.3)),
-          boxShadow: [BoxShadow(color: Colors.green.withOpacity(0.15), blurRadius: 16)],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.verified_rounded, color: Colors.green, size: 18),
-            const SizedBox(width: 10),
-            Flexible(
-              child: Text(
-                statusText,
-                style: const TextStyle(color: Colors.green, fontSize: 14, fontWeight: FontWeight.w600),
-                overflow: TextOverflow.visible,
-              ),
-            ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.green.withOpacity(0.15),
+              blurRadius: 16,
+            )
           ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: Stack(
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.verified_rounded, color: Colors.green, size: 18),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      statusText,
+                      style: const TextStyle(
+                        color: Colors.green,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.visible,
+                    ),
+                  ),
+                ],
+              ),
+              // Shimmer overlay
+              Positioned.fill(
+                child: AnimatedBuilder(
+                  animation: _bgController,
+                  builder: (context, child) {
+                    return FractionallySizedBox(
+                      widthFactor: 0.3,
+                      alignment: Alignment(-1.5 + (_bgController.value * 3), 0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.white.withOpacity(0),
+                              Colors.white.withOpacity(0.2),
+                              Colors.white.withOpacity(0),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -531,16 +604,32 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void _showAccountModal(BuildContext context, HomeController controller, {required bool showDelete}) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF0F1120),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF0F1120).withOpacity(0.8),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).padding.bottom + 20,
+              top: 20,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(width: 36, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
                 const SizedBox(height: 16),
                 if (showDelete) ...[
                   ListTile(
@@ -677,3 +766,68 @@ class _OrbitRingPainter extends CustomPainter {
   @override
   bool shouldRepaint(_OrbitRingPainter old) => old.color != color;
 }
+
+// ── Sonar expanding rings ────────────────────────────────────────────────────
+class _SonarPainter extends CustomPainter {
+  final double progress;
+  final Color color;
+  _SonarPainter({required this.progress, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    for (var i = 0; i < 3; i++) {
+      final t = ((progress + i / 3) % 1.0);
+      final radius = 60 + t * (size.width * 1.2); // Scaled relative to button size
+      final opacity = (1.0 - t) * 0.35;
+      canvas.drawCircle(
+        center,
+        radius,
+        Paint()
+          ..color = color.withOpacity(opacity)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.5,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_SonarPainter old) => old.progress != progress || old.color != color;
+}
+
+// ── Particle model & painter ─────────────────────────────────────────────────
+class _Particle {
+  final double x;
+  final double y;
+  final double speed;
+  final double size;
+  final double opacity;
+  _Particle()
+      : x = Random().nextDouble(),
+        y = Random().nextDouble(),
+        speed = 0.005 + Random().nextDouble() * 0.015,
+        size = 1.0 + Random().nextDouble() * 2.0,
+        opacity = 0.2 + Random().nextDouble() * 0.5;
+}
+
+class _ParticlePainter extends CustomPainter {
+  final List<_Particle> particles;
+  final double tick;
+  _ParticlePainter(this.particles, this.tick);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final p in particles) {
+      final y = (p.y + tick * p.speed) % 1.0;
+      canvas.drawCircle(
+        Offset(p.x * size.width, y * size.height),
+        p.size,
+        Paint()..color = Colors.white.withOpacity(p.opacity * (0.6 + 0.4 * sin(tick * 2 * pi + p.x * 10))),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ParticlePainter old) => old.tick != tick;
+}
+
