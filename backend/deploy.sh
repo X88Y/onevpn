@@ -99,8 +99,8 @@ After=network.target
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/root/mvm-vpn/backend/server_manager
-ExecStart=/root/mvm-vpn/backend/.venv/bin/python3 -m uvicorn app:app --host 0.0.0.0 --port 8080
+WorkingDirectory=/root/mvm-vpn/backend
+ExecStart=/root/mvm-vpn/backend/.venv/bin/python3 -m uvicorn server_manager.app:app --host 0.0.0.0 --port 8080
 Restart=always
 RestartSec=10
 
