@@ -26,11 +26,12 @@ ssh $REMOTE_USER@$REMOTE_HOST << 'EOF'
     
     # 3.1 Stop and delete old services (Scratch)
     echo "Cleaning up old services..."
-    systemctl stop hiddify-bot.service hiddify-vkbot.service server-manager.service || true
-    systemctl disable hiddify-bot.service hiddify-vkbot.service server-manager.service || true
+    systemctl stop hiddify-bot.service hiddify-vkbot.service server-manager.service mvm-admin-bot.service || true
+    systemctl disable hiddify-bot.service hiddify-vkbot.service server-manager.service mvm-admin-bot.service || true
     rm -f /etc/systemd/system/hiddify-bot.service
     rm -f /etc/systemd/system/hiddify-vkbot.service
     rm -f /etc/systemd/system/server-manager.service
+    rm -f /etc/systemd/system/mvm-admin-bot.service
     systemctl daemon-reload
 
     # 3.2 Install system dependencies
@@ -52,6 +53,9 @@ ssh $REMOTE_USER@$REMOTE_HOST << 'EOF'
     fi
     if [ -f "server_manager/requirements.txt" ]; then
         pip install -r server_manager/requirements.txt
+    fi
+    if [ -f "bot_admin/requirements.txt" ]; then
+        pip install -r bot_admin/requirements.txt
     fi
 
     # 3.5 Create new service files
@@ -108,11 +112,28 @@ RestartSec=10
 WantedBy=multi-user.target
 EOFF
 
+    cat > /etc/systemd/system/mvm-admin-bot.service << EOFF
+[Unit]
+Description=MVM Admin Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/mvm-vpn/backend
+ExecStart=/root/mvm-vpn/backend/.venv/bin/python3 -m bot_admin
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOFF
+
     # 3.6 Enable and start services
     echo "Enabling and starting services..."
     systemctl daemon-reload
-    systemctl enable mvm-tg-bot.service mvm-vk-bot.service mvm-server-manager.service
-    systemctl restart mvm-tg-bot.service mvm-vk-bot.service mvm-server-manager.service
+    systemctl enable mvm-tg-bot.service mvm-vk-bot.service mvm-server-manager.service mvm-admin-bot.service
+    systemctl restart mvm-tg-bot.service mvm-vk-bot.service mvm-server-manager.service mvm-admin-bot.service
 
     echo "--- Server-side setup complete ---"
 EOF
