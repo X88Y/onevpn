@@ -187,6 +187,10 @@ class AuthService {
           final exists = await db.subscriptionDao.urlExists(keyUrl);
           debugPrint('[AuthService] urlExists: $exists');
           if (!exists) {
+            final oldSubs = await db.subscriptionDao.allRows;
+            for (final sub in oldSubs) {
+              await db.subscriptionDao.deleteRow(sub.id);
+            }
             final count = await SubscriptionService().insertSubscription('Premium Subscription', keyUrl, false);
             debugPrint('[AuthService] insertSubscription count: $count');
           }
