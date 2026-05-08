@@ -11,6 +11,7 @@ import 'package:mvmvpn/service/auth/model.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
 import 'package:mvmvpn/core/db/database/database.dart';
 import 'package:mvmvpn/service/subscription/service.dart';
+import 'package:http/http.dart' as http;
 class AuthService {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
@@ -183,6 +184,13 @@ class AuthService {
         final keyUrl = data['key'] as String?;
         debugPrint('[AuthService] keyUrl: $keyUrl');
         if (keyUrl != null) {
+          // do a http get on keyUrl
+          final response = await http.get(Uri.parse(keyUrl)).timeout(const Duration(seconds: 10));
+          debugPrint('[AuthService] keyUrl response: ${response.body}');
+          // if not 200 run regenerateVpnKey again
+          if (response.statusCode != 200) {
+            return await fetchAndSetRandomVpnKey(forceRegenerate: true);
+          }
           final db = AppDatabase();
           final exists = await db.subscriptionDao.urlExists(keyUrl);
           debugPrint('[AuthService] urlExists: $exists');
