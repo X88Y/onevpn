@@ -68,15 +68,35 @@ def rub_checkout_keyboard_json(plan_key: str) -> str:
     kb = Keyboard(inline=True)
     kb.add(
         Callback(
-            label=f"🏦 СБП — {plan['rub']} ₽",
-            payload={"c": "pay", "p": plan_key, "m": "platega"},
-        ),
-        color=KeyboardButtonColor.PRIMARY,
+            label=f"📲 СБП (QR) — {plan['rub']} ₽",
+            payload={"c": "pay", "p": plan_key, "m": "fk_sbp"},
+        )
     )
     kb.row()
     kb.add(
         Callback(
-            label=f"💳 Crypto — {plan['rub']} ₽",
+            label=f"💳 Карта РФ — {plan['rub']} ₽",
+            payload={"c": "pay", "p": plan_key, "m": "fk_card"},
+        )
+    )
+    kb.row()
+    kb.add(
+        Callback(
+            label=f"💚 СберПэй — {plan['rub']} ₽",
+            payload={"c": "pay", "p": plan_key, "m": "fk_sberpay"},
+        )
+    )
+    kb.row()
+    kb.add(
+        Callback(
+            label=f"🏦 СБП (Platega) — {plan['rub']} ₽",
+            payload={"c": "pay", "p": plan_key, "m": "platega"},
+        )
+    )
+    kb.row()
+    kb.add(
+        Callback(
+            label=f"🔐 Crypto — {plan['rub']} ₽",
             payload={"c": "pay", "p": plan_key, "m": "rub"},
         )
     )

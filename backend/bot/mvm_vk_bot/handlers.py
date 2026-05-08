@@ -8,6 +8,9 @@ from vkbottle import Keyboard, OpenLink
 from vkbottle_types.events import GroupEventType
 
 from mvm_bot.config import (
+    freekassa_api_key,
+    freekassa_ip,
+    freekassa_shop_id,
     heleket_callback_url,
     heleket_merchant_uuid,
     heleket_payment_api_key,
@@ -19,6 +22,8 @@ from mvm_bot.config import (
 from mvm_bot.constants import CONNECT_REDIRECT_ORIGIN, REFERRAL_BONUS_DAYS, SUBSCRIPTION_PLANS, TRIAL_DAYS
 from mvm_bot.jwt_auth import sign_vk_auth_jwt
 from mvm_bot.main_menu import format_subscription_end
+from mvm_bot.freekassa import PAYMENT_CARD_RU, PAYMENT_SBERPAY, PAYMENT_SBP
+from mvm_bot.freekassa import checkout_url as freekassa_checkout_url
 from mvm_bot.heleket import invoice_checkout_url
 from mvm_bot.platega import transaction_checkout_url as platega_checkout_url
 from mvm_bot.user_service import (
@@ -134,7 +139,7 @@ def register_handlers(bot: Bot) -> None:
         if cmd == "pay":
             method = payload.get("m")
             plan_key_raw = payload.get("p")
-            if method not in ("rub", "platega") or not isinstance(plan_key_raw, str):
+            if not isinstance(plan_key_raw, str):
                 return
             plan = SUBSCRIPTION_PLANS.get(plan_key_raw)
             if plan is None:
@@ -209,69 +214,133 @@ def register_handlers(bot: Bot) -> None:
                 )
                 return
 
-            merchant_uuid = heleket_merchant_uuid()
-            api_key = heleket_payment_api_key()
-            ipn_url = heleket_callback_url()
-            if not merchant_uuid or not api_key or not ipn_url:
+            if method == "rub":
+                merchant_uuid = heleket_merchant_uuid()
+                api_key = heleket_payment_api_key()
+                ipn_url = heleket_callback_url()
+                if not merchant_uuid or not api_key or not ipn_url:
+                    await event.send_message(
+                        message=(
+                            "Оплата сейчас недоступна. Напишите в поддержку: "
+                            "ссылка на оплату не сформировалась."
+                        ),
+                    )
+                    return
+                try:
+                    inv = await invoice_checkout_url(
+                        merchant_uuid=merchant_uuid,
+                        api_key=api_key,
+                        ipn_callback_url=ipn_url,
+                        payer_user_id=uid,
+                        payer_provider="vk",
+                        plan_key=plan_key_raw,
+                        price_amount=float(rub),
+                        price_currency="rub",
+                        success_url=CONNECT_REDIRECT_ORIGIN,
+                    )
+                    checkout = inv.url
+                except Exception:
+                    logging.exception("Heleket invoice failed (VK)")
+                    await event.send_message(
+                        message=(
+                            "Не удалось создать ссылку на оплату. "
+                            "Попробуйте позже или напишите в поддержку."
+                        ),
+                    )
+                    return
+
+                try:
+                    await asyncio.to_thread(
+                        record_payment_checkout_click,
+                        service="heleket",
+                        provider="vk",
+                        external_user_id=str(uid),
+                        plan_key=plan_key_raw,
+                        amount=float(rub),
+                        currency="RUB",
+                        pay_url=checkout,
+                        channel="vk",
+                        correlation_id=inv.order_id,
+                        payment_method="rub",
+                    )
+                except Exception:
+                    logging.exception("Failed to log Heleket checkout click (VK)")
+                pay_kb = Keyboard(inline=True)
+                pay_kb.add(OpenLink(label="Оплатить", link=checkout))
                 await event.send_message(
                     message=(
-                        "Оплата сейчас недоступна. Напишите в поддержку: "
-                        "ссылка на оплату не сформировалась."
+                        f"🔐 Crypto — {plan['label']} ({float(rub):.0f} ₽)\n\n"
+                        "После оплаты подписка продлится автоматически "
+                        "(обычно несколько минут).\n\n"
+                        f"Ссылка: {checkout}"
                     ),
-                )
-                return
-            try:
-                inv = await invoice_checkout_url(
-                    merchant_uuid=merchant_uuid,
-                    api_key=api_key,
-                    ipn_callback_url=ipn_url,
-                    payer_user_id=uid,
-                    payer_provider="vk",
-                    plan_key=plan_key_raw,
-                    price_amount=float(rub),
-                    price_currency="rub",
-                    success_url=CONNECT_REDIRECT_ORIGIN,
-                )
-                checkout = inv.url
-            except Exception:
-                logging.exception("Heleket invoice failed (VK)")
-                await event.send_message(
-                    message=(
-                        "Не удалось создать ссылку на оплату. "
-                        "Попробуйте позже или напишите в поддержку."
-                    ),
+                    keyboard=pay_kb.get_json(),
                 )
                 return
 
-            try:
-                await asyncio.to_thread(
-                    record_payment_checkout_click,
-                    service="heleket",
-                    provider="vk",
-                    external_user_id=str(uid),
-                    plan_key=plan_key_raw,
-                    amount=float(rub),
-                    currency="RUB",
-                    pay_url=checkout,
-                    channel="vk",
-                    correlation_id=inv.order_id,
-                    payment_method="rub",
+            _FK_METHODS = {
+                "fk_sbp": (PAYMENT_SBP, "📲 СБП (QR)"),
+                "fk_card": (PAYMENT_CARD_RU, "💳 Банк. карта РФ"),
+                "fk_sberpay": (PAYMENT_SBERPAY, "💚 СберПэй"),
+            }
+            if method in _FK_METHODS:
+                shop_id = freekassa_shop_id()
+                api_key = freekassa_api_key()
+                if not shop_id or not api_key:
+                    await event.send_message(
+                        message="Оплата через FreeKassa сейчас недоступна. Напишите в поддержку."
+                    )
+                    return
+                payment_system, method_label = _FK_METHODS[method]
+                try:
+                    fk = await freekassa_checkout_url(
+                        shop_id=shop_id,
+                        api_key=api_key,
+                        provider="vk",
+                        user_id=uid,
+                        plan_key=plan_key_raw,
+                        payment_system=payment_system,
+                        email=f"{uid}@vk.com",
+                        ip=freekassa_ip(),
+                        amount=float(rub),
+                    )
+                    checkout = fk.url
+                except Exception:
+                    logging.exception("FreeKassa order creation failed (VK)")
+                    await event.send_message(
+                        message="Не удалось создать ссылку на оплату. Попробуйте позже или напишите в поддержку."
+                    )
+                    return
+
+                try:
+                    await asyncio.to_thread(
+                        record_payment_checkout_click,
+                        service="freekassa",
+                        provider="vk",
+                        external_user_id=str(uid),
+                        plan_key=plan_key_raw,
+                        amount=float(rub),
+                        currency="RUB",
+                        pay_url=checkout,
+                        channel="vk",
+                        correlation_id=fk.payment_id,
+                        payment_method=method,
+                        payment_system=payment_system,
+                    )
+                except Exception:
+                    logging.exception("Failed to log FreeKassa checkout click (VK)")
+
+                pay_kb = Keyboard(inline=True)
+                pay_kb.add(OpenLink(label="Оплатить", link=checkout))
+                await event.send_message(
+                    message=(
+                        f"{method_label} — {plan['label']} ({float(rub):.0f} ₽)\n\n"
+                        "После оплаты подписка продлится автоматически (обычно несколько минут).\n\n"
+                        f"Ссылка: {checkout}"
+                    ),
+                    keyboard=pay_kb.get_json(),
                 )
-            except Exception:
-                logging.exception("Failed to log Heleket checkout click (VK)")
-            pay = float(rub)
-            pay_kb = Keyboard(inline=True)
-            pay_kb.add(OpenLink(label="Оплатить", link=checkout))
-            await event.send_message(
-                message=(
-                    f"💳 Оплата — {plan['label']} ({pay:.0f} ₽)\n\n"
-                    "После оплаты подписка продлится автоматически "
-                    "(обычно несколько минут).\n\n"
-                    f"Ссылка: {checkout}"
-                ),
-                keyboard=pay_kb.get_json(),
-            )
-            return
+                return
 
         if cmd == "invite":
             _, data = await save_vk_user(profile)
