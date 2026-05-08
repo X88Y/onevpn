@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               HomeCenterButton(
                                 controller: controller,
                                 isRunning: isRunning,
-                                isLoading: isLoading,
+                                isLoading: isLoading || homeState.connectingProvider != null,
                                 orbitController: _orbitController,
                                 sonarController: _sonarController,
                                 pulseAnim: _pulseAnim,
@@ -156,12 +156,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     return Row(
       children: [
-        AccountBubble(controller: controller, isSmall: !hasSocials),
+        AccountBubble(controller: controller, isSmall: !hasSocials, isLoading: isLoading || homeState.connectingProvider != null),
         SocialBubble(
           icon: FontAwesomeIcons.arrowsRotate,
           glowColor: const Color(0xFFFFC107),
           onTap: () => controller.regenerateTokenForce(),
           isLoading: isLoading,
+          isEnabled: homeState.connectingProvider == null,
         ),
         const Spacer(),
         if (isAppleLinked) ...[
@@ -171,6 +172,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             onTap: () => controller.signInWithApple(),
             isHighlighted: homeState.highlightBubbles,
             isLoading: homeState.connectingProvider == 'apple',
+            isEnabled: !isLoading && homeState.connectingProvider == null,
           ),
           const SizedBox(width: 10),
         ],
@@ -181,6 +183,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             onTap: () => controller.connectTelegram(),
             isHighlighted: homeState.highlightBubbles,
             isLoading: homeState.connectingProvider == 'telegram',
+            isEnabled: !isLoading && homeState.connectingProvider == null,
           ),
           const SizedBox(width: 10),
         ],
@@ -191,6 +194,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             onTap: () => controller.connectVK(),
             isHighlighted: homeState.highlightBubbles,
             isLoading: homeState.connectingProvider == 'vk',
+            isEnabled: !isLoading && homeState.connectingProvider == null,
           ),
       ],
     );
@@ -209,6 +213,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         onTap: () => controller.signInWithApple(),
         isHighlighted: homeState.highlightSocials,
         isLoading: homeState.connectingProvider == 'apple',
+        isEnabled: !isLoading && homeState.connectingProvider == null,
       ));
     }
     if (!(user?.isTelegramLinked ?? false)) {
@@ -220,6 +225,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         onTap: () => controller.connectTelegram(),
         isHighlighted: homeState.highlightSocials || homeState.highlightBubbles,
         isLoading: homeState.connectingProvider == 'telegram',
+        isEnabled: !isLoading && homeState.connectingProvider == null,
       ));
     }
     if (!(user?.isVkLinked ?? false)) {
@@ -231,6 +237,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         onTap: () => controller.connectVK(),
         isHighlighted: homeState.highlightSocials || homeState.highlightBubbles,
         isLoading: homeState.connectingProvider == 'vk',
+        isEnabled: !isLoading && homeState.connectingProvider == null,
       ));
     }
 

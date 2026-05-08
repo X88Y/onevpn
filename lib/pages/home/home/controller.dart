@@ -261,6 +261,8 @@ class HomeController extends Cubit<HomeState> {
 
   Future<void> startVpn(BuildContext context) async {
     final eventBus = AppEventBus.instance;
+    if (eventBus.state.vpnLoading || eventBus.state.isUpdatingSubscription) return;
+
     final isRunning = eventBus.state.runningId != DBConstants.defaultId;
     
     eventBus.updateVpnLoading(true);
@@ -370,6 +372,8 @@ class HomeController extends Cubit<HomeState> {
 
   Future<void> regenerateTokenForce() async {
     final eventBus = AppEventBus.instance;
+    if (eventBus.state.vpnLoading || eventBus.state.isUpdatingSubscription) return;
+
     eventBus.updateVpnLoading(true);
     // Signal the UI to suppress on/off statuses and show only loading.
     eventBus.updateSubscriptionUpdating(true);

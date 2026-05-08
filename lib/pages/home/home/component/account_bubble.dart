@@ -6,11 +6,13 @@ import 'package:mvmvpn/pages/home/home/controller.dart';
 class AccountBubble extends StatelessWidget {
   final HomeController controller;
   final bool isSmall;
+  final bool isLoading;
 
   const AccountBubble({
     super.key,
     required this.controller,
     this.isSmall = false,
+    this.isLoading = false,
   });
 
   @override
@@ -19,7 +21,7 @@ class AccountBubble extends StatelessWidget {
     final iconSize = isSmall ? 16.0 : 20.0;
     
     return GestureDetector(
-      onTap: () => _showAccountModal(context, controller, showDelete: !isSmall),
+      onTap: isLoading ? null : () => _showAccountModal(context, controller, showDelete: !isSmall),
       child: Container(
         width: size,
         height: size,

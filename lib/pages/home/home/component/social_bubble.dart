@@ -7,6 +7,7 @@ class SocialBubble extends StatelessWidget {
   final VoidCallback onTap;
   final bool isHighlighted;
   final bool isLoading;
+  final bool isEnabled;
 
   const SocialBubble({
     super.key,
@@ -15,12 +16,13 @@ class SocialBubble extends StatelessWidget {
     required this.onTap,
     this.isHighlighted = false,
     this.isLoading = false,
+    this.isEnabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: isLoading ? null : onTap,
+      onTap: (isLoading || !isEnabled) ? null : onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 600),
         curve: Curves.easeInOut,
