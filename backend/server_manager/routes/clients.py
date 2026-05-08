@@ -409,10 +409,19 @@ async def regenerate_client(payload: ProvisionRequest) -> RegenerateResponse:
 
     if not candidates:
         # No alternative healthy servers available — signal the client to retry later.
-        raise HTTPException(
-            status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="No alternative VPN servers are available right now. Please try again later.",
-        )
+        for info in old_per_server.values():
+            h = _extract_host_from_url(info.get("subUrl"))
+            if h:
+                current_hosts.remove(h)
+        candidates = [
+            s for s in healthy
+            if _server_host(s.to_dict() or {}) not in current_hosts
+        ]    
+        if not candidates:
+            raise HTTPException(
+                status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="No alternative VPN servers are available right now. Please try again later.",
+            )
 
     new_per_server, _written = await _provision_missing(
         healthy_missing=candidates,
