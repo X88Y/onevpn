@@ -1,3 +1,4 @@
+import random
 import asyncio
 import json
 import logging
@@ -422,6 +423,7 @@ async def regenerate_client(payload: ProvisionRequest) -> RegenerateResponse:
                 status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="No alternative VPN servers are available right now. Please try again later.",
             )
+    random.shuffle(candidates)
 
     new_per_server, _written = await _provision_missing(
         healthy_missing=candidates,
