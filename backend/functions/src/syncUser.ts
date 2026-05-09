@@ -2,6 +2,7 @@ import {logger} from "firebase-functions";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 import {getAuth, type DecodedIdToken} from "firebase-admin/auth";
 import {FieldValue} from "firebase-admin/firestore";
+import {defineSecret} from "firebase-functions/params";
 
 import {APPLE_PROVIDER} from "./apple/constants";
 import {findOrCreateAppleUserRecord} from "./apple/userStore";
@@ -105,7 +106,11 @@ async function authorizedUsersDocId(decoded: DecodedIdToken): Promise<string> {
 }
 
 export const syncUser = onCall(
-  {cors: true, maxInstances: 10},
+  {
+    cors: true,
+    maxInstances: 10,
+    secrets: [defineSecret("MVMVPN_JWT_SECRET")],
+  },
   async (request) => {
     const decodedIdToken = request.auth?.token;
     const externalJwt = request.data?.externalJwt;

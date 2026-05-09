@@ -103,7 +103,12 @@ export const heleketWebhook = onRequest(
     cors: false,
     maxInstances: 10,
     memory: "256MiB",
-    secrets: [defineSecret("HELEKET_PAYMENT_API_KEY")],
+    secrets: [
+      defineSecret("HELEKET_PAYMENT_API_KEY"),
+      defineSecret("MVMVPN_JWT_SECRET"),
+      defineSecret("BOT_TOKEN"),
+      defineSecret("VK_BOT_TOKEN"),
+    ],
   },
   async (req: Request, res) => {
     if (req.method !== "POST") {

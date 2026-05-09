@@ -138,7 +138,12 @@ export const freeKassa = onRequest(
     cors: false,
     maxInstances: 10,
     memory: "256MiB",
-    secrets: [defineSecret("FREEKASSA_SECRET_WORD_2")],
+    secrets: [
+      defineSecret("FREEKASSA_SECRET_WORD_2"),
+      defineSecret("MVMVPN_JWT_SECRET"),
+      defineSecret("BOT_TOKEN"),
+      defineSecret("VK_BOT_TOKEN"),
+    ],
   },
   async (req, res) => {
     if (req.method !== "POST" && req.method !== "GET") {

@@ -85,7 +85,13 @@ export const plategaWebhook = onRequest(
     cors: false,
     maxInstances: 10,
     memory: "256MiB",
-    secrets: [defineSecret("PLATEGA_MERCHANT_ID"), defineSecret("PLATEGA_SECRET")],
+    secrets: [
+      defineSecret("PLATEGA_MERCHANT_ID"),
+      defineSecret("PLATEGA_SECRET"),
+      defineSecret("MVMVPN_JWT_SECRET"),
+      defineSecret("BOT_TOKEN"),
+      defineSecret("VK_BOT_TOKEN"),
+    ],
   },
   async (req, res) => {
     if (req.method !== "POST") {
