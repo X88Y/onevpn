@@ -49,6 +49,13 @@ async def enable_server(server_id: str) -> dict:
         return response.json()
 
 
+async def set_server_error(server_id: str) -> dict:
+    async with _client() as http:
+        response = await http.post(f"/servers/{server_id}/error")
+        response.raise_for_status()
+        return response.json()
+
+
 async def delete_server(server_id: str) -> dict:
     async with _client() as http:
         response = await http.delete(f"/servers/{server_id}")

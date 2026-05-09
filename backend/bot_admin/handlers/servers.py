@@ -221,11 +221,13 @@ async def _show_server_list(event: Message | CallbackQuery, page: int = 1) -> No
         label = s.get("label")
         display_name = f"{label} ({host})" if label else host
         
-        # Action is disable by default as requested
+        # Action is disable by default. If already disabled, turn to error.
+        action = "error" if status == "disabled" else "disable"
+        
         button_text = f"{emoji} {display_name}"
         builder.row(InlineKeyboardButton(
             text=button_text,
-            callback_data=ServerAction(action="disable", server_id=sid, page=page).pack()
+            callback_data=ServerAction(action=action, server_id=sid, page=page).pack()
         ))
 
     # Pagination row
@@ -247,7 +249,7 @@ async def _show_server_list(event: Message | CallbackQuery, page: int = 1) -> No
     text = (
         f"<b>Servers List (Page {page})</b>\n"
         f"Total servers: {total}\n\n"
-        f"<i>Click a server to disable it.</i>"
+        f"<i>Click a server to disable it (or mark as error if already disabled).</i>"
     )
 
     if isinstance(event, Message):
@@ -311,3 +313,17 @@ async def cmd_enable_server(message: Message, command: CommandObject) -> None:
         await message.answer(f"Manager call failed: {exc}")
         return
     await message.answer(f"Enabled {server_id}.")
+@router.callback_query(ServerAction.filter(F.action == "error"))
+async def on_error_server(callback: CallbackQuery, callback_data: ServerAction):
+    user_id = callback.from_user.id if callback.from_user else None
+    if not _is_admin(user_id):
+        await callback.answer("Access denied.", show_alert=True)
+        return
+
+    try:
+        await manager_client.set_server_error(callback_data.server_id)
+        await callback.answer(f"⚠️ Server {callback_data.server_id} marked as error.", show_alert=True)
+        # Refresh the current page
+        await _show_server_list(callback, page=callback_data.page)
+    except httpx.HTTPError as exc:
+        await callback.answer(f"❌ Failed to mark as error: {exc}", show_alert=True)

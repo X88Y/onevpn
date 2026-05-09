@@ -208,6 +208,14 @@ async def enable_server(server_id: str) -> dict:
     return {"ok": True}
 
 
+@router.post("/servers/{server_id}/error")
+async def set_server_error(server_id: str) -> dict:
+    db = init_firestore()
+    ref = await _get_server_ref(db, server_id)
+    ref.update({"status": "error", "updatedAt": firestore.SERVER_TIMESTAMP})
+    return {"ok": True}
+
+
 @router.delete("/servers/{server_id}")
 async def delete_server(server_id: str) -> dict:
     db = init_firestore()
