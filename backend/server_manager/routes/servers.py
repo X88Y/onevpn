@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from datetime import datetime, timezone
 from typing import List, Optional
@@ -132,6 +133,8 @@ async def list_servers() -> List[ServerSummary]:
     out: List[ServerSummary] = []
     for snap in snaps:
         data = snap.to_dict() or {}
+        if data.get("deleted"):
+            continue
         out.append(
             ServerSummary(
                 id=snap.id,
@@ -147,12 +150,34 @@ async def list_servers() -> List[ServerSummary]:
     return out
 
 
+async def _get_server_ref(db: firestore.Client, sid: str) -> firestore.DocumentReference:
+    """Resolves a server reference by its Firestore ID or its public host (IP)."""
+
+    def _sync_find():
+        # 1. Try as Firestore document ID
+        ref = db.collection(VPN_SERVERS_COLLECTION).document(sid)
+        snap = ref.get()
+        if snap.exists and not snap.to_dict().get("deleted"):
+            return ref
+        # 2. Try as host (IP)
+        snaps = list(
+            db.collection(VPN_SERVERS_COLLECTION).where("host", "==", sid.strip()).limit(5).stream()
+        )
+        for s in snaps:
+            if not s.to_dict().get("deleted"):
+                return s.reference
+        return None
+
+    ref = await asyncio.to_thread(_sync_find)
+    if not ref:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="server not found")
+    return ref
+
+
 @router.post("/servers/{server_id}/disable")
 async def disable_server(server_id: str) -> dict:
     db = init_firestore()
-    ref = db.collection(VPN_SERVERS_COLLECTION).document(server_id)
-    if not ref.get().exists:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="server not found")
+    ref = await _get_server_ref(db, server_id)
     ref.update({"status": "disabled", "updatedAt": firestore.SERVER_TIMESTAMP})
     return {"ok": True}
 
@@ -160,7 +185,7 @@ async def disable_server(server_id: str) -> dict:
 @router.post("/servers/{server_id}/enable")
 async def enable_server(server_id: str) -> dict:
     db = init_firestore()
-    ref = db.collection(VPN_SERVERS_COLLECTION).document(server_id)
+    ref = await _get_server_ref(db, server_id)
     snap = ref.get()
     if not snap.exists:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="server not found")
@@ -176,8 +201,10 @@ async def enable_server(server_id: str) -> dict:
 @router.delete("/servers/{server_id}")
 async def delete_server(server_id: str) -> dict:
     db = init_firestore()
-    ref = db.collection(VPN_SERVERS_COLLECTION).document(server_id)
-    if not ref.get().exists:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="server not found")
-    ref.delete()
+    ref = await _get_server_ref(db, server_id)
+    ref.update({
+        "status": "disabled",
+        "deleted": True,
+        "updatedAt": firestore.SERVER_TIMESTAMP,
+    })
     return {"ok": True}
