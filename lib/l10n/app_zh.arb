@@ -467,5 +467,6 @@
   "homePrivacy": "隐私政策",
   "homeRegeneratingKey": "正在重新生成订阅密钥...",
   "homeSignInSuccess": "登录成功",
-  "homeSignInFailed": "登录失败"
+  "homeSignInFailed": "登录失败",
+  "homeCheckingGoogleConnectivity": "正在检查 Google 连接..."
 }

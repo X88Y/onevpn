@@ -467,5 +467,6 @@
   "homePrivacy": "Приватность",
   "homeRegeneratingKey": "Обновление ключа подписки...",
   "homeSignInSuccess": "Вход выполнен успешно",
-  "homeSignInFailed": "Ошибка входа"
+  "homeSignInFailed": "Ошибка входа",
+  "homeCheckingGoogleConnectivity": "Проверяем что все работает..."
 }

@@ -466,6 +466,7 @@
   "homeTerms": "شرایط و ضوابط",
   "homePrivacy": "حریم خصوصی",
   "homeRegeneratingKey": "در حال بازسازی کلید اشتراک...",
-  "homeSignInSuccess": "ورود با موفقیت انجام شد",
-  "homeSignInFailed": "ورود ناموفق بود"
+    "homeSignInSuccess": "ورود با موفقیت انجام شد",
+    "homeSignInFailed": "ورود ناموفق بود",
+    "homeCheckingGoogleConnectivity": "در حال بررسی اتصال به گوگل..."
 }
