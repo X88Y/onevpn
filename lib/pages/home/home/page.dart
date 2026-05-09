@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -149,7 +150,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Widget _buildTopBar(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState, bool isLoading) {
     final user = eventState.userData;
-    final isAppleLinked = user?.isAppleLinked ?? false;
+    final isAppleLinked = (user?.isAppleLinked ?? false) && !Platform.isAndroid;
     final isTelegramLinked = user?.isTelegramLinked ?? false;
     final isVkLinked = user?.isVkLinked ?? false;
     final hasSocials = isAppleLinked || isTelegramLinked || isVkLinked;
@@ -197,7 +198,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     final user = eventState.userData;
     final buttons = <Widget>[];
 
-    if (!(user?.isAppleLinked ?? false)) {
+    if (!(user?.isAppleLinked ?? false) && !Platform.isAndroid) {
       buttons.add(HomeAuthButton(
         icon: FontAwesomeIcons.apple,
         gradient: const LinearGradient(colors: [Color(0xFF4A4A4A), Color(0xFF2A2A2A)]),
