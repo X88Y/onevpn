@@ -3,7 +3,7 @@ import {onRequest} from "firebase-functions/v2/https";
 /** Fixed payload returned by the public constant endpoint. */
 export const PUBLIC_CONSTANT = {
   ok: true,
-  vk: "https://vk.com/mvmvpn",
+  vk: "https://m.vk.com/write-199074445",
   tg: "https://t.me/mvmvpnbot",
 } as const;
 
