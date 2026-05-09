@@ -4,6 +4,7 @@ import {onRequest} from "firebase-functions/v2/https";
 
 import {db} from "./firebase";
 import {notifyPurchase} from "./notifyUser";
+import {defineSecret} from "firebase-functions/params";
 
 /**
  * Days to extend subscription per plan key.
@@ -80,7 +81,12 @@ function subscriptionBaseDate(data: DocumentData): Date {
  */
 // eslint-disable-next-line camelcase
 export const plategaWebhook = onRequest(
-  {cors: false, maxInstances: 10, memory: "256MiB"},
+  {
+    cors: false,
+    maxInstances: 10,
+    memory: "256MiB",
+    secrets: [defineSecret("PLATEGA_MERCHANT_ID"), defineSecret("PLATEGA_SECRET")],
+  },
   async (req, res) => {
     if (req.method !== "POST") {
       res.status(405).send("Method Not Allowed");
