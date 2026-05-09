@@ -27,11 +27,28 @@ class SubscriptionService {
       eventBus.updateDownloading(true);
     }
 
+    final db = AppDatabase();
+    final existingSubs = await db.subscriptionDao.allRows;
+    SubscriptionData? existing;
+    for (var sub in existingSubs) {
+      if (sub.url == url) {
+        existing = sub;
+        break;
+      }
+    }
+
+    if (existing != null) {
+      final count = await refreshSubscription(existing, false);
+      if (showLoading) {
+        eventBus.updateDownloading(false);
+      }
+      return count;
+    }
+
     final text = await NetClient().getText(url);
     final rows = await _readConfigs(text);
     var count = 0;
     if (rows.isNotEmpty) {
-      final db = AppDatabase();
       final row = SubscriptionCompanion.insert(
         name: name,
         url: url,

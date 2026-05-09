@@ -17,8 +17,8 @@ class SubscriptionValidator {
     final db = AppDatabase();
     final urlExists = await db.subscriptionDao.urlExists(url);
     if (urlExists) {
-      return Tuple2(false, appLocalizationsNoContext().validationUrlDuplicate);
+      return const Tuple2(true, "");
     }
-    return Tuple2(true, "");
+    return const Tuple2(true, "");
   }
 }

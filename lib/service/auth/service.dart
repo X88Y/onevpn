@@ -199,34 +199,34 @@ class AuthService {
             for (final sub in oldSubs) {
               await db.subscriptionDao.deleteRow(sub.id);
             }
-            final count = await SubscriptionService().insertSubscription('Premium Subscription', keyUrl, false);
-            debugPrint('[AuthService] insertSubscription count: $count');
-            // If the subscription URL content couldn't be fetched (e.g. VPN
-            // tunnel was just stopped), insert a bare row then immediately
-            // retry fetching the configs now that the tunnel is gone.
-            if (count == 0) {
-              debugPrint('[AuthService] insertSubscription returned 0 — inserting bare row then retrying refresh');
-              final bareRow = SubscriptionCompanion.insert(
-                name: 'Premium Subscription',
-                url: keyUrl,
-                timestamp: DateTime.now(),
-                count: 0,
-                expanded: true,
-              );
-              await db.subscriptionDao.insertRow(bareRow);
-              // Find the bare row we just inserted.
-              final newSubs = await db.subscriptionDao.allRows;
-              SubscriptionData? bareSubData;
-              for (final s in newSubs) {
-                if (s.url == keyUrl) {
-                  bareSubData = s;
-                  break;
-                }
+          }
+          final count = await SubscriptionService().insertSubscription('Premium Subscription', keyUrl, false);
+          debugPrint('[AuthService] insertSubscription count: $count');
+          // If the subscription URL content couldn't be fetched (e.g. VPN
+          // tunnel was just stopped), insert a bare row then immediately
+          // retry fetching the configs now that the tunnel is gone.
+          if (!exists && count == 0) {
+            debugPrint('[AuthService] insertSubscription returned 0 — inserting bare row then retrying refresh');
+            final bareRow = SubscriptionCompanion.insert(
+              name: 'Premium Subscription',
+              url: keyUrl,
+              timestamp: DateTime.now(),
+              count: 0,
+              expanded: true,
+            );
+            await db.subscriptionDao.insertRow(bareRow);
+            // Find the bare row we just inserted.
+            final newSubs = await db.subscriptionDao.allRows;
+            SubscriptionData? bareSubData;
+            for (final s in newSubs) {
+              if (s.url == keyUrl) {
+                bareSubData = s;
+                break;
               }
-              if (bareSubData != null) {
-                debugPrint('[AuthService] Retrying refreshSubscription for bare row id=${bareSubData.id}');
-                await SubscriptionService().refreshSubscription(bareSubData, false);
-              }
+            }
+            if (bareSubData != null) {
+              debugPrint('[AuthService] Retrying refreshSubscription for bare row id=${bareSubData.id}');
+              await SubscriptionService().refreshSubscription(bareSubData, false);
             }
           }
           
