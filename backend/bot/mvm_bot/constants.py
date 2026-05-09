@@ -13,6 +13,7 @@ TRIAL_FIELDS = {
 CONNECT_REDIRECT_ORIGIN = "https://front-redirect.vercel.app"
 
 SUPPORT_URL = "https://t.me/MVM_Support"
+VK_SUPPORT_URL = "https://vk.ru/id1088965138"
 
 PRIVACY_POLICY_URL = "https://telegra.ph/Politika-konfidencialnosti-04-01-26"
 TERMS_URL = "https://telegra.ph/Polzovatelskoe-soglashenie-04-01-19"

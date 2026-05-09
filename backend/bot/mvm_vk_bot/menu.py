@@ -5,7 +5,7 @@ from vkbottle.bot import Message
 from vkbottle.tools import PhotoMessageUploader
 
 from mvm_bot.config import vk_menu_banner_path
-from mvm_bot.constants import SUBSCRIPTION_PLANS, SUPPORT_URL, TRIAL_FIELDS
+from mvm_bot.constants import SUBSCRIPTION_PLANS, SUPPORT_URL, TRIAL_FIELDS, VK_SUPPORT_URL
 from mvm_bot.datetime_utils import as_utc_datetime
 from mvm_bot.jwt_auth import connect_redirect_url_vk
 from mvm_bot.main_menu import main_menu_caption
@@ -39,7 +39,7 @@ def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
     kb.row()
     kb.add(Callback(label="👥 Пригласить друзей", payload={"c": "invite"}))
     kb.row()
-    kb.add(OpenLink(label="💬 Поддержка", link=SUPPORT_URL))
+    kb.add(OpenLink(label="💬 Поддержка", link=VK_SUPPORT_URL))
     return kb.get_json()
 
 
