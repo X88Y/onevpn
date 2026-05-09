@@ -18,6 +18,7 @@ from server_manager.models import (
     CreateServerResponse,
     InstallJobResponse,
     ServerSummary,
+    ServerListResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -126,16 +127,16 @@ async def get_install_job(job_id: str) -> InstallJobResponse:
     )
 
 
-@router.get("/servers", response_model=List[ServerSummary])
-async def list_servers() -> List[ServerSummary]:
+@router.get("/servers", response_model=ServerListResponse)
+async def list_servers(page: int = 1, limit: int = 10) -> ServerListResponse:
     db = init_firestore()
     snaps = db.collection(VPN_SERVERS_COLLECTION).stream()
-    out: List[ServerSummary] = []
+    all_servers: List[ServerSummary] = []
     for snap in snaps:
         data = snap.to_dict() or {}
         if data.get("deleted"):
             continue
-        out.append(
+        all_servers.append(
             ServerSummary(
                 id=snap.id,
                 host=str(data.get("host") or ""),
@@ -147,7 +148,16 @@ async def list_servers() -> List[ServerSummary]:
                 lastHealthAt=_isoformat(data.get("lastHealthAt")),
             )
         )
-    return out
+    
+    # Sort by addedAt desc (newest first)
+    all_servers.sort(key=lambda x: x.addedAt or "", reverse=True)
+    
+    total = len(all_servers)
+    start = (page - 1) * limit
+    end = start + limit
+    paged_servers = all_servers[start:end]
+    
+    return ServerListResponse(total=total, servers=paged_servers)
 
 
 async def _get_server_ref(db: firestore.Client, sid: str) -> firestore.DocumentReference:

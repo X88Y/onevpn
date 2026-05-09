@@ -28,11 +28,11 @@ async def get_install_job(job_id: str) -> dict:
         return response.json()
 
 
-async def list_servers() -> list[dict]:
+async def list_servers(page: int = 1, limit: int = 10) -> dict:
     async with _client() as http:
-        response = await http.get("/servers")
+        response = await http.get("/servers", params={"page": page, "limit": limit})
         response.raise_for_status()
-        return list(response.json())
+        return response.json()
 
 
 async def disable_server(server_id: str) -> dict:

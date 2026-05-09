@@ -20,7 +20,8 @@ async def _main() -> None:
         [
             BotCommand(command="start", description="Help"),
             BotCommand(command="add_server", description="Add a VPN server"),
-            BotCommand(command="list_servers", description="List VPN servers"),
+            BotCommand(command="list_servers", description="List VPN servers (paginated)"),
+            BotCommand(command="list_server", description="List VPN servers (paginated)"),
             BotCommand(command="disable_server", description="Disable server <id>"),
             BotCommand(command="enable_server", description="Enable server <id>"),
             BotCommand(command="cancel", description="Cancel current flow"),

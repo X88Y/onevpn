@@ -73,3 +73,8 @@ class ErrorResponse(BaseModel):
     error: str
     detail: Optional[str] = None
     retryAfter: Optional[int] = None
+
+
+class ServerListResponse(BaseModel):
+    total: int
+    servers: List[ServerSummary]

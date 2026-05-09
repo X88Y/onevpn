@@ -7,9 +7,11 @@ from typing import Optional
 import httpx
 from aiogram import F, Router
 from aiogram.filters import Command, CommandObject
+from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message
+from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from bot_admin.config import admin_telegram_ids
 from bot_admin import manager_client
@@ -19,6 +21,24 @@ router = Router(name="servers")
 
 DEFAULT_SSH_PORT = 22
 DEFAULT_SSH_USER = "root"
+
+STATUS_EMOJIS = {
+    "healthy": "✅",
+    "provisioning": "🔄",
+    "disabled": "❌",
+    "error": "⚠️",
+    "unknown": "❓",
+}
+
+
+class ServerPagination(CallbackData, prefix="srv_pg"):
+    page: int
+
+
+class ServerAction(CallbackData, prefix="srv_act"):
+    action: str  # "disable"
+    server_id: str
+    page: int
 
 
 class AddServer(StatesGroup):
@@ -156,28 +176,107 @@ async def _finalize_add_server(message: Message, state: FSMContext) -> None:
     )
 
 
-@router.message(Command("list_servers"))
+@router.message(Command("list_servers", "list_server"))
 async def cmd_list_servers(message: Message) -> None:
-    if not _is_admin(message.from_user.id if message.from_user else None):
-        await message.answer("Access denied.")
+    await _show_server_list(message, page=1)
+
+
+async def _show_server_list(event: Message | CallbackQuery, page: int = 1) -> None:
+    user_id = event.from_user.id if event.from_user else None
+    if not _is_admin(user_id):
+        if isinstance(event, Message):
+            await event.answer("Access denied.")
+        else:
+            await event.answer("Access denied.", show_alert=True)
         return
+
+    limit = 10
     try:
-        servers = await manager_client.list_servers()
+        data = await manager_client.list_servers(page=page, limit=limit)
     except httpx.HTTPError as exc:
-        await message.answer(f"Manager call failed: {exc}")
+        msg = f"Manager call failed: {exc}"
+        if isinstance(event, Message):
+            await event.answer(msg)
+        else:
+            await event.answer(msg, show_alert=True)
         return
-    if not servers:
-        await message.answer("No servers yet. Run /add_server.")
+
+    servers = data.get("servers", [])
+    total = data.get("total", 0)
+
+    if not servers and page == 1:
+        if isinstance(event, Message):
+            await event.answer("No servers yet. Run /add_server.")
+        else:
+            await event.answer("No servers found.", show_alert=True)
         return
-    lines = []
-    for server in servers:
-        lines.append(
-            f"<code>{escape(str(server.get('id')))}</code> "
-            f"{escape(str(server.get('host')))} "
-            f"[{escape(str(server.get('status')))}] "
-            f"clients={server.get('clientCount', 0)}"
-        )
-    await message.answer("\n".join(lines), parse_mode="HTML")
+
+    builder = InlineKeyboardBuilder()
+
+    for s in servers:
+        status = s.get("status", "unknown")
+        emoji = STATUS_EMOJIS.get(status, STATUS_EMOJIS["unknown"])
+        host = s.get("host", "unknown")
+        sid = s.get("id", "")
+        label = s.get("label")
+        display_name = f"{label} ({host})" if label else host
+        
+        # Action is disable by default as requested
+        button_text = f"{emoji} {display_name}"
+        builder.row(InlineKeyboardButton(
+            text=button_text,
+            callback_data=ServerAction(action="disable", server_id=sid, page=page).pack()
+        ))
+
+    # Pagination row
+    nav_buttons = []
+    if page > 1:
+        nav_buttons.append(InlineKeyboardButton(
+            text="⬅️ Prev",
+            callback_data=ServerPagination(page=page - 1).pack()
+        ))
+    if page * limit < total:
+        nav_buttons.append(InlineKeyboardButton(
+            text="Next ➡️",
+            callback_data=ServerPagination(page=page + 1).pack()
+        ))
+
+    if nav_buttons:
+        builder.row(*nav_buttons)
+
+    text = (
+        f"<b>Servers List (Page {page})</b>\n"
+        f"Total servers: {total}\n\n"
+        f"<i>Click a server to disable it.</i>"
+    )
+
+    if isinstance(event, Message):
+        await event.answer(text, reply_markup=builder.as_markup(), parse_mode="HTML")
+    else:
+        with contextlib.suppress(Exception):
+            await event.message.edit_text(text, reply_markup=builder.as_markup(), parse_mode="HTML")
+
+
+@router.callback_query(ServerPagination.filter())
+async def on_server_pagination(callback: CallbackQuery, callback_data: ServerPagination):
+    await _show_server_list(callback, page=callback_data.page)
+    await callback.answer()
+
+
+@router.callback_query(ServerAction.filter(F.action == "disable"))
+async def on_disable_server(callback: CallbackQuery, callback_data: ServerAction):
+    user_id = callback.from_user.id if callback.from_user else None
+    if not _is_admin(user_id):
+        await callback.answer("Access denied.", show_alert=True)
+        return
+
+    try:
+        await manager_client.disable_server(callback_data.server_id)
+        await callback.answer(f"✅ Server {callback_data.server_id} has been disabled.", show_alert=True)
+        # Refresh the current page to show updated status
+        await _show_server_list(callback, page=callback_data.page)
+    except httpx.HTTPError as exc:
+        await callback.answer(f"❌ Failed to disable server: {exc}", show_alert=True)
 
 
 @router.message(Command("disable_server"))
