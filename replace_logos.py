@@ -4,7 +4,7 @@ import shutil
 
 def replace_images(root_dir, source_png, source_svg):
     # Supported extensions for raster images
-    raster_extensions = {'.png', '.jpg', '.jpeg', '.bmp', '.webp'}
+    raster_extensions = {'.png', '.jpg', '.jpeg', '.bmp', '.webp', '.ico'}
     svg_extension = '.svg'
     
     # Absolute paths to avoid replacing source files
