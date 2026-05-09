@@ -36,6 +36,8 @@ import 'package:mvmvpn/service/xray/raw/fix.dart';
 import 'package:mvmvpn/service/xray/setting/inbounds_state.dart';
 import 'package:mvmvpn/service/xray/setting/state_reader.dart';
 import 'package:mvmvpn/service/xray/setting/state_writer.dart';
+import 'package:mvmvpn/service/auth/service.dart';
+import 'package:mvmvpn/service/subscription/service.dart';
 
 final class VpnService {
   static final VpnService _singleton = VpnService._internal();
@@ -95,12 +97,84 @@ final class VpnService {
         break;
       case VpnStatus.connected:
         _vpnRunning = true;
-        // Keep vpnLoading=true here — the HomeController will clear it once
-        // a Google reachability check passes (or triggers regeneration).
         await _updateRunningId(_lastConfigId);
         await TrayService().refreshTrayManager();
         await _startDurationTimer();
+        _startConnectivityCheckLoop();
         break;
+    }
+  }
+
+  Future<void> _startConnectivityCheckLoop() async {
+    final eventBus = AppEventBus.instance;
+    ygLogger("Checking Google connectivity...");
+
+    final stopwatch = Stopwatch()..start();
+    bool isGoogleReachable = false;
+
+    String? port;
+    try {
+      final request = await StartVpnRequestReader.readFromStartFile();
+      port = request.pingPort;
+    } catch (e) {
+      ygLogger("Error reading ping port: $e");
+    }
+
+    while (stopwatch.elapsed < const Duration(seconds: 10)) {
+      isGoogleReachable = await NetClient().checkGoogle(port: port);
+      if (isGoogleReachable) break;
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+
+    if (isGoogleReachable) {
+      ygLogger("Google reachable - VPN healthy");
+      eventBus.updateVpnLoading(false);
+      eventBus.updateSubscriptionUpdating(false);
+    } else {
+      ygLogger("Google unreachable after 10s - triggering regeneration");
+      await regenerateTokenForce();
+    }
+  }
+
+  Future<int?> regenerateTokenForce() async {
+    final eventBus = AppEventBus.instance;
+    // Allow if we are already loading (likely from the connectivity check loop)
+    // but not yet in the 'isUpdatingSubscription' phase.
+    if (eventBus.state.isUpdatingSubscription) return null;
+
+    eventBus.updateVpnLoading(true);
+    eventBus.updateSubscriptionUpdating(true);
+    try {
+      ToastService().showToast(appLocalizationsNoContext().homeRegeneratingKey);
+
+      final wasRunning = eventBus.state.runningId != DBConstants.defaultId;
+      if (wasRunning) {
+        await stopDefaultVpn();
+        await Future.delayed(const Duration(seconds: 4));
+      }
+
+      final newConfigId = await AuthService().fetchAndSetRandomVpnKey(forceRegenerate: true);
+
+      if (newConfigId != null) {
+        await _updateLastConfigId(newConfigId);
+        if (wasRunning) {
+          await startVpn(newConfigId);
+        } else {
+          eventBus.updateVpnLoading(false);
+          eventBus.updateSubscriptionUpdating(false);
+        }
+        return newConfigId;
+      } else {
+        eventBus.updateVpnLoading(false);
+        eventBus.updateSubscriptionUpdating(false);
+        ToastService().showToast('Key regeneration failed, please try again');
+        return null;
+      }
+    } catch (e) {
+      eventBus.updateVpnLoading(false);
+      eventBus.updateSubscriptionUpdating(false);
+      ToastService().showToast(e.toString());
+      return null;
     }
   }
 

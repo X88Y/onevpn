@@ -265,6 +265,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (isUpdatingSubscription) {
       text = AppLocalizations.of(context)!.homeConnecting;
       textColor = const Color(0xFFFFC107);
+    } else if (eventState.vpnLoading && isRunning) {
+      text = "Checking Google connectivity...";
+      textColor = const Color(0xFFFFC107);
     } else {
       text = isRunning ? AppLocalizations.of(context)!.homeConnected : AppLocalizations.of(context)!.homeTapToConnect;
       if (isLoading) {

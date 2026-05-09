@@ -117,15 +117,22 @@ class NetClient {
     }
   }
 
-  Future<bool> checkGoogle(String port) async {
-    _proxyPort = port;
+  Future<bool> checkGoogle({String? port}) async {
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 2);
+    if (port != null) {
+      client.findProxy = (uri) => "PROXY ${NetConstants.proxyHost}:$port";
+    }
     try {
-      final res = await _proxyClient.get("https://www.google.com",
-          options: Options(validateStatus: (status) => true));
-      return res.statusCode == 200;
+      final request = await client.getUrl(Uri.parse("https://www.google.com/generate_204"));
+      final response = await request.close().timeout(const Duration(seconds: 3));
+      ygLogger("checkGoogle response: ${response.statusCode} (port: $port)");
+      return response.statusCode == 204;
     } catch (e) {
-      ygLogger("checkGoogle error: $e");
+      ygLogger("checkGoogle error: $e (port: $port)");
       return false;
+    } finally {
+      client.close();
     }
   }
 }
