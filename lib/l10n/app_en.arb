@@ -468,5 +468,6 @@
   "homeRegeneratingKey": "Regenerating subscription key...",
   "homeSignInSuccess": "Signed in successfully",
   "homeSignInFailed": "Sign in failed",
-  "homeCheckingGoogleConnectivity": "Checking Google connectivity..."
+  "homeCheckingGoogleConnectivity": "Checking Google connectivity...",
+  "homeFixVpn": "Fix broken VPN"
 }

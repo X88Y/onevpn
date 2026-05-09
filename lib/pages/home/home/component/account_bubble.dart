@@ -1,7 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 import 'package:mvmvpn/pages/home/home/controller.dart';
+import 'social_bubble.dart';
 
 class AccountBubble extends StatelessWidget {
   final HomeController controller;
@@ -70,20 +72,40 @@ class AccountBubble extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                if (showDelete) ...[
-                  ListTile(
-                    leading: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
-                    title: Text(
-                      AppLocalizations.of(context)!.homeDeleteAccount,
-                      style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600),
+                GestureDetector(
+                  onTap: isLoading ? null : () {
+                    Navigator.pop(context);
+                    controller.regenerateTokenForce();
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SocialBubble(
+                          icon: FontAwesomeIcons.arrowsRotate,
+                          glowColor: const Color(0xFFFFC107),
+                          onTap: () {}, // Already handled by parent GestureDetector
+                          isLoading: isLoading,
+                          isEnabled: true,
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          AppLocalizations.of(context)!.homeFixVpn,
+                          style: const TextStyle(
+                            color: Color(0xFFFFC107),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      controller.clearAllData();
-                    },
                   ),
-                  Divider(color: Colors.white.withOpacity(0.08)),
-                ],
+                ),
+                const SizedBox(height: 16),
+                Divider(color: Colors.white.withOpacity(0.08)),
+
                 ListTile(
                   leading: Icon(Icons.description_outlined, color: Colors.white.withOpacity(0.7)),
                   title: Text(
@@ -117,6 +139,20 @@ class AccountBubble extends StatelessWidget {
                     controller.openUrl('https://www.aiverge.net/privacy');
                   },
                 ),
+                if (showDelete) ...[
+                  Divider(color: Colors.white.withOpacity(0.08)),
+                  ListTile(
+                    leading: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
+                    title: Text(
+                      AppLocalizations.of(context)!.homeDeleteAccount,
+                      style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      controller.clearAllData();
+                    },
+                  ),
+                ],
               ],
             ),
           ),

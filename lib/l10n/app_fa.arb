@@ -468,5 +468,6 @@
   "homeRegeneratingKey": "در حال بازسازی کلید اشتراک...",
     "homeSignInSuccess": "ورود با موفقیت انجام شد",
     "homeSignInFailed": "ورود ناموفق بود",
-    "homeCheckingGoogleConnectivity": "در حال بررسی اتصال به گوگل..."
+    "homeCheckingGoogleConnectivity": "در حال بررسی اتصال به گوگل...",
+    "homeFixVpn": "عیب‌یابی VPN"
 }

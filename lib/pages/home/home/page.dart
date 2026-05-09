@@ -157,14 +157,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Row(
       children: [
         AccountBubble(controller: controller, isSmall: !hasSocials, isLoading: isLoading || homeState.connectingProvider != null),
-        // SocialBubble(
-        //   icon: FontAwesomeIcons.arrowsRotate,
-        //   glowColor: const Color(0xFFFFC107),
-        //   onTap: () => controller.regenerateTokenForce(),
-        //   isLoading: isLoading,
-        //   isEnabled: homeState.connectingProvider == null,
-        // ),
-        // NOTE: REGENERATE TEST
         const Spacer(),
         if (isAppleLinked) ...[
           SocialBubble(
@@ -266,7 +258,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       text = AppLocalizations.of(context)!.homeConnecting;
       textColor = const Color(0xFFFFC107);
     } else if (eventState.vpnLoading && isRunning) {
-      text = "Checking Google connectivity...";
+      text = AppLocalizations.of(context)!.homeCheckingGoogleConnectivity;
       textColor = const Color(0xFFFFC107);
     } else {
       text = isRunning ? AppLocalizations.of(context)!.homeConnected : AppLocalizations.of(context)!.homeTapToConnect;

@@ -468,5 +468,6 @@
   "homeRegeneratingKey": "Обновление ключа подписки...",
   "homeSignInSuccess": "Вход выполнен успешно",
   "homeSignInFailed": "Ошибка входа",
-  "homeCheckingGoogleConnectivity": "Проверяем что все работает..."
+  "homeCheckingGoogleConnectivity": "Проверяем что все работает...",
+  "homeFixVpn": "Починить неработающий VPN"
 }
