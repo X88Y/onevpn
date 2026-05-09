@@ -83,6 +83,7 @@ final class VpnService {
     final eventBus = AppEventBus.instance;
     switch (status) {
       case VpnStatus.disconnecting:
+        _vpnRunning = false;
         eventBus.updateVpnLoading(true);
         break;
       case VpnStatus.disconnected:
@@ -120,11 +121,13 @@ final class VpnService {
       ygLogger("Error reading ping port: $e");
     }
 
-    while (stopwatch.elapsed < const Duration(seconds: 10)) {
+    while (stopwatch.elapsed < const Duration(seconds: 10) && _vpnRunning) {
       isGoogleReachable = await NetClient().checkGoogle(port: port);
       if (isGoogleReachable) break;
       await Future.delayed(const Duration(milliseconds: 200));
     }
+
+    if (!_vpnRunning) return;
 
     if (isGoogleReachable) {
       ygLogger("Google reachable - VPN healthy");
