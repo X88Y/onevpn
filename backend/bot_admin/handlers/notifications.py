@@ -119,7 +119,7 @@ async def _broadcast_notification(text: str) -> int:
             ),
             tokens=batch,
         )
-        response = messaging.send_multicast(multicast_message)
+        response = messaging.send_each_for_multicast(multicast_message)
         sent_total += response.success_count
         
         # Log failures if any
