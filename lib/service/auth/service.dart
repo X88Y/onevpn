@@ -11,6 +11,7 @@ import 'package:mvmvpn/service/auth/model.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
 import 'package:mvmvpn/core/db/database/database.dart';
 import 'package:mvmvpn/service/subscription/service.dart';
+import 'package:mvmvpn/service/notification/service.dart';
 import 'package:http/http.dart' as http;
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -147,6 +148,7 @@ class AuthService {
       );
       await PreferencesKey().saveUserProfile(userModel.toJson());
       AppEventBus.instance.updateUserData(userModel);
+      NotificationService().syncTokenWithBackend();
 
       return userModel;
     } on FirebaseFunctionsException catch (e, stackTrace) {

@@ -41,6 +41,8 @@ async def cmd_start(message: Message) -> None:
         "  /list_servers — list servers + status (paginated)\n"
         "  /list_server — alias for /list_servers\n"
         "  /disable_server <id>, /enable_server <id>\n\n"
+        "Notifications:\n"
+        "  /send_message — broadcast push notification to all mobile users\n\n"
         f"Legacy: /add_vpn_key still appends to `{VPN_KEYS_COLLECTION}` but is "
         "no longer read by Cloud Functions."
     )

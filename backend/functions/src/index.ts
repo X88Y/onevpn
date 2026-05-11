@@ -13,3 +13,4 @@ export {heleketWebhook} from "./heleketWebhook";
 export {plategaWebhook} from "./plategaWebhook";
 // eslint-disable-next-line camelcase
 export {freeKassa} from "./freeKassa";
+export {updateDeviceToken} from "./updateDeviceToken";

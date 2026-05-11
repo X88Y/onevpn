@@ -11,6 +11,16 @@ class PreferencesKey {
 
   PreferencesKey._internal();
 
+  static const _deviceUuid = "deviceUuid";
+
+  Future<String?> readDeviceUuid() async {
+    return _prefs.getString(_deviceUuid);
+  }
+
+  Future<void> saveDeviceUuid(String value) async {
+    await _prefs.setString(_deviceUuid, value);
+  }
+
   static const _privacyAccepted = "privacyAccepted02";
 
   Future<bool> readPrivacyAccepted() async {
