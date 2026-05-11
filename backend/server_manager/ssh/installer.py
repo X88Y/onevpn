@@ -190,7 +190,7 @@ def _run_install_sync(
         install_command = (
             f"{sudo}bash -c \""
             f"printf '{stdin_answers}' | "
-            "bash <(curl -Ls https://raw.githubusercontent.com/MHSanaei/3x-ui/refs/tags/v2.9.4/install.sh)"
+            "bash <(curl -Ls https://raw.githubusercontent.com/MHSanaei/3x-ui/refs/tags/v3.0.1/install.sh)"
             "\""
         )
         logger.info("running 3x-ui install script")
