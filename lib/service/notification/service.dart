@@ -150,6 +150,16 @@ final class NotificationService {
       }
 
       final prefs = PreferencesKey();
+      
+      // Check if already synced
+      final lastSyncedToken = await prefs.readLastSyncedFcmToken();
+      final lastSyncedUserId = await prefs.readLastSyncedUserId();
+      
+      if (lastSyncedToken == fcmToken && lastSyncedUserId == user.uid) {
+        // debugPrint('[NotificationService] Device token already successfully synced for this user, skipping');
+        return;
+      }
+
       var deviceUuid = await prefs.readDeviceUuid();
       if (deviceUuid == null) {
         deviceUuid = const Uuid().v4();
@@ -176,6 +186,11 @@ final class NotificationService {
         'os': os,
         'sendnotifyToken': fcmToken,
       });
+      
+      // Update sync state
+      await prefs.saveLastSyncedFcmToken(fcmToken);
+      await prefs.saveLastSyncedUserId(user.uid);
+      
       debugPrint('[NotificationService] Device token synced with backend');
     } catch (e) {
       debugPrint('[NotificationService] Error syncing token with backend: $e');

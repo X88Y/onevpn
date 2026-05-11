@@ -90,40 +90,87 @@ async def _broadcast_notification(text: str) -> int:
     db = init_firestore()
     users_ref = db.collection(USERS_COLLECTION)
     
-    # We'll use batching if there are many users, but for now let's just iterate.
-    # Note: firebase-admin Python SDK is synchronous for Firestore/Messaging.
-    # We wrap it in a thread if needed, or just let it run if it's not too many.
+    # Track which token belongs to which document ID for cleanup
+    token_entries = [] # List of dicts: {"token": str, "doc_id": str}
     
-    docs = users_ref.stream()
-    tokens = []
-    
-    for doc in docs:
-        user_data = doc.to_dict()
-        devices = user_data.get("devices", [])
-        for device in devices:
-            token = device.get("sendnotifyToken")
-            if token:
-                tokens.append(token)
+    # Firestore stream is blocking, wrap it in a thread
+    def get_token_entries():
+        entries = []
+        docs = users_ref.stream()
+        for doc in docs:
+            user_data = doc.to_dict()
+            devices = user_data.get("devices", [])
+            for device in devices:
+                token = device.get("sendnotifyToken")
+                if token:
+                    entries.append({"token": token, "doc_id": doc.id})
+        return entries
+
+    token_entries = await asyncio.to_thread(get_token_entries)
                 
-    if not tokens:
+    if not token_entries:
         return 0
         
-    # FCM allows sending up to 500 tokens in one multicast message
+    tokens = [e["token"] for e in token_entries]
     sent_total = 0
+    stale_tokens = [] # List of (doc_id, token)
+    
+    # FCM allows sending up to 500 tokens in one multicast message
     for i in range(0, len(tokens), 500):
-        batch = tokens[i:i + 500]
+        batch_tokens = tokens[i:i + 500]
+        batch_entries = token_entries[i:i + 500]
+        
         multicast_message = messaging.MulticastMessage(
             notification=messaging.Notification(
                 title="MVM VPN",
                 body=text,
             ),
-            tokens=batch,
+            tokens=batch_tokens,
         )
-        response = messaging.send_each_for_multicast(multicast_message)
+        
+        # messaging calls are blocking, wrap in a thread
+        response = await asyncio.to_thread(messaging.send_each_for_multicast, multicast_message)
         sent_total += response.success_count
         
-        # Log failures if any
+        # Log failures and collect stale tokens
         if response.failure_count > 0:
-            logger.warning("FCM: %d failures in batch", response.failure_count)
+            logger.warning("FCM: %d failures in batch of %d", response.failure_count, len(batch_tokens))
+            for idx, resp in enumerate(response.responses):
+                if not resp.success:
+                    token = batch_tokens[idx]
+                    doc_id = batch_entries[idx]["doc_id"]
+                    error = resp.exception
+                    logger.warning("FCM error for doc %s: %s", doc_id, error)
+                    
+                    # If token is unregistered or invalid, mark for removal
+                    # UnregisteredError, SenderIdMismatchError, InvalidArgumentError are usually terminal
+                    if isinstance(error, (messaging.UnregisteredError, messaging.SenderIdMismatchError, messaging.InvalidArgumentError)):
+                        stale_tokens.append((doc_id, token))
+    
+    # Clean up stale tokens if any found
+    if stale_tokens:
+        await asyncio.to_thread(_remove_stale_tokens, db, stale_tokens)
             
     return sent_total
+
+
+def _remove_stale_tokens(db, stale_tokens: list):
+    """Removes stale FCM tokens from user documents in Firestore."""
+    from collections import defaultdict
+    grouped = defaultdict(list)
+    for doc_id, token in stale_tokens:
+        grouped[doc_id].append(token)
+        
+    for doc_id, tokens in grouped.items():
+        try:
+            doc_ref = db.collection(USERS_COLLECTION).document(doc_id)
+            doc = doc_ref.get()
+            if doc.exists:
+                user_data = doc.to_dict()
+                devices = user_data.get("devices", [])
+                new_devices = [d for d in devices if d.get("sendnotifyToken") not in tokens]
+                if len(new_devices) != len(devices):
+                    doc_ref.update({"devices": new_devices})
+                    logger.info("Removed %d stale tokens from user document %s", len(devices) - len(new_devices), doc_id)
+        except Exception as e:
+            logger.error("Failed to remove stale tokens for user %s: %s", doc_id, e)

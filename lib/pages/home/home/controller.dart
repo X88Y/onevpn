@@ -91,7 +91,7 @@ class HomeController extends Cubit<HomeState> {
   }
 
   void _startUserUpdateTimer() {
-    _userUpdateTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    _userUpdateTimer = Timer.periodic(const Duration(seconds: 7), (timer) {
       _updateUserData();
     });
   }

@@ -12,6 +12,8 @@ class PreferencesKey {
   PreferencesKey._internal();
 
   static const _deviceUuid = "deviceUuid";
+  static const _lastSyncedFcmToken = "lastSyncedFcmToken";
+  static const _lastSyncedUserId = "lastSyncedUserId";
 
   Future<String?> readDeviceUuid() async {
     return _prefs.getString(_deviceUuid);
@@ -19,6 +21,22 @@ class PreferencesKey {
 
   Future<void> saveDeviceUuid(String value) async {
     await _prefs.setString(_deviceUuid, value);
+  }
+
+  Future<String?> readLastSyncedFcmToken() async {
+    return _prefs.getString(_lastSyncedFcmToken);
+  }
+
+  Future<void> saveLastSyncedFcmToken(String value) async {
+    await _prefs.setString(_lastSyncedFcmToken, value);
+  }
+
+  Future<String?> readLastSyncedUserId() async {
+    return _prefs.getString(_lastSyncedUserId);
+  }
+
+  Future<void> saveLastSyncedUserId(String value) async {
+    await _prefs.setString(_lastSyncedUserId, value);
   }
 
   static const _privacyAccepted = "privacyAccepted02";
