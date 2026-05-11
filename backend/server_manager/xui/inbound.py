@@ -1,6 +1,8 @@
 """Inbound and client templates for 3x-ui (MHSanaei) panel."""
 
 import json
+from typing import Optional, List, Dict, Any
+
 
 
 def random_inbound_port() -> int:
