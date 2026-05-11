@@ -91,7 +91,7 @@ def build_client_object(
     client_uuid: str,
     email: str,
     sub_id: str,
-    flow: str = "",
+    flow: str = "xtls-rprx-vision",
     total_bytes: int = 0,
     expiry_time: int = 0,
 ) -> Dict[str, Any]:

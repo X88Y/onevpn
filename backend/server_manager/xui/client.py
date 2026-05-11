@@ -123,7 +123,7 @@ class XuiClient:
         client_uuid: str,
         email: str,
         sub_id: str,
-        flow: str = "",
+        flow: str = "xtls-rprx-vision",
         total_bytes: int = 0,
         expiry_time: int = 0,
     ) -> None:
@@ -253,7 +253,7 @@ class XuiClient:
         client_uuid: str,
         email: str,
         sub_id: str,
-        flow: str = "",
+        flow: str = "xtls-rprx-vision",
         total_bytes: int = 0,
         expiry_time: int = 0,
         enable: bool = True,
