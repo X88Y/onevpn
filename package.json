@@ -1,0 +1,12 @@
+{
+  "name": "mvmvpn",
+  "version": "5.0.1",
+  "description": "MVM VPN Mobile App",
+  "scripts": {
+    "ios:test": "fvm flutter run -d 00008130-001234E11041401C",
+    "build:apk": "fvm flutter build apk --release",
+    "build:appbundle": "fvm flutter build appbundle --release",
+    "clean": "fvm flutter clean",
+    "get": "fvm flutter pub get"
+  }
+}
