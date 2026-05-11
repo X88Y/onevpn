@@ -29,4 +29,14 @@ class XraySettingState {
   var routing = RoutingState();
   var inbounds = InboundsState();
   var outbounds = OutboundsState();
+
+  XraySettingState();
+
+  /// Creates a new setting pre-populated with the panel's default config.
+  factory XraySettingState.panelDefault() {
+    final state = XraySettingState();
+    state.dns = DnsState.panelDefault;
+    state.routing = RoutingState.panelDefault;
+    return state;
+  }
 }

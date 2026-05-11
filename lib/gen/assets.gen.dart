@@ -59,13 +59,13 @@ class $AssetsDatGen {
   String get geoipDat => 'assets/dat/geoip.dat';
 
   /// File path: assets/dat/geoip.json
-  String get geoipJson => 'assets/dat/geoip.json';
+  // String get geoipJson => 'assets/dat/geoip.json';
 
   /// File path: assets/dat/geosite.dat
   String get geositeDat => 'assets/dat/geosite.dat';
 
   /// File path: assets/dat/geosite.json
-  String get geositeJson => 'assets/dat/geosite.json';
+  // String get geositeJson => 'assets/dat/geosite.json';
 
   /// File path: assets/dat/timestamp.txt
   String get timestamp => 'assets/dat/timestamp.txt';
@@ -73,9 +73,9 @@ class $AssetsDatGen {
   /// List of all assets
   List<String> get values => [
     geoipDat,
-    geoipJson,
+    // geoipJson,
     geositeDat,
-    geositeJson,
+    // geositeJson,
     timestamp,
   ];
 }
