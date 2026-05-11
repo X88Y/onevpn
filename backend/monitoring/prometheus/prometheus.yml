@@ -7,6 +7,10 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
+  - job_name: 'manager_node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
   - job_name: 'vpn_nodes'
     file_sd_configs:
       - files:

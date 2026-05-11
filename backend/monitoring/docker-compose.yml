@@ -29,6 +29,21 @@ services:
       - "3000:3000"
     restart: unless-stopped
 
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9101:9100" # Use 9101 to avoid conflict if node_exporter is also running on host
+    restart: unless-stopped
+
 volumes:
   prometheus_data:
   grafana_data:

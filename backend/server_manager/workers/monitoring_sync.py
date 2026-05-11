@@ -18,15 +18,15 @@ from server_manager.firestore_client import VPN_SERVERS_COLLECTION, init_firesto
 logger = logging.getLogger(__name__)
 
 # Default path if not specified in env
-DEFAULT_TARGETS_PATH = os.path.join(
+DEFAULT_TARGETS_PATH = os.path.abspath(os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
     "monitoring", "prometheus", "targets.json"
-)
+))
 
 async def run_monitoring_sync_loop() -> None:
     db = init_firestore()
-    interval = getattr(settings, "monitoring_sync_interval_s", 60)
-    targets_path = getattr(settings, "monitoring_targets_path", DEFAULT_TARGETS_PATH)
+    interval = settings.monitoring_sync_interval_s or 60
+    targets_path = settings.monitoring_targets_path or DEFAULT_TARGETS_PATH
     
     logger.info("monitoring sync worker started interval=%ss path=%s", interval, targets_path)
     
@@ -65,7 +65,7 @@ async def run_monitoring_sync_loop() -> None:
                 json.dump(targets, f, indent=2)
             os.replace(tmp_path, targets_path)
             
-            logger.debug("synced %d targets to %s", len(targets), targets_path)
+            logger.info("synced %d targets to %s", len(targets), targets_path)
             
         except asyncio.CancelledError:
             raise
