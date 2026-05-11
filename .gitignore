@@ -108,3 +108,4 @@ swift/macOSSE/GoogleService-Info.plist
 
 # backend secrets
 backend/**/vppp-*.json
+backend/monitoring/prometheus/targets.json
