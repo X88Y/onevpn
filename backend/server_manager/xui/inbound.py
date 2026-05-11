@@ -11,50 +11,48 @@ def random_inbound_port() -> int:
 def build_default_vless_reality_payload(
     *,
     port: int,
+    private_key: str,
     remark: str = "mvm-default",
     initial_clients: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
     """Build the JSON payload accepted by `POST /panel/api/inbounds/add`.
 
-    Uses VLESS over XHTTP (security: none).  The 3x-ui API expects
+    Uses VLESS over TCP with REALITY. The 3x-ui API expects
     `settings`, `streamSettings`, and `sniffing` as JSON-encoded strings.
     """
     settings = {
         "clients": initial_clients or [],
         "decryption": "none",
-        "encryption": "none",
+        "fallbacks": [],
     }
     stream_settings = {
-        "network": "xhttp",
-        "security": "none",
+        "network": "tcp",
+        "security": "reality",
         "externalProxy": [],
-        "xhttpSettings": {
-            "path": "/",
-            "host": "",
-            "headers": {},
-            "scMaxBufferedPosts": 30,
-            "scMaxEachPostBytes": "1000000",
-            "scStreamUpServerSecs": "20-80",
-            "noSSEHeader": False,
-            "xPaddingBytes": "100-1000",
-            "mode": "auto",
-            "xPaddingObfsMode": False,
-            "xPaddingKey": "",
-            "xPaddingHeader": "",
-            "xPaddingPlacement": "",
-            "xPaddingMethod": "",
-            "uplinkHTTPMethod": "",
-            "sessionPlacement": "",
-            "sessionKey": "",
-            "seqPlacement": "",
-            "seqKey": "",
-            "uplinkDataPlacement": "",
-            "uplinkDataKey": "",
-            "uplinkChunkSize": 0,
+        "realitySettings": {
+            "show": False,
+            "dest": "tradingview.com:443",
+            "xver": 0,
+            "serverNames": [
+                "tradingview.com"
+            ],
+            "privateKey": private_key,
+            "minClientVer": "",
+            "maxClientVer": "",
+            "maxTimeDiff": 0,
+            "shortIds": [
+                ""
+            ]
         },
+        "tcpSettings": {
+            "acceptProxyProtocol": False,
+            "header": {
+                "type": "none"
+            }
+        }
     }
     sniffing = {
-        "enabled": False,
+        "enabled": True,
         "destOverride": ["http", "tls"],
         "metadataOnly": False,
         "routeOnly": False,

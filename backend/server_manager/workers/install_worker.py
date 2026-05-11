@@ -143,9 +143,14 @@ async def _ensure_default_inbound(
 
                 logger.info("no existing VLESS inbound; creating mvm-default")
                 inbound_port = random_inbound_port()
-                logger.info("creating VLESS XHTTP inbound on port %s", inbound_port)
+                logger.info("creating VLESS TCP REALITY inbound on port %s", inbound_port)
+                
+                cert = await xui.new_x25519_cert()
+                private_key = cert["privateKey"] if cert else ""
+                
                 payload = build_default_vless_reality_payload(
                     port=inbound_port,
+                    private_key=private_key,
                     remark="mvm-default",
                 )
                 try:
