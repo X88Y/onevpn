@@ -147,10 +147,12 @@ async def _ensure_default_inbound(
                 
                 cert = await xui.new_x25519_cert()
                 private_key = cert["privateKey"] if cert else ""
-                
+                public_key = cert["publicKey"] if cert else ""
+
                 payload = build_default_vless_reality_payload(
                     port=inbound_port,
                     private_key=private_key,
+                    public_key=public_key,
                     remark="mvm-default",
                 )
                 try:

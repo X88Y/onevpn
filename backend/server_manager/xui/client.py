@@ -124,6 +124,8 @@ class XuiClient:
         email: str,
         sub_id: str,
         flow: str = "",
+        total_bytes: int = 0,
+        expiry_time: int = 0,
     ) -> None:
         await self.login()
         client = build_client_object(
@@ -131,6 +133,8 @@ class XuiClient:
             email=email,
             sub_id=sub_id,
             flow=flow,
+            total_bytes=total_bytes,
+            expiry_time=expiry_time,
         )
         body = {
             "id": inbound_id,
@@ -214,9 +218,18 @@ class XuiClient:
 
     async def new_x25519_cert(self) -> Optional[Dict[str, str]]:
         await self.login()
-        for path in ("/server/getNewX25519Cert", "/panel/server/getNewX25519Cert"):
+        # The new API path is /panel/api/server/getNewX25519Cert
+        # We keep the old ones as fallbacks for compatibility.
+        paths = (
+            "/panel/api/server/getNewX25519Cert",
+            "/panel/server/getNewX25519Cert",
+            "/server/getNewX25519Cert",
+        )
+        for path in paths:
             try:
-                response = await self._client.post(path)
+                response = await self._client.get(path)  # Doc says GET
+                if response.status_code == 405:  # Method Not Allowed, try POST
+                    response = await self._client.post(path)
             except httpx.HTTPError:
                 continue
             if response.status_code == 404:
@@ -232,6 +245,56 @@ class XuiClient:
                     "privateKey": str(obj["privateKey"]),
                 }
         return None
+
+    async def update_client(
+        self,
+        *,
+        inbound_id: int,
+        client_uuid: str,
+        email: str,
+        sub_id: str,
+        flow: str = "",
+        total_bytes: int = 0,
+        expiry_time: int = 0,
+        enable: bool = True,
+    ) -> None:
+        await self.login()
+        client = build_client_object(
+            client_uuid=client_uuid,
+            email=email,
+            sub_id=sub_id,
+            flow=flow,
+            total_bytes=total_bytes,
+            expiry_time=expiry_time,
+        )
+        client["enable"] = enable
+        body = {
+            "id": inbound_id,
+            "settings": json.dumps({"clients": [client]}),
+        }
+        response = await self._client.post(
+            f"/panel/api/inbounds/updateClient/{client_uuid}", json=body
+        )
+        response.raise_for_status()
+        parsed = self._json(response)
+        if not parsed.get("success"):
+            raise XuiError(f"updateClient failed: {parsed.get('msg')}")
+
+    async def del_inbound(self, inbound_id: int) -> None:
+        await self.login()
+        response = await self._client.post(f"/panel/api/inbounds/del/{inbound_id}")
+        response.raise_for_status()
+        parsed = self._json(response)
+        if not parsed.get("success"):
+            raise XuiError(f"del inbound failed: {parsed.get('msg')}")
+
+    async def restart_xray(self) -> None:
+        await self.login()
+        response = await self._client.post("/panel/api/server/restartXrayService")
+        response.raise_for_status()
+        parsed = self._json(response)
+        if not parsed.get("success"):
+            raise XuiError(f"restart xray failed: {parsed.get('msg')}")
 
     async def panel_alive(self) -> bool:
         try:

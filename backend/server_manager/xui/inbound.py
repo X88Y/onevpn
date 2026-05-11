@@ -1,7 +1,6 @@
-"""Default VLESS+XHTTP inbound template used when a server has none yet."""
+"""Inbound and client templates for 3x-ui (MHSanaei) panel."""
 
 import json
-from typing import Any, Dict, List, Optional
 
 
 def random_inbound_port() -> int:
@@ -12,6 +11,7 @@ def build_default_vless_reality_payload(
     *,
     port: int,
     private_key: str,
+    public_key: str,
     remark: str = "mvm-default",
     initial_clients: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
@@ -31,32 +31,45 @@ def build_default_vless_reality_payload(
         "externalProxy": [],
         "realitySettings": {
             "show": False,
-            "dest": "tradingview.com:443",
             "xver": 0,
+            "target": "www.tradingview.com:443",
             "serverNames": [
+                "www.tradingview.com",
                 "tradingview.com"
             ],
             "privateKey": private_key,
             "minClientVer": "",
             "maxClientVer": "",
-            "maxTimeDiff": 0,
+            "maxTimediff": 0,
             "shortIds": [
-                ""
-            ]
+            "9c33a6",
+            "cf59"
+            ],
+            "mldsa65Seed": "",
+            "settings": {
+            "publicKey": public_key,
+            "fingerprint": "chrome",
+            "serverName": "",
+            "spiderX": "/",
+            "mldsa65Verify": ""
+            }
         },
         "tcpSettings": {
             "acceptProxyProtocol": False,
             "header": {
-                "type": "none"
+            "type": "none"
             }
         }
-    }
+        }
     sniffing = {
         "enabled": True,
-        "destOverride": ["http", "tls"],
+        "destOverride": [
+            "http",
+            "tls"
+        ],
         "metadataOnly": False,
-        "routeOnly": False,
-    }
+        "routeOnly": False
+        }
     return {
         "up": 0,
         "down": 0,
@@ -79,15 +92,19 @@ def build_client_object(
     email: str,
     sub_id: str,
     flow: str = "",
-    total_gb: int = 0,
+    total_bytes: int = 0,
     expiry_time: int = 0,
 ) -> Dict[str, Any]:
+    """Build a client object for the 3x-ui API.
+    
+    Note: 'totalGB' in the 3x-ui API actually refers to total traffic in bytes.
+    """
     return {
         "id": client_uuid,
         "flow": flow,
         "email": email,
         "limitIp": 0,
-        "totalGB": total_gb,
+        "totalGB": total_bytes,
         "expiryTime": expiry_time,
         "enable": True,
         "tgId": "",

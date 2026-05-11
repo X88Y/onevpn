@@ -1,0 +1,670 @@
+
+3X-UI
+	•	 Overview  Inbounds  Nodes  Panel Settings  Xray Configs  API Docs
+	•	 Log Out
+
+
+API Documentation
+The 3x-ui panel exposes a REST API under /panel/api/. Authenticate with the panel session cookie, or with the Authorization: Bearer <token> header below. Every endpoint returns a uniform { success, msg, obj } envelope unless otherwise noted.
+
+API Token
+Show
+Copy
+Regenerate
+••••••••••••••••••••••••••••
+Send it on every request as Authorization: Bearer <token>. Token-authenticated callers skip CSRF and don't need a session cookie. Regenerating rotates the secret immediately — running bots will need the new value.
+Quick example
+curl -X GET \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Accept: application/json" \
+  https://your-panel.example.com/panel/api/inbounds/list
+On this page:AuthenticationInbounds APIServer APINodes APICustom Geo APIBackup
+Authentication
+Two authentication modes are supported. UI sessions use a cookie set by the login endpoint. Programmatic clients (bots, scripts, remote panels) authenticate with a Bearer token taken from Settings → Security → API Token. Both work for every endpoint under /panel/api/*.
+POST/login
+Authenticate with username + password and receive a session cookie. Required before any cookie-based API call.
+Parameters
+Name
+In
+Type
+Description
+username
+body
+string
+Panel admin username.
+password
+body
+string
+Panel admin password.
+twoFactorCode
+body
+string
+OTP code when 2FA is enabled. Omit otherwise.
+Request body
+{
+  "username": "admin",
+  "password": "admin",
+  "twoFactorCode": "123456"
+}
+
+Response
+{
+  "success": true,
+  "msg": "Logged in successfully"
+}
+
+GET/logout
+Clear the session cookie. Redirects back to the login page; not useful from non-browser clients.
+GET/csrf-token
+Mint a CSRF token for the current session. The SPA replays it in the X-CSRF-Token header on unsafe requests. Bearer-token callers can skip this — the middleware short-circuits CSRF for authenticated API requests.
+Response
+{
+  "success": true,
+  "obj": "csrf-token-string"
+}
+
+POST/getTwoFactorEnable
+Returns whether 2FA is enabled on the panel — used by the login page to decide whether to show the OTP field.
+Response
+{
+  "success": true,
+  "obj": false
+}
+
+Inbounds API
+Manage inbound configurations and their clients. All endpoints live under /panel/api/inbounds and require a logged-in session or Bearer token. Link-generating endpoints honour X-Forwarded-Host / X-Forwarded-Proto, so callers behind a reverse proxy get the correct external host in returned URLs.
+GET/panel/api/inbounds/list
+List every inbound owned by the authenticated user, including each inbound’s clientStats traffic counters.
+Response
+{
+  "success": true,
+  "obj": [
+    {
+      "id": 1,
+      "userId": 1,
+      "up": 0,
+      "down": 0,
+      "total": 0,
+      "remark": "VLESS-443",
+      "enable": true,
+      "expiryTime": 0,
+      "listen": "",
+      "port": 443,
+      "protocol": "vless",
+      "settings": "{\"clients\":[...]}",
+      "streamSettings": "{...}",
+      "tag": "inbound-443",
+      "sniffing": "{...}",
+      "clientStats": [...]
+    }
+  ]
+}
+
+GET/panel/api/inbounds/get/:id
+Fetch a single inbound by numeric ID.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Inbound ID.
+GET/panel/api/inbounds/getClientTraffics/:email
+Traffic counters for a client identified by email.
+Parameters
+Name
+In
+Type
+Description
+email
+path
+string
+Client email (unique across the panel).
+GET/panel/api/inbounds/getClientTrafficsById/:id
+Traffic counters for a client identified by its UUID/password.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+string
+Client subId / UUID.
+POST/panel/api/inbounds/add
+Create a new inbound. Send the full inbound payload (protocol, port, settings JSON, streamSettings JSON, sniffing JSON, remark, expiryTime, total, enable).
+Request body
+{
+  "enable": true,
+  "remark": "VLESS-443",
+  "listen": "",
+  "port": 443,
+  "protocol": "vless",
+  "expiryTime": 0,
+  "total": 0,
+  "settings": "{\"clients\":[{\"id\":\"...\",\"email\":\"user1\"}],\"decryption\":\"none\",\"fallbacks\":[]}",
+  "streamSettings": "{\"network\":\"tcp\",\"security\":\"reality\",\"realitySettings\":{...}}",
+  "sniffing": "{\"enabled\":true,\"destOverride\":[\"http\",\"tls\"]}"
+}
+
+POST/panel/api/inbounds/del/:id
+Delete an inbound by ID. Also removes its associated client stats rows.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Inbound ID.
+POST/panel/api/inbounds/update/:id
+Replace an inbound’s configuration. Body shape mirrors /add. Heavy on inbounds with thousands of clients — prefer /setEnable for enable-only flips.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Inbound ID.
+POST/panel/api/inbounds/setEnable/:id
+Toggle only the enable flag without serialising the whole settings JSON. Recommended for UI switches on large inbounds.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Inbound ID.
+Request body
+{
+  "enable": false
+}
+
+POST/panel/api/inbounds/clientIps/:email
+List source IPs that have connected with the given client’s credentials. Returns an array of "ip (timestamp)" strings.
+Parameters
+Name
+In
+Type
+Description
+email
+path
+string
+Client email.
+POST/panel/api/inbounds/clearClientIps/:email
+Reset the recorded IP list for a client.
+Parameters
+Name
+In
+Type
+Description
+email
+path
+string
+Client email.
+POST/panel/api/inbounds/addClient
+Add one or more clients to an existing inbound. The settings field is the JSON-encoded settings.clients array of the target inbound.
+Request body
+{
+  "id": 1,
+  "settings": "{\"clients\":[{\"id\":\"uuid-here\",\"email\":\"newuser\",\"limitIp\":0,\"totalGB\":0,\"expiryTime\":0,\"enable\":true,\"flow\":\"\"}]}"
+}
+
+POST/panel/api/inbounds/:id/copyClients
+Copy selected clients from one inbound into another. Useful for duplicating user lists across protocols.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Target inbound ID.
+sourceInboundId
+body
+number
+Inbound ID to read clients from.
+clientEmails
+body
+string[]
+Emails of clients to copy. Empty means all clients.
+flow
+body
+string
+Override the flow field on copied clients (e.g. "xtls-rprx-vision"). Empty to keep source flow.
+POST/panel/api/inbounds/:id/delClient/:clientId
+Delete a client by its UUID/password from a specific inbound.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Inbound ID.
+clientId
+path
+string
+Client UUID / password.
+POST/panel/api/inbounds/updateClient/:clientId
+Update a single client without rewriting the whole settings JSON. Send the target inbound payload with the new client values.
+Parameters
+Name
+In
+Type
+Description
+clientId
+path
+string
+Client UUID / password.
+Request body
+{
+  "id": 1,
+  "settings": "{\"clients\":[{\"id\":\"uuid-here\",\"email\":\"user1\",\"limitIp\":2,\"totalGB\":10737418240,\"expiryTime\":1735689600000,\"enable\":true}]}"
+}
+
+POST/panel/api/inbounds/:id/resetClientTraffic/:email
+Zero out upload + download counters for one client.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Inbound ID.
+email
+path
+string
+Client email.
+POST/panel/api/inbounds/resetAllTraffics
+Reset upload + download counters on every inbound. Destructive — accounting history is lost.
+POST/panel/api/inbounds/resetAllClientTraffics/:id
+Reset traffic for every client in one inbound.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Inbound ID.
+POST/panel/api/inbounds/delDepletedClients/:id
+Delete clients in this inbound whose traffic cap or expiry has elapsed. Pass id=-1 to sweep every inbound.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Inbound ID, or -1 for all inbounds.
+POST/panel/api/inbounds/import
+Bulk-import an inbound from a JSON blob (e.g. one exported via the UI). The body uses form encoding with a single "data" field.
+Parameters
+Name
+In
+Type
+Description
+data
+body (form)
+string
+JSON-encoded inbound payload.
+POST/panel/api/inbounds/onlines
+List the emails of currently connected clients (last seen within the heartbeat window).
+Response
+{
+  "success": true,
+  "obj": ["user1", "user2"]
+}
+
+POST/panel/api/inbounds/lastOnline
+Map of client email → last-seen unix timestamp.
+GET/panel/api/inbounds/getSubLinks/:subId
+Return every protocol URL (vless://, vmess://, trojan://, ss://, hysteria://, hy2://) for clients matching the subscription ID. Same result set as /sub/<subId>, but as a JSON array — no base64. When an inbound has streamSettings.externalProxy set, one URL is emitted per external proxy. Empty array when the subId has no enabled clients.
+Parameters
+Name
+In
+Type
+Description
+subId
+path
+string
+Subscription ID, taken from the client's subId field.
+Response
+{
+  "success": true,
+  "obj": [
+    "vless://uuid@host:443?security=reality&...#user1",
+    "vmess://eyJ2IjoyLC..."
+  ]
+}
+
+GET/panel/api/inbounds/getClientLinks/:id/:email
+Return the URL(s) for one client on one inbound — the same string the Copy URL button copies in the panel UI. Supported protocols: vmess, vless, trojan, shadowsocks, hysteria, hysteria2. If streamSettings.externalProxy is set, returns one URL per external proxy. Protocols without a URL form (socks, http, mixed, wireguard, dokodemo, tunnel) return an empty array.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Inbound ID.
+email
+path
+string
+Client email.
+Response
+{
+  "success": true,
+  "obj": [
+    "vless://uuid@host:443?...#user1"
+  ]
+}
+
+POST/panel/api/inbounds/updateClientTraffic/:email
+Manually adjust a client’s upload + download counters. Useful for migrations from external accounting systems.
+Parameters
+Name
+In
+Type
+Description
+email
+path
+string
+Client email.
+Request body
+{
+  "upload": 1073741824,
+  "download": 5368709120
+}
+
+POST/panel/api/inbounds/:id/delClientByEmail/:email
+Delete a client identified by email rather than UUID.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Inbound ID.
+email
+path
+string
+Client email.
+Server API
+System status, log retrieval, certificate generators, Xray binary management, and backup/restore. All under /panel/api/server.
+GET/panel/api/server/status
+Real-time machine snapshot: CPU, memory, swap, disk, network IO, load averages, open connections, Xray state. Cached and refreshed every 2 seconds in the background.
+GET/panel/api/server/cpuHistory/:bucket
+Legacy: aggregated CPU history. Use /history/cpu/:bucket instead — same data with a uniform {t, v} shape.
+Parameters
+Name
+In
+Type
+Description
+bucket
+path
+number
+Bucket size in seconds. Allowed: 2, 30, 60, 120, 180, 300.
+GET/panel/api/server/history/:metric/:bucket
+Aggregated time-series for one metric. Returns an array of {t, v} samples covering the last ~6 hours.
+Parameters
+Name
+In
+Type
+Description
+metric
+path
+string
+cpu | mem | swap | netIn | netOut | tcpCount | udpCount | load1 | online.
+bucket
+path
+number
+Bucket size in seconds. Allowed: 2, 30, 60, 120, 180, 300.
+GET/panel/api/server/getXrayVersion
+List Xray binary versions available for install on this host.
+GET/panel/api/server/getPanelUpdateInfo
+Check whether a newer 3x-ui release is available on GitHub.
+GET/panel/api/server/getConfigJson
+Return the assembled Xray config that’s currently running on this host.
+GET/panel/api/server/getDb
+Stream the SQLite database file as an attachment. Use as a manual backup.
+GET/panel/api/server/getNewUUID
+Generate a fresh UUID v4. Convenience helper for client IDs.
+GET/panel/api/server/getNewX25519Cert
+Generate a new X25519 keypair for Reality.
+GET/panel/api/server/getNewmldsa65
+Generate a new ML-DSA-65 keypair (post-quantum signature). Returns {privateKey, publicKey, seed}.
+GET/panel/api/server/getNewmlkem768
+Generate a new ML-KEM-768 keypair (post-quantum KEM). Returns {clientKey, serverKey}.
+GET/panel/api/server/getNewVlessEnc
+Generate a new VLESS encryption keypair.
+POST/panel/api/server/stopXrayService
+Stop the Xray binary. All proxies go offline immediately.
+POST/panel/api/server/restartXrayService
+Reload Xray with the current config. Typically required after structural inbound or routing changes.
+POST/panel/api/server/installXray/:version
+Download and install the specified Xray version. Pass "latest" for the newest release.
+Parameters
+Name
+In
+Type
+Description
+version
+path
+string
+Xray tag (e.g. v25.10.31) or "latest".
+POST/panel/api/server/updatePanel
+Self-update the panel to the latest version. The server restarts on success.
+POST/panel/api/server/updateGeofile
+Refresh the default GeoIP / GeoSite data files. Body can include a fileName, or use the /:fileName variant.
+POST/panel/api/server/updateGeofile/:fileName
+Refresh a single Geo file by filename (e.g. geoip.dat, geosite.dat).
+Parameters
+Name
+In
+Type
+Description
+fileName
+path
+string
+Filename of the data file to refresh.
+POST/panel/api/server/logs/:count
+Return the last N lines of the panel’s own log.
+Parameters
+Name
+In
+Type
+Description
+count
+path
+number
+Number of trailing log lines.
+Request body
+{
+  "level": "info",
+  "syslog": false
+}
+
+POST/panel/api/server/xraylogs/:count
+Return the last N lines of the Xray process log.
+Parameters
+Name
+In
+Type
+Description
+count
+path
+number
+Number of trailing log lines.
+POST/panel/api/server/importDB
+Restore the panel DB from an uploaded SQLite file (multipart form, field name "db"). The panel restarts after restore. Destructive.
+POST/panel/api/server/getNewEchCert
+Generate a new ECH (Encrypted Client Hello) keypair. Body picks the algorithm.
+Nodes API
+Manage remote 3x-ui panels acting as nodes for a central panel. All endpoints under /panel/api/nodes.
+GET/panel/api/nodes/list
+List every configured node with its connection details, health, and last heartbeat patch.
+GET/panel/api/nodes/get/:id
+Fetch a single node by ID.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Node ID.
+POST/panel/api/nodes/add
+Register a new remote node. Provide its URL, apiToken, and optional label/notes.
+Request body
+{
+  "name": "de-fra-1",
+  "scheme": "https",
+  "host": "node1.example.com",
+  "port": 2053,
+  "basePath": "/",
+  "apiToken": "abcdef..."
+}
+
+POST/panel/api/nodes/update/:id
+Replace a node’s connection details. Same body shape as /add.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Node ID.
+POST/panel/api/nodes/del/:id
+Delete a node. Inbounds bound to it are not auto-migrated.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Node ID.
+POST/panel/api/nodes/setEnable/:id
+Pause or resume traffic sync with this node.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Node ID.
+Request body
+{
+  "enable": true
+}
+
+POST/panel/api/nodes/test
+Probe a node without saving it. Uses the body as connection details and returns whether the handshake succeeds.
+POST/panel/api/nodes/probe/:id
+Probe an existing node, updating its cached health state.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Node ID.
+GET/panel/api/nodes/history/:id/:metric/:bucket
+Aggregated metric history for a node — same shape as /server/history, scoped to one node.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Node ID.
+metric
+path
+string
+Metric key (cpu, mem, netIn, …).
+bucket
+path
+number
+Bucket size in seconds.
+Custom Geo API
+Manage user-supplied GeoIP / GeoSite source files. All endpoints under /panel/api/custom-geo.
+GET/panel/api/custom-geo/list
+List configured custom geo sources with their type, alias, URL, status, and last-download timestamp.
+GET/panel/api/custom-geo/aliases
+List geo aliases currently usable in routing rules — both built-in defaults and the user-configured ones.
+POST/panel/api/custom-geo/add
+Register a custom geo source. Alias is auto-normalised; URL must point to a .dat / .json blob.
+Request body
+{
+  "type": "geoip",
+  "alias": "myips",
+  "url": "https://example.com/geo/my.dat"
+}
+
+POST/panel/api/custom-geo/update/:id
+Replace a custom geo source. Same body shape as /add.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Custom geo source ID.
+POST/panel/api/custom-geo/delete/:id
+Remove a custom geo source and its cached file.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Custom geo source ID.
+POST/panel/api/custom-geo/download/:id
+Re-download one custom geo source on demand.
+Parameters
+Name
+In
+Type
+Description
+id
+path
+number
+Custom geo source ID.
+POST/panel/api/custom-geo/update-all
+Re-download every configured custom geo source. Errors are reported per-source in the response.
+Backup
+Operations that interact with the configured Telegram bot.
+GET/panel/api/backuptotgbot
+Send a fresh DB backup to every Telegram chat configured as an admin recipient. No body, no params.
