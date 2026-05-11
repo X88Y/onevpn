@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mvmvpn/core/network/client.dart';
-import 'package:mvmvpn/service/ads/service.dart';
+
 import 'package:mvmvpn/service/analytics/service.dart';
 import 'package:mvmvpn/service/background_task/service.dart';
 import 'package:mvmvpn/service/menu/short_cut/service.dart';
@@ -13,7 +13,7 @@ import 'package:mvmvpn/service/vpn/service.dart';
 
 abstract final class ServiceManager {
   static Future<void> serviceInit(BuildContext context) async {
-    AdsService().init();
+
     await NetClient().asyncInit();
     TrayService().init();
     await VpnService().asyncInit();
@@ -29,7 +29,7 @@ abstract final class ServiceManager {
   }
 
   static void serviceDispose() {
-    AdsService().dispose();
+
     TrayService().dispose();
     VpnService().dispose();
     ShareService().dispose();

@@ -240,7 +240,7 @@ class AppHostApi(
         // android 11, level 30
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val permissions = mutableListOf<String>()
-            permissions.add(Manifest.permission.QUERY_ALL_PACKAGES)
+            // permissions.add(Manifest.permission.QUERY_ALL_PACKAGES)
             permissions.add(Permission.GET_INSTALLED_APPS)
             XXPermissions.with(context)
                 .permission(permissions)
