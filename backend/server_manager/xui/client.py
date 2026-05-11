@@ -2,6 +2,7 @@
 
 import json
 import logging
+import re
 import uuid
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
@@ -56,12 +57,13 @@ class XuiClient:
     def __init__(self, server: XuiServer, *, verify: bool = False) -> None:
         self._server = server
         self._client = httpx.AsyncClient(
-            base_url=server.panel_url,
+            base_url=server.panel_url.rstrip("/") + "/",
             verify=verify,
             timeout=settings.panel_request_timeout,
             follow_redirects=True,
         )
         self._logged_in = False
+        self._csrf_token = ""
 
     @property
     def server(self) -> XuiServer:
@@ -76,22 +78,60 @@ class XuiClient:
     async def login(self) -> None:
         if self._logged_in:
             return
+
+        # 1. Get initial cookies and CSRF token from the login page
+        # We hit the base_url (which ends in /) to get the page content
+        try:
+            get_resp = await self._client.get("")
+            get_resp.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            # Fallback for some versions where the login page is at /login
+            if exc.response.status_code == 404:
+                get_resp = await self._client.get("login")
+                get_resp.raise_for_status()
+            else:
+                raise
+
+        # Extract CSRF token from <meta name="csrf-token" content="...">
+        csrf_token = ""
+        match = re.search(r'<meta\s+name="csrf-token"\s+content="([^"]+)"', get_resp.text)
+        if match:
+            csrf_token = match.group(1)
+
+        # 2. Perform the actual login
         response = await self._client.post(
-            "/login",
+            "login",
             data={
                 "username": self._server.username,
                 "password": self._server.password,
+                "twoFactorCode": "",
+            },
+            headers={
+                "X-CSRF-Token": csrf_token,
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json, text/plain, */*",
+                "Referer": str(get_resp.url),
             },
         )
         response.raise_for_status()
         body = self._json(response)
         if not body.get("success"):
             raise XuiError(f"login failed: {body.get('msg')}")
+        self._csrf_token = csrf_token
         self._logged_in = True
+
+    async def _post(self, path: str, **kwargs) -> httpx.Response:
+        """Helper to send POST requests with CSRF token."""
+        headers = kwargs.get("headers", {})
+        if self._csrf_token:
+            headers["X-CSRF-Token"] = self._csrf_token
+        kwargs["headers"] = headers
+        response = await self._client.post(path, **kwargs)
+        return response
 
     async def list_inbounds(self) -> List[Dict[str, Any]]:
         await self.login()
-        response = await self._client.get("/panel/api/inbounds/list")
+        response = await self._client.get("panel/api/inbounds/list")
         response.raise_for_status()
         body = self._json(response)
         if not body.get("success"):
@@ -100,7 +140,7 @@ class XuiClient:
 
     async def get_inbound(self, inbound_id: int) -> Dict[str, Any]:
         await self.login()
-        response = await self._client.get(f"/panel/api/inbounds/get/{inbound_id}")
+        response = await self._client.get(f"panel/api/inbounds/get/{inbound_id}")
         response.raise_for_status()
         body = self._json(response)
         if not body.get("success"):
@@ -109,7 +149,7 @@ class XuiClient:
 
     async def add_inbound(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         await self.login()
-        response = await self._client.post("/panel/api/inbounds/add", json=payload)
+        response = await self._post("panel/api/inbounds/add", json=payload)
         response.raise_for_status()
         body = self._json(response)
         if not body.get("success"):
@@ -140,7 +180,7 @@ class XuiClient:
             "id": inbound_id,
             "settings": json.dumps({"clients": [client]}),
         }
-        response = await self._client.post("/panel/api/inbounds/addClient", json=body)
+        response = await self._post("panel/api/inbounds/addClient", json=body)
         response.raise_for_status()
         parsed = self._json(response)
         if not parsed.get("success"):
@@ -148,8 +188,8 @@ class XuiClient:
 
     async def del_client(self, *, inbound_id: int, client_uuid: str) -> None:
         await self.login()
-        response = await self._client.post(
-            f"/panel/api/inbounds/{inbound_id}/delClient/{client_uuid}"
+        response = await self._post(
+            f"panel/api/inbounds/{inbound_id}/delClient/{client_uuid}"
         )
         response.raise_for_status()
         parsed = self._json(response)
@@ -180,8 +220,8 @@ class XuiClient:
                     email=f"_placeholder_{placeholder_uuid[:8]}",
                     sub_id=placeholder_uuid[:16],
                 )
-                retry_resp = await self._client.post(
-                    f"/panel/api/inbounds/{inbound_id}/delClient/{client_uuid}"
+                retry_resp = await self._post(
+                    f"panel/api/inbounds/{inbound_id}/delClient/{client_uuid}"
                 )
                 retry_resp.raise_for_status()
                 retry_parsed = self._json(retry_resp)
@@ -196,7 +236,7 @@ class XuiClient:
     async def get_client_traffics(self, email: str) -> Optional[Dict[str, Any]]:
         await self.login()
         response = await self._client.get(
-            f"/panel/api/inbounds/getClientTraffics/{email}"
+            f"panel/api/inbounds/getClientTraffics/{email}"
         )
         if response.status_code == 404:
             return None
@@ -211,8 +251,8 @@ class XuiClient:
 
     async def reset_client_traffic(self, *, inbound_id: int, email: str) -> None:
         await self.login()
-        response = await self._client.post(
-            f"/panel/api/inbounds/{inbound_id}/resetClientTraffic/{email}"
+        response = await self._post(
+            f"panel/api/inbounds/{inbound_id}/resetClientTraffic/{email}"
         )
         response.raise_for_status()
 
@@ -221,15 +261,15 @@ class XuiClient:
         # The new API path is /panel/api/server/getNewX25519Cert
         # We keep the old ones as fallbacks for compatibility.
         paths = (
-            "/panel/api/server/getNewX25519Cert",
-            "/panel/server/getNewX25519Cert",
-            "/server/getNewX25519Cert",
+            "panel/api/server/getNewX25519Cert",
+            "panel/server/getNewX25519Cert",
+            "server/getNewX25519Cert",
         )
         for path in paths:
             try:
                 response = await self._client.get(path)  # Doc says GET
                 if response.status_code == 405:  # Method Not Allowed, try POST
-                    response = await self._client.post(path)
+                    response = await self._post(path)
             except httpx.HTTPError:
                 continue
             if response.status_code == 404:
@@ -272,8 +312,8 @@ class XuiClient:
             "id": inbound_id,
             "settings": json.dumps({"clients": [client]}),
         }
-        response = await self._client.post(
-            f"/panel/api/inbounds/updateClient/{client_uuid}", json=body
+        response = await self._post(
+            f"panel/api/inbounds/updateClient/{client_uuid}", json=body
         )
         response.raise_for_status()
         parsed = self._json(response)
@@ -282,7 +322,7 @@ class XuiClient:
 
     async def del_inbound(self, inbound_id: int) -> None:
         await self.login()
-        response = await self._client.post(f"/panel/api/inbounds/del/{inbound_id}")
+        response = await self._post(f"panel/api/inbounds/del/{inbound_id}")
         response.raise_for_status()
         parsed = self._json(response)
         if not parsed.get("success"):
@@ -290,7 +330,7 @@ class XuiClient:
 
     async def restart_xray(self) -> None:
         await self.login()
-        response = await self._client.post("/panel/api/server/restartXrayService")
+        response = await self._post("panel/api/server/restartXrayService")
         response.raise_for_status()
         parsed = self._json(response)
         if not parsed.get("success"):
@@ -298,7 +338,7 @@ class XuiClient:
 
     async def panel_alive(self) -> bool:
         try:
-            response = await self._client.get("/login", timeout=10.0)
+            response = await self._client.get("login", timeout=10.0)
             return 200 <= response.status_code < 500
         except httpx.HTTPError:
             return False
