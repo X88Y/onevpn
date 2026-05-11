@@ -13,6 +13,7 @@ from server_manager.routes.subscription import router as subscription_router
 from server_manager.workers.health import run_health_loop
 from server_manager.workers.install_worker import run_install_loop
 from server_manager.workers.traffic_sync import run_traffic_sync_loop
+from server_manager.workers.monitoring_sync import run_monitoring_sync_loop
 
 logger = logging.getLogger("server_manager")
 
@@ -25,6 +26,7 @@ async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
         asyncio.create_task(run_install_loop(), name="install_worker"),
         asyncio.create_task(run_traffic_sync_loop(), name="traffic_sync"),
         asyncio.create_task(run_health_loop(), name="health_check"),
+        asyncio.create_task(run_monitoring_sync_loop(), name="monitoring_sync"),
     ]
     logger.info("server_manager started workers=%s", [t.get_name() for t in tasks])
     try:

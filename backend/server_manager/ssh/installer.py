@@ -239,6 +239,45 @@ def _run_install_sync(
         _run(client, 'x-ui restart', recorder, timeout=60.0)
         time.sleep(30)
         
+        # 5) Install node_exporter for Grafana monitoring.
+        logger.info("installing node_exporter")
+        node_exporter_version = "1.8.1"
+        node_exporter_arch = "amd64" # Assuming amd64 for now, could be improved to detect arch
+        node_exporter_dir = f"node_exporter-{node_exporter_version}.linux-{node_exporter_arch}"
+        node_exporter_tar = f"{node_exporter_dir}.tar.gz"
+        node_exporter_url = f"https://github.com/prometheus/node_exporter/releases/download/v{node_exporter_version}/{node_exporter_tar}"
+        
+        node_commands = [
+            f"{sudo}bash -c 'cd /tmp && curl -Ls {node_exporter_url} -o {node_exporter_tar}'",
+            f"{sudo}bash -c 'cd /tmp && tar xzf {node_exporter_tar}'",
+            f"{sudo}bash -c 'cp /tmp/{node_exporter_dir}/node_exporter /usr/local/bin/'",
+            f"{sudo}bash -c 'rm -rf /tmp/{node_exporter_dir} /tmp/{node_exporter_tar}'",
+        ]
+        
+        for cmd in node_commands:
+            code, _ = _run(client, cmd, recorder)
+            if code != 0:
+                logger.warning("node_exporter installation step failed (exit %s): %s", code, cmd)
+        
+        # Create systemd service for node_exporter
+        service_content = """[Unit]
+Description=Node Exporter
+After=network.target
+
+[Service]
+User=root
+Group=root
+Type=simple
+ExecStart=/usr/local/bin/node_exporter --web.listen-address=:9100
+
+[Install]
+WantedBy=multi-user.target
+"""
+        service_file = "/etc/systemd/system/node_exporter.service"
+        _run(client, f"{sudo}bash -c \"echo '{service_content}' > {service_file}\"", recorder)
+        _run(client, f"{sudo}systemctl daemon-reload", recorder)
+        _run(client, f"{sudo}systemctl enable node_exporter", recorder)
+        _run(client, f"{sudo}systemctl start node_exporter", recorder)
         
         public_host = target.host
         panel_url = f"https://{public_host}:{panel_port}/{panel_path}"

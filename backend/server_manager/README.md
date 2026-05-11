@@ -23,7 +23,28 @@ Components:
 - `workers/traffic_sync.py` — periodic per-user traffic refresh.
 - `workers/health.py` — periodic panel health pings.
 - `xui/` — 3x-ui panel client + Reality inbound template.
-- `ssh/installer.py` — paramiko-driven install of 3x-ui.
+- `ssh/installer.py` — paramiko-driven install of 3x-ui and node_exporter.
+- `workers/monitoring_sync.py` — periodic sync of healthy nodes to Prometheus targets.
+
+## Monitoring
+
+The project includes a monitoring stack based on Prometheus and Grafana.
+
+- **Prometheus**: Scrapes metrics from `node_exporter` running on each VPN node.
+- **Grafana**: Visualizes node performance (CPU, RAM, Traffic, etc.).
+- **Node Exporter**: Installed automatically on every node during the provisioning process (port 9100).
+
+To start the monitoring stack:
+
+```bash
+cd backend/monitoring
+docker-compose up -d
+```
+
+Grafana is available at `http://localhost:3000` (default credentials: `admin/admin`).
+The "Node Exporter Full" dashboard is pre-provisioned.
+
+The `server_manager` automatically maintains `backend/monitoring/prometheus/targets.json` with the list of healthy servers.
 
 ## Run locally
 
