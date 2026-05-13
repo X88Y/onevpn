@@ -9,8 +9,11 @@
 /* Begin PBXBuildFile section */
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		50DB83EF2FB527FC00B1F8A6 /* LibXray.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB68C6FE2F94D150007C293A /* LibXray.xcframework */; };
+		50DB83F02FB527FC00B1F8A6 /* LibXray.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EB68C6FE2F94D150007C293A /* LibXray.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		50DB83F12FB527FE00B1F8A6 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5C9F523C96F23EED1777205 /* Pods_Runner.framework */; };
+		50DB83F22FB527FE00B1F8A6 /* Pods_Runner.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D5C9F523C96F23EED1777205 /* Pods_Runner.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
-		942A05B0F3ECE16DEDE34E6D /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5C9F523C96F23EED1777205 /* Pods_Runner.framework */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
@@ -20,7 +23,6 @@
 		EB68C7052F94D150007C293A /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB68C7012F94D150007C293A /* Tools.swift */; };
 		EB68C7062F94D150007C293A /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB68C7002F94D150007C293A /* Model.swift */; };
 		EB68C7072F94D150007C293A /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB68C6FF2F94D150007C293A /* Logger.swift */; };
-		EB68C7082F94D150007C293A /* LibXray.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB68C6FE2F94D150007C293A /* LibXray.xcframework */; };
 		EB68C7092F94D150007C293A /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB68C6FD2F94D150007C293A /* Constants.swift */; };
 		EB68C70A2F94D150007C293A /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB68C7012F94D150007C293A /* Tools.swift */; };
 		EB68C70B2F94D150007C293A /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB68C7002F94D150007C293A /* Model.swift */; };
@@ -54,6 +56,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				50DB83F22FB527FE00B1F8A6 /* Pods_Runner.framework in Embed Frameworks */,
+				50DB83F02FB527FC00B1F8A6 /* LibXray.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -123,9 +127,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50DB83F12FB527FE00B1F8A6 /* Pods_Runner.framework in Frameworks */,
 				EB1073862F48B0F700E33A7B /* AppTrackingTransparency.framework in Frameworks */,
-				EB68C7082F94D150007C293A /* LibXray.xcframework in Frameworks */,
-				942A05B0F3ECE16DEDE34E6D /* Pods_Runner.framework in Frameworks */,
+				50DB83EF2FB527FC00B1F8A6 /* LibXray.xcframework in Frameworks */,
 				EB8B84372C0755150096E1FF /* libresolv.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -626,7 +630,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26051104;
+				CURRENT_PROJECT_VERSION = 26051401;
 				DEVELOPMENT_TEAM = WVD5VC7V8N;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -773,7 +777,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26051104;
+				CURRENT_PROJECT_VERSION = 26051401;
 				DEVELOPMENT_TEAM = WVD5VC7V8N;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -804,7 +808,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26051104;
+				CURRENT_PROJECT_VERSION = 26051401;
 				DEVELOPMENT_TEAM = WVD5VC7V8N;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -836,7 +840,7 @@
 				CODE_SIGN_ENTITLEMENTS = tunnel/tunnel.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26051104;
+				CURRENT_PROJECT_VERSION = 26051401;
 				DEVELOPMENT_TEAM = WVD5VC7V8N;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -879,7 +883,7 @@
 				CODE_SIGN_ENTITLEMENTS = tunnel/tunnel.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26051104;
+				CURRENT_PROJECT_VERSION = 26051401;
 				DEVELOPMENT_TEAM = WVD5VC7V8N;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -919,7 +923,7 @@
 				CODE_SIGN_ENTITLEMENTS = tunnel/tunnel.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26051104;
+				CURRENT_PROJECT_VERSION = 26051401;
 				DEVELOPMENT_TEAM = WVD5VC7V8N;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
