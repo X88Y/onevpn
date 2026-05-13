@@ -32,7 +32,7 @@ class XraySettingUIController {
 
   CoreConfigData? _xraySettingData;
 
-  var _xraySettingState = XraySettingState.panelDefault();
+  var _xraySettingState = XraySettingState();
   void dispose() {
     nameController.dispose();
   }

@@ -16,61 +16,6 @@ class DnsState {
   var disableFallbackIfMatch = false;
   var useSystemHosts = false;
 
-  /// Pre-configured DNS matching the panel's default Xray config.
-  static DnsState get panelDefault {
-    final state = DnsState();
-    state.queryStrategy = DnsQueryStrategy.useIPv4;
-
-    // Hosts
-    state.hosts = {
-      '8.8.8.8': ['8.8.8.8'],
-      '77.88.8.8': ['77.88.8.8'],
-      'geosite:category-ads': ['127.0.0.1'],
-      'geosite:torrent': ['127.0.0.1'],
-      'geosite:win-spy': ['127.0.0.1'],
-    };
-
-    // Default server: Google DoH
-    final googleServer = DnsServerState();
-    googleServer.address = 'https://8.8.8.8/dns-query';
-    googleServer.queryStrategy = DnsQueryStrategy.useIPv4;
-
-    // Google DoH for proxy domains
-    final googleProxyServer = DnsServerState();
-    googleProxyServer.address = 'https://8.8.8.8/dns-query';
-    googleProxyServer.queryStrategy = DnsQueryStrategy.useIPv4;
-    googleProxyServer.domains = [
-      'geosite:google-play',
-      'geosite:github',
-      'geosite:twitch-ads',
-      'geosite:youtube',
-      'geosite:telegram',
-    ];
-
-    // Yandex DoH for RU/direct domains
-    final yandexServer = DnsServerState();
-    yandexServer.address = 'https://77.88.8.8/dns-query';
-    yandexServer.queryStrategy = DnsQueryStrategy.useIPv4;
-    yandexServer.domains = [
-      'geosite:private',
-      'geosite:category-ru',
-      'geosite:whitelist',
-      'geosite:microsoft',
-      'geosite:apple',
-      'geosite:epicgames',
-      'geosite:riot',
-      'geosite:escapefromtarkov',
-      'geosite:steam',
-      'geosite:twitch',
-      'geosite:pinterest',
-      'geosite:faceit',
-    ];
-
-    state.servers = [googleServer, googleProxyServer, yandexServer];
-
-    return state;
-  }
-
   void removeWhitespace() {
     final newHosts = <String, List<String>>{};
     hosts.forEach((key, value) {
