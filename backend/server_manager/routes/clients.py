@@ -414,7 +414,9 @@ async def regenerate_client(payload: ProvisionRequest) -> RegenerateResponse:
         candidates = [
             s for s in healthy
             if _server_host(s.to_dict() or {}) not in current_hosts
-        ]    
+        ]
+        if not candidates:
+            candidates = healthy
 
     random.shuffle(candidates)
 
