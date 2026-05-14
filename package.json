@@ -4,8 +4,11 @@
   "description": "MVM VPN Mobile App",
   "scripts": {
     "ios": "fvm flutter run -d 00008130-001234E11041401C",
-    "build:apk": "fvm flutter build apk --release",
-    "build:appbundle": "fvm flutter build appbundle --release",
+    "build:ios": "fvm flutter build ios --release --obfuscate --split-debug-info=symbols/",
+    "build:ipa": "fvm flutter build ipa --release --obfuscate --split-debug-info=symbols/",
+    "build:apk": "fvm flutter build apk --release --obfuscate --split-debug-info=symbols/",
+    "build:apk:debug": "fvm flutter build apk --debug",
+    "build:appbundle": "fvm flutter build appbundle --release --obfuscate --split-debug-info=symbols/",
     "clean": "fvm flutter clean",
     "get": "fvm flutter pub get"
   }

@@ -1,7 +1,7 @@
 name: mvmvpn
 description: "MVM VPN"
 publish_to: "none"
-version: 5.0.1+26051401
+version: 5.0.1+26051402
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
