@@ -1,4 +1,4 @@
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/app/libXray.dll"
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/app/libMVM.dll"
         DESTINATION "${CMAKE_INSTALL_PREFIX}"
         COMPONENT Runtime)
 

@@ -38,7 +38,7 @@
 		EB7E98442F93C204002151DD /* apple.svyatvpn.com.se.tun.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = EB7E98392F93C204002151DD /* apple.svyatvpn.com.se.tun.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EB7E984F2F93C268002151DD /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7E984C2F93C268002151DD /* main.swift */; };
 		EBB9CF7E2F93C6CE00466352 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = EBEAD8882B9578E000A8D27B /* libresolv.tbd */; };
-		EBE36B562F9684A700686880 /* LibXray.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE36B502F9684A700686880 /* LibXray.xcframework */; };
+		EBE36B562F9684A700686880 /* LibMVM.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE36B502F9684A700686880 /* LibMVM.xcframework */; };
 		EBE36B572F9684A700686880 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B522F9684A700686880 /* Model.swift */; };
 		EBE36B582F9684A700686880 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B532F9684A700686880 /* Tools.swift */; };
 		EBE36B592F9684A700686880 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B4F2F9684A700686880 /* Constants.swift */; };
@@ -47,7 +47,7 @@
 		EBE36B5C2F9684A700686880 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B532F9684A700686880 /* Tools.swift */; };
 		EBE36B5D2F9684A700686880 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B4F2F9684A700686880 /* Constants.swift */; };
 		EBE36B5E2F9684A700686880 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B512F9684A700686880 /* Logger.swift */; };
-		EBE36B5F2F9684A700686880 /* LibXray.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE36B502F9684A700686880 /* LibXray.xcframework */; };
+		EBE36B5F2F9684A700686880 /* LibMVM.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE36B502F9684A700686880 /* LibMVM.xcframework */; };
 		EBE36B622F9684BD00686880 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B602F9684BD00686880 /* PacketTunnelProvider.swift */; };
 		EBEAD8892B9578E700A8D27B /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = EBEAD8882B9578E000A8D27B /* libresolv.tbd */; };
 /* End PBXBuildFile section */
@@ -128,10 +128,10 @@
 		EB7E984C2F93C268002151DD /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		EB7E984D2F93C268002151DD /* tunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = tunnel.entitlements; sourceTree = "<group>"; };
 		EB9154212D8EBE7600BFED8B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/MainMenu.strings"; sourceTree = "<group>"; };
-		EBB9CF7B2F93C6AF00466352 /* libXray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libXray.h; sourceTree = "<group>"; };
+		EBB9CF7B2F93C6AF00466352 /* libMVM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libMVM.h; sourceTree = "<group>"; };
 		EBE36B4E2F9684A700686880 /* BridgeHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgeHeader.h; sourceTree = "<group>"; };
 		EBE36B4F2F9684A700686880 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		EBE36B502F9684A700686880 /* LibXray.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = LibXray.xcframework; sourceTree = "<group>"; };
+		EBE36B502F9684A700686880 /* LibMVM.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = LibMVM.xcframework; sourceTree = "<group>"; };
 		EBE36B512F9684A700686880 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		EBE36B522F9684A700686880 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		EBE36B532F9684A700686880 /* Tools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tools.swift; sourceTree = "<group>"; };
@@ -146,7 +146,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EBE36B562F9684A700686880 /* LibXray.xcframework in Frameworks */,
+				EBE36B562F9684A700686880 /* LibMVM.xcframework in Frameworks */,
 				EBEAD8892B9578E700A8D27B /* libresolv.tbd in Frameworks */,
 				C1EEF86C4FB8DC2DB09FC7EF /* Pods_Runner.framework in Frameworks */,
 			);
@@ -156,7 +156,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EBE36B5F2F9684A700686880 /* LibXray.xcframework in Frameworks */,
+				EBE36B5F2F9684A700686880 /* LibMVM.xcframework in Frameworks */,
 				EB7E983A2F93C204002151DD /* NetworkExtension.framework in Frameworks */,
 				EBB9CF7E2F93C6CE00466352 /* libresolv.tbd in Frameworks */,
 			);
@@ -300,7 +300,7 @@
 		EBB9CF7C2F93C6AF00466352 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				EBB9CF7B2F93C6AF00466352 /* libXray.h */,
+				EBB9CF7B2F93C6AF00466352 /* libMVM.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -319,7 +319,7 @@
 			children = (
 				EBE36B4E2F9684A700686880 /* BridgeHeader.h */,
 				EBE36B4F2F9684A700686880 /* Constants.swift */,
-				EBE36B502F9684A700686880 /* LibXray.xcframework */,
+				EBE36B502F9684A700686880 /* LibMVM.xcframework */,
 				EBE36B512F9684A700686880 /* Logger.swift */,
 				EBE36B522F9684A700686880 /* Model.swift */,
 				EBE36B532F9684A700686880 /* Tools.swift */,

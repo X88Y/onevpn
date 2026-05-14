@@ -18,8 +18,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import libXray.DialerController
-import libXray.LibXray
+import libMVM.DialerController
+import libMVM.LibMVM
 import app.svyatvpn.com.MainActivity
 import app.svyatvpn.com.R
 import app.svyatvpn.com.pigeon.PerAppVPNMode
@@ -120,8 +120,8 @@ class OneVpnService : VpnService() {
         }
         XLog.d("OneVpnService: stopTun")
         stopForeground(STOP_FOREGROUND_REMOVE)
-        LibXray.stopXray()
-        LibXray.resetDns()
+        LibMVM.stopXray()
+        LibMVM.resetDns()
         try {
             tunnel?.close()
         } catch (e: Exception) {
@@ -292,8 +292,8 @@ class OneVpnService : VpnService() {
         if (controllerInit) {
             return
         }
-        LibXray.registerDialerController(controller)
-        LibXray.registerListenerController(controller)
+        LibMVM.registerDialerController(controller)
+        LibMVM.registerListenerController(controller)
         controllerInit = true
     }
 
@@ -302,11 +302,11 @@ class OneVpnService : VpnService() {
             initController()
             request.tun?.tunDnsIPv4?.let {
                 val dns = "$it:53"
-                LibXray.initDns(controller, dns)
+                LibMVM.initDns(controller, dns)
             }
             request.coreBase64Text?.let {
-                LibXray.setTunFd(fd)
-                val result = LibXray.runXray(it)
+                LibMVM.setTunFd(fd)
+                val result = LibMVM.runXray(it)
                 XLog.d("TProxyStartService: runXray result=$result")
             }
         }

@@ -47,9 +47,9 @@
 #     ADMOB_AD_UNIT_ID_IOS
 #
 # Layout:
-#   build_scripts/app/builder.py#build_core expects the XTLS/libXray source checkout
+#   build_scripts/app/builder.py#build_core expects the XTLS/libMVM source checkout
 #   to live as a sibling of this repo (same parent directory). Every job therefore
-#   checks out this repo to `MVMVpn/` and libXray to `libXray/` at the workspace
+#   checks out this repo to `MVMVpn/` and libMVM to `libMVM/` at the workspace
 #   root; fastforge/fastlane/flutter all produce their outputs under `<workspace>/output`.
 
 name: Publish
@@ -92,9 +92,9 @@ jobs:
 
       - uses: actions/checkout@v6
         with:
-          repository: XTLS/libXray
+          repository: XTLS/libMVM
           ref: ${{ env.LIBXRAY_REF }}
-          path: libXray
+          path: libMVM
 
       - uses: actions/setup-go@v6
         with:
@@ -182,9 +182,9 @@ jobs:
 
       - uses: actions/checkout@v6
         with:
-          repository: XTLS/libXray
+          repository: XTLS/libMVM
           ref: ${{ env.LIBXRAY_REF }}
-          path: libXray
+          path: libMVM
 
       - uses: actions/setup-java@v5
         with:
@@ -203,7 +203,7 @@ jobs:
         run: bash build_scripts/setup_flutter.sh
 
       - name: Setup Android NDK
-        # libXray's Android builder invokes `gomobile bind`, which needs an NDK.
+        # libMVM's Android builder invokes `gomobile bind`, which needs an NDK.
         # nttld/setup-ndk pins the version and exports ANDROID_NDK_HOME/ANDROID_NDK_ROOT.
         uses: nttld/setup-ndk@v1
         with:
@@ -281,9 +281,9 @@ jobs:
 
       - uses: actions/checkout@v6
         with:
-          repository: XTLS/libXray
+          repository: XTLS/libMVM
           ref: ${{ env.LIBXRAY_REF }}
-          path: libXray
+          path: libMVM
 
       - uses: actions/setup-go@v6
         with:
@@ -357,9 +357,9 @@ jobs:
 
       - uses: actions/checkout@v6
         with:
-          repository: XTLS/libXray
+          repository: XTLS/libMVM
           ref: ${{ env.LIBXRAY_REF }}
-          path: libXray
+          path: libMVM
 
       - uses: actions/setup-go@v6
         with:

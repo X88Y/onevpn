@@ -56,19 +56,19 @@ sudo apt remove mvmvpn
 
 ### 内核升级
 
-在 Linux 和 Windows 平台，您可自行升级或替换 Xray-core 。您可按照 [libXray](https://github.com/XTLS/libXray) 中的指引，使用 build 脚本进行编译。
+在 Linux 和 Windows 平台，您可自行升级或替换 Xray-core 。您可按照 [libMVM](https://github.com/XTLS/libMVM) 中的指引，使用 build 脚本进行编译。
 
 #### Linux
 
-将 `MVMVpn/lib/libXray.so` 替换为 libXray 的编译产物 `linux_so/libXray.so` 。
+将 `MVMVpn/lib/libMVM.so` 替换为 libMVM 的编译产物 `linux_so/libMVM.so` 。
 
-将 `MVMVpn/bin/MVMVpnCore` 替换为 libXray 的编译产物 `bin/xray` 。
+将 `MVMVpn/bin/MVMVpnCore` 替换为 libMVM 的编译产物 `bin/xray` 。
 
 #### Windows
 
-将 `MVMVpn/libXray.dll` 替换为 libXray 的编译产物 `windows_dll/libXray.dll` 。
+将 `MVMVpn/libMVM.dll` 替换为 libMVM 的编译产物 `windows_dll/libMVM.dll` 。
 
-将 `MVMVpn/bin/MVMVpnCore.exe` 替换为 libXray 的编译产物 `bin/xray.exe` 。
+将 `MVMVpn/bin/MVMVpnCore.exe` 替换为 libMVM 的编译产物 `bin/xray.exe` 。
 
 ## 贡献
 

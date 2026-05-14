@@ -57,19 +57,19 @@ If your machine's CPU architecture is Arm64, switching the language to a CJK lan
 
 ### Kernel Upgrade
 
-On Linux and Windows platforms, you can upgrade or replace Xray-core yourself. You can compile it using the build script according to the instructions in [libXray](https://github.com/XTLS/libXray).
+On Linux and Windows platforms, you can upgrade or replace Xray-core yourself. You can compile it using the build script according to the instructions in [libMVM](https://github.com/XTLS/libMVM).
 
 #### Linux
 
-Replace `MVMVpn/lib/libXray.so` with the compiled product of libXray `linux_so/libXray.so`.
+Replace `MVMVpn/lib/libMVM.so` with the compiled product of libMVM `linux_so/libMVM.so`.
 
-Replace `MVMVpn/bin/MVMVpnCore` with the compiled product of libXray `bin/xray`.
+Replace `MVMVpn/bin/MVMVpnCore` with the compiled product of libMVM `bin/xray`.
 
 #### Windows
 
-Replace `MVMVpn/libXray.dll` with the compiled product of libXray `windows_dll/libXray.dll`.
+Replace `MVMVpn/libMVM.dll` with the compiled product of libMVM `windows_dll/libMVM.dll`.
 
-Replace `MVMVpn/bin/MVMVpnCore.exe` with the compiled product of libXray `bin/xray.exe`.
+Replace `MVMVpn/bin/MVMVpnCore.exe` with the compiled product of libMVM `bin/xray.exe`.
 
 ## Contribution
 

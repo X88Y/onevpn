@@ -124,9 +124,9 @@ class _CoreLib {
   _CoreLib._internal() {
     var libName = "";
     if (AppPlatform.isLinux) {
-      libName = "libXray.so";
+      libName = "libMVM.so";
     } else if (AppPlatform.isWindows) {
-      libName = "libXray.dll";
+      libName = "libMVM.dll";
     }
     final lib = DynamicLibrary.open(libName);
     _lib = NativeLibrary(lib);

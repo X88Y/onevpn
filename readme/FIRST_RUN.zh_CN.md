@@ -35,19 +35,19 @@ cp swift/macOSSE/GoogleService-Info.plist.example swift/macOSSE/GoogleService-In
 
 这些文件的 `.example` 版本已经足够用于本地开发；如果后续需要联调真实 Firebase / AdMob，再替换成你自己的配置。
 
-## 2. 准备 libXray 产物
+## 2. 准备 libMVM 产物
 
-MVMVpn 本地 debug 依赖同级目录下的 `libXray` 仓库产物。`libXray/build` 对应的主要产物如下：
+MVMVpn 本地 debug 依赖同级目录下的 `libMVM` 仓库产物。`libMVM/build` 对应的主要产物如下：
 
-- Apple: `LibXray.xcframework`
-- Android: `libXray.aar`、`libXray-sources.jar`
-- Linux: `linux_so/libXray.so`、`bin/xray`
-- Windows: `windows_dll/libXray.dll`、`bin/xray.exe`
+- Apple: `LibMVM.xcframework`
+- Android: `libMVM.aar`、`libMVM-sources.jar`
+- Linux: `linux_so/libMVM.so`、`bin/xray`
+- Windows: `windows_dll/libMVM.dll`、`bin/xray.exe`
 
-建议先在 `libXray` 仓库完成目标平台构建：
+建议先在 `libMVM` 仓库完成目标平台构建：
 
 ```shell
-cd ../libXray
+cd ../libMVM
 python3 build/main.py apple go
 python3 build/main.py android
 python3 build/main.py linux
@@ -58,13 +58,13 @@ python3 build/main.py windows
 
 ### iOS / macOS
 
-Apple 平台共用 `LibXray.xcframework`。将 `libXray` 产物复制到 `swift/All/`：
+Apple 平台共用 `LibMVM.xcframework`。将 `libMVM` 产物复制到 `swift/All/`：
 
 ```shell
-cp -R ../libXray/LibXray.xcframework swift/All/
+cp -R ../libMVM/LibMVM.xcframework swift/All/
 ```
 
-`swift/All/` 目录里已经包含 `BridgeHeader.h` 等 Swift 集成文件；这里主要更新 `LibXray.xcframework`。
+`swift/All/` 目录里已经包含 `BridgeHeader.h` 等 Swift 集成文件；这里主要更新 `LibMVM.xcframework`。
 
 ### Android
 
@@ -72,31 +72,31 @@ Android 侧依赖 `aar` 和 sources jar。复制到 `android/app/libs/`：
 
 ```shell
 mkdir -p android/app/libs
-cp ../libXray/libXray.aar android/app/libs/
-cp ../libXray/libXray-sources.jar android/app/libs/
+cp ../libMVM/libMVM.aar android/app/libs/
+cp ../libMVM/libMVM-sources.jar android/app/libs/
 ```
 
 ### Linux
 
-`linux/app.cmake` 会从 `linux/app/` 链接 `libXray.so`，并安装 `MVMVpnCore` 到最终包内。因此需要把 Linux 产物复制到 `linux/app/`，其中 `bin/xray` 需要按 MVMVpn 约定重命名：
+`linux/app.cmake` 会从 `linux/app/` 链接 `libMVM.so`，并安装 `MVMVpnCore` 到最终包内。因此需要把 Linux 产物复制到 `linux/app/`，其中 `bin/xray` 需要按 MVMVpn 约定重命名：
 
 ```shell
 mkdir -p linux/app
-cp ../libXray/linux_so/libXray.so linux/app/
-cp ../libXray/bin/xray linux/app/MVMVpnCore
+cp ../libMVM/linux_so/libMVM.so linux/app/
+cp ../libMVM/bin/xray linux/app/MVMVpnCore
 ```
 
 ### Windows
 
-`windows/app.cmake` 会从 `windows/app/` 安装 `libXray.dll` 和 `MVMVpnCore.exe`。因此需要把 Windows 产物复制到 `windows/app/`，其中 `bin/xray.exe` 需要按 MVMVpn 约定重命名：
+`windows/app.cmake` 会从 `windows/app/` 安装 `libMVM.dll` 和 `MVMVpnCore.exe`。因此需要把 Windows 产物复制到 `windows/app/`，其中 `bin/xray.exe` 需要按 MVMVpn 约定重命名：
 
 ```shell
 mkdir -p windows/app
-cp ../libXray/windows_dll/libXray.dll windows/app/
-cp ../libXray/bin/xray.exe windows/app/MVMVpnCore.exe
+cp ../libMVM/windows_dll/libMVM.dll windows/app/
+cp ../libMVM/bin/xray.exe windows/app/MVMVpnCore.exe
 ```
 
-> `windows/app.cmake` 还会打包 `wintun.dll`。这个文件不来自 `libXray`，需要按 Windows 开发环境另行准备。
+> `windows/app.cmake` 还会打包 `wintun.dll`。这个文件不来自 `libMVM`，需要按 Windows 开发环境另行准备。
 
 ## 3. 启动调试
 
@@ -159,12 +159,12 @@ fvm flutter run -d ios
 
 | 路径 | 用途 |
 | ---- | ---- |
-| `swift/All/LibXray.xcframework` | iOS / macOS 使用的 libXray Apple 产物。 |
-| `android/app/libs/libXray.aar` | Android 使用的 libXray 动态库封装。 |
-| `android/app/libs/libXray-sources.jar` | Android 侧配套 sources jar。 |
-| `linux/app/libXray.so` | Linux 桌面端链接的共享库。 |
+| `swift/All/LibMVM.xcframework` | iOS / macOS 使用的 libMVM Apple 产物。 |
+| `android/app/libs/libMVM.aar` | Android 使用的 libMVM 动态库封装。 |
+| `android/app/libs/libMVM-sources.jar` | Android 侧配套 sources jar。 |
+| `linux/app/libMVM.so` | Linux 桌面端链接的共享库。 |
 | `linux/app/MVMVpnCore` | Linux 桌面端运行的核心二进制。 |
-| `windows/app/libXray.dll` | Windows 桌面端加载的动态库。 |
+| `windows/app/libMVM.dll` | Windows 桌面端加载的动态库。 |
 | `windows/app/MVMVpnCore.exe` | Windows 桌面端运行的核心二进制。 |
 | `lib/firebase_options.dart` | Flutter 侧 Firebase 初始化配置。 |
 | `android/app/google-services.json` | Android 的 Firebase 配置。 |
@@ -178,7 +178,7 @@ fvm flutter run -d ios
 如果目标是本地开发和断点调试，最小步骤如下：
 
 1. 复制 `.example` 配置文件。
-2. 构建 `libXray` 并把产物复制到 MVMVpn 对应目录。
+2. 构建 `libMVM` 并把产物复制到 MVMVpn 对应目录。
 3. 执行 `fvm install` 和 `fvm flutter pub get`。
 4. 按平台安装额外依赖，例如 Apple 平台的 `pod install` 和 Linux 平台的 `libayatana-appindicator3-dev`。
 5. 用 `fvm flutter run -d <device>` 启动。

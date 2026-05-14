@@ -17,7 +17,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import libXray.LibXray
+import libMVM.LibMVM
 import app.svyatvpn.com.vpn.VpnController
 import kotlin.time.Duration.Companion.seconds
 
@@ -113,7 +113,7 @@ class AppHostApi(
 
     override fun getFreePorts(num: Long, callback: (Result<String>) -> Unit) {
         scope.launch {
-            val res = LibXray.getFreePorts(num)
+            val res = LibMVM.getFreePorts(num)
             callback(Result.success(res))
         }
     }
@@ -123,7 +123,7 @@ class AppHostApi(
         callback: (Result<String>) -> Unit
     ) {
         scope.launch {
-            val res = LibXray.convertShareLinksToXrayJson(base64Text)
+            val res = LibMVM.convertShareLinksToXrayJson(base64Text)
             callback(Result.success(res))
         }
     }
@@ -133,28 +133,28 @@ class AppHostApi(
         callback: (Result<String>) -> Unit
     ) {
         scope.launch {
-            val res = LibXray.convertXrayJsonToShareLinks(base64Text)
+            val res = LibMVM.convertXrayJsonToShareLinks(base64Text)
             callback(Result.success(res))
         }
     }
 
     override fun countGeoData(base64Text: String, callback: (Result<String>) -> Unit) {
         scope.launch {
-            val res = LibXray.countGeoData(base64Text)
+            val res = LibMVM.countGeoData(base64Text)
             callback(Result.success(res))
         }
     }
 
     override fun readGeoFiles(base64Text: String, callback: (Result<String>) -> Unit) {
         scope.launch {
-            val res = LibXray.readGeoFiles(base64Text)
+            val res = LibMVM.readGeoFiles(base64Text)
             callback(Result.success(res))
         }
     }
 
     override fun ping(base64Text: String, callback: (Result<String>) -> Unit) {
         scope.launch {
-            val res = LibXray.ping(base64Text)
+            val res = LibMVM.ping(base64Text)
             callback(Result.success(res))
         }
     }
@@ -162,28 +162,28 @@ class AppHostApi(
 
     override fun testXray(base64Text: String, callback: (Result<String>) -> Unit) {
         scope.launch {
-            val res = LibXray.testXray(base64Text)
+            val res = LibMVM.testXray(base64Text)
             callback(Result.success(res))
         }
     }
 
     override fun runXray(base64Text: String, callback: (Result<String>) -> Unit) {
         scope.launch {
-            val res = LibXray.runXray(base64Text)
+            val res = LibMVM.runXray(base64Text)
             callback(Result.success(res))
         }
     }
 
     override fun stopXray(callback: (Result<String>) -> Unit) {
         scope.launch {
-            val res = LibXray.stopXray()
+            val res = LibMVM.stopXray()
             callback(Result.success(res))
         }
     }
 
     override fun xrayVersion(callback: (Result<String>) -> Unit) {
         scope.launch {
-            val res = LibXray.xrayVersion()
+            val res = LibMVM.xrayVersion()
             callback(Result.success(res))
         }
     }

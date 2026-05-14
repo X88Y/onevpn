@@ -108,4 +108,4 @@ ffigen:
   output: "lib/core/ffi/generated_bindings.dart"
   headers:
     entry-points:
-      - "c/include/libXray.h"
+      - "c/include/libMVM.h"

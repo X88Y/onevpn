@@ -1,12 +1,12 @@
 PROJECT_CONFIG = {
     "MVMVpn": {
         "build_number.base": 300,
-        "core.dir": "libXray",
-        "core.lib.src.files.ios": ["LibXray.xcframework"],
-        "core.lib.src.files.macos": ["LibXray.xcframework"],
-        "core.lib.src.files.android": ["libXray-sources.jar", "libXray.aar"],
-        "core.lib.src.files.linux": ["linux_so/libXray.so"],
-        "core.lib.src.files.windows": ["windows_dll/libXray.dll"],
+        "core.dir": "libMVM",
+        "core.lib.src.files.ios": ["LibMVM.xcframework"],
+        "core.lib.src.files.macos": ["LibMVM.xcframework"],
+        "core.lib.src.files.android": ["libMVM-sources.jar", "libMVM.aar"],
+        "core.lib.src.files.linux": ["linux_so/libMVM.so"],
+        "core.lib.src.files.windows": ["windows_dll/libMVM.dll"],
         "core.lib.dst.dir.ios": "../swift/all",
         "core.lib.dst.dir.macos": "../swift/all",
         "core.lib.dst.dir.android": "app/libs",

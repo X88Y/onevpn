@@ -35,19 +35,19 @@ cp swift/macOSSE/GoogleService-Info.plist.example swift/macOSSE/GoogleService-In
 
 The `.example` files are enough for local development. Replace them with your own config later if you need to test real Firebase or AdMob behavior.
 
-## 2. Prepare libXray artifacts
+## 2. Prepare libMVM artifacts
 
-Local MVMVpn debugging depends on artifacts built from the sibling `libXray` repository. The main outputs from `libXray/build` are:
+Local MVMVpn debugging depends on artifacts built from the sibling `libMVM` repository. The main outputs from `libMVM/build` are:
 
-- Apple: `LibXray.xcframework`
-- Android: `libXray.aar`, `libXray-sources.jar`
-- Linux: `linux_so/libXray.so`, `bin/xray`
-- Windows: `windows_dll/libXray.dll`, `bin/xray.exe`
+- Apple: `LibMVM.xcframework`
+- Android: `libMVM.aar`, `libMVM-sources.jar`
+- Linux: `linux_so/libMVM.so`, `bin/xray`
+- Windows: `windows_dll/libMVM.dll`, `bin/xray.exe`
 
-Build the required targets in `libXray` first:
+Build the required targets in `libMVM` first:
 
 ```shell
-cd ../libXray
+cd ../libMVM
 python3 build/main.py apple go
 python3 build/main.py android
 python3 build/main.py linux
@@ -58,13 +58,13 @@ Then copy the artifacts into the corresponding MVMVpn directories.
 
 ### iOS / macOS
 
-Apple platforms share `LibXray.xcframework`. Copy it into `swift/All/`:
+Apple platforms share `LibMVM.xcframework`. Copy it into `swift/All/`:
 
 ```shell
-cp -R ../libXray/LibXray.xcframework swift/All/
+cp -R ../libXray/LibMVM.xcframework swift/All/
 ```
 
-`swift/All/` already contains Swift integration files such as `BridgeHeader.h`; in practice you mainly update `LibXray.xcframework` here.
+`swift/All/` already contains Swift integration files such as `BridgeHeader.h`; in practice you mainly update `LibMVM.xcframework` here.
 
 ### Android
 
@@ -72,41 +72,41 @@ Android uses the `aar` and the sources jar. Copy them into `android/app/libs/`:
 
 ```shell
 mkdir -p android/app/libs
-cp ../libXray/libXray.aar android/app/libs/
-cp ../libXray/libXray-sources.jar android/app/libs/
+cp ../libMVM/libMVM.aar android/app/libs/
+cp ../libMVM/libMVM-sources.jar android/app/libs/
 ```
 
 ### Linux
 
-`linux/app.cmake` links `libXray.so` from `linux/app/` and installs `MVMVpnCore` into the final bundle. Copy the Linux artifacts into `linux/app/`, and rename `bin/xray` to match MVMVpn's expected name:
+`linux/app.cmake` links `libMVM.so` from `linux/app/` and installs `MVMVpnCore` into the final bundle. Copy the Linux artifacts into `linux/app/`, and rename `bin/xray` to match MVMVpn's expected name:
 
 ```shell
 mkdir -p linux/app
-cp ../libXray/linux_so/libXray.so linux/app/
-cp ../libXray/bin/xray linux/app/MVMVpnCore
+cp ../libMVM/linux_so/libMVM.so linux/app/
+cp ../libMVM/bin/xray linux/app/MVMVpnCore
 ```
 
 ### Windows
 
-`windows/app.cmake` installs `libXray.dll` and `MVMVpnCore.exe` from `windows/app/`. Copy the Windows artifacts into `windows/app/`, and rename `bin/xray.exe` to match MVMVpn's expected name:
+`windows/app.cmake` installs `libMVM.dll` and `MVMVpnCore.exe` from `windows/app/`. Copy the Windows artifacts into `windows/app/`, and rename `bin/xray.exe` to match MVMVpn's expected name:
 
 ```shell
 mkdir -p windows/app
-cp ../libXray/windows_dll/libXray.dll windows/app/
-cp ../libXray/bin/xray.exe windows/app/MVMVpnCore.exe
+cp ../libMVM/windows_dll/libMVM.dll windows/app/
+cp ../libMVM/bin/xray.exe windows/app/MVMVpnCore.exe
 ```
 
-> `windows/app.cmake` also packages `wintun.dll`. That file does not come from `libXray` and must be prepared separately in the Windows development environment.
+> `windows/app.cmake` also packages `wintun.dll`. That file does not come from `libMVM` and must be prepared separately in the Windows development environment.
 
 ### Geo Data
 
-Copy the geo data files from `libXray/dat` into `assets/dat/`, and rename `timestamp.txt` to `timestamp`:
+Copy the geo data files from `libMVM/dat` into `assets/dat/`, and rename `timestamp.txt` to `timestamp`:
 
 ```shell
 mkdir -p assets/dat
-cp ../libXray/dat/geoip.dat assets/dat/
-cp ../libXray/dat/geosite.dat assets/dat/
-cp ../libXray/dat/timestamp.txt assets/dat/timestamp
+cp ../libMVM/dat/geoip.dat assets/dat/
+cp ../libMVM/dat/geosite.dat assets/dat/
+cp ../libMVM/dat/timestamp.txt assets/dat/timestamp
 ```
 
 ### Generated Code
@@ -179,12 +179,12 @@ These are the files you will usually touch more often in local development:
 
 | Path | Purpose |
 | ---- | ------- |
-| `swift/All/LibXray.xcframework` | Apple libXray artifact used by iOS / macOS. |
-| `android/app/libs/libXray.aar` | Android libXray package. |
-| `android/app/libs/libXray-sources.jar` | Matching sources jar for Android. |
-| `linux/app/libXray.so` | Shared library linked by the Linux desktop app. |
+| `swift/All/LibMVM.xcframework` | Apple libMVM artifact used by iOS / macOS. |
+| `android/app/libs/libMVM.aar` | Android libMVM package. |
+| `android/app/libs/libMVM-sources.jar` | Matching sources jar for Android. |
+| `linux/app/libMVM.so` | Shared library linked by the Linux desktop app. |
 | `linux/app/MVMVpnCore` | Core binary used by the Linux desktop app. |
-| `windows/app/libXray.dll` | Dynamic library loaded by the Windows desktop app. |
+| `windows/app/libMVM.dll` | Dynamic library loaded by the Windows desktop app. |
 | `windows/app/MVMVpnCore.exe` | Core binary used by the Windows desktop app. |
 | `lib/firebase_options.dart` | Flutter-side Firebase initialization config. |
 | `android/app/google-services.json` | Android Firebase config. |
@@ -198,7 +198,7 @@ The repository already provides matching `.example` files. For the first debug s
 For local development and breakpoint debugging, the minimum setup is:
 
 1. Copy the `.example` config files.
-2. Build `libXray` and copy its artifacts into the corresponding MVMVpn directories.
+2. Build `libMVM` and copy its artifacts into the corresponding MVMVpn directories.
 3. Prepare the geo data in `assets/dat/`.
 4. Run `fvm install` and `fvm flutter pub get`.
 5. Run `ffigen` and `build_runner`.

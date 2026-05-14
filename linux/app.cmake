@@ -1,7 +1,7 @@
 target_link_libraries(${BINARY_NAME} PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/app/libXray.so"
+        "${CMAKE_CURRENT_SOURCE_DIR}/app/libMVM.so"
 )
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/app/libXray.so"
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/app/libMVM.so"
         DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
         COMPONENT Runtime)
 

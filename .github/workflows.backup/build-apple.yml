@@ -34,9 +34,9 @@ jobs:
 
       - uses: actions/checkout@v6
         with:
-          repository: XTLS/libXray
+          repository: XTLS/libMVM
           ref: ${{ env.LIBXRAY_REF }}
-          path: libXray
+          path: libMVM
 
       - uses: actions/setup-go@v6
         with:
@@ -127,9 +127,9 @@ jobs:
 
       - uses: actions/checkout@v6
         with:
-          repository: XTLS/libXray
+          repository: XTLS/libMVM
           ref: ${{ env.LIBXRAY_REF }}
-          path: libXray
+          path: libMVM
 
       - uses: actions/setup-go@v6
         with:

@@ -39,8 +39,8 @@
 		EBE36B452F9683E000686880 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B3D2F9683E000686880 /* Constants.swift */; };
 		EBE36B462F9683E000686880 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B402F9683E000686880 /* Model.swift */; };
 		EBE36B472F9683E000686880 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B412F9683E000686880 /* Tools.swift */; };
-		EBE36B482F9683E000686880 /* LibXray.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE36B3E2F9683E000686880 /* LibXray.xcframework */; };
-		EBE36B492F9683E000686880 /* LibXray.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE36B3E2F9683E000686880 /* LibXray.xcframework */; };
+		EBE36B482F9683E000686880 /* LibMVM.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE36B3E2F9683E000686880 /* LibMVM.xcframework */; };
+		EBE36B492F9683E000686880 /* LibMVM.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE36B3E2F9683E000686880 /* LibMVM.xcframework */; };
 		EBE36B4A2F9683E000686880 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B3F2F9683E000686880 /* Logger.swift */; };
 		EBE36B4B2F9683E000686880 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B3D2F9683E000686880 /* Constants.swift */; };
 		EBE36B4C2F9683E000686880 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE36B402F9683E000686880 /* Model.swift */; };
@@ -123,11 +123,11 @@
 		EB68C7292F95200E007C293A /* SystemExtensionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemExtensionManager.swift; sourceTree = "<group>"; };
 		EB7471792F9648F50001CF81 /* AppStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStart.swift; sourceTree = "<group>"; };
 		EB9154212D8EBE7600BFED8B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/MainMenu.strings"; sourceTree = "<group>"; };
-		EBAB56E72D81885C0080EC55 /* libXray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libXray.h; sourceTree = "<group>"; };
+		EBAB56E72D81885C0080EC55 /* libMVM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libMVM.h; sourceTree = "<group>"; };
 		EBE36B392F9683C900686880 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		EBE36B3C2F9683E000686880 /* BridgeHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgeHeader.h; sourceTree = "<group>"; };
 		EBE36B3D2F9683E000686880 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		EBE36B3E2F9683E000686880 /* LibXray.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = LibXray.xcframework; sourceTree = "<group>"; };
+		EBE36B3E2F9683E000686880 /* LibMVM.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = LibMVM.xcframework; sourceTree = "<group>"; };
 		EBE36B3F2F9683E000686880 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		EBE36B402F9683E000686880 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		EBE36B412F9683E000686880 /* Tools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tools.swift; sourceTree = "<group>"; };
@@ -144,7 +144,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EBE36B492F9683E000686880 /* LibXray.xcframework in Frameworks */,
+				EBE36B492F9683E000686880 /* LibMVM.xcframework in Frameworks */,
 				EBEAD8892B9578E700A8D27B /* libresolv.tbd in Frameworks */,
 				C1EEF86C4FB8DC2DB09FC7EF /* Pods_Runner.framework in Frameworks */,
 			);
@@ -154,7 +154,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EBE36B482F9683E000686880 /* LibXray.xcframework in Frameworks */,
+				EBE36B482F9683E000686880 /* LibMVM.xcframework in Frameworks */,
 				EBEAD85B2B95749600A8D27B /* NetworkExtension.framework in Frameworks */,
 				EBEAD88A2B9578F000A8D27B /* libresolv.tbd in Frameworks */,
 			);
@@ -296,7 +296,7 @@
 		EBAB56E82D81885C0080EC55 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				EBAB56E72D81885C0080EC55 /* libXray.h */,
+				EBAB56E72D81885C0080EC55 /* libMVM.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -324,7 +324,7 @@
 			children = (
 				EBE36B3C2F9683E000686880 /* BridgeHeader.h */,
 				EBE36B3D2F9683E000686880 /* Constants.swift */,
-				EBE36B3E2F9683E000686880 /* LibXray.xcframework */,
+				EBE36B3E2F9683E000686880 /* LibMVM.xcframework */,
 				EBE36B3F2F9683E000686880 /* Logger.swift */,
 				EBE36B402F9683E000686880 /* Model.swift */,
 				EBE36B412F9683E000686880 /* Tools.swift */,
