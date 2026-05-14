@@ -15,8 +15,8 @@ class AmbientOrbs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final c1 = isRunning ? const Color(0xFF00E676) : const Color(0xFF6C63FF);
-    final c2 = isRunning ? const Color(0xFF00897B) : const Color(0xFF3B3AAF);
+    final c1 = isRunning ? const Color(0xFF00E5A0) : const Color(0xFF7B61FF);
+    final c2 = isRunning ? const Color(0xFF005A3C) : const Color(0xFF2D1B69);
     
     return AnimatedBuilder(
       animation: floatAnim,

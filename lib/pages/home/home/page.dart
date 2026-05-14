@@ -74,6 +74,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             builder: (context, eventState) {
               final isRunning = eventState.runningId != DBConstants.defaultId;
               final isLoading = eventState.vpnLoading || eventState.isUpdatingSubscription;
+              final accentColor = isLoading
+                  ? const Color(0xFFFFD700)
+                  : isRunning
+                      ? const Color(0xFF00E5A0)
+                      : const Color(0xFF7B61FF);
               return Scaffold(
                 backgroundColor: const Color(0xFF050814),
                 body: AnimatedBuilder(
@@ -90,7 +95,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           colors: isLoading
                               ? [const Color(0xFF1A1200), const Color(0xFF050814)]
                               : isRunning && !eventState.isUpdatingSubscription
-                                  ? [const Color(0xFF003320), const Color(0xFF050814)]
+                                  ? [const Color(0xFF002211), const Color(0xFF050814)]
                                   : [const Color(0xFF0D0A2E), const Color(0xFF050814)],
                         ),
                       ),
@@ -100,12 +105,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   child: SafeArea(
                     child: Stack(
                       children: [
-                        // Particle starfield
+                        // Mesh grid background
                         Positioned.fill(
                           child: AnimatedBuilder(
                             animation: _particleController,
                             builder: (_, __) => CustomPaint(
-                              painter: HomeParticlePainter(_particles, _particleController.value),
+                              painter: MeshGridPainter(
+                                tick: _particleController.value * 100,
+                                color: accentColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Particle starfield with constellation
+                        Positioned.fill(
+                          child: AnimatedBuilder(
+                            animation: _particleController,
+                            builder: (_, __) => CustomPaint(
+                              painter: HomeParticlePainter(
+                                _particles,
+                                _particleController.value,
+                                isRunning: isRunning,
+                              ),
                             ),
                           ),
                         ),
@@ -201,7 +222,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (!(user?.isAppleLinked ?? false) && !Platform.isAndroid) {
       buttons.add(HomeAuthButton(
         icon: FontAwesomeIcons.apple,
-        gradient: const LinearGradient(colors: [Color(0xFF4A4A4A), Color(0xFF2A2A2A)]),
+        gradient: const LinearGradient(colors: [Color(0xFF5A5A5A), Color(0xFF2A2A2A)]),
         glowColor: Colors.grey[400]!,
         title: AppLocalizations.of(context)!.mainFreeSubscription,
         onTap: () => controller.signInWithApple(),
@@ -213,7 +234,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (!(user?.isTelegramLinked ?? false)) {
       buttons.add(HomeAuthButton(
         icon: FontAwesomeIcons.telegram,
-        gradient: const LinearGradient(colors: [Color(0xFF1E88E5), Color(0xFF0D47A1)]),
+        gradient: const LinearGradient(colors: [Color(0xFF2AABEE), Color(0xFF0D47A1)]),
         glowColor: const Color(0xFF2AABEE),
         title: AppLocalizations.of(context)!.mainConnectTelegram,
         onTap: () => controller.connectTelegram(),
@@ -250,17 +271,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget _buildStatusText(AppEventBusState eventState, bool isRunning, bool isLoading) {
     final isUpdatingSubscription = eventState.isUpdatingSubscription;
 
-    // While a subscription update is in progress, always show the loading
-    // status regardless of the actual VPN connected/disconnected state.
     String text;
     Color textColor;
 
     if (isUpdatingSubscription) {
       text = AppLocalizations.of(context)!.mainConnecting;
-      textColor = const Color(0xFFFFC107);
+      textColor = const Color(0xFFFFD700);
     } else if (eventState.vpnLoading && isRunning) {
       text = AppLocalizations.of(context)!.mainCheckingGoogleConnectivity;
-      textColor = const Color(0xFFFFC107);
+      textColor = const Color(0xFFFFD700);
     } else {
       text = isRunning ? AppLocalizations.of(context)!.mainConnected : AppLocalizations.of(context)!.mainTapToConnect;
       if (isLoading) {
@@ -268,19 +287,42 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       }
 
       textColor = Colors.white.withOpacity(0.7);
-      if (isRunning) textColor = const Color(0xFF00E676);
-      if (isLoading) textColor = const Color(0xFFFFC107);
+      if (isRunning) textColor = const Color(0xFF00E5A0);
+      if (isLoading) textColor = const Color(0xFFFFD700);
     }
 
-    return AnimatedDefaultTextStyle(
-      duration: const Duration(milliseconds: 400),
-      style: TextStyle(
-        color: textColor,
-        fontSize: 17,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.5,
-      ),
-      child: Text(text),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Decorative line
+        Container(
+          width: 40,
+          height: 2,
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.transparent, textColor.withOpacity(0.5), Colors.transparent],
+            ),
+            borderRadius: BorderRadius.circular(1),
+          ),
+        ),
+        AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 400),
+          style: TextStyle(
+            color: textColor,
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.5,
+            shadows: [
+              Shadow(
+                color: textColor.withOpacity(0.4),
+                blurRadius: 12,
+              ),
+            ],
+          ),
+          child: Text(text.toUpperCase()),
+        ),
+      ],
     );
   }
 }
