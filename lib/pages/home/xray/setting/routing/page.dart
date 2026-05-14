@@ -28,7 +28,7 @@ class RoutingPage extends StatelessWidget {
           final controller = context.read<RoutingController>();
           return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.routingPageTitle),
+          title: Text(AppLocalizations.of(context)!.routingScreenTitle),
         ),
         body: SafeArea(child: _body(context, controller, state)),
       );
@@ -64,7 +64,7 @@ class RoutingPage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(AppLocalizations.of(context)!.routingPageDomainStrategy),
+          Text(AppLocalizations.of(context)!.routingScreenDomainStrategy),
           TextMenuPicker(
             title: state.routingState.domainStrategy.name,
             selections: RoutingDomainStrategy.names,
@@ -83,7 +83,7 @@ class RoutingPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.routingPageRules),
+              Text(AppLocalizations.of(context)!.routingScreenRules),
               IconButton(
                 onPressed: () => controller.appendCustomRule(),
                 icon: const Icon(Icons.add),
@@ -140,7 +140,7 @@ class RoutingPage extends StatelessWidget {
         )
         .toList();
     return SectionView(
-      title: AppLocalizations.of(context)!.helpOrder,
+      title: AppLocalizations.of(context)!.appHelpOrder,
       level: SectionLevel.second,
       child: ReorderableListView(
         shrinkWrap: true,
@@ -181,7 +181,7 @@ class RoutingPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

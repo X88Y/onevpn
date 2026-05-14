@@ -5,14 +5,14 @@ import 'package:tuple/tuple.dart';
 class SubscriptionValidator {
   static Future<Tuple2<bool, String>> validate(String name, String url) async {
     if (name.isEmpty) {
-      return Tuple2(false, appLocalizationsNoContext().validationNameRequired);
+      return Tuple2(false, appLocalizationsNoContext().appValidationNameRequired);
     }
     if (url.isEmpty) {
-      return Tuple2(false, appLocalizationsNoContext().validationUrlRequired);
+      return Tuple2(false, appLocalizationsNoContext().appValidationUrlRequired);
     }
     final uri = Uri.tryParse(url);
     if (uri == null) {
-      return Tuple2(false, appLocalizationsNoContext().validationUrlInvalid);
+      return Tuple2(false, appLocalizationsNoContext().appValidationUrlInvalid);
     }
     final db = AppDatabase();
     final urlExists = await db.subscriptionDao.urlExists(url);

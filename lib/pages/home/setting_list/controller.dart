@@ -74,7 +74,7 @@ class XraySettingListController extends Cubit<XraySettingListState> {
   void _initSimpleConfigs() {
     final sub = SubscriptionData(
       id: XraySettingSimple.simpleId,
-      name: appLocalizationsNoContext().xraySettingListPageSimple,
+      name: appLocalizationsNoContext().xrayConfigListScreenSimple,
       url: "",
       timestamp: DateTime.now(),
       count: 1,
@@ -84,7 +84,7 @@ class XraySettingListController extends Cubit<XraySettingListState> {
 
     final config = CoreConfigData(
       id: XraySettingSimple.simpleId,
-      name: appLocalizationsNoContext().xraySettingListPageSimple,
+      name: appLocalizationsNoContext().xrayConfigListScreenSimple,
       type: CoreConfigType.setting.name,
       tags: "",
       delay: PingDelayConstants.unknown,

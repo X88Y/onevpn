@@ -203,7 +203,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         icon: FontAwesomeIcons.apple,
         gradient: const LinearGradient(colors: [Color(0xFF4A4A4A), Color(0xFF2A2A2A)]),
         glowColor: Colors.grey[400]!,
-        title: AppLocalizations.of(context)!.homeFreeSubscription,
+        title: AppLocalizations.of(context)!.mainFreeSubscription,
         onTap: () => controller.signInWithApple(),
         isHighlighted: homeState.highlightSocials,
         isLoading: homeState.connectingProvider == 'apple',
@@ -215,7 +215,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         icon: FontAwesomeIcons.telegram,
         gradient: const LinearGradient(colors: [Color(0xFF1E88E5), Color(0xFF0D47A1)]),
         glowColor: const Color(0xFF2AABEE),
-        title: AppLocalizations.of(context)!.homeConnectTelegram,
+        title: AppLocalizations.of(context)!.mainConnectTelegram,
         onTap: () => controller.connectTelegram(),
         isHighlighted: homeState.highlightSocials || homeState.highlightBubbles,
         isLoading: homeState.connectingProvider == 'telegram',
@@ -227,7 +227,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         icon: FontAwesomeIcons.vk,
         gradient: const LinearGradient(colors: [Color(0xFF4C75A3), Color(0xFF2D4F7A)]),
         glowColor: const Color(0xFF4C75A3),
-        title: AppLocalizations.of(context)!.homeConnectVK,
+        title: AppLocalizations.of(context)!.mainConnectVK,
         onTap: () => controller.connectVK(),
         isHighlighted: homeState.highlightSocials || homeState.highlightBubbles,
         isLoading: homeState.connectingProvider == 'vk',
@@ -256,15 +256,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     Color textColor;
 
     if (isUpdatingSubscription) {
-      text = AppLocalizations.of(context)!.homeConnecting;
+      text = AppLocalizations.of(context)!.mainConnecting;
       textColor = const Color(0xFFFFC107);
     } else if (eventState.vpnLoading && isRunning) {
-      text = AppLocalizations.of(context)!.homeCheckingGoogleConnectivity;
+      text = AppLocalizations.of(context)!.mainCheckingGoogleConnectivity;
       textColor = const Color(0xFFFFC107);
     } else {
-      text = isRunning ? AppLocalizations.of(context)!.homeConnected : AppLocalizations.of(context)!.homeTapToConnect;
+      text = isRunning ? AppLocalizations.of(context)!.mainConnected : AppLocalizations.of(context)!.mainTapToConnect;
       if (isLoading) {
-        text = isRunning ? AppLocalizations.of(context)!.homeDisconnecting : AppLocalizations.of(context)!.homeConnecting;
+        text = isRunning ? AppLocalizations.of(context)!.mainDisconnecting : AppLocalizations.of(context)!.mainConnecting;
       }
 
       textColor = Colors.white.withOpacity(0.7);

@@ -25,7 +25,7 @@ class XraySettingListPage extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title: Text(
-                  AppLocalizations.of(context)!.xraySettingListPageTitle),
+                  AppLocalizations.of(context)!.xrayConfigListScreenTitle),
               actions: [
                 IconButton(
                   onPressed: () => controller.addXraySetting(context),
@@ -182,7 +182,7 @@ class XraySettingListPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

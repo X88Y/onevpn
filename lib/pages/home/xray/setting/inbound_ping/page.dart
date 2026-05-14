@@ -21,7 +21,7 @@ class InboundPingPage extends StatelessWidget {
           final controller = context.read<InboundPingController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.inboundPingPageTitle),
+              title: Text(AppLocalizations.of(context)!.inboundPingScreenTitle),
             ),
             body: SafeArea(child: _body(context, controller, state)),
           );
@@ -58,15 +58,15 @@ class InboundPingPage extends StatelessWidget {
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.inboundPingPageListen,
+            title: AppLocalizations.of(context)!.inboundPingScreenListen,
             detail: state.httpState.listen,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.inboundPingPagePort,
+            title: AppLocalizations.of(context)!.inboundPingScreenPort,
             detail: state.httpState.port,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.inboundPingPageProtocol,
+            title: AppLocalizations.of(context)!.inboundPingScreenProtocol,
             detail: state.httpState.protocol.name,
           ),
         ],
@@ -84,7 +84,7 @@ class InboundPingPage extends StatelessWidget {
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.inboundPingPageTag,
+            title: AppLocalizations.of(context)!.inboundPingScreenTag,
             detail: state.httpState.tag.name,
           ),
         ],

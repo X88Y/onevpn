@@ -32,12 +32,12 @@ final class ShortCutService {
     // await quickActions.setShortcutItems(<ShortcutItem>[
     //   ShortcutItem(
     //     type: _ShortCutKey.startVpn.name,
-    //     localizedTitle: appLocalizationsNoContext().menuBarStartVpn,
+    //     localizedTitle: appLocalizationsNoContext().navBarStartVpn,
     //     icon: playIcon,
     //   ),
     //   ShortcutItem(
     //     type: _ShortCutKey.stopVpn.name,
-    //     localizedTitle: appLocalizationsNoContext().menuBarStopVpn,
+    //     localizedTitle: appLocalizationsNoContext().navBarStopVpn,
     //     icon: pauseIcon,
     //   ),
     // ]);

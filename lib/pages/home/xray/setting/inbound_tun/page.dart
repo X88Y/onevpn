@@ -23,7 +23,7 @@ class InboundTunPage extends StatelessWidget {
           final controller = context.read<InboundTunController>();
           return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.inboundTunPageTitle),
+          title: Text(AppLocalizations.of(context)!.inboundTunScreenTitle),
         ),
         body: SafeArea(child: _body(context, controller, state)),
       );
@@ -61,11 +61,11 @@ class InboundTunPage extends StatelessWidget {
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.inboundTunPageListen,
+            title: AppLocalizations.of(context)!.inboundTunScreenListen,
             detail: state.tunState.listen,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.inboundTunPageProtocol,
+            title: AppLocalizations.of(context)!.inboundTunScreenProtocol,
             detail: state.tunState.protocol.name,
           ),
         ],
@@ -77,15 +77,15 @@ class InboundTunPage extends StatelessWidget {
     BuildContext context,
     InboundTunController controller, InboundTunCubitState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.inboundTunPageSettings,
+      title: AppLocalizations.of(context)!.inboundTunScreenConfigs,
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.inboundTunPageSettingsName,
+            title: AppLocalizations.of(context)!.inboundTunScreenConfigsName,
             detail: state.tunState.settings.name,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.inboundTunPageSettingsMTU,
+            title: AppLocalizations.of(context)!.inboundTunScreenConfigsMTU,
             detail: "${state.tunState.settings.mtu}",
           ),
         ],
@@ -99,7 +99,7 @@ class InboundTunPage extends StatelessWidget {
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.inboundTunPageTag,
+            title: AppLocalizations.of(context)!.inboundTunScreenTag,
             detail: state.tunState.tag.name,
           ),
         ],
@@ -117,7 +117,7 @@ class InboundTunPage extends StatelessWidget {
         children: [
           ListTile(
             onTap: () => controller.editSniffing(context),
-            title: Text(AppLocalizations.of(context)!.inboundTunPageSniffing),
+            title: Text(AppLocalizations.of(context)!.inboundTunScreenSniffing),
             trailing: const Icon(Icons.chevron_right),
           ),
         ],
@@ -131,7 +131,7 @@ class InboundTunPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

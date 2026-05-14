@@ -23,7 +23,7 @@ class OutboundXhttpPage extends StatelessWidget {
           final controller = context.read<OutboundXhttpController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.outboundXhttpPageTitle),
+              title: Text(AppLocalizations.of(context)!.outboundXhttpScreenTitle),
             ),
             body: SafeArea(child: _body(context, controller, state)),
           );
@@ -62,15 +62,15 @@ class OutboundXhttpPage extends StatelessWidget {
       final key = TextField(
         controller: header.key,
         decoration: InputDecoration(
-          label: Text(AppLocalizations.of(context)!.outboundXhttpPageHeadersKey),
-          hintText: AppLocalizations.of(context)!.outboundXhttpPageHeadersKey,
+          label: Text(AppLocalizations.of(context)!.outboundXhttpScreenHeadersKey),
+          hintText: AppLocalizations.of(context)!.outboundXhttpScreenHeadersKey,
         ),
       );
       final value = TextField(
         controller: header.value,
         decoration: InputDecoration(
-          label: Text(AppLocalizations.of(context)!.outboundXhttpPageHeadersValue),
-          hintText: AppLocalizations.of(context)!.outboundXhttpPageHeadersValue,
+          label: Text(AppLocalizations.of(context)!.outboundXhttpScreenHeadersValue),
+          hintText: AppLocalizations.of(context)!.outboundXhttpScreenHeadersValue,
         ),
       );
       headerViews.add(key);
@@ -83,7 +83,7 @@ class OutboundXhttpPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.outboundXhttpPageHeaders),
+              Text(AppLocalizations.of(context)!.outboundXhttpScreenHeaders),
               IconButton(
                 onPressed: () => controller.appendHeader(),
                 icon: const Icon(Icons.add),
@@ -115,8 +115,8 @@ class OutboundXhttpPage extends StatelessWidget {
     return TextField(
       controller: controller.xPaddingBytesController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundXhttpPageXPaddingBytes),
-        hintText: AppLocalizations.of(context)!.outboundXhttpPageXPaddingBytes,
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXPaddingBytes),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenXPaddingBytes,
       ),
     );
   }
@@ -125,7 +125,7 @@ class OutboundXhttpPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundXhttpPageNoGRPCHeader),
+        Text(AppLocalizations.of(context)!.outboundXhttpScreenNoGRPCHeader),
         Switch(
           value: state.extraState.noGRPCHeader,
           onChanged: (value) => controller.updateNoGRPCHeader(value),
@@ -138,8 +138,8 @@ class OutboundXhttpPage extends StatelessWidget {
     return TextField(
       controller: controller.scMaxEachPostBytesController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundXhttpPageScMaxEachPostBytes),
-        hintText: AppLocalizations.of(context)!.outboundXhttpPageScMaxEachPostBytes,
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenScMaxEachPostBytes),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenScMaxEachPostBytes,
       ),
     );
   }
@@ -148,15 +148,15 @@ class OutboundXhttpPage extends StatelessWidget {
     return TextField(
       controller: controller.scMinPostsIntervalMsController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundXhttpPageScMinPostsIntervalMs),
-        hintText: AppLocalizations.of(context)!.outboundXhttpPageScMinPostsIntervalMs,
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenScMinPostsIntervalMs),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenScMinPostsIntervalMs,
       ),
     );
   }
 
   Widget _xmuxSection(BuildContext context, OutboundXhttpController controller) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundXhttpPageXmux,
+      title: AppLocalizations.of(context)!.outboundXhttpScreenXmux,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -175,8 +175,8 @@ class OutboundXhttpPage extends StatelessWidget {
     return TextField(
       controller: controller.maxConcurrencyController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundXhttpPageXmuxMaxConcurrency),
-        hintText: AppLocalizations.of(context)!.outboundXhttpPageXmuxMaxConcurrency,
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXmuxMaxConcurrency),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenXmuxMaxConcurrency,
       ),
     );
   }
@@ -185,8 +185,8 @@ class OutboundXhttpPage extends StatelessWidget {
     return TextField(
       controller: controller.maxConnectionsController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundXhttpPageXmuxMaxConnections),
-        hintText: AppLocalizations.of(context)!.outboundXhttpPageXmuxMaxConnections,
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXmuxMaxConnections),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenXmuxMaxConnections,
       ),
     );
   }
@@ -195,8 +195,8 @@ class OutboundXhttpPage extends StatelessWidget {
     return TextField(
       controller: controller.cMaxReuseTimesController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundXhttpPageXmuxCMaxReuseTimes),
-        hintText: AppLocalizations.of(context)!.outboundXhttpPageXmuxCMaxReuseTimes,
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXmuxCMaxReuseTimes),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenXmuxCMaxReuseTimes,
       ),
     );
   }
@@ -205,8 +205,8 @@ class OutboundXhttpPage extends StatelessWidget {
     return TextField(
       controller: controller.hMaxReusableSecsController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundXhttpPageXmuxHMaxReusableSecs),
-        hintText: AppLocalizations.of(context)!.outboundXhttpPageXmuxHMaxReusableSecs,
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXmuxHMaxReusableSecs),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenXmuxHMaxReusableSecs,
       ),
     );
   }
@@ -215,8 +215,8 @@ class OutboundXhttpPage extends StatelessWidget {
     return TextField(
       controller: controller.hMaxRequestTimesController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundXhttpPageXmuxHMaxRequestTimes),
-        hintText: AppLocalizations.of(context)!.outboundXhttpPageXmuxHMaxRequestTimes,
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXmuxHMaxRequestTimes),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenXmuxHMaxRequestTimes,
       ),
     );
   }
@@ -225,8 +225,8 @@ class OutboundXhttpPage extends StatelessWidget {
     return TextField(
       controller: controller.hKeepAlivePeriodController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundXhttpPageXmuxHKeepAlivePeriod),
-        hintText: AppLocalizations.of(context)!.outboundXhttpPageXmuxHKeepAlivePeriod,
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXmuxHKeepAlivePeriod),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenXmuxHKeepAlivePeriod,
       ),
     );
   }
@@ -241,7 +241,7 @@ class OutboundXhttpPage extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.outboundXhttpPageDownloadSettings),
+              Text(AppLocalizations.of(context)!.outboundXhttpScreenDownloadConfigs),
               const Icon(Icons.chevron_right),
             ],
           ),
@@ -256,7 +256,7 @@ class OutboundXhttpPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

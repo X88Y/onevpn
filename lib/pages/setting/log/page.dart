@@ -14,7 +14,7 @@ class LogPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = LogController.instance;
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.logPageTitle)),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.logScreenTitle)),
       body: SafeArea(child: _body(context, controller)),
     );
   }
@@ -35,11 +35,11 @@ class LogPage extends StatelessWidget {
 
   Widget _logSection(BuildContext context, LogController controller) {
     return SectionView(
-      title: AppLocalizations.of(context)!.logPageLogFile,
+      title: AppLocalizations.of(context)!.logScreenLogFile,
       child: Column(
         children: [
           ListTile(
-            title: Text(AppLocalizations.of(context)!.logPageAccess),
+            title: Text(AppLocalizations.of(context)!.logScreenAccess),
             trailing: IconMenuPicker(
               icon: Icons.more_vert,
               menus: [
@@ -54,7 +54,7 @@ class LogPage extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: Text(AppLocalizations.of(context)!.logPageError),
+            title: Text(AppLocalizations.of(context)!.logScreenError),
             trailing: IconMenuPicker(
               icon: Icons.more_vert,
               menus: [
@@ -80,7 +80,7 @@ class LogPage extends StatelessWidget {
         children: [
           ListTile(
             onTap: () => controller.gotoXrayConfigFile(context),
-            title: Text(AppLocalizations.of(context)!.logPageXrayConfig),
+            title: Text(AppLocalizations.of(context)!.logScreenXrayConfig),
           ),
         ],
       ),

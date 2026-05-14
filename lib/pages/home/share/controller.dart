@@ -98,7 +98,7 @@ class ShareController extends Cubit<ShareState> {
         if (type == CoreConfigType.outbound) {
           emit(state.copyWith(
             showLinkSection: true,
-            linkSection: appLocalizationsNoContext().sharePageXrayLink,
+            linkSection: appLocalizationsNoContext().shareScreenXrayLink,
           ));
           await _parseXrayJson(config);
         }
@@ -115,7 +115,7 @@ class ShareController extends Cubit<ShareState> {
       if (subscription != null) {
         emit(state.copyWith(
           showLinkSection: true,
-          linkSection: appLocalizationsNoContext().sharePageSubscriptionLink,
+          linkSection: appLocalizationsNoContext().shareScreenSubscriptionLink,
         ));
         await _parseShareSubscription(subscription);
         final result = AppShareService().generateSubscriptionLink(subscription);
@@ -211,7 +211,7 @@ class ShareController extends Cubit<ShareState> {
       _showActionResult(
         context,
         result.status == ShareResultStatus.success,
-        AppLocalizations.of(context)!.sharePageShareQRCode,
+        AppLocalizations.of(context)!.shareScreenShareQRCode,
       );
     }
   }
@@ -222,7 +222,7 @@ class ShareController extends Cubit<ShareState> {
         context,
         AppLocalizations.of(
           context,
-        )!.actionResult(action, AppLocalizations.of(context)!.resultSuccess),
+        )!.appActionResult(action, AppLocalizations.of(context)!.appResultSuccess),
       );
       context.pop();
     } else {
@@ -230,7 +230,7 @@ class ShareController extends Cubit<ShareState> {
         context,
         AppLocalizations.of(
           context,
-        )!.actionResult(action, AppLocalizations.of(context)!.resultFailed),
+        )!.appActionResult(action, AppLocalizations.of(context)!.appResultFailed),
       );
     }
   }
@@ -245,7 +245,7 @@ class ShareController extends Cubit<ShareState> {
       _showActionResult(
         context,
         success,
-        AppLocalizations.of(context)!.sharePageSaveQRCode,
+        AppLocalizations.of(context)!.shareScreenSaveQRCode,
       );
     }
   }
@@ -265,7 +265,7 @@ class ShareController extends Cubit<ShareState> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(AppLocalizations.of(context)!.buttonOK),
+            child: Text(AppLocalizations.of(context)!.btnOK),
           ),
         ],
       ),
@@ -299,7 +299,7 @@ class ShareController extends Cubit<ShareState> {
       _showActionResult(
         context,
         result.status == ShareResultStatus.success,
-        AppLocalizations.of(context)!.sharePageShareLink,
+        AppLocalizations.of(context)!.shareScreenShareLink,
       );
     }
   }
@@ -318,9 +318,9 @@ class ShareController extends Cubit<ShareState> {
     if (context.mounted) {
       ContextAlert.showToast(
         context,
-        AppLocalizations.of(context)!.actionResult(
-          AppLocalizations.of(context)!.sharePageCopyLink,
-          AppLocalizations.of(context)!.resultSuccess,
+        AppLocalizations.of(context)!.appActionResult(
+          AppLocalizations.of(context)!.shareScreenCopyLink,
+          AppLocalizations.of(context)!.appResultSuccess,
         ),
       );
       context.pop();

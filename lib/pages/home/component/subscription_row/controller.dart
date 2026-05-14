@@ -44,7 +44,7 @@ class SubscriptionRowController {
         if (eventBus.state.downloading) {
           ContextAlert.showToast(
             context,
-            AppLocalizations.of(context)!.runningAndWait,
+            AppLocalizations.of(context)!.appRunningAndWait,
           );
           return;
         }
@@ -81,19 +81,19 @@ class SubscriptionRowController {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          AppLocalizations.of(ctx)!.homePageSubscriptionDeleteWarning,
+          AppLocalizations.of(ctx)!.mainScreenSubscriptionDeleteWarning,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(AppLocalizations.of(ctx)!.buttonCancel),
+            child: Text(AppLocalizations.of(ctx)!.btnCancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               _deleteSubscription(data);
             },
-            child: Text(AppLocalizations.of(ctx)!.buttonOK),
+            child: Text(AppLocalizations.of(ctx)!.btnOK),
           ),
         ],
       ),
@@ -112,18 +112,18 @@ class SubscriptionRowController {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(ctx)!.homePageSubscriptionCleanWarning),
+        title: Text(AppLocalizations.of(ctx)!.mainScreenSubscriptionCleanWarning),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(AppLocalizations.of(ctx)!.buttonCancel),
+            child: Text(AppLocalizations.of(ctx)!.btnCancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               _deleteUnreachableConfigs(data);
             },
-            child: Text(AppLocalizations.of(ctx)!.buttonOK),
+            child: Text(AppLocalizations.of(ctx)!.btnOK),
           ),
         ],
       ),

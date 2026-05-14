@@ -25,7 +25,7 @@ class DnsServerPage extends StatelessWidget {
           final controller = context.read<DnsServerController>();
           return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.dnsServerPageTitle),
+          title: Text(AppLocalizations.of(context)!.dnsServerScreenTitle),
         ),
         body: SafeArea(child: _body(context, controller, state)),
       );
@@ -75,8 +75,8 @@ class DnsServerPage extends StatelessWidget {
     return TextField(
       controller: controller.addressController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.dnsServerPageAddress),
-        hintText: AppLocalizations.of(context)!.dnsServerPageAddressExample,
+        label: Text(AppLocalizations.of(context)!.dnsServerScreenAddress),
+        hintText: AppLocalizations.of(context)!.dnsServerScreenAddressExample,
       ),
     );
   }
@@ -85,8 +85,8 @@ class DnsServerPage extends StatelessWidget {
     return TextField(
       controller: controller.portController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.dnsServerPagePort),
-        hintText: AppLocalizations.of(context)!.dnsServerPagePortExample,
+        label: Text(AppLocalizations.of(context)!.dnsServerScreenPort),
+        hintText: AppLocalizations.of(context)!.dnsServerScreenPortExample,
       ),
     );
   }
@@ -95,7 +95,7 @@ class DnsServerPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.dnsServerPageSkipFallback),
+        Text(AppLocalizations.of(context)!.dnsServerScreenSkipFallback),
         Switch(
           value: state.serverState.skipFallback,
           onChanged: (value) => controller.updateSkipFallback(value),
@@ -114,11 +114,11 @@ class DnsServerPage extends StatelessWidget {
                   controller: controller.domainsControllers[index],
                   decoration: InputDecoration(
                     label: Text(
-                      AppLocalizations.of(context)!.dnsServerPageDomain,
+                      AppLocalizations.of(context)!.dnsServerScreenDomain,
                     ),
                     hintText: AppLocalizations.of(
                       context,
-                    )!.dnsServerPageDomainExample,
+                    )!.dnsServerScreenDomainExample,
                   ),
                 ),
               ),
@@ -136,7 +136,7 @@ class DnsServerPage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(AppLocalizations.of(context)!.dnsServerPageDomains),
+              Text(AppLocalizations.of(context)!.dnsServerScreenDomains),
               const Spacer(),
               IconButton(
                 onPressed: () => controller.appendDomains(),
@@ -165,10 +165,10 @@ class DnsServerPage extends StatelessWidget {
                 child: TextField(
                   controller: controller.expectedIPsControllers[index],
                   decoration: InputDecoration(
-                    label: Text(AppLocalizations.of(context)!.dnsServerPageIp),
+                    label: Text(AppLocalizations.of(context)!.dnsServerScreenIp),
                     hintText: AppLocalizations.of(
                       context,
-                    )!.dnsServerPageIpExample,
+                    )!.dnsServerScreenIpExample,
                   ),
                 ),
               ),
@@ -186,7 +186,7 @@ class DnsServerPage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(AppLocalizations.of(context)!.dnsServerPageExpectedIPs),
+              Text(AppLocalizations.of(context)!.dnsServerScreenExpectedIPs),
               const Spacer(),
               IconButton(
                 onPressed: () => controller.appendExpectedIPs(),
@@ -215,10 +215,10 @@ class DnsServerPage extends StatelessWidget {
                 child: TextField(
                   controller: controller.unexpectedIPsControllers[index],
                   decoration: InputDecoration(
-                    label: Text(AppLocalizations.of(context)!.dnsServerPageIp),
+                    label: Text(AppLocalizations.of(context)!.dnsServerScreenIp),
                     hintText: AppLocalizations.of(
                       context,
-                    )!.dnsServerPageIpExample,
+                    )!.dnsServerScreenIpExample,
                   ),
                 ),
               ),
@@ -236,7 +236,7 @@ class DnsServerPage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(AppLocalizations.of(context)!.dnsServerPageUnexpectedIPs),
+              Text(AppLocalizations.of(context)!.dnsServerScreenUnexpectedIPs),
               const Spacer(),
               IconButton(
                 onPressed: () => controller.appendUnexpectedIPs(),
@@ -275,7 +275,7 @@ class DnsServerPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.dnsServerPageQueryStrategy),
+        Text(AppLocalizations.of(context)!.dnsServerScreenQueryStrategy),
         TextMenuPicker(
           title: state.serverState.queryStrategy.name,
           selections: DnsQueryStrategy.names,
@@ -289,8 +289,8 @@ class DnsServerPage extends StatelessWidget {
     return TextField(
       controller: controller.tagController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.dnsServerPageTag),
-        hintText: AppLocalizations.of(context)!.dnsServerPageTag,
+        label: Text(AppLocalizations.of(context)!.dnsServerScreenTag),
+        hintText: AppLocalizations.of(context)!.dnsServerScreenTag,
       ),
     );
   }
@@ -299,7 +299,7 @@ class DnsServerPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.dnsServerPageDisableCache),
+        Text(AppLocalizations.of(context)!.dnsServerScreenDisableCache),
         Switch(
           value: state.serverState.disableCache,
           onChanged: (value) => controller.updateDisableCache(value),
@@ -312,7 +312,7 @@ class DnsServerPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.dnsServerPageFinalQuery),
+        Text(AppLocalizations.of(context)!.dnsServerScreenFinalQuery),
         Switch(
           value: state.serverState.finalQuery,
           onChanged: (value) => controller.updateFinalQuery(value),
@@ -327,7 +327,7 @@ class DnsServerPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

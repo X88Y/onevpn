@@ -19,7 +19,7 @@ class AppIconPage extends StatelessWidget {
           final controller = context.read<AppIconController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.appIconPageTitle),
+              title: Text(AppLocalizations.of(context)!.appIconScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -51,7 +51,7 @@ class AppIconPage extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(AppLocalizations.of(context)!.appIconPageSelect),
+            child: Text(AppLocalizations.of(context)!.appIconScreenSelect),
           ),
           _image(state.appIcon.assetImage),
         ],
@@ -87,7 +87,7 @@ class AppIconPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

@@ -20,7 +20,7 @@ class LanguagePage extends StatelessWidget {
           final controller = context.read<LanguageController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.languagePageTitle),
+              title: Text(AppLocalizations.of(context)!.languageScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -73,7 +73,7 @@ class LanguagePage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

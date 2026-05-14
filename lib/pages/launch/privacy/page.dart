@@ -19,7 +19,7 @@ class PrivacyPage extends StatelessWidget {
           final controller = context.read<PrivacyController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.privacyPageTitle),
+              title: Text(AppLocalizations.of(context)!.privacyScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -55,7 +55,7 @@ class PrivacyPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.privacyPageAccept,
+              title: AppLocalizations.of(context)!.privacyScreenAccept,
               callback: () => controller.accept(context),
             ),
           ),

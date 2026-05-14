@@ -114,7 +114,7 @@ class PingService {
     var content = "";
     switch (delay) {
       case PingDelayConstants.timeout:
-        content = appLocalizationsNoContext().pingTimeout;
+        content = appLocalizationsNoContext().appPingTimeout;
         break;
       case PingDelayConstants.error:
         content = "error";

@@ -23,7 +23,7 @@ class DnsHostsPage extends StatelessWidget {
           final controller = context.read<DnsHostsController>();
           return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.dnsHostsPageTitle),
+          title: Text(AppLocalizations.of(context)!.dnsHostsScreenTitle),
         ),
         body: SafeArea(child: _body(context, controller, state)),
       );
@@ -59,7 +59,7 @@ class DnsHostsPage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(AppLocalizations.of(context)!.dnsHostsPageAdd),
+          Text(AppLocalizations.of(context)!.dnsHostsScreenAdd),
           IconButton(
             onPressed: () => controller.appendHostAddress(),
             icon: const Icon(Icons.add),
@@ -93,11 +93,11 @@ class DnsHostsPage extends StatelessWidget {
                   controller: address,
                   decoration: InputDecoration(
                     label: Text(
-                      AppLocalizations.of(context)!.dnsHostsPageAddress,
+                      AppLocalizations.of(context)!.dnsHostsScreenAddress,
                     ),
                     hintText: AppLocalizations.of(
                       context,
-                    )!.dnsHostsPageAddressExample,
+                    )!.dnsHostsScreenAddressExample,
                   ),
                 ),
               ),
@@ -120,10 +120,10 @@ class DnsHostsPage extends StatelessWidget {
                 child: TextField(
                   controller: host.host,
                   decoration: InputDecoration(
-                    label: Text(AppLocalizations.of(context)!.dnsHostsPageHost),
+                    label: Text(AppLocalizations.of(context)!.dnsHostsScreenHost),
                     hintText: AppLocalizations.of(
                       context,
-                    )!.dnsHostsPageHostExample,
+                    )!.dnsHostsScreenHostExample,
                   ),
                 ),
               ),
@@ -137,7 +137,7 @@ class DnsHostsPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.dnsHostsPageAddress),
+              Text(AppLocalizations.of(context)!.dnsHostsScreenAddress),
               IconButton(
                 onPressed: () => controller.appendAddress(context, hostIndex),
                 icon: const Icon(Icons.add),
@@ -156,7 +156,7 @@ class DnsHostsPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

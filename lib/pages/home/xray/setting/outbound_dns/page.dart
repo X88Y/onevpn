@@ -25,7 +25,7 @@ class OutboundDnsPage extends StatelessWidget {
           final controller = context.read<OutboundDnsController>();
           return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.outboundDnsPageTitle),
+          title: Text(AppLocalizations.of(context)!.outboundDnsScreenTitle),
         ),
         body: SafeArea(child: _body(context, controller, state)),
       );
@@ -64,11 +64,11 @@ class OutboundDnsPage extends StatelessWidget {
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.outboundDnsPageProtocol,
+            title: AppLocalizations.of(context)!.outboundDnsScreenProtocol,
             detail: state.dnsState.protocol.name,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.outboundDnsPageTag,
+            title: AppLocalizations.of(context)!.outboundDnsScreenTag,
             detail: state.dnsState.tag.name,
           ),
         ],
@@ -80,7 +80,7 @@ class OutboundDnsPage extends StatelessWidget {
     BuildContext context,
     OutboundDnsController controller, OutboundDnsCubitState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundDnsPageSettings,
+      title: AppLocalizations.of(context)!.outboundDnsScreenConfigs,
       child: Column(
         children: [
           _network(context, controller, state),
@@ -96,7 +96,7 @@ class OutboundDnsPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundDnsPageNetwork),
+        Text(AppLocalizations.of(context)!.outboundDnsScreenNetwork),
         TextMenuPicker(
           title: state.dnsState.network.name,
           selections: DnsNetwork.names,
@@ -110,8 +110,8 @@ class OutboundDnsPage extends StatelessWidget {
     return TextField(
       controller: controller.addressController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundDnsPageAddress),
-        hintText: AppLocalizations.of(context)!.outboundDnsPageAddress,
+        label: Text(AppLocalizations.of(context)!.outboundDnsScreenAddress),
+        hintText: AppLocalizations.of(context)!.outboundDnsScreenAddress,
       ),
     );
   }
@@ -120,8 +120,8 @@ class OutboundDnsPage extends StatelessWidget {
     return TextField(
       controller: controller.portController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundDnsPagePort),
-        hintText: AppLocalizations.of(context)!.outboundDnsPagePort,
+        label: Text(AppLocalizations.of(context)!.outboundDnsScreenPort),
+        hintText: AppLocalizations.of(context)!.outboundDnsScreenPort,
       ),
     );
   }
@@ -130,7 +130,7 @@ class OutboundDnsPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundDnsPageNonIPQuery),
+        Text(AppLocalizations.of(context)!.outboundDnsScreenNonIPQuery),
         TextMenuPicker(
           title: state.dnsState.nonIPQuery.name,
           selections: DnsNonIPQuery.names,
@@ -144,7 +144,7 @@ class OutboundDnsPage extends StatelessWidget {
     BuildContext context,
     OutboundDnsController controller, OutboundDnsCubitState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundDnsPageSockopt,
+      title: AppLocalizations.of(context)!.outboundDnsScreenSockopt,
       child: _sockopt(context, controller, state),
     );
   }
@@ -153,7 +153,7 @@ class OutboundDnsPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundDnsPageDialerProxy),
+        Text(AppLocalizations.of(context)!.outboundDnsScreenDialerProxy),
         TextMenuPicker(
           title: state.dnsState.dialerProxy,
           selections: state.outboundTags,
@@ -169,7 +169,7 @@ class OutboundDnsPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

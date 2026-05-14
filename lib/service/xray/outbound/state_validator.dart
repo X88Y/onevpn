@@ -13,7 +13,7 @@ import 'package:tuple/tuple.dart';
 extension OutboundStateValidator on OutboundState {
   Future<Tuple2<bool, String>> validate() async {
     if (!EmptyTool.checkString(name)) {
-      return Tuple2(false, appLocalizationsNoContext().validationNameRequired);
+      return Tuple2(false, appLocalizationsNoContext().appValidationNameRequired);
     }
     final xrayJson = XrayJsonStandard.standard;
 

@@ -21,7 +21,7 @@ class PingPage extends StatelessWidget {
           final controller = context.read<PingController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.pingPageTitle),
+              title: Text(AppLocalizations.of(context)!.pingScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -80,7 +80,7 @@ class PingPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.pingPageTimeout),
+        Text(AppLocalizations.of(context)!.pingScreenTimeout),
         Expanded(
           child: Slider(
             min: PingTimeout.min,
@@ -103,7 +103,7 @@ class PingPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.pingPageConcurrency),
+        Text(AppLocalizations.of(context)!.pingScreenConcurrency),
         Expanded(
           child: Slider(
             min: PingConcurrency.min,
@@ -126,7 +126,7 @@ class PingPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.pingPageUrl),
+        Text(AppLocalizations.of(context)!.pingScreenUrl),
         TextMenuPicker(
           title: state.pingState.url.name,
           selections: PingUrl.names,
@@ -147,8 +147,8 @@ class PingPage extends StatelessWidget {
     return TextField(
       controller: controller.customUrlController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.pingPageUrl),
-        hintText: AppLocalizations.of(context)!.pingPageUrl,
+        label: Text(AppLocalizations.of(context)!.pingScreenUrl),
+        hintText: AppLocalizations.of(context)!.pingScreenUrl,
       ),
     );
   }
@@ -159,7 +159,7 @@ class PingPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

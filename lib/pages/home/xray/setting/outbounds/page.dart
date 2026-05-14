@@ -22,7 +22,7 @@ class OutboundsPage extends StatelessWidget {
           final controller = context.read<OutboundsController>();
           return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.outboundsPageTitle),
+          title: Text(AppLocalizations.of(context)!.outboundsScreenTitle),
         ),
         body: SafeArea(child: _body(context, controller)),
       );
@@ -49,31 +49,31 @@ class OutboundsPage extends StatelessWidget {
 
   Widget _editSection(BuildContext context, OutboundsController controller) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundsPageSystem,
+      title: AppLocalizations.of(context)!.outboundsScreenSystem,
       child: Column(
         children: [
           ListTile(
             onTap: () => controller.editFreedom(context),
-            title: Text(AppLocalizations.of(context)!.outboundFreedomPageTitle),
+            title: Text(AppLocalizations.of(context)!.outboundFreedomScreenTitle),
             trailing: const Icon(Icons.chevron_right),
           ),
           ListTile(
             onTap: () => controller.editFragment(context),
             title: Text(
-              AppLocalizations.of(context)!.outboundFragmentPageTitle,
+              AppLocalizations.of(context)!.outboundFragmentScreenTitle,
             ),
             trailing: const Icon(Icons.chevron_right),
           ),
           ListTile(
             onTap: () => controller.editBlackHole(context),
             title: Text(
-              AppLocalizations.of(context)!.outboundBlackHolePageTitle,
+              AppLocalizations.of(context)!.outboundBlackHoleScreenTitle,
             ),
             trailing: const Icon(Icons.chevron_right),
           ),
           ListTile(
             onTap: () => controller.editDns(context),
-            title: Text(AppLocalizations.of(context)!.outboundDnsPageTitle),
+            title: Text(AppLocalizations.of(context)!.outboundDnsScreenTitle),
             trailing: const Icon(Icons.chevron_right),
           ),
         ],
@@ -87,7 +87,7 @@ class OutboundsPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

@@ -37,7 +37,7 @@ class _XrayRawPageState extends State<XrayRawPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.outboundPageTitle),
+        title: Text(AppLocalizations.of(context)!.outboundScreenTitle),
       ),
       body: SafeArea(child: _body(context)),
     );
@@ -73,7 +73,7 @@ class _XrayRawPageState extends State<XrayRawPage> {
           ),
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),
@@ -89,7 +89,7 @@ class _XrayRawPageState extends State<XrayRawPage> {
     } else {
       return Expanded(
         child: SecondaryBottomButton(
-          title: AppLocalizations.of(context)!.outboundPageRealPing,
+          title: AppLocalizations.of(context)!.outboundScreenRealPing,
           callback: () => controller.realPing(context),
         ),
       );

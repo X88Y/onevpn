@@ -56,7 +56,7 @@ class _MenuMainScaffoldState extends State<MenuMainScaffold> {
         menus: <PlatformMenuItem>[
           _appMenu,
           PlatformMenu(
-            label: AppLocalizations.of(context)!.menuBarView,
+            label: AppLocalizations.of(context)!.navBarView,
             menus: <PlatformMenuItem>[
               const PlatformProvidedMenuItem(
                 type: PlatformProvidedMenuItemType.toggleFullScreen,
@@ -64,7 +64,7 @@ class _MenuMainScaffoldState extends State<MenuMainScaffold> {
             ],
           ),
           PlatformMenu(
-            label: AppLocalizations.of(context)!.menuBarWindow,
+            label: AppLocalizations.of(context)!.navBarWindow,
             menus: <PlatformMenuItem>[
               const PlatformProvidedMenuItem(
                 type: PlatformProvidedMenuItemType.minimizeWindow,
@@ -89,10 +89,10 @@ class _MenuMainScaffoldState extends State<MenuMainScaffold> {
         menus: <PlatformMenuItem>[
           _appMenu,
           PlatformMenu(
-            label: AppLocalizations.of(context)!.menuBarWindow,
+            label: AppLocalizations.of(context)!.navBarWindow,
             menus: <PlatformMenuItem>[
               PlatformMenuItem(
-                label: AppLocalizations.of(context)!.menuBarShowWindow,
+                label: AppLocalizations.of(context)!.navBarShowWindow,
                 onSelected: () => controller.showWindow(),
               ),
             ],

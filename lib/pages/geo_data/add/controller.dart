@@ -54,7 +54,7 @@ class GeoDatAddController extends Cubit<GeoDatAddState> {
         } else {
           ContextAlert.showToast(
             context,
-            AppLocalizations.of(context)!.buttonAddFailed,
+            AppLocalizations.of(context)!.btnAddFailed,
           );
         }
       }

@@ -17,11 +17,11 @@ class XrayRawValidator {
     try {
       jsonMap = JsonTool.decoder.convert(rawText);
     } catch (_) {
-      return Tuple2(false, appLocalizationsNoContext().validationJsonInvalid);
+      return Tuple2(false, appLocalizationsNoContext().appValidationJsonInvalid);
     }
     final xrayJson = XrayJson.fromJson(jsonMap);
     if (!EmptyTool.checkString(xrayJson.name)) {
-      return Tuple2(false, appLocalizationsNoContext().validationNameRequired);
+      return Tuple2(false, appLocalizationsNoContext().appValidationNameRequired);
     }
 
     final check = _validateInbounds(xrayJson);
@@ -39,11 +39,11 @@ class XrayRawValidator {
 
   static Tuple2<bool, String> _validateInbounds(XrayJson xrayJson) {
     if (xrayJson.inbounds == null) {
-      return Tuple2(false, appLocalizationsNoContext().validationNoInbounds);
+      return Tuple2(false, appLocalizationsNoContext().appValidationNoInbounds);
     }
     final inbounds = xrayJson.inbounds!;
     if (inbounds.isEmpty) {
-      return Tuple2(false, appLocalizationsNoContext().validationNoInbounds);
+      return Tuple2(false, appLocalizationsNoContext().appValidationNoInbounds);
     }
     final tunInbound = inbounds.firstWhereOrNull((e) {
       if (e.tag == RoutingInboundTag.tunIn.name &&
@@ -56,7 +56,7 @@ class XrayRawValidator {
     if (tunInbound == null) {
       return Tuple2(
         false,
-        appLocalizationsNoContext().validationNoTunInInbound,
+        appLocalizationsNoContext().appValidationNoTunInInbound,
       );
     }
 

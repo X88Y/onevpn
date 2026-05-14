@@ -64,9 +64,9 @@ class LongTextController extends Cubit<LongTextState> {
         if (context.mounted) {
           ContextAlert.showToast(
             context,
-            AppLocalizations.of(context)!.actionResult(
-              AppLocalizations.of(context)!.longTextPageShare,
-              AppLocalizations.of(context)!.resultSuccess,
+            AppLocalizations.of(context)!.appActionResult(
+              AppLocalizations.of(context)!.longTextScreenShare,
+              AppLocalizations.of(context)!.appResultSuccess,
             ),
           );
         }
@@ -74,9 +74,9 @@ class LongTextController extends Cubit<LongTextState> {
         if (context.mounted) {
           ContextAlert.showToast(
             context,
-            AppLocalizations.of(context)!.actionResult(
-              AppLocalizations.of(context)!.longTextPageShare,
-              AppLocalizations.of(context)!.resultFailed,
+            AppLocalizations.of(context)!.appActionResult(
+              AppLocalizations.of(context)!.longTextScreenShare,
+              AppLocalizations.of(context)!.appResultFailed,
             ),
           );
         }
@@ -85,7 +85,7 @@ class LongTextController extends Cubit<LongTextState> {
       if (context.mounted) {
         ContextAlert.showToast(
           context,
-          AppLocalizations.of(context)!.longTextPageFileNotExist,
+          AppLocalizations.of(context)!.longTextScreenFileNotExist,
         );
       }
     }

@@ -23,7 +23,7 @@ class HomeOutboundState {
   });
 
   factory HomeOutboundState.initial() => HomeOutboundState(
-        xraySettingName: appLocalizationsNoContext().settingNotSet,
+        xraySettingName: appLocalizationsNoContext().configNotSet,
         configs: const [],
       );
 
@@ -69,7 +69,7 @@ class HomeOutboundController extends Cubit<HomeOutboundState> {
     switch (id) {
       case DBConstants.defaultId:
         emit(state.copyWith(
-          xraySettingName: appLocalizationsNoContext().settingNotSet,
+          xraySettingName: appLocalizationsNoContext().configNotSet,
         ));
         break;
       case XraySettingSimple.simpleId:
@@ -82,7 +82,7 @@ class HomeOutboundController extends Cubit<HomeOutboundState> {
           emit(state.copyWith(xraySettingName: xraySettingData.name));
         } else {
           emit(state.copyWith(
-            xraySettingName: appLocalizationsNoContext().settingNotSet,
+            xraySettingName: appLocalizationsNoContext().configNotSet,
           ));
         }
         break;

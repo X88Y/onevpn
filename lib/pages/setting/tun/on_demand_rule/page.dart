@@ -25,7 +25,7 @@ class OnDemandRulePage extends StatelessWidget {
           final controller = context.read<OnDemandRuleController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.onDemandRulePageTitle),
+              title: Text(AppLocalizations.of(context)!.onDemandRuleScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -85,7 +85,7 @@ class OnDemandRulePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.onDemandRulePageMode),
+        Text(AppLocalizations.of(context)!.onDemandRuleScreenMode),
         TextMenuPicker(
           title: state.ruleState.mode.name,
           selections: OnDemandRuleMode.names,
@@ -103,7 +103,7 @@ class OnDemandRulePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.onDemandRulePageInterfaceType),
+        Text(AppLocalizations.of(context)!.onDemandRuleScreenInterfaceType),
         TextMenuPicker(
           title: state.ruleState.interfaceType.name,
           selections: OnDemandRuleInterfaceType.names,
@@ -127,11 +127,11 @@ class OnDemandRulePage extends StatelessWidget {
                   controller: controller.ssidControllers[index],
                   decoration: InputDecoration(
                     label: Text(
-                      AppLocalizations.of(context)!.onDemandRulePageSSID,
+                      AppLocalizations.of(context)!.onDemandRuleScreenSSID,
                     ),
                     hintText: AppLocalizations.of(
                       context,
-                    )!.onDemandRulePageSSID,
+                    )!.onDemandRuleScreenSSID,
                   ),
                 ),
               ),
@@ -149,7 +149,7 @@ class OnDemandRulePage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(AppLocalizations.of(context)!.onDemandRulePageSSID),
+              Text(AppLocalizations.of(context)!.onDemandRuleScreenSSID),
               const Spacer(),
               IconButton(
                 onPressed: () => controller.appendSsid(),
@@ -172,7 +172,7 @@ class OnDemandRulePage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

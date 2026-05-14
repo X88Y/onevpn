@@ -29,15 +29,15 @@ enum SubUpdateInterval {
   String toString() {
     switch (this) {
       case SubUpdateInterval.sixHours:
-        return appLocalizationsNoContext().subUpdatePageInterval6Hours;
+        return appLocalizationsNoContext().subUpdateScreenInterval6Hours;
       case SubUpdateInterval.twelveHours:
-        return appLocalizationsNoContext().subUpdatePageInterval12Hours;
+        return appLocalizationsNoContext().subUpdateScreenInterval12Hours;
       case SubUpdateInterval.oneDay:
-        return appLocalizationsNoContext().subUpdatePageIntervalOneDay;
+        return appLocalizationsNoContext().subUpdateScreenIntervalOneDay;
       case SubUpdateInterval.threeDays:
-        return appLocalizationsNoContext().subUpdatePageIntervalThreeDays;
+        return appLocalizationsNoContext().subUpdateScreenIntervalThreeDays;
       case SubUpdateInterval.oneWeek:
-        return appLocalizationsNoContext().subUpdatePageIntervalOneWeek;
+        return appLocalizationsNoContext().subUpdateScreenIntervalOneWeek;
     }
   }
 }

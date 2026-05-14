@@ -18,11 +18,11 @@ enum ThemeCode {
   String toString() {
     switch (this) {
       case ThemeCode.system:
-        return appLocalizationsNoContext().themePageSystem;
+        return appLocalizationsNoContext().themeScreenSystem;
       case ThemeCode.light:
-        return appLocalizationsNoContext().themePageLight;
+        return appLocalizationsNoContext().themeScreenLight;
       case ThemeCode.dark:
-        return appLocalizationsNoContext().themePageDark;
+        return appLocalizationsNoContext().themeScreenDark;
     }
   }
 
@@ -66,15 +66,15 @@ enum LanguageCode {
   String toString() {
     switch (this) {
       case LanguageCode.system:
-        return appLocalizationsNoContext().languagePageSystem;
+        return appLocalizationsNoContext().languageScreenSystem;
       case LanguageCode.en:
-        return appLocalizationsNoContext().languagePageEnglish;
+        return appLocalizationsNoContext().languageScreenEnglish;
       case LanguageCode.ru:
-        return appLocalizationsNoContext().languagePageRussian;
+        return appLocalizationsNoContext().languageScreenRussian;
       case LanguageCode.fa:
-        return appLocalizationsNoContext().languagePagePersian;
+        return appLocalizationsNoContext().languageScreenPersian;
       case LanguageCode.zh:
-        return appLocalizationsNoContext().languagePageChinese;
+        return appLocalizationsNoContext().languageScreenChinese;
     }
   }
 

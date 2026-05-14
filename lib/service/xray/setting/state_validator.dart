@@ -9,7 +9,7 @@ import 'package:tuple/tuple.dart';
 extension XraySettingStateValidator on XraySettingState {
   Future<Tuple2<bool, String>> validate() async {
     if (!EmptyTool.checkString(name)) {
-      return Tuple2(false, appLocalizationsNoContext().validationNameRequired);
+      return Tuple2(false, appLocalizationsNoContext().appValidationNameRequired);
     }
     final xrayJson = this.xrayJson;
     removeTunInbound(xrayJson);

@@ -10,14 +10,14 @@ class ContextAlert {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        content: Text(AppLocalizations.of(context)!.homePageOpenSettings),
+        content: Text(AppLocalizations.of(context)!.mainScreenOpenConfigs),
         actions: <Widget>[
           TextButton(
-            child: Text(AppLocalizations.of(context)!.buttonCancel),
+            child: Text(AppLocalizations.of(context)!.btnCancel),
             onPressed: () => Navigator.pop(ctx),
           ),
           TextButton(
-            child: Text(AppLocalizations.of(context)!.buttonOK),
+            child: Text(AppLocalizations.of(context)!.btnOK),
             onPressed: () {
               Navigator.pop(ctx);
             },
@@ -35,12 +35,12 @@ class ContextAlert {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.outboundPageRealPingResult),
+        title: Text(AppLocalizations.of(context)!.outboundScreenRealPingResult),
         content: Text(content),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(AppLocalizations.of(context)!.buttonOK),
+            child: Text(AppLocalizations.of(context)!.btnOK),
           ),
         ],
       ),

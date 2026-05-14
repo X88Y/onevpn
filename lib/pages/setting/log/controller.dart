@@ -51,7 +51,7 @@ class LogController {
 
   void gotoXrayConfigFile(BuildContext context) {
     final params = LongTextParams(
-      AppLocalizations.of(context)!.logPageXrayConfig,
+      AppLocalizations.of(context)!.logScreenXrayConfig,
       XrayStateConstants.configFilePath,
     );
     context.push(RouterPath.longText, extra: params);

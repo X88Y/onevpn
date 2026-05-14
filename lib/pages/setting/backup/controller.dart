@@ -69,7 +69,7 @@ class BackupController extends Cubit<BackupState> {
       _showActionResult(
         context,
         success,
-        AppLocalizations.of(context)!.backupPageImport,
+        AppLocalizations.of(context)!.backupScreenImport,
       );
     }
     await _readFiles();
@@ -117,7 +117,7 @@ class BackupController extends Cubit<BackupState> {
       _showActionResult(
         context,
         result.status == ShareResultStatus.success,
-        AppLocalizations.of(context)!.menuShare,
+        AppLocalizations.of(context)!.navShare,
       );
     }
   }
@@ -128,14 +128,14 @@ class BackupController extends Cubit<BackupState> {
         context,
         AppLocalizations.of(
           context,
-        )!.actionResult(action, AppLocalizations.of(context)!.resultSuccess),
+        )!.appActionResult(action, AppLocalizations.of(context)!.appResultSuccess),
       );
     } else {
       ContextAlert.showToast(
         context,
         AppLocalizations.of(
           context,
-        )!.actionResult(action, AppLocalizations.of(context)!.resultFailed),
+        )!.appActionResult(action, AppLocalizations.of(context)!.appResultFailed),
       );
     }
   }
@@ -146,7 +146,7 @@ class BackupController extends Cubit<BackupState> {
       _showActionResult(
         context,
         success,
-        AppLocalizations.of(context)!.menuSave,
+        AppLocalizations.of(context)!.navSave,
       );
     }
   }
@@ -165,14 +165,14 @@ class BackupController extends Cubit<BackupState> {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        content: Text(AppLocalizations.of(context)!.backupPageRestoreTips),
+        content: Text(AppLocalizations.of(context)!.backupScreenRestoreTips),
         actions: <Widget>[
           TextButton(
-            child: Text(AppLocalizations.of(context)!.buttonCancel),
+            child: Text(AppLocalizations.of(context)!.btnCancel),
             onPressed: () => Navigator.pop(ctx),
           ),
           TextButton(
-            child: Text(AppLocalizations.of(context)!.buttonOK),
+            child: Text(AppLocalizations.of(context)!.btnOK),
             onPressed: () {
               Navigator.pop(ctx);
               _restore(context);
@@ -196,7 +196,7 @@ class BackupController extends Cubit<BackupState> {
       _showActionResult(
         context,
         success,
-        AppLocalizations.of(context)!.backupPageRestore,
+        AppLocalizations.of(context)!.backupScreenRestore,
       );
     }
   }

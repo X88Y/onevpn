@@ -26,7 +26,7 @@ class TunSettingUIPage extends StatelessWidget {
           final controller = context.read<TunSettingUIController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.tunSettingUIPageTitle),
+              title: Text(AppLocalizations.of(context)!.tunConfigUIScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -155,7 +155,7 @@ class TunSettingUIPage extends StatelessWidget {
         children: [
           if (AppPlatform.isLinux || AppPlatform.isWindows)
             TextRow(
-              title: AppLocalizations.of(context)!.tunSettingUIPageTunName,
+              title: AppLocalizations.of(context)!.tunConfigUIScreenTunName,
               detail: state.tunSettingState.tunName,
             ),
           if (AppPlatform.isLinux) _tunPriority(context, controller),
@@ -176,8 +176,8 @@ class TunSettingUIPage extends StatelessWidget {
     return TextField(
       controller: controller.tunPriorityController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.tunSettingUIPageTunPriority),
-        hintText: AppLocalizations.of(context)!.tunSettingUIPageTunPriority,
+        label: Text(AppLocalizations.of(context)!.tunConfigUIScreenTunPriority),
+        hintText: AppLocalizations.of(context)!.tunConfigUIScreenTunPriority,
       ),
     );
   }
@@ -186,10 +186,10 @@ class TunSettingUIPage extends StatelessWidget {
     return TextField(
       controller: controller.tunDnsIPv4Controller,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.tunSettingUIPageTunDnsIPv4),
+        label: Text(AppLocalizations.of(context)!.tunConfigUIScreenTunDnsIPv4),
         hintText: AppLocalizations.of(
           context,
-        )!.tunSettingUIPageTunDnsIPv4Example,
+        )!.tunConfigUIScreenTunDnsIPv4Example,
       ),
     );
   }
@@ -198,10 +198,10 @@ class TunSettingUIPage extends StatelessWidget {
     return TextField(
       controller: controller.tunDnsIPv6Controller,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.tunSettingUIPageTunDnsIPv6),
+        label: Text(AppLocalizations.of(context)!.tunConfigUIScreenTunDnsIPv6),
         hintText: AppLocalizations.of(
           context,
-        )!.tunSettingUIPageTunDnsIPv6Example,
+        )!.tunConfigUIScreenTunDnsIPv6Example,
       ),
     );
   }
@@ -214,7 +214,7 @@ class TunSettingUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.tunSettingUIPageTunDnsEnableDot),
+        Text(AppLocalizations.of(context)!.tunConfigUIScreenTunDnsEnableDot),
         Switch(
           value: state.tunSettingState.enableDot,
           onChanged: (value) => controller.updateEnableDot(value),
@@ -231,11 +231,11 @@ class TunSettingUIPage extends StatelessWidget {
       controller: controller.tunDnsServerNameController,
       decoration: InputDecoration(
         label: Text(
-          AppLocalizations.of(context)!.tunSettingUIPageTunDnsServerName,
+          AppLocalizations.of(context)!.tunConfigUIScreenTunDnsServerName,
         ),
         hintText: AppLocalizations.of(
           context,
-        )!.tunSettingUIPageTunDnsServerNameExample,
+        )!.tunConfigUIScreenTunDnsServerNameExample,
       ),
     );
   }
@@ -248,7 +248,7 @@ class TunSettingUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.tunSettingUIPageEnableIPv6),
+        Text(AppLocalizations.of(context)!.tunConfigUIScreenEnableIPv6),
         Switch(
           value: state.tunSettingState.enableIPv6,
           onChanged: (value) => controller.updateEnableIPv6(value),
@@ -276,7 +276,7 @@ class TunSettingUIPage extends StatelessWidget {
     return InkWell(
       onTap: () => controller.editInterface(context),
       child: TextRow(
-        title: AppLocalizations.of(context)!.tunSettingUIPageInterface,
+        title: AppLocalizations.of(context)!.tunConfigUIScreenInterface,
         detail: state.tunSettingState.bindInterface,
       ),
     );
@@ -307,7 +307,7 @@ class TunSettingUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.tunSettingUIPageOnDemandEnabled),
+        Text(AppLocalizations.of(context)!.tunConfigUIScreenOnDemandEnabled),
         Switch(
           value: state.tunSettingState.onDemandEnabled,
           onChanged: (value) => controller.updateOnDemandEnabled(value),
@@ -327,13 +327,13 @@ class TunSettingUIPage extends StatelessWidget {
         )
         .toList();
     return SectionView(
-      title: AppLocalizations.of(context)!.helpOrder,
+      title: AppLocalizations.of(context)!.appHelpOrder,
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.tunSettingUIPageOnDemandRules),
+              Text(AppLocalizations.of(context)!.tunConfigUIScreenOnDemandRules),
               IconButton(
                 onPressed: () => controller.appendOnDemandRule(),
                 icon: const Icon(Icons.add),
@@ -400,7 +400,7 @@ class TunSettingUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.tunSettingUIPagePerAppVPNMode),
+        Text(AppLocalizations.of(context)!.tunConfigUIScreenPerAppVPNMode),
         TextMenuPicker(
           title: state.tunSettingState.perAppVPNMode.name,
           selections: PerAppVPNMode.names,
@@ -426,12 +426,12 @@ class TunSettingUIPage extends StatelessWidget {
     }
     return ListTile(
       onTap: () => controller.editAppList(context),
-      title: Text(AppLocalizations.of(context)!.tunSettingUIPagePerAppVPN),
+      title: Text(AppLocalizations.of(context)!.tunConfigUIScreenPerAppVPN),
       subtitle: Text(
-        AppLocalizations.of(context)!.tunSettingUIPagePerAppVPNHelp,
+        AppLocalizations.of(context)!.tunConfigUIScreenPerAppVPNHelp,
       ),
       trailing: Text(
-        AppLocalizations.of(context)!.tunSettingUIPagePerAppVPNCount("$length"),
+        AppLocalizations.of(context)!.tunConfigUIScreenPerAppVPNCount("$length"),
       ),
     );
   }
@@ -445,7 +445,7 @@ class TunSettingUIPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

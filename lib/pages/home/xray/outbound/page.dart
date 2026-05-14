@@ -29,7 +29,7 @@ class OutboundUIPage extends StatelessWidget {
           final controller = context.read<OutboundUIController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.outboundPageTitle),
+              title: Text(AppLocalizations.of(context)!.outboundScreenTitle),
               actions: [
                 IconButton(
                   onPressed: () => controller.gotoRawEdit(context),
@@ -82,8 +82,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.nameController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageName),
-        hintText: AppLocalizations.of(context)!.outboundUIPageName,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenName),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenName,
       ),
     );
   }
@@ -100,7 +100,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageProtocol),
+        Text(AppLocalizations.of(context)!.outboundUIScreenProtocol),
         TextMenuPicker(
           title: state.outboundState.protocol.name,
           selections: XrayOutboundProtocol.outbounds,
@@ -137,8 +137,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.addressController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageAddress),
-        hintText: AppLocalizations.of(context)!.outboundUIPageAddressExample,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenAddress),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenAddressExample,
       ),
     );
   }
@@ -147,15 +147,15 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.portController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPagePort),
-        hintText: AppLocalizations.of(context)!.outboundUIPagePortExample,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenPort),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenPortExample,
       ),
     );
   }
 
   Widget _vlessSection(BuildContext context, OutboundUIController controller) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageVLESS,
+      title: AppLocalizations.of(context)!.outboundUIScreenVLESS,
       child: Column(
         children: [
           _address(context, controller),
@@ -173,8 +173,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.vlessIdController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageId),
-        hintText: AppLocalizations.of(context)!.outboundUIPageIdExample,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenId),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenIdExample,
       ),
     );
   }
@@ -186,8 +186,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.vlessEncryptionController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageEncryption),
-        hintText: AppLocalizations.of(context)!.outboundUIPageEncryption,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenEncryption),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenEncryption,
       ),
     );
   }
@@ -197,7 +197,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageFlow),
+        Text(AppLocalizations.of(context)!.outboundUIScreenFlow),
         TextMenuPicker(
           title: state.outboundState.vlessFlow.name,
           selections: VLESSFlow.values,
@@ -210,7 +210,7 @@ class OutboundUIPage extends StatelessWidget {
   Widget _vlessReverse(BuildContext context, OutboundUIController controller) {
     return SectionView(
       level: SectionLevel.second,
-      title: AppLocalizations.of(context)!.outboundUIPageReverse,
+      title: AppLocalizations.of(context)!.outboundUIScreenReverse,
       child: _vlessReverseTag(context, controller),
     );
   }
@@ -222,15 +222,15 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.vlessReverseTagController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageTag),
-        hintText: AppLocalizations.of(context)!.outboundUIPageTag,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenTag),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenTag,
       ),
     );
   }
 
   Widget _vmessSection(BuildContext context, OutboundUIController controller, OutboundUIState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageVMess,
+      title: AppLocalizations.of(context)!.outboundUIScreenVMess,
       child: Column(
         children: [
           _address(context, controller),
@@ -246,8 +246,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.vmessIdController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageId),
-        hintText: AppLocalizations.of(context)!.outboundUIPageIdExample,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenId),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenIdExample,
       ),
     );
   }
@@ -256,7 +256,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageVmessSecurity),
+        Text(AppLocalizations.of(context)!.outboundUIScreenVmessSecurity),
         TextMenuPicker(
           title: state.outboundState.vmessSecurity.name,
           selections: VMessSecurity.values,
@@ -272,7 +272,7 @@ class OutboundUIPage extends StatelessWidget {
     OutboundUIState state,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageVMess,
+      title: AppLocalizations.of(context)!.outboundUIScreenVMess,
       child: Column(
         children: [
           _address(context, controller),
@@ -294,7 +294,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageMethod),
+        Text(AppLocalizations.of(context)!.outboundUIScreenMethod),
         TextMenuPicker(
           title: state.outboundState.shadowsocksMethod.name,
           selections: ShadowsocksMethod.values,
@@ -311,8 +311,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.shadowsocksPasswordController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPagePassword),
-        hintText: AppLocalizations.of(context)!.outboundUIPagePassword,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenPassword),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenPassword,
       ),
     );
   }
@@ -325,7 +325,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageUot),
+        Text(AppLocalizations.of(context)!.outboundUIScreenUot),
         Switch(
           value: state.outboundState.shadowsocksUot,
           onChanged: (value) => controller.updateShadowsocksUot(value),
@@ -342,7 +342,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageUoTVersion),
+        Text(AppLocalizations.of(context)!.outboundUIScreenUoTVersion),
         TextMenuPicker(
           title: state.outboundState.shadowsocksUotVersion.name,
           selections: ShadowsocksUoTVersion.values,
@@ -354,7 +354,7 @@ class OutboundUIPage extends StatelessWidget {
 
   Widget _trojanSection(BuildContext context, OutboundUIController controller) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageTrojan,
+      title: AppLocalizations.of(context)!.outboundUIScreenTrojan,
       child: Column(
         children: [
           _address(context, controller),
@@ -372,15 +372,15 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.trojanPasswordController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPagePassword),
-        hintText: AppLocalizations.of(context)!.outboundUIPagePassword,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenPassword),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenPassword,
       ),
     );
   }
 
   Widget _socksSection(BuildContext context, OutboundUIController controller) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageSocks,
+      title: AppLocalizations.of(context)!.outboundUIScreenSocks,
       child: Column(
         children: [
           _address(context, controller),
@@ -396,8 +396,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.socksUserController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageUser),
-        hintText: AppLocalizations.of(context)!.outboundUIPageUser,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenUser),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenUser,
       ),
     );
   }
@@ -406,8 +406,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.socksPassController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPagePass),
-        hintText: AppLocalizations.of(context)!.outboundUIPagePass,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenPass),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenPass,
       ),
     );
   }
@@ -418,7 +418,7 @@ class OutboundUIPage extends StatelessWidget {
     OutboundUIState state,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageHysteria,
+      title: AppLocalizations.of(context)!.outboundUIScreenHysteria,
       child: Column(
         children: [
           _hysteriaVersion(context, controller, state),
@@ -435,7 +435,7 @@ class OutboundUIPage extends StatelessWidget {
 
   Widget _tag(BuildContext context, OutboundUIController controller, OutboundUIState state) {
     return TextRow(
-      title: AppLocalizations.of(context)!.outboundUIPageTag,
+      title: AppLocalizations.of(context)!.outboundUIScreenTag,
       detail: state.outboundState.tag,
     );
   }
@@ -458,7 +458,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageNetwork),
+        Text(AppLocalizations.of(context)!.outboundUIScreenNetwork),
         TextMenuPicker(
           title: state.outboundState.network.name,
           selections: StreamSettingsNetwork.values,
@@ -493,7 +493,7 @@ class OutboundUIPage extends StatelessWidget {
 
   Widget _rawSection(BuildContext context, OutboundUIController controller, OutboundUIState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageRawSettings,
+      title: AppLocalizations.of(context)!.outboundUIScreenRawConfigs,
       child: _rawHeaderSection(context, controller, state),
     );
   }
@@ -504,7 +504,7 @@ class OutboundUIPage extends StatelessWidget {
     OutboundUIState state,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageRawHeader,
+      title: AppLocalizations.of(context)!.outboundUIScreenRawHeader,
       level: SectionLevel.second,
       child: Column(
         children: [
@@ -521,7 +521,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageRawHeaderType),
+        Text(AppLocalizations.of(context)!.outboundUIScreenRawHeaderType),
         TextMenuPicker(
           title: state.outboundState.rawHeaderType.name,
           selections: RawHeaderType.values,
@@ -541,11 +541,11 @@ class OutboundUIPage extends StatelessWidget {
                   controller: controller.rawPathControllers[index],
                   decoration: InputDecoration(
                     label: Text(
-                      AppLocalizations.of(context)!.outboundUIPagePath,
+                      AppLocalizations.of(context)!.outboundUIScreenPath,
                     ),
                     hintText: AppLocalizations.of(
                       context,
-                    )!.outboundUIPagePathExample,
+                    )!.outboundUIScreenPathExample,
                   ),
                 ),
               ),
@@ -567,11 +567,11 @@ class OutboundUIPage extends StatelessWidget {
                   controller: controller.rawHostControllers[index],
                   decoration: InputDecoration(
                     label: Text(
-                      AppLocalizations.of(context)!.outboundUIPageHost,
+                      AppLocalizations.of(context)!.outboundUIScreenHost,
                     ),
                     hintText: AppLocalizations.of(
                       context,
-                    )!.outboundUIPageHostExample,
+                    )!.outboundUIScreenHostExample,
                   ),
                 ),
               ),
@@ -588,7 +588,7 @@ class OutboundUIPage extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(AppLocalizations.of(context)!.outboundUIPagePath),
+            Text(AppLocalizations.of(context)!.outboundUIScreenPath),
             IconButton(
               onPressed: () => controller.appendRawPath(),
               icon: const Icon(Icons.add),
@@ -599,7 +599,7 @@ class OutboundUIPage extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(AppLocalizations.of(context)!.outboundUIPageHost),
+            Text(AppLocalizations.of(context)!.outboundUIScreenHost),
             IconButton(
               onPressed: () => controller.appendRawHost(),
               icon: const Icon(Icons.add),
@@ -613,7 +613,7 @@ class OutboundUIPage extends StatelessWidget {
 
   Widget _xhttpSection(BuildContext context, OutboundUIController controller, OutboundUIState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageXhttpSettings,
+      title: AppLocalizations.of(context)!.outboundUIScreenXhttpConfigs,
       child: Column(
         children: [
           _xhttpHost(context, controller),
@@ -629,8 +629,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.xhttpHostController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageHost),
-        hintText: AppLocalizations.of(context)!.outboundUIPageHostExample,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenHost),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenHostExample,
       ),
     );
   }
@@ -639,8 +639,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.xhttpPathController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPagePath),
-        hintText: AppLocalizations.of(context)!.outboundUIPagePathExample,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenPath),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenPathExample,
       ),
     );
   }
@@ -651,7 +651,7 @@ class OutboundUIPage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(AppLocalizations.of(context)!.outboundUIPageXhttpMode),
+          Text(AppLocalizations.of(context)!.outboundUIScreenXhttpMode),
           TextMenuPicker(
             title: state.outboundState.xhttpMode.name,
             selections: XhttpMode.values,
@@ -670,7 +670,7 @@ class OutboundUIPage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(AppLocalizations.of(context)!.outboundUIPageXhttpExtra),
+            Text(AppLocalizations.of(context)!.outboundUIScreenXhttpExtra),
             const Icon(Icons.chevron_right),
           ],
         ),
@@ -680,7 +680,7 @@ class OutboundUIPage extends StatelessWidget {
 
   Widget _kcpSection(BuildContext context, OutboundUIController controller, OutboundUIState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageKcpSettings,
+      title: AppLocalizations.of(context)!.outboundUIScreenKcpConfigs,
       child: Column(
         children: [
           _kcpHeaderSection(context, controller, state),
@@ -696,7 +696,7 @@ class OutboundUIPage extends StatelessWidget {
     OutboundUIState state,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageKcpHeader,
+      title: AppLocalizations.of(context)!.outboundUIScreenKcpHeader,
       level: SectionLevel.second,
       child: Column(
         children: [
@@ -711,7 +711,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageKcpHeaderType),
+        Text(AppLocalizations.of(context)!.outboundUIScreenKcpHeaderType),
         TextMenuPicker(
           title: state.outboundState.kcpHeaderType.name,
           selections: KcpHeaderType.values,
@@ -729,11 +729,11 @@ class OutboundUIPage extends StatelessWidget {
       controller: controller.kcpHeaderDomainController,
       decoration: InputDecoration(
         label: Text(
-          AppLocalizations.of(context)!.outboundUIPageKcpHeaderDomain,
+          AppLocalizations.of(context)!.outboundUIScreenKcpHeaderDomain,
         ),
         hintText: AppLocalizations.of(
           context,
-        )!.outboundUIPageKcpHeaderDomainExample,
+        )!.outboundUIScreenKcpHeaderDomainExample,
       ),
     );
   }
@@ -742,15 +742,15 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.kcpSeedController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageKcpSeed),
-        hintText: AppLocalizations.of(context)!.outboundUIPageKcpSeed,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenKcpSeed),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenKcpSeed,
       ),
     );
   }
 
   Widget _grpcSection(BuildContext context, OutboundUIController controller, OutboundUIState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageGrpcSettings,
+      title: AppLocalizations.of(context)!.outboundUIScreenGrpcConfigs,
       child: Column(
         children: [
           _grpcAuthority(context, controller),
@@ -758,7 +758,7 @@ class OutboundUIPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.outboundUIPageGrpcMultiMode),
+              Text(AppLocalizations.of(context)!.outboundUIScreenGrpcMultiMode),
               Switch(
                 value: state.outboundState.grpcMultiMode,
                 onChanged: (value) => controller.updateGrpcMultiMode(value),
@@ -774,10 +774,10 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.grpcAuthorityController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageGrpcAuthority),
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenGrpcAuthority),
         hintText: AppLocalizations.of(
           context,
-        )!.outboundUIPageGrpcAuthorityExample,
+        )!.outboundUIScreenGrpcAuthorityExample,
       ),
     );
   }
@@ -790,16 +790,16 @@ class OutboundUIPage extends StatelessWidget {
       controller: controller.grpcServiceNameController,
       decoration: InputDecoration(
         label: Text(
-          AppLocalizations.of(context)!.outboundUIPageGrpcServiceName,
+          AppLocalizations.of(context)!.outboundUIScreenGrpcServiceName,
         ),
-        hintText: AppLocalizations.of(context)!.outboundUIPageGrpcServiceName,
+        hintText: AppLocalizations.of(context)!.outboundUIScreenGrpcServiceName,
       ),
     );
   }
 
   Widget _wsSection(BuildContext context, OutboundUIController controller) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageWsSettings,
+      title: AppLocalizations.of(context)!.outboundUIScreenWsConfigs,
       child: Column(
         children: [_wsPath(context, controller), _wsHost(context, controller)],
       ),
@@ -810,8 +810,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.wsPathController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPagePath),
-        hintText: AppLocalizations.of(context)!.outboundUIPagePathExample,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenPath),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenPathExample,
       ),
     );
   }
@@ -820,8 +820,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.wsHostController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageHost),
-        hintText: AppLocalizations.of(context)!.outboundUIPageHostExample,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenHost),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenHostExample,
       ),
     );
   }
@@ -831,7 +831,7 @@ class OutboundUIPage extends StatelessWidget {
     OutboundUIController controller,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageHttpupgradeSettings,
+      title: AppLocalizations.of(context)!.outboundUIScreenHttpupgradeConfigs,
       child: Column(
         children: [
           _httpupgradeHost(context, controller),
@@ -848,8 +848,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.httpupgradeHostController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageHost),
-        hintText: AppLocalizations.of(context)!.outboundUIPageHostExample,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenHost),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenHostExample,
       ),
     );
   }
@@ -861,8 +861,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.httpupgradePathController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPagePath),
-        hintText: AppLocalizations.of(context)!.outboundUIPagePathExample,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenPath),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenPathExample,
       ),
     );
   }
@@ -873,7 +873,7 @@ class OutboundUIPage extends StatelessWidget {
     OutboundUIState state,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageHysteriaSettings,
+      title: AppLocalizations.of(context)!.outboundUIScreenHysteriaConfigs,
       child: Column(
         children: [
           _hysteriaVersion(context, controller, state),
@@ -892,7 +892,7 @@ class OutboundUIPage extends StatelessWidget {
     OutboundUIState state,
   ) {
     return TextRow(
-      title: AppLocalizations.of(context)!.outboundUIPageHysteriaVersion,
+      title: AppLocalizations.of(context)!.outboundUIScreenHysteriaVersion,
       detail: state.outboundState.hysteriaVersion,
     );
   }
@@ -901,8 +901,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.hysteriaAuthController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageHysteriaAuth),
-        hintText: AppLocalizations.of(context)!.outboundUIPageHysteriaAuth,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenHysteriaAuth),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenHysteriaAuth,
       ),
     );
   }
@@ -911,8 +911,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.hysteriaUpController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageHysteriaUp),
-        hintText: AppLocalizations.of(context)!.outboundUIPageHysteriaUp,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenHysteriaUp),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenHysteriaUp,
       ),
     );
   }
@@ -921,8 +921,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.hysteriaDownController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageHysteriaDown),
-        hintText: AppLocalizations.of(context)!.outboundUIPageHysteriaDown,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenHysteriaDown),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenHysteriaDown,
       ),
     );
   }
@@ -932,7 +932,7 @@ class OutboundUIPage extends StatelessWidget {
     OutboundUIController controller,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageHysteriaUdphop,
+      title: AppLocalizations.of(context)!.outboundUIScreenHysteriaUdphop,
       level: SectionLevel.second,
       child: Column(
         children: [
@@ -951,11 +951,11 @@ class OutboundUIPage extends StatelessWidget {
       controller: controller.hysteriaUdphopPortController,
       decoration: InputDecoration(
         label: Text(
-          AppLocalizations.of(context)!.outboundUIPageHysteriaUdphopPort,
+          AppLocalizations.of(context)!.outboundUIScreenHysteriaUdphopPort,
         ),
         hintText: AppLocalizations.of(
           context,
-        )!.outboundUIPageHysteriaUdphopPort,
+        )!.outboundUIScreenHysteriaUdphopPort,
       ),
     );
   }
@@ -968,11 +968,11 @@ class OutboundUIPage extends StatelessWidget {
       controller: controller.hysteriaUdphopIntervalController,
       decoration: InputDecoration(
         label: Text(
-          AppLocalizations.of(context)!.outboundUIPageHysteriaUdphopInterval,
+          AppLocalizations.of(context)!.outboundUIScreenHysteriaUdphopInterval,
         ),
         hintText: AppLocalizations.of(
           context,
-        )!.outboundUIPageHysteriaUdphopInterval,
+        )!.outboundUIScreenHysteriaUdphopInterval,
       ),
     );
   }
@@ -982,7 +982,7 @@ class OutboundUIPage extends StatelessWidget {
     OutboundUIController controller,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageFinalmask,
+      title: AppLocalizations.of(context)!.outboundUIScreenFinalmask,
       child: Column(
         children: [
           InkWell(
@@ -992,7 +992,7 @@ class OutboundUIPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(AppLocalizations.of(context)!.outboundUIPageFinalmask),
+                  Text(AppLocalizations.of(context)!.outboundUIScreenFinalmask),
                   const Icon(Icons.chevron_right),
                 ],
               ),
@@ -1015,7 +1015,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageSecurity),
+        Text(AppLocalizations.of(context)!.outboundUIScreenSecurity),
         TextMenuPicker(
           title: state.outboundState.security.name,
           selections: StreamSettingsSecurity.values,
@@ -1044,8 +1044,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.serverNameController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageServerName),
-        hintText: AppLocalizations.of(context)!.outboundUIPageServerNameExample,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenServerName),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenServerNameExample,
       ),
     );
   }
@@ -1054,7 +1054,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageFingerprint),
+        Text(AppLocalizations.of(context)!.outboundUIScreenFingerprint),
         TextMenuPicker(
           title: state.outboundState.fingerprint.name,
           selections: StreamSettingsSecurityFingerprint.values,
@@ -1066,7 +1066,7 @@ class OutboundUIPage extends StatelessWidget {
 
   Widget _tlsSection(BuildContext context, OutboundUIController controller, OutboundUIState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageTlsSettings,
+      title: AppLocalizations.of(context)!.outboundUIScreenTlsConfigs,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1093,7 +1093,7 @@ class OutboundUIPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageAlpn),
+        Text(AppLocalizations.of(context)!.outboundUIScreenAlpn),
         Wrap(spacing: 5.0, runSpacing: 5.0, children: children),
       ],
     );
@@ -1107,11 +1107,11 @@ class OutboundUIPage extends StatelessWidget {
       controller: controller.pinnedPeerCertSha256Controller,
       decoration: InputDecoration(
         label: Text(
-          AppLocalizations.of(context)!.outboundUIPagePinnedPeerCertSha256,
+          AppLocalizations.of(context)!.outboundUIScreenPinnedPeerCertSha256,
         ),
         hintText: AppLocalizations.of(
           context,
-        )!.outboundUIPagePinnedPeerCertSha256,
+        )!.outboundUIScreenPinnedPeerCertSha256,
       ),
     );
   }
@@ -1124,11 +1124,11 @@ class OutboundUIPage extends StatelessWidget {
       controller: controller.verifyPeerCertByNameController,
       decoration: InputDecoration(
         label: Text(
-          AppLocalizations.of(context)!.outboundUIPageVerifyPeerCertByName,
+          AppLocalizations.of(context)!.outboundUIScreenVerifyPeerCertByName,
         ),
         hintText: AppLocalizations.of(
           context,
-        )!.outboundUIPageVerifyPeerCertByName,
+        )!.outboundUIScreenVerifyPeerCertByName,
       ),
     );
   }
@@ -1137,8 +1137,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.echConfigListController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageEchConfigList),
-        hintText: AppLocalizations.of(context)!.outboundUIPageEchConfigList,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenEchConfigList),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenEchConfigList,
       ),
     );
   }
@@ -1147,7 +1147,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageEchForceQuery),
+        Text(AppLocalizations.of(context)!.outboundUIScreenEchForceQuery),
         TextMenuPicker(
           title: state.outboundState.echForceQuery.name,
           selections: StreamSettingsEchForceQuery.values,
@@ -1163,7 +1163,7 @@ class OutboundUIPage extends StatelessWidget {
     OutboundUIState state,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageRealitySettings,
+      title: AppLocalizations.of(context)!.outboundUIScreenRealityConfigs,
       child: Column(
         children: [
           _fingerprint(context, controller, state),
@@ -1181,8 +1181,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.passwordController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPagePassword),
-        hintText: AppLocalizations.of(context)!.outboundUIPagePassword,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenPassword),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenPassword,
       ),
     );
   }
@@ -1191,8 +1191,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.shortIdController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageShortId),
-        hintText: AppLocalizations.of(context)!.outboundUIPageShortId,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenShortId),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenShortId,
       ),
     );
   }
@@ -1201,8 +1201,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.mldsa65VerifyController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageMldsa65Verify),
-        hintText: AppLocalizations.of(context)!.outboundUIPageMldsa65Verify,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenMldsa65Verify),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenMldsa65Verify,
       ),
     );
   }
@@ -1211,8 +1211,8 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.spiderXController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageSpiderX),
-        hintText: AppLocalizations.of(context)!.outboundUIPageSpiderX,
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenSpiderX),
+        hintText: AppLocalizations.of(context)!.outboundUIScreenSpiderX,
       ),
     );
   }
@@ -1223,7 +1223,7 @@ class OutboundUIPage extends StatelessWidget {
     OutboundUIState state,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageSockopt,
+      title: AppLocalizations.of(context)!.outboundUIScreenSockopt,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1241,7 +1241,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageTcpFastOpen),
+        Text(AppLocalizations.of(context)!.outboundUIScreenTcpFastOpen),
         Switch(
           value: state.outboundState.tcpFastOpen,
           onChanged: (value) => controller.updateTcpFastOpen(value),
@@ -1254,7 +1254,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageDialerProxy),
+        Text(AppLocalizations.of(context)!.outboundUIScreenDialerProxy),
         TextMenuPicker<String>(
           title: state.outboundState.dialerProxy,
           selections: state.dialerProxies,
@@ -1268,7 +1268,7 @@ class OutboundUIPage extends StatelessWidget {
     return InkWell(
       onTap: () => controller.editInterface(context),
       child: TextRow(
-        title: AppLocalizations.of(context)!.outboundUIPageInterface,
+        title: AppLocalizations.of(context)!.outboundUIScreenInterface,
         detail: state.outboundState.interface,
       ),
     );
@@ -1278,7 +1278,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundUIPageTcpMptcp),
+        Text(AppLocalizations.of(context)!.outboundUIScreenTcpMptcp),
         Switch(
           value: state.outboundState.tcpMptcp,
           onChanged: (value) => controller.updateTcpMptcp(value),
@@ -1289,7 +1289,7 @@ class OutboundUIPage extends StatelessWidget {
 
   Widget _muxSection(BuildContext context, OutboundUIController controller, OutboundUIState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageMux,
+      title: AppLocalizations.of(context)!.outboundUIScreenMux,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1305,7 +1305,7 @@ class OutboundUIPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.switchEnabled),
+        Text(AppLocalizations.of(context)!.appSwitchEnabled),
         Switch(
           value: state.outboundState.muxEnabled,
           onChanged: (value) => controller.updateMuxEnabled(value),
@@ -1327,7 +1327,7 @@ class OutboundUIPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              AppLocalizations.of(context)!.outboundUIPageMuxXudpProxyUDP443,
+              AppLocalizations.of(context)!.outboundUIScreenMuxXudpProxyUDP443,
             ),
             TextMenuPicker(
               title: state.outboundState.muxXudpProxyUDP443.name,
@@ -1347,10 +1347,10 @@ class OutboundUIPage extends StatelessWidget {
     return TextField(
       controller: controller.muxConcurrencyController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundUIPageMuxConcurrency),
+        label: Text(AppLocalizations.of(context)!.outboundUIScreenMuxConcurrency),
         hintText: AppLocalizations.of(
           context,
-        )!.outboundUIPageMuxConcurrencyExample,
+        )!.outboundUIScreenMuxConcurrencyExample,
       ),
     );
   }
@@ -1363,11 +1363,11 @@ class OutboundUIPage extends StatelessWidget {
       controller: controller.muxXudpConcurrencyController,
       decoration: InputDecoration(
         label: Text(
-          AppLocalizations.of(context)!.outboundUIPageMuxXudpConcurrency,
+          AppLocalizations.of(context)!.outboundUIScreenMuxXudpConcurrency,
         ),
         hintText: AppLocalizations.of(
           context,
-        )!.outboundUIPageMuxXudpConcurrencyExample,
+        )!.outboundUIScreenMuxXudpConcurrencyExample,
       ),
     );
   }
@@ -1384,7 +1384,7 @@ class OutboundUIPage extends StatelessWidget {
           ),
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),
@@ -1404,7 +1404,7 @@ class OutboundUIPage extends StatelessWidget {
     } else {
       return Expanded(
         child: SecondaryBottomButton(
-          title: AppLocalizations.of(context)!.outboundPageRealPing,
+          title: AppLocalizations.of(context)!.outboundScreenRealPing,
           callback: () => controller.realPing(context),
         ),
       );

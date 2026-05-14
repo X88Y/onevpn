@@ -22,9 +22,9 @@ class SubscriptionPill extends StatelessWidget {
 
     if (isRunning || hasActiveSubscription) {
       final statusText = subscriptionEndsAt != null
-          ? AppLocalizations.of(context)!.homeSubscriptionActiveUntil(
+          ? AppLocalizations.of(context)!.mainSubscriptionActiveUntil(
               '${subscriptionEndsAt.day.toString().padLeft(2, '0')}.${subscriptionEndsAt.month.toString().padLeft(2, '0')}.${subscriptionEndsAt.year}')
-          : AppLocalizations.of(context)!.homeSubscriptionActive;
+          : AppLocalizations.of(context)!.mainSubscriptionActive;
           
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -109,7 +109,7 @@ class SubscriptionPill extends StatelessWidget {
           Icon(Icons.lock_outline_rounded, color: Colors.white.withOpacity(0.35), size: 18),
           const SizedBox(width: 10),
           Text(
-            AppLocalizations.of(context)!.homeNoActiveSubscription,
+            AppLocalizations.of(context)!.mainNoActiveSubscription,
             style: TextStyle(
               color: Colors.white.withOpacity(0.35),
               fontSize: 14,

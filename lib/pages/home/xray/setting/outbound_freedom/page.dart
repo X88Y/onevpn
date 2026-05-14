@@ -24,7 +24,7 @@ class OutboundFreedomPage extends StatelessWidget {
           final controller = context.read<OutboundFreedomController>();
           return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.outboundFreedomPageTitle),
+          title: Text(AppLocalizations.of(context)!.outboundFreedomScreenTitle),
         ),
         body: SafeArea(child: _body(context, controller, state)),
       );
@@ -63,11 +63,11 @@ class OutboundFreedomPage extends StatelessWidget {
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.outboundFreedomPageProtocol,
+            title: AppLocalizations.of(context)!.outboundFreedomScreenProtocol,
             detail: state.freedomState.protocol.name,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.outboundFreedomPageTag,
+            title: AppLocalizations.of(context)!.outboundFreedomScreenTag,
             detail: state.freedomState.tag.name,
           ),
         ],
@@ -79,7 +79,7 @@ class OutboundFreedomPage extends StatelessWidget {
     BuildContext context,
     OutboundFreedomController controller, OutboundFreedomCubitState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundFreedomPageSockopt,
+      title: AppLocalizations.of(context)!.outboundFreedomScreenSockopt,
       child: Column(children: [_interface(context, controller, state)]),
     );
   }
@@ -90,7 +90,7 @@ class OutboundFreedomPage extends StatelessWidget {
     return InkWell(
       onTap: () => controller.editInterface(context),
       child: TextRow(
-        title: AppLocalizations.of(context)!.outboundFreedomPageInterface,
+        title: AppLocalizations.of(context)!.outboundFreedomScreenInterface,
         detail: state.freedomState.interface,
       ),
     );
@@ -105,7 +105,7 @@ class OutboundFreedomPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

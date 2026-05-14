@@ -54,7 +54,7 @@ class SubscriptionEditController extends Cubit<SubscriptionEditState> {
       if (context.mounted) {
         ContextAlert.showToast(
           context,
-          AppLocalizations.of(context)!.validationNameRequired,
+          AppLocalizations.of(context)!.appValidationNameRequired,
         );
       }
       return;

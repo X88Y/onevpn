@@ -175,21 +175,21 @@ class HomeController extends Cubit<HomeState> {
 
   String formatGeoLocation(BuildContext context, GeoLocation location) {
     var text = "";
-    text += AppLocalizations.of(context)!.nodeInfoPageDuration;
+    text += AppLocalizations.of(context)!.nodeInfoScreenDuration;
     if (location.duration == null) {
-      text += ": ${AppLocalizations.of(context)!.nodeInfoPageFetching} ";
+      text += ": ${AppLocalizations.of(context)!.nodeInfoScreenFetching} ";
     } else {
       text += ": ${location.duration} ";
     }
-    text += AppLocalizations.of(context)!.nodeInfoPageDelay;
+    text += AppLocalizations.of(context)!.nodeInfoScreenDelay;
     if (location.delay == null) {
-      text += ": ${AppLocalizations.of(context)!.nodeInfoPageFetching} ";
+      text += ": ${AppLocalizations.of(context)!.nodeInfoScreenFetching} ";
     } else {
       text += ": ${location.delay}ms ";
     }
-    text += AppLocalizations.of(context)!.nodeInfoPageLocation;
+    text += AppLocalizations.of(context)!.nodeInfoScreenLocation;
     if (location.country == null) {
-      text += ": ${AppLocalizations.of(context)!.nodeInfoPageFetching} ";
+      text += ": ${AppLocalizations.of(context)!.nodeInfoScreenFetching} ";
     } else {
       text += ": ${location.country} ";
     }
@@ -255,7 +255,7 @@ class HomeController extends Cubit<HomeState> {
         var newConfigId = await AuthService().fetchAndSetRandomVpnKey();
         if (newConfigId == null) {
           if (context.mounted) {
-            ContextAlert.showToast(context, AppLocalizations.of(context)!.homeRegeneratingKey);
+            ContextAlert.showToast(context, AppLocalizations.of(context)!.mainRegeneratingKey);
           }
           newConfigId = await AuthService().fetchAndSetRandomVpnKey(forceRegenerate: true);
         }
@@ -271,7 +271,7 @@ class HomeController extends Cubit<HomeState> {
         if (context.mounted) {
           ContextAlert.showToast(
             context,
-            AppLocalizations.of(context)!.vpnSelectOneConfig,
+            AppLocalizations.of(context)!.appVpnSelectOneConfig,
           );
         }
         return;
@@ -305,14 +305,14 @@ class HomeController extends Cubit<HomeState> {
             subscriptionEndsAt: subscriptionEndsAt,
             clearSubscriptionEndsAt: subscriptionEndsAt == null,
             clearConnectingProvider: true));
-        ToastService().showToast(AppLocalizations.of(context)!.homeSignInSuccess);
+        ToastService().showToast(AppLocalizations.of(context)!.mainSignInSuccess);
       } else {
         emit(state.copyWith(clearConnectingProvider: true));
-        ToastService().showToast(AppLocalizations.of(context)!.homeSignInFailed);
+        ToastService().showToast(AppLocalizations.of(context)!.mainSignInFailed);
       }
     } catch (e) {
       emit(state.copyWith(clearConnectingProvider: true));
-      ToastService().showToast(AppLocalizations.of(context)!.homeSignInFailed);
+      ToastService().showToast(AppLocalizations.of(context)!.mainSignInFailed);
     }
   }
 

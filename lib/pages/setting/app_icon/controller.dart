@@ -91,7 +91,7 @@ class AppIconController extends Cubit<AppIconState> {
       } else {
         ContextAlert.showToast(
           context,
-          AppLocalizations.of(context)!.appIconPageSetFailed,
+          AppLocalizations.of(context)!.appIconScreenSetFailed,
         );
       }
     }

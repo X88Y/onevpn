@@ -22,7 +22,7 @@ class SelectedAppPage extends StatelessWidget {
           final controller = context.read<SelectedAppController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.selectedAppPageTitle),
+              title: Text(AppLocalizations.of(context)!.selectedAppScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -62,7 +62,7 @@ class SelectedAppPage extends StatelessWidget {
   ) {
     if (state.apps.isEmpty) {
       return Center(
-        child: Text(AppLocalizations.of(context)!.selectedAppPageNoApp),
+        child: Text(AppLocalizations.of(context)!.selectedAppScreenNoApp),
       );
     } else {
       return ListView.separated(
@@ -102,13 +102,13 @@ class SelectedAppPage extends StatelessWidget {
         children: [
           Expanded(
             child: SecondaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonAdd,
+              title: AppLocalizations.of(context)!.btnAdd,
               callback: () => controller.gotoInstalledApp(context),
             ),
           ),
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

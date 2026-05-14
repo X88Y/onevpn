@@ -52,7 +52,7 @@ class GeoDatShowPage extends StatelessWidget {
   Widget _geoDataList(BuildContext context, GeoDatShowState state) {
     if (state.geoDatCodes.isEmpty) {
       return Center(
-        child: Text(AppLocalizations.of(context)!.geoDatCodesPageNoCodes),
+        child: Text(AppLocalizations.of(context)!.geoDatCodesScreenNoCodes),
       );
     } else {
       return ListView.separated(

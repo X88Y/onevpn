@@ -148,7 +148,7 @@ final class VpnService {
     eventBus.updateVpnLoading(true);
     eventBus.updateSubscriptionUpdating(true);
     try {
-      ToastService().showToast(appLocalizationsNoContext().homeRegeneratingKey);
+      ToastService().showToast(appLocalizationsNoContext().mainRegeneratingKey);
 
       final wasRunning = eventBus.state.runningId != DBConstants.defaultId;
       if (wasRunning) {
@@ -209,7 +209,7 @@ final class VpnService {
     final permission = await VpnService().checkPermission();
     if (!permission) {
       await NotificationService().pushNotification(
-        appLocalizationsNoContext().homePageOpenSettings,
+        appLocalizationsNoContext().mainScreenOpenConfigs,
       );
       return;
     }
@@ -232,7 +232,7 @@ final class VpnService {
     final config = await db.coreConfigDao.randomConfig();
     if (config == null) {
       await NotificationService().pushNotification(
-        appLocalizationsNoContext().vpnNoConfig,
+        appLocalizationsNoContext().appVpnNoConfig,
       );
     } else {
       await startVpn(config.id);
@@ -277,7 +277,7 @@ final class VpnService {
         await _updateRunningId(DBConstants.defaultId);
         eventBus.updateVpnLoading(false);
         ToastService().showToast(
-          appLocalizationsNoContext().vpnSelectOneConfig,
+          appLocalizationsNoContext().appVpnSelectOneConfig,
         );
       }
     } else {

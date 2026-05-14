@@ -22,7 +22,7 @@ class InstalledAppPage extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title:
-                  Text(AppLocalizations.of(context)!.installedAppPageTitle),
+                  Text(AppLocalizations.of(context)!.installedAppScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -71,7 +71,7 @@ class InstalledAppPage extends StatelessWidget {
   ) {
     if (state.apps.isEmpty) {
       return Center(
-        child: Text(AppLocalizations.of(context)!.installedAppPageNoApp),
+        child: Text(AppLocalizations.of(context)!.installedAppScreenNoApp),
       );
     } else {
       return ListView.separated(
@@ -107,7 +107,7 @@ class InstalledAppPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

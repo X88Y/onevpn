@@ -24,7 +24,7 @@ class RoutingRuleDnsQueryPage extends StatelessWidget {
           final controller = context.read<RoutingRuleDnsQueryController>();
           return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.routingRulePageTitle),
+          title: Text(AppLocalizations.of(context)!.routingRuleScreenTitle),
         ),
         body: SafeArea(child: _body(context, controller, state)),
       );
@@ -62,7 +62,7 @@ class RoutingRuleDnsQueryPage extends StatelessWidget {
         .map((e) => Text(e))
         .toList();
     return SectionView(
-      title: AppLocalizations.of(context)!.routingRulePageInboundTag,
+      title: AppLocalizations.of(context)!.routingRuleScreenInboundTag,
       child: Column(children: views),
     );
   }
@@ -87,7 +87,7 @@ class RoutingRuleDnsQueryPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.routingRulePageOutboundTag),
+        Text(AppLocalizations.of(context)!.routingRuleScreenOutboundTag),
         TextMenuPicker(
           title: state.ruleState.outboundTag,
           selections: state.outboundTags,
@@ -101,7 +101,7 @@ class RoutingRuleDnsQueryPage extends StatelessWidget {
     BuildContext context,
     RoutingRuleDnsQueryController controller, RoutingRuleDnsQueryCubitState state) {
     return TextRow(
-      title: AppLocalizations.of(context)!.routingRulePageRuleTag,
+      title: AppLocalizations.of(context)!.routingRuleScreenRuleTag,
       detail: state.ruleState.ruleTag,
     );
   }
@@ -115,7 +115,7 @@ class RoutingRuleDnsQueryPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

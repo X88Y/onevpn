@@ -78,31 +78,31 @@ enum IconMenuId {
   String get title {
     switch (this) {
       case IconMenuId.edit:
-        return appLocalizationsNoContext().menuEdit;
+        return appLocalizationsNoContext().navEdit;
       case IconMenuId.share:
-        return appLocalizationsNoContext().menuShare;
+        return appLocalizationsNoContext().navShare;
       case IconMenuId.save:
-        return appLocalizationsNoContext().menuSave;
+        return appLocalizationsNoContext().navSave;
       case IconMenuId.copy:
-        return appLocalizationsNoContext().menuCopy;
+        return appLocalizationsNoContext().navCopy;
       case IconMenuId.delete:
-        return appLocalizationsNoContext().menuDelete;
+        return appLocalizationsNoContext().navDelete;
       case IconMenuId.clean:
-        return appLocalizationsNoContext().menuClean;
+        return appLocalizationsNoContext().navClean;
       case IconMenuId.refresh:
-        return appLocalizationsNoContext().menuRefresh;
+        return appLocalizationsNoContext().navRefresh;
       case IconMenuId.manualInput:
-        return appLocalizationsNoContext().menuManualInput;
+        return appLocalizationsNoContext().navManualInput;
       case IconMenuId.subscribeLink:
-        return appLocalizationsNoContext().menuSubscribeLink;
+        return appLocalizationsNoContext().navSubscribeLink;
       case IconMenuId.scanQRCode:
-        return appLocalizationsNoContext().menuScanQRCode;
+        return appLocalizationsNoContext().navScanQRCode;
       case IconMenuId.pickImage:
-        return appLocalizationsNoContext().menuPickImage;
+        return appLocalizationsNoContext().navPickImage;
       case IconMenuId.pickFile:
-        return appLocalizationsNoContext().menuPickFile;
+        return appLocalizationsNoContext().navPickFile;
       case IconMenuId.readPasteboard:
-        return appLocalizationsNoContext().menuReadPasteboard;
+        return appLocalizationsNoContext().navReadPasteboard;
     }
   }
 

@@ -42,7 +42,7 @@ class HomeRawView extends StatelessWidget {
   ) {
     if (state.configs.isEmpty) {
       return Center(
-        child: Text(AppLocalizations.of(context)!.homeOutboundViewNoOutbound),
+        child: Text(AppLocalizations.of(context)!.mainOutboundViewNoOutbound),
       );
     } else {
       return ListView.separated(

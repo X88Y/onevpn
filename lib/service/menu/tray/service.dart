@@ -47,14 +47,14 @@ final class TrayService with TrayListener {
       items.add(
         MenuItem(
           key: _TrayMenuKey.stopVpn.name,
-          label: appLocalizationsNoContext().menuBarStopVpn,
+          label: appLocalizationsNoContext().navBarStopVpn,
         ),
       );
     } else {
       items.add(
         MenuItem(
           key: _TrayMenuKey.startVpn.name,
-          label: appLocalizationsNoContext().menuBarStartVpn,
+          label: appLocalizationsNoContext().navBarStartVpn,
         ),
       );
     }
@@ -62,20 +62,20 @@ final class TrayService with TrayListener {
     items.add(
       MenuItem(
         key: _TrayMenuKey.showApp.name,
-        label: appLocalizationsNoContext().menuBarShowApp,
+        label: appLocalizationsNoContext().navBarShowApp,
       ),
     );
     items.add(
       MenuItem(
         key: _TrayMenuKey.quitApp.name,
-        label: appLocalizationsNoContext().menuBarQuitApp,
+        label: appLocalizationsNoContext().navBarQuitApp,
       ),
     );
     if (AppPlatform.isMacOS) {
       items.add(
         MenuItem(
           key: _TrayMenuKey.quitAndStopVpn.name,
-          label: appLocalizationsNoContext().menuBarQuitAndStopVpn,
+          label: appLocalizationsNoContext().navBarQuitAndStopVpn,
         ),
       );
     }

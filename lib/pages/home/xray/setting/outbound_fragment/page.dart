@@ -24,7 +24,7 @@ class OutboundFragmentPage extends StatelessWidget {
           final controller = context.read<OutboundFragmentController>();
           return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.outboundFragmentPageTitle),
+          title: Text(AppLocalizations.of(context)!.outboundFragmentScreenTitle),
         ),
         body: SafeArea(child: _body(context, controller, state)),
       );
@@ -65,7 +65,7 @@ class OutboundFragmentPage extends StatelessWidget {
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.outboundFragmentPageProtocol,
+            title: AppLocalizations.of(context)!.outboundFragmentScreenProtocol,
             detail: state.fragmentState.protocol.name,
           ),
         ],
@@ -78,7 +78,7 @@ class OutboundFragmentPage extends StatelessWidget {
     OutboundFragmentController controller,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundFragmentPageSettings,
+      title: AppLocalizations.of(context)!.outboundFragmentScreenConfigs,
       child: Column(
         children: [
           _packets(context, controller),
@@ -93,8 +93,8 @@ class OutboundFragmentPage extends StatelessWidget {
     return TextField(
       controller: controller.packetsController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundFragmentPagePackets),
-        hintText: AppLocalizations.of(context)!.outboundFragmentPagePackets,
+        label: Text(AppLocalizations.of(context)!.outboundFragmentScreenPackets),
+        hintText: AppLocalizations.of(context)!.outboundFragmentScreenPackets,
       ),
     );
   }
@@ -103,8 +103,8 @@ class OutboundFragmentPage extends StatelessWidget {
     return TextField(
       controller: controller.lengthController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundFragmentPageLength),
-        hintText: AppLocalizations.of(context)!.outboundFragmentPageLength,
+        label: Text(AppLocalizations.of(context)!.outboundFragmentScreenLength),
+        hintText: AppLocalizations.of(context)!.outboundFragmentScreenLength,
       ),
     );
   }
@@ -116,8 +116,8 @@ class OutboundFragmentPage extends StatelessWidget {
     return TextField(
       controller: controller.intervalController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundFragmentPageInterval),
-        hintText: AppLocalizations.of(context)!.outboundFragmentPageInterval,
+        label: Text(AppLocalizations.of(context)!.outboundFragmentScreenInterval),
+        hintText: AppLocalizations.of(context)!.outboundFragmentScreenInterval,
       ),
     );
   }
@@ -130,7 +130,7 @@ class OutboundFragmentPage extends StatelessWidget {
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.outboundFragmentPageTag,
+            title: AppLocalizations.of(context)!.outboundFragmentScreenTag,
             detail: state.fragmentState.tag.name,
           ),
         ],
@@ -142,7 +142,7 @@ class OutboundFragmentPage extends StatelessWidget {
     BuildContext context,
     OutboundFragmentController controller, OutboundFragmentCubitState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundFragmentPageSockopt,
+      title: AppLocalizations.of(context)!.outboundFragmentScreenSockopt,
       child: Column(children: [_interface(context, controller, state)]),
     );
   }
@@ -153,7 +153,7 @@ class OutboundFragmentPage extends StatelessWidget {
     return InkWell(
       onTap: () => controller.editInterface(context),
       child: TextRow(
-        title: AppLocalizations.of(context)!.outboundFragmentPageInterface,
+        title: AppLocalizations.of(context)!.outboundFragmentScreenInterface,
         detail: state.fragmentState.interface,
       ),
     );
@@ -168,7 +168,7 @@ class OutboundFragmentPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

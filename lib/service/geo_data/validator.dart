@@ -6,23 +6,23 @@ import 'package:tuple/tuple.dart';
 class GeoDataValidator {
   static Future<Tuple2<bool, String>> validate(String name, String url) async {
     if (name.isEmpty) {
-      return Tuple2(false, appLocalizationsNoContext().validationNameRequired);
+      return Tuple2(false, appLocalizationsNoContext().appValidationNameRequired);
     }
     if (url.isEmpty) {
-      return Tuple2(false, appLocalizationsNoContext().validationUrlRequired);
+      return Tuple2(false, appLocalizationsNoContext().appValidationUrlRequired);
     }
     final uri = Uri.tryParse(url);
     if (uri == null) {
-      return Tuple2(false, appLocalizationsNoContext().validationUrlInvalid);
+      return Tuple2(false, appLocalizationsNoContext().appValidationUrlInvalid);
     }
     if (name == SystemGeoDatName.geoSite.name ||
         name == SystemGeoDatName.geoIp.name) {
-      return Tuple2(false, appLocalizationsNoContext().validationNameDuplicate);
+      return Tuple2(false, appLocalizationsNoContext().appValidationNameDuplicate);
     }
     final db = AppDatabase();
     final nameExists = await db.geoDataDao.nameExists(name);
     if (nameExists) {
-      return Tuple2(false, appLocalizationsNoContext().validationNameDuplicate);
+      return Tuple2(false, appLocalizationsNoContext().appValidationNameDuplicate);
     }
     return Tuple2(true, "");
   }

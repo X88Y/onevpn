@@ -34,7 +34,7 @@ class _XrayRawEditPageState extends State<XrayRawEditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.outboundPageTitle),
+        title: Text(AppLocalizations.of(context)!.outboundScreenTitle),
       ),
       body: SafeArea(child: _body(context)),
     );
@@ -64,7 +64,7 @@ class _XrayRawEditPageState extends State<XrayRawEditPage> {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

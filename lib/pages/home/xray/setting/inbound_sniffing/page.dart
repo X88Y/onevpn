@@ -24,7 +24,7 @@ class InboundSniffingPage extends StatelessWidget {
           final controller = context.read<InboundSniffingController>();
           return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.inboundSniffingPageTitle),
+          title: Text(AppLocalizations.of(context)!.inboundSniffingScreenTitle),
         ),
         body: SafeArea(child: _body(context, controller, state)),
       );
@@ -65,7 +65,7 @@ class InboundSniffingPage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(AppLocalizations.of(context)!.switchEnabled),
+          Text(AppLocalizations.of(context)!.appSwitchEnabled),
           Switch(
             value: state.sniffingState.enabled,
             onChanged: (value) => controller.updateEnabled(value),
@@ -83,7 +83,7 @@ class InboundSniffingPage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(AppLocalizations.of(context)!.switchRouteOnly),
+          Text(AppLocalizations.of(context)!.appSwitchRouteOnly),
           Switch(
             value: state.sniffingState.routeOnly,
             onChanged: (value) => controller.updateRouteOnly(value),
@@ -106,7 +106,7 @@ class InboundSniffingPage extends StatelessWidget {
     }).toList();
 
     return SectionView(
-      title: AppLocalizations.of(context)!.inboundSniffingPageDestOverride,
+      title: AppLocalizations.of(context)!.inboundSniffingScreenDestOverride,
       child: Wrap(spacing: 5.0, runSpacing: 5.0, children: children),
     );
   }
@@ -125,11 +125,11 @@ class InboundSniffingPage extends StatelessWidget {
                     label: Text(
                       AppLocalizations.of(
                         context,
-                      )!.inboundSniffingPageDomainsExcluded,
+                      )!.inboundSniffingScreenDomainsExcluded,
                     ),
                     hintText: AppLocalizations.of(
                       context,
-                    )!.inboundSniffingPageDomainsExcludedExample,
+                    )!.inboundSniffingScreenDomainsExcludedExample,
                   ),
                 ),
               ),
@@ -152,7 +152,7 @@ class InboundSniffingPage extends StatelessWidget {
               Text(
                 AppLocalizations.of(
                   context,
-                )!.inboundSniffingPageDomainsExcluded,
+                )!.inboundSniffingScreenDomainsExcluded,
               ),
               IconButton(
                 onPressed: () => controller.appendDomainsExcluded(),
@@ -176,7 +176,7 @@ class InboundSniffingPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

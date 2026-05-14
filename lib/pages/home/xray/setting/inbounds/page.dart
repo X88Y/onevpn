@@ -29,7 +29,7 @@ class _InboundsPageState extends State<InboundsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.inboundsPageTitle),
+        title: Text(AppLocalizations.of(context)!.inboundsScreenTitle),
       ),
       body: SafeArea(child: _body(context)),
     );
@@ -54,12 +54,12 @@ class _InboundsPageState extends State<InboundsPage> {
         children: [
           ListTile(
             onTap: () => controller.editTun(context),
-            title: Text(AppLocalizations.of(context)!.inboundsPageTun),
+            title: Text(AppLocalizations.of(context)!.inboundsScreenTun),
             trailing: const Icon(Icons.chevron_right),
           ),
           ListTile(
             onTap: () => controller.editPing(context),
-            title: Text(AppLocalizations.of(context)!.inboundsPagePing),
+            title: Text(AppLocalizations.of(context)!.inboundsScreenPing),
             trailing: const Icon(Icons.chevron_right),
           ),
         ],
@@ -73,7 +73,7 @@ class _InboundsPageState extends State<InboundsPage> {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

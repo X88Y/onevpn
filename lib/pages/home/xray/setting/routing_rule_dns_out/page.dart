@@ -21,7 +21,7 @@ class RoutingRuleDnsOutPage extends StatelessWidget {
           final controller = context.read<RoutingRuleDnsOutController>();
           return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.routingRulePageTitle),
+          title: Text(AppLocalizations.of(context)!.routingRuleScreenTitle),
         ),
         body: SafeArea(child: _body(context, controller, state)),
       );
@@ -53,7 +53,7 @@ class RoutingRuleDnsOutPage extends StatelessWidget {
         .map((e) => Text(e))
         .toList();
     return SectionView(
-      title: AppLocalizations.of(context)!.routingRulePageInboundTag,
+      title: AppLocalizations.of(context)!.routingRuleScreenInboundTag,
       child: Column(children: views),
     );
   }
@@ -66,7 +66,7 @@ class RoutingRuleDnsOutPage extends StatelessWidget {
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.routingRulePagePort,
+            title: AppLocalizations.of(context)!.routingRuleScreenPort,
             detail: state.ruleState.port,
           ),
         ],
@@ -82,11 +82,11 @@ class RoutingRuleDnsOutPage extends StatelessWidget {
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.routingRulePageOutboundTag,
+            title: AppLocalizations.of(context)!.routingRuleScreenOutboundTag,
             detail: state.ruleState.outboundTag,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.routingRulePageRuleTag,
+            title: AppLocalizations.of(context)!.routingRuleScreenRuleTag,
             detail: state.ruleState.ruleTag,
           ),
         ],

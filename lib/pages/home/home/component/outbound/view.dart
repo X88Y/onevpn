@@ -51,7 +51,7 @@ class HomeOutboundView extends StatelessWidget {
     return ColoredBox(
       color: ColorManager.surface(context),
       child: TextActionRow(
-        title: AppLocalizations.of(context)!.homeOutboundViewXraySetting,
+        title: AppLocalizations.of(context)!.mainOutboundViewXrayConfig,
         detail: state.xraySettingName,
         onTap: () => controller.gotoXraySetting(context),
       ),
@@ -65,7 +65,7 @@ class HomeOutboundView extends StatelessWidget {
   ) {
     if (state.configs.isEmpty) {
       return Center(
-        child: Text(AppLocalizations.of(context)!.homeOutboundViewNoOutbound),
+        child: Text(AppLocalizations.of(context)!.mainOutboundViewNoOutbound),
       );
     } else {
       return ListView.separated(

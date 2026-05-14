@@ -69,7 +69,7 @@ class GeoDatSelectPage extends StatelessWidget {
   ) {
     if (state.geoDatCodes.isEmpty) {
       return Center(
-        child: Text(AppLocalizations.of(context)!.geoDatCodesPageNoCodes),
+        child: Text(AppLocalizations.of(context)!.geoDatCodesScreenNoCodes),
       );
     } else {
       return ListView.separated(
@@ -106,7 +106,7 @@ class GeoDatSelectPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

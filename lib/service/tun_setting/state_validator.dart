@@ -11,38 +11,38 @@ extension TunSettingStateValidator on TunSettingState {
     if (!EmptyTool.checkString(tunPriority)) {
       return Tuple2(
         false,
-        appLocalizationsNoContext().validationPriorityRequired,
+        appLocalizationsNoContext().appValidationPriorityRequired,
       );
     }
     if (!EmptyTool.checkString(tunDnsIPv4)) {
-      return Tuple2(false, appLocalizationsNoContext().validationDnsRequired);
+      return Tuple2(false, appLocalizationsNoContext().appValidationDnsRequired);
     }
 
     final ipv4 = InternetAddress.tryParse(tunDnsIPv4);
     if (ipv4 == null) {
-      return Tuple2(false, appLocalizationsNoContext().validationIPv4Invalid);
+      return Tuple2(false, appLocalizationsNoContext().appValidationIPv4Invalid);
     }
 
     if (ipv4.type != InternetAddressType.IPv4) {
-      return Tuple2(false, appLocalizationsNoContext().validationIPv4Invalid);
+      return Tuple2(false, appLocalizationsNoContext().appValidationIPv4Invalid);
     }
 
     if (!EmptyTool.checkString(tunDnsIPv6)) {
-      return Tuple2(false, appLocalizationsNoContext().validationDnsRequired);
+      return Tuple2(false, appLocalizationsNoContext().appValidationDnsRequired);
     }
 
     final ipv6 = InternetAddress.tryParse(tunDnsIPv6);
     if (ipv6 == null) {
-      return Tuple2(false, appLocalizationsNoContext().validationIPv6Invalid);
+      return Tuple2(false, appLocalizationsNoContext().appValidationIPv6Invalid);
     }
 
     if (ipv6.type != InternetAddressType.IPv6) {
-      return Tuple2(false, appLocalizationsNoContext().validationIPv6Invalid);
+      return Tuple2(false, appLocalizationsNoContext().appValidationIPv6Invalid);
     }
 
     if (enableDot) {
       if (!EmptyTool.checkString(dnsServerName)) {
-        return Tuple2(false, appLocalizationsNoContext().validationDnsRequired);
+        return Tuple2(false, appLocalizationsNoContext().appValidationDnsRequired);
       }
     }
 

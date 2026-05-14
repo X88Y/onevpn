@@ -28,7 +28,7 @@ class XrayRawEditController {
     } catch (_) {
       ContextAlert.showToast(
         context,
-        AppLocalizations.of(context)!.validationJsonInvalid,
+        AppLocalizations.of(context)!.appValidationJsonInvalid,
       );
       return;
     }

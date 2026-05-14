@@ -24,7 +24,7 @@ class RoutingRuleDnsDoTPage extends StatelessWidget {
           final controller = context.read<RoutingRuleDnsDoTController>();
           return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.routingRulePageTitle),
+          title: Text(AppLocalizations.of(context)!.routingRuleScreenTitle),
         ),
         body: SafeArea(child: _body(context, controller, state)),
       );
@@ -63,7 +63,7 @@ class RoutingRuleDnsDoTPage extends StatelessWidget {
         .map((e) => Text(e))
         .toList();
     return SectionView(
-      title: AppLocalizations.of(context)!.routingRulePageInboundTag,
+      title: AppLocalizations.of(context)!.routingRuleScreenInboundTag,
       child: Column(children: views),
     );
   }
@@ -76,7 +76,7 @@ class RoutingRuleDnsDoTPage extends StatelessWidget {
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.routingRulePagePort,
+            title: AppLocalizations.of(context)!.routingRuleScreenPort,
             detail: state.ruleState.port,
           ),
         ],
@@ -104,7 +104,7 @@ class RoutingRuleDnsDoTPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.routingRulePageOutboundTag),
+        Text(AppLocalizations.of(context)!.routingRuleScreenOutboundTag),
         TextMenuPicker(
           title: state.ruleState.outboundTag,
           selections: state.outboundTags,
@@ -118,7 +118,7 @@ class RoutingRuleDnsDoTPage extends StatelessWidget {
     BuildContext context,
     RoutingRuleDnsDoTController controller, RoutingRuleDnsDoTCubitState state) {
     return TextRow(
-      title: AppLocalizations.of(context)!.routingRulePageRuleTag,
+      title: AppLocalizations.of(context)!.routingRuleScreenRuleTag,
       detail: state.ruleState.ruleTag,
     );
   }
@@ -132,7 +132,7 @@ class RoutingRuleDnsDoTPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

@@ -21,7 +21,7 @@ class SubUpdatePage extends StatelessWidget {
           final controller = context.read<SubUpdateController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.subUpdatePageTitle),
+              title: Text(AppLocalizations.of(context)!.subUpdateScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -68,7 +68,7 @@ class SubUpdatePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.subUpdatePageEnable),
+        Text(AppLocalizations.of(context)!.subUpdateScreenEnable),
         Switch(
           value: state.subUpdateState.enable,
           onChanged: (value) => controller.updateEnable(value),
@@ -85,7 +85,7 @@ class SubUpdatePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.subUpdatePageInterval),
+        Text(AppLocalizations.of(context)!.subUpdateScreenInterval),
         TextMenuPicker(
           title: "${state.subUpdateState.interval}",
           selections: SubUpdateInterval.values,
@@ -103,7 +103,7 @@ class SubUpdatePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.subUpdatePageAutoPing),
+        Text(AppLocalizations.of(context)!.subUpdateScreenAutoPing),
         Switch(
           value: state.subUpdateState.autoPing,
           onChanged: (value) => controller.updateAutoPing(value),
@@ -118,7 +118,7 @@ class SubUpdatePage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

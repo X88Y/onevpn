@@ -54,7 +54,7 @@ class PingController extends Cubit<PingPageState> {
       if (url.isEmpty) {
         ContextAlert.showToast(
           context,
-          AppLocalizations.of(context)!.validationUrlRequired,
+          AppLocalizations.of(context)!.appValidationUrlRequired,
         );
         return;
       }
@@ -62,7 +62,7 @@ class PingController extends Cubit<PingPageState> {
       if (uri == null) {
         ContextAlert.showToast(
           context,
-          AppLocalizations.of(context)!.validationUrlInvalid,
+          AppLocalizations.of(context)!.appValidationUrlInvalid,
         );
         return;
       }

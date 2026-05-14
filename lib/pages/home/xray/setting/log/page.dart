@@ -24,7 +24,7 @@ class XrayLogPage extends StatelessWidget {
           final controller = context.read<XrayLogController>();
           return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.xrayLogPageTitle),
+          title: Text(AppLocalizations.of(context)!.xrayLogScreenTitle),
         ),
         body: SafeArea(child: _body(context, controller, state)),
       );
@@ -57,7 +57,7 @@ class XrayLogPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.xrayLogPageLogLevel),
+              Text(AppLocalizations.of(context)!.xrayLogScreenLogLevel),
               TextMenuPicker(
                 title: state.logState.logLevel.name,
                 selections: XrayLogLevel.names,
@@ -68,7 +68,7 @@ class XrayLogPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.xrayLogPageDnsLog),
+              Text(AppLocalizations.of(context)!.xrayLogScreenDnsLog),
               Switch(
                 value: state.logState.dnsLog,
                 onChanged: (value) => controller.updateDnsLog(value),
@@ -78,7 +78,7 @@ class XrayLogPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.xrayLogPageMaskAddress),
+              Text(AppLocalizations.of(context)!.xrayLogScreenMaskAddress),
               TextMenuPicker(
                 title: state.logState.maskAddress.name,
                 selections: XrayLogMaskAddress.names,
@@ -97,7 +97,7 @@ class XrayLogPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

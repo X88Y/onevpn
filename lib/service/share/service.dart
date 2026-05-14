@@ -52,14 +52,14 @@ final class ShareService {
     final hasStrings = await Clipboard.hasStrings();
     if (!hasStrings) {
       ToastService().showToast(
-        appLocalizationsNoContext().homeOutboundViewNoValidConfig,
+        appLocalizationsNoContext().mainOutboundViewNoValidConfig,
       );
       return;
     }
     final data = await Clipboard.getData(Clipboard.kTextPlain);
     if (data == null) {
       ToastService().showToast(
-        appLocalizationsNoContext().homeOutboundViewNoValidConfig,
+        appLocalizationsNoContext().mainOutboundViewNoValidConfig,
       );
       return;
     }
@@ -67,7 +67,7 @@ final class ShareService {
     final text = data.text;
     if (text == null) {
       ToastService().showToast(
-        appLocalizationsNoContext().homeOutboundViewNoValidConfig,
+        appLocalizationsNoContext().mainOutboundViewNoValidConfig,
       );
       return;
     }
@@ -110,11 +110,11 @@ final class ShareService {
 
     if (success) {
       ToastService().showToast(
-        appLocalizationsNoContext().homeOutboundViewImportSuccess,
+        appLocalizationsNoContext().mainOutboundViewImportSuccess,
       );
     } else {
       ToastService().showToast(
-        appLocalizationsNoContext().homeOutboundViewNoValidConfig,
+        appLocalizationsNoContext().mainOutboundViewNoValidConfig,
       );
     }
   }

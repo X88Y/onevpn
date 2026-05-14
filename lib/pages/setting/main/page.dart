@@ -19,7 +19,7 @@ class SettingPage extends StatelessWidget {
           final controller = context.read<SettingController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.settingPageTitle),
+              title: Text(AppLocalizations.of(context)!.configScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -55,47 +55,47 @@ class SettingPage extends StatelessWidget {
     SettingController controller,
   ) {
     final appVersion =
-        "${AppLocalizations.of(context)!.settingPageAppVersion}${state.appVersion}";
+        "${AppLocalizations.of(context)!.configScreenAppVersion}${state.appVersion}";
     final xrayVersion =
-        "${AppLocalizations.of(context)!.settingPageXrayVersion}${state.xrayVersion}";
+        "${AppLocalizations.of(context)!.configScreenXrayVersion}${state.xrayVersion}";
     return SectionView(
       title: "$appVersion\n$xrayVersion",
       level: SectionLevel.none,
       child: Column(
         children: [
           TextActionRow(
-            title: AppLocalizations.of(context)!.tunSettingUIPageTitle,
+            title: AppLocalizations.of(context)!.tunConfigUIScreenTitle,
             detail: "",
             onTap: () => controller.gotoTunSetting(context),
           ),
           Divider(),
           TextActionRow(
-            title: AppLocalizations.of(context)!.pingPageTitle,
+            title: AppLocalizations.of(context)!.pingScreenTitle,
             detail: "",
             onTap: () => controller.gotoPing(context),
           ),
           Divider(),
           TextActionRow(
-            title: AppLocalizations.of(context)!.subUpdatePageTitle,
+            title: AppLocalizations.of(context)!.subUpdateScreenTitle,
             detail: "",
             onTap: () => controller.gotoSubUpdate(context),
           ),
           Divider(),
           TextActionRow(
-            title: AppLocalizations.of(context)!.geoDataListPageTitle,
+            title: AppLocalizations.of(context)!.geoDataListScreenTitle,
             detail: "",
             onTap: () => controller.gotoGeoData(context),
           ),
           if (!AppPlatform.isIOS) Divider(),
           if (!AppPlatform.isIOS)
             TextActionRow(
-              title: AppLocalizations.of(context)!.settingPageEnhancedRouting,
+              title: AppLocalizations.of(context)!.configScreenEnhancedRouting,
               detail: "",
               onTap: () => controller.openEnhancedRouting(context),
             ),
           Divider(),
           TextActionRow(
-            title: AppLocalizations.of(context)!.logPageTitle,
+            title: AppLocalizations.of(context)!.logScreenTitle,
             detail: "",
             onTap: () => controller.gotoLog(context),
           ),
@@ -126,7 +126,7 @@ class SettingPage extends StatelessWidget {
 
   Widget _backup(BuildContext context, SettingController controller) {
     return TextActionRow(
-      title: AppLocalizations.of(context)!.backupPageTitle,
+      title: AppLocalizations.of(context)!.backupScreenTitle,
       detail: "",
       onTap: () => controller.gotoBackup(context),
     );
@@ -134,7 +134,7 @@ class SettingPage extends StatelessWidget {
 
   Widget _appIcon(BuildContext context, SettingController controller) {
     return TextActionRow(
-      title: AppLocalizations.of(context)!.appIconPageTitle,
+      title: AppLocalizations.of(context)!.appIconScreenTitle,
       detail: "",
       onTap: () => controller.gotoAppIcon(context),
     );
@@ -142,7 +142,7 @@ class SettingPage extends StatelessWidget {
 
   Widget _toolbox(BuildContext context, SettingController controller) {
     return TextActionRow(
-      title: AppLocalizations.of(context)!.toolboxPageTitle,
+      title: AppLocalizations.of(context)!.toolboxScreenTitle,
       detail: "",
       onTap: () => controller.gotoToolbox(context),
     );
@@ -150,7 +150,7 @@ class SettingPage extends StatelessWidget {
 
   Widget _theme(BuildContext context, SettingController controller) {
     return TextActionRow(
-      title: AppLocalizations.of(context)!.themePageTitle,
+      title: AppLocalizations.of(context)!.themeScreenTitle,
       detail: "",
       onTap: () => controller.gotoTheme(context),
     );
@@ -158,7 +158,7 @@ class SettingPage extends StatelessWidget {
 
   Widget _language(BuildContext context, SettingController controller) {
     return TextActionRow(
-      title: AppLocalizations.of(context)!.languagePageTitle,
+      title: AppLocalizations.of(context)!.languageScreenTitle,
       detail: "",
       onTap: () => controller.gotoLanguage(context),
     );
@@ -171,50 +171,50 @@ class SettingPage extends StatelessWidget {
       child: Column(
         children: [
           TextActionRow(
-            title: AppLocalizations.of(context)!.settingPageDoc,
+            title: AppLocalizations.of(context)!.configScreenDoc,
             detail: "",
             onTap: () => controller.openDoc(context),
           ),
           if (AppPlatform.isMobile || AppPlatform.isMacOS) Divider(),
           if (AppPlatform.isMobile || AppPlatform.isMacOS)
             TextActionRow(
-              title: AppLocalizations.of(context)!.settingPageReview,
+              title: AppLocalizations.of(context)!.configScreenReview,
               detail: "",
               onTap: () => controller.gotoReview(context),
             ),
           Divider(),
           TextActionRow(
-            title: AppLocalizations.of(context)!.settingPageTelegramChannel,
+            title: AppLocalizations.of(context)!.configScreenTelegramChannel,
             detail: "",
             onTap: () => controller.openTelegram(context),
           ),
           Divider(),
           TextActionRow(
-            title: AppLocalizations.of(context)!.settingPageEmail,
+            title: AppLocalizations.of(context)!.configScreenEmail,
             detail: "",
             onTap: () => controller.sendEmail(context),
           ),
           Divider(),
           TextActionRow(
-            title: AppLocalizations.of(context)!.settingPageSubmitIssue,
+            title: AppLocalizations.of(context)!.configScreenSubmitIssue,
             detail: "",
             onTap: () => controller.submitIssue(context),
           ),
           Divider(),
           TextActionRow(
-            title: AppLocalizations.of(context)!.settingPageSourceCode,
+            title: AppLocalizations.of(context)!.configScreenSourceCode,
             detail: "",
             onTap: () => controller.openSourceCode(context),
           ),
           Divider(),
           TextActionRow(
-            title: AppLocalizations.of(context)!.settingPageCredits,
+            title: AppLocalizations.of(context)!.configScreenCredits,
             detail: "",
             onTap: () => controller.openCredits(context),
           ),
           Divider(),
           TextActionRow(
-            title: AppLocalizations.of(context)!.settingPagePrivacy,
+            title: AppLocalizations.of(context)!.configScreenPrivacy,
             detail: "",
             onTap: () => controller.openPrivacy(context),
           ),
@@ -231,7 +231,7 @@ class SettingPage extends StatelessWidget {
         bottom: 16,
       ),
       child: Text(
-        AppLocalizations.of(context)!.settingPageFooterTips,
+        AppLocalizations.of(context)!.configScreenFooterTips,
         style: const TextStyle(fontSize: 12.0, color: Colors.grey),
       ),
     );

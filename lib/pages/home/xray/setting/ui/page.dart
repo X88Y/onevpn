@@ -35,7 +35,7 @@ class _XraySettingUIPageState extends State<XraySettingUIPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.xraySettingUIPageTitle),
+        title: Text(AppLocalizations.of(context)!.xrayConfigUIScreenTitle),
         actions: [
           IconButton(
             onPressed: () => controller.gotoRawEdit(context),
@@ -76,8 +76,8 @@ class _XraySettingUIPageState extends State<XraySettingUIPage> {
     return TextField(
       controller: controller.nameController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.xraySettingUIPageName),
-        hintText: AppLocalizations.of(context)!.xraySettingUIPageName,
+        label: Text(AppLocalizations.of(context)!.xrayConfigUIScreenName),
+        hintText: AppLocalizations.of(context)!.xrayConfigUIScreenName,
       ),
     );
   }
@@ -89,27 +89,27 @@ class _XraySettingUIPageState extends State<XraySettingUIPage> {
         children: [
           ListTile(
             onTap: () => controller.editLog(context),
-            title: Text(AppLocalizations.of(context)!.xraySettingUIPageEditLog),
+            title: Text(AppLocalizations.of(context)!.xrayConfigUIScreenEditLog),
             trailing: const Icon(Icons.chevron_right),
           ),
           ListTile(
             onTap: () => controller.editDns(context),
-            title: Text(AppLocalizations.of(context)!.xraySettingUIPageEditDns),
+            title: Text(AppLocalizations.of(context)!.xrayConfigUIScreenEditDns),
             trailing: const Icon(Icons.chevron_right),
           ),
           ListTile(
             onTap: () => controller.editRouting(context),
-            title: Text(AppLocalizations.of(context)!.xraySettingUIPageEditRouting),
+            title: Text(AppLocalizations.of(context)!.xrayConfigUIScreenEditRouting),
             trailing: const Icon(Icons.chevron_right),
           ),
           ListTile(
             onTap: () => controller.editInbounds(context),
-            title: Text(AppLocalizations.of(context)!.xraySettingUIPageEditInbounds),
+            title: Text(AppLocalizations.of(context)!.xrayConfigUIScreenEditInbounds),
             trailing: const Icon(Icons.chevron_right),
           ),
           ListTile(
             onTap: () => controller.editOutbounds(context),
-            title: Text(AppLocalizations.of(context)!.xraySettingUIPageEditOutbounds),
+            title: Text(AppLocalizations.of(context)!.xrayConfigUIScreenEditOutbounds),
             trailing: const Icon(Icons.chevron_right),
           ),
         ],
@@ -123,7 +123,7 @@ class _XraySettingUIPageState extends State<XraySettingUIPage> {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

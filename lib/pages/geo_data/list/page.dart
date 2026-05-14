@@ -30,7 +30,7 @@ class GeoDataListPage extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title:
-                  Text(AppLocalizations.of(context)!.geoDataListPageTitle),
+                  Text(AppLocalizations.of(context)!.geoDataListScreenTitle),
               actions: [
                 IconButton(
                   onPressed: () => controller.addGeoData(context),
@@ -185,7 +185,7 @@ class GeoDataListPage extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              AppLocalizations.of(context)!.geoDataListPageSystem,
+              AppLocalizations.of(context)!.geoDataListScreenSystem,
               style: TextStyle(
                 fontSize: 15,
                 color: ColorManager.primaryText(context),
@@ -259,7 +259,7 @@ class GeoDataListPage extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              AppLocalizations.of(context)!.geoDataListPageCustom,
+              AppLocalizations.of(context)!.geoDataListScreenCustom,
               style: TextStyle(
                 fontSize: 15,
                 color: ColorManager.primaryText(context),
@@ -344,7 +344,7 @@ class GeoDataListPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

@@ -19,7 +19,7 @@ class SharePage extends StatelessWidget {
       child: BlocBuilder<ShareController, ShareState>(
         builder: (context, state) => Scaffold(
           appBar: AppBar(
-            title: Text(AppLocalizations.of(context)!.sharePageTitle),
+            title: Text(AppLocalizations.of(context)!.shareScreenTitle),
           ),
           body: SafeArea(child: _body(context, state)),
         ),
@@ -57,22 +57,22 @@ class SharePage extends StatelessWidget {
 
   Widget _linkQrcodeSection(BuildContext context, ShareController controller) {
     return SectionView(
-      title: AppLocalizations.of(context)!.sharePageQRCode,
+      title: AppLocalizations.of(context)!.shareScreenQRCode,
       level: SectionLevel.second,
       child: Column(
         children: [
           if (!AppPlatform.isLinux)
             ListTile(
               onTap: () => controller.shareLinkQrcode(context),
-              title: Text(AppLocalizations.of(context)!.sharePageShareQRCode),
+              title: Text(AppLocalizations.of(context)!.shareScreenShareQRCode),
             ),
           ListTile(
             onTap: () => controller.saveLinkQrcode(context),
-            title: Text(AppLocalizations.of(context)!.sharePageSaveQRCode),
+            title: Text(AppLocalizations.of(context)!.shareScreenSaveQRCode),
           ),
           ListTile(
             onTap: () => controller.showLinkQrcode(context),
-            title: Text(AppLocalizations.of(context)!.sharePageShowQRCode),
+            title: Text(AppLocalizations.of(context)!.shareScreenShowQRCode),
           ),
         ],
       ),
@@ -81,17 +81,17 @@ class SharePage extends StatelessWidget {
 
   Widget _linkUrlSection(BuildContext context, ShareController controller) {
     return SectionView(
-      title: AppLocalizations.of(context)!.sharePageLink,
+      title: AppLocalizations.of(context)!.shareScreenLink,
       level: SectionLevel.second,
       child: Column(
         children: [
           ListTile(
             onTap: () => controller.shareLinkUrl(context),
-            title: Text(AppLocalizations.of(context)!.sharePageShareLink),
+            title: Text(AppLocalizations.of(context)!.shareScreenShareLink),
           ),
           ListTile(
             onTap: () => controller.copyLinkUrl(context),
-            title: Text(AppLocalizations.of(context)!.sharePageCopyLink),
+            title: Text(AppLocalizations.of(context)!.shareScreenCopyLink),
           ),
         ],
       ),
@@ -101,24 +101,24 @@ class SharePage extends StatelessWidget {
   Widget _appSection(BuildContext context, ShareState state) {
     final controller = context.read<ShareController>();
     return SectionView(
-      title: AppLocalizations.of(context)!.sharePageAppLink,
+      title: AppLocalizations.of(context)!.shareScreenAppLink,
       child: _appUrlSection(context, controller),
     );
   }
 
   Widget _appUrlSection(BuildContext context, ShareController controller) {
     return SectionView(
-      title: AppLocalizations.of(context)!.sharePageLink,
+      title: AppLocalizations.of(context)!.shareScreenLink,
       level: SectionLevel.second,
       child: Column(
         children: [
           ListTile(
             onTap: () => controller.shareAppUrl(context),
-            title: Text(AppLocalizations.of(context)!.sharePageShareLink),
+            title: Text(AppLocalizations.of(context)!.shareScreenShareLink),
           ),
           ListTile(
             onTap: () => controller.copyAppUrl(context),
-            title: Text(AppLocalizations.of(context)!.sharePageCopyLink),
+            title: Text(AppLocalizations.of(context)!.shareScreenCopyLink),
           ),
         ],
       ),

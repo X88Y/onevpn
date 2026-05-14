@@ -14,7 +14,7 @@ class NodeInfoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.nodeInfoPageTitle),
+        title: Text(AppLocalizations.of(context)!.nodeInfoScreenTitle),
       ),
       body: SafeArea(child: _body(context)),
     );
@@ -34,56 +34,56 @@ class NodeInfoPage extends StatelessWidget {
   Widget _section(BuildContext context, AppEventBusState state) {
     final location = state.location;
     final duration =
-        location.duration ?? AppLocalizations.of(context)!.nodeInfoPageFetching;
+        location.duration ?? AppLocalizations.of(context)!.nodeInfoScreenFetching;
     var delay = "";
     if (location.delay == null) {
-      delay = AppLocalizations.of(context)!.nodeInfoPageFetching;
+      delay = AppLocalizations.of(context)!.nodeInfoScreenFetching;
     } else {
       delay = "${location.delay}ms";
     }
     final ipAddress =
         location.ipAddress ??
-        AppLocalizations.of(context)!.nodeInfoPageFetching;
+        AppLocalizations.of(context)!.nodeInfoScreenFetching;
     final ipVersion =
         location.ipVersion ??
-        AppLocalizations.of(context)!.nodeInfoPageFetching;
+        AppLocalizations.of(context)!.nodeInfoScreenFetching;
     final country =
-        location.country ?? AppLocalizations.of(context)!.nodeInfoPageFetching;
+        location.country ?? AppLocalizations.of(context)!.nodeInfoScreenFetching;
     final region =
-        location.region ?? AppLocalizations.of(context)!.nodeInfoPageFetching;
+        location.region ?? AppLocalizations.of(context)!.nodeInfoScreenFetching;
     final city =
-        location.city ?? AppLocalizations.of(context)!.nodeInfoPageFetching;
+        location.city ?? AppLocalizations.of(context)!.nodeInfoScreenFetching;
 
     return SectionView(
       title: "",
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.nodeInfoPageDuration,
+            title: AppLocalizations.of(context)!.nodeInfoScreenDuration,
             detail: duration,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.nodeInfoPageDelay,
+            title: AppLocalizations.of(context)!.nodeInfoScreenDelay,
             detail: delay,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.nodeInfoPageIP,
+            title: AppLocalizations.of(context)!.nodeInfoScreenIP,
             detail: ipAddress,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.nodeInfoPageIPVersion,
+            title: AppLocalizations.of(context)!.nodeInfoScreenIPVersion,
             detail: ipVersion,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.nodeInfoPageCountryOrRegion,
+            title: AppLocalizations.of(context)!.nodeInfoScreenCountryOrRegion,
             detail: country,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.nodeInfoPageRegion,
+            title: AppLocalizations.of(context)!.nodeInfoScreenRegion,
             detail: region,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.nodeInfoPageCity,
+            title: AppLocalizations.of(context)!.nodeInfoScreenCity,
             detail: city,
           ),
         ],

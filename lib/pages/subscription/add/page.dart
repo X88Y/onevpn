@@ -29,7 +29,7 @@ class _SubscriptionAddPageState extends State<SubscriptionAddPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.subscriptionAddPageTitle),
+        title: Text(AppLocalizations.of(context)!.subscriptionAddScreenTitle),
       ),
       body: SafeArea(child: _body(context, controller)),
     );
@@ -43,7 +43,7 @@ class _SubscriptionAddPageState extends State<SubscriptionAddPage> {
           Expanded(
             child: SingleChildScrollView(
               child: SectionView(
-                title: AppLocalizations.of(context)!.subscriptionAddPageSection,
+                title: AppLocalizations.of(context)!.subscriptionAddScreenSection,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -64,8 +64,8 @@ class _SubscriptionAddPageState extends State<SubscriptionAddPage> {
     return TextField(
       controller: controller.nameController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.subscriptionAddPageName),
-        hintText: AppLocalizations.of(context)!.subscriptionAddPageName,
+        label: Text(AppLocalizations.of(context)!.subscriptionAddScreenName),
+        hintText: AppLocalizations.of(context)!.subscriptionAddScreenName,
       ),
     );
   }
@@ -74,9 +74,9 @@ class _SubscriptionAddPageState extends State<SubscriptionAddPage> {
     return TextField(
       controller: controller.urlController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.subscriptionAddPageUrl),
-        hintText: AppLocalizations.of(context)!.subscriptionAddPageUrlExample,
-        helperText: AppLocalizations.of(context)!.helpURL,
+        label: Text(AppLocalizations.of(context)!.subscriptionAddScreenUrl),
+        hintText: AppLocalizations.of(context)!.subscriptionAddScreenUrlExample,
+        helperText: AppLocalizations.of(context)!.appHelpURL,
       ),
     );
   }
@@ -108,7 +108,7 @@ class _SubscriptionAddPageState extends State<SubscriptionAddPage> {
     } else {
       return Expanded(
         child: PrimaryBottomButton(
-          title: AppLocalizations.of(context)!.buttonSave,
+          title: AppLocalizations.of(context)!.btnSave,
           callback: () => controller.save(context),
         ),
       );

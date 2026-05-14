@@ -25,7 +25,7 @@ class XhttpDownloadSettingsPage extends StatelessWidget {
           final controller = context.read<XhttpDownloadSettingsController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.outboundXhttpPageTitle),
+              title: Text(AppLocalizations.of(context)!.outboundXhttpScreenTitle),
             ),
             body: SafeArea(child: _body(context, controller, state)),
           );
@@ -66,15 +66,15 @@ class XhttpDownloadSettingsPage extends StatelessWidget {
       final key = TextField(
         controller: header.key,
         decoration: InputDecoration(
-          label: Text(AppLocalizations.of(context)!.outboundXhttpPageHeadersKey),
-          hintText: AppLocalizations.of(context)!.outboundXhttpPageHeadersKey,
+          label: Text(AppLocalizations.of(context)!.outboundXhttpScreenHeadersKey),
+          hintText: AppLocalizations.of(context)!.outboundXhttpScreenHeadersKey,
         ),
       );
       final value = TextField(
         controller: header.value,
         decoration: InputDecoration(
-          label: Text(AppLocalizations.of(context)!.outboundXhttpPageHeadersValue),
-          hintText: AppLocalizations.of(context)!.outboundXhttpPageHeadersValue,
+          label: Text(AppLocalizations.of(context)!.outboundXhttpScreenHeadersValue),
+          hintText: AppLocalizations.of(context)!.outboundXhttpScreenHeadersValue,
         ),
       );
       headerViews.add(key);
@@ -87,7 +87,7 @@ class XhttpDownloadSettingsPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.outboundXhttpPageHeaders),
+              Text(AppLocalizations.of(context)!.outboundXhttpScreenHeaders),
               IconButton(
                 onPressed: () => controller.appendHeader(),
                 icon: const Icon(Icons.add),
@@ -119,8 +119,8 @@ class XhttpDownloadSettingsPage extends StatelessWidget {
     return TextField(
       controller: controller.xPaddingBytesController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundXhttpPageXPaddingBytes),
-        hintText: AppLocalizations.of(context)!.outboundXhttpPageXPaddingBytes,
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXPaddingBytes),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenXPaddingBytes,
       ),
     );
   }
@@ -129,7 +129,7 @@ class XhttpDownloadSettingsPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.outboundXhttpPageNoGRPCHeader),
+        Text(AppLocalizations.of(context)!.outboundXhttpScreenNoGRPCHeader),
         Switch(
           value: state.downloadState.noGRPCHeader,
           onChanged: (value) => controller.updateNoGRPCHeader(value),
@@ -142,8 +142,8 @@ class XhttpDownloadSettingsPage extends StatelessWidget {
     return TextField(
       controller: controller.scMaxEachPostBytesController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundXhttpPageScMaxEachPostBytes),
-        hintText: AppLocalizations.of(context)!.outboundXhttpPageScMaxEachPostBytes,
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenScMaxEachPostBytes),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenScMaxEachPostBytes,
       ),
     );
   }
@@ -152,24 +152,24 @@ class XhttpDownloadSettingsPage extends StatelessWidget {
     return TextField(
       controller: controller.scMinPostsIntervalMsController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.outboundXhttpPageScMinPostsIntervalMs),
-        hintText: AppLocalizations.of(context)!.outboundXhttpPageScMinPostsIntervalMs,
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenScMinPostsIntervalMs),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenScMinPostsIntervalMs,
       ),
     );
   }
 
   Widget _xmuxSection(BuildContext context, XhttpDownloadSettingsController controller) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundXhttpPageXmux,
+      title: AppLocalizations.of(context)!.outboundXhttpScreenXmux,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(controller: controller.maxConcurrencyController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundXhttpPageXmuxMaxConcurrency), hintText: AppLocalizations.of(context)!.outboundXhttpPageXmuxMaxConcurrency)),
-          TextField(controller: controller.maxConnectionsController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundXhttpPageXmuxMaxConnections), hintText: AppLocalizations.of(context)!.outboundXhttpPageXmuxMaxConnections)),
-          TextField(controller: controller.cMaxReuseTimesController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundXhttpPageXmuxCMaxReuseTimes), hintText: AppLocalizations.of(context)!.outboundXhttpPageXmuxCMaxReuseTimes)),
-          TextField(controller: controller.hMaxReusableSecsController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundXhttpPageXmuxHMaxReusableSecs), hintText: AppLocalizations.of(context)!.outboundXhttpPageXmuxHMaxReusableSecs)),
-          TextField(controller: controller.hMaxRequestTimesController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundXhttpPageXmuxHMaxRequestTimes), hintText: AppLocalizations.of(context)!.outboundXhttpPageXmuxHMaxRequestTimes)),
-          TextField(controller: controller.hKeepAlivePeriodController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundXhttpPageXmuxHKeepAlivePeriod), hintText: AppLocalizations.of(context)!.outboundXhttpPageXmuxHKeepAlivePeriod)),
+          TextField(controller: controller.maxConcurrencyController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXmuxMaxConcurrency), hintText: AppLocalizations.of(context)!.outboundXhttpScreenXmuxMaxConcurrency)),
+          TextField(controller: controller.maxConnectionsController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXmuxMaxConnections), hintText: AppLocalizations.of(context)!.outboundXhttpScreenXmuxMaxConnections)),
+          TextField(controller: controller.cMaxReuseTimesController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXmuxCMaxReuseTimes), hintText: AppLocalizations.of(context)!.outboundXhttpScreenXmuxCMaxReuseTimes)),
+          TextField(controller: controller.hMaxReusableSecsController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXmuxHMaxReusableSecs), hintText: AppLocalizations.of(context)!.outboundXhttpScreenXmuxHMaxReusableSecs)),
+          TextField(controller: controller.hMaxRequestTimesController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXmuxHMaxRequestTimes), hintText: AppLocalizations.of(context)!.outboundXhttpScreenXmuxHMaxRequestTimes)),
+          TextField(controller: controller.hKeepAlivePeriodController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundXhttpScreenXmuxHKeepAlivePeriod), hintText: AppLocalizations.of(context)!.outboundXhttpScreenXmuxHKeepAlivePeriod)),
         ],
       ),
     );
@@ -181,9 +181,9 @@ class XhttpDownloadSettingsPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(controller: controller.addressController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIPageAddress), hintText: AppLocalizations.of(context)!.outboundUIPageAddressExample)),
-          TextField(controller: controller.portController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIPagePort), hintText: AppLocalizations.of(context)!.outboundUIPagePortExample)),
-          TextRow(title: AppLocalizations.of(context)!.outboundUIPageNetwork, detail: state.downloadState.network.name),
+          TextField(controller: controller.addressController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIScreenAddress), hintText: AppLocalizations.of(context)!.outboundUIScreenAddressExample)),
+          TextField(controller: controller.portController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIScreenPort), hintText: AppLocalizations.of(context)!.outboundUIScreenPortExample)),
+          TextRow(title: AppLocalizations.of(context)!.outboundUIScreenNetwork, detail: state.downloadState.network.name),
         ],
       ),
     );
@@ -191,17 +191,17 @@ class XhttpDownloadSettingsPage extends StatelessWidget {
 
   Widget _xhttpSection(BuildContext context, XhttpDownloadSettingsController controller, XhttpDownloadSettingsState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageXhttpSettings,
+      title: AppLocalizations.of(context)!.outboundUIScreenXhttpConfigs,
       child: Column(
         children: [
-          TextField(controller: controller.xhttpHostController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIPageHost), hintText: AppLocalizations.of(context)!.outboundUIPageHostExample)),
-          TextField(controller: controller.xhttpPathController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIPagePath), hintText: AppLocalizations.of(context)!.outboundUIPagePathExample)),
+          TextField(controller: controller.xhttpHostController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIScreenHost), hintText: AppLocalizations.of(context)!.outboundUIScreenHostExample)),
+          TextField(controller: controller.xhttpPathController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIScreenPath), hintText: AppLocalizations.of(context)!.outboundUIScreenPathExample)),
           Padding(
             padding: const EdgeInsetsDirectional.symmetric(vertical: 5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(AppLocalizations.of(context)!.outboundUIPageXhttpMode),
+                Text(AppLocalizations.of(context)!.outboundUIScreenXhttpMode),
                 TextMenuPicker(title: state.downloadState.xhttpMode.name, selections: XhttpMode.values, callback: (value) => controller.updateXhttpMode(value)),
               ],
             ),
@@ -213,11 +213,11 @@ class XhttpDownloadSettingsPage extends StatelessWidget {
 
   Widget _securitySection(BuildContext context, XhttpDownloadSettingsController controller, XhttpDownloadSettingsState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageSecurity,
+      title: AppLocalizations.of(context)!.outboundUIScreenSecurity,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(AppLocalizations.of(context)!.outboundUIPageSecurity),
+          Text(AppLocalizations.of(context)!.outboundUIScreenSecurity),
           TextMenuPicker(title: state.downloadState.security.name, selections: StreamSettingsSecurity.xhttpDownloadSettingsSecurity, callback: (value) => controller.updateSecurity(value)),
         ],
       ),
@@ -240,17 +240,17 @@ class XhttpDownloadSettingsPage extends StatelessWidget {
       return FilterChip(label: Text(value.name), selected: state.downloadState.alpn.contains(value), onSelected: (bool selected) => controller.updateAlpn(selected, value));
     }).toList();
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageTlsSettings,
+      title: AppLocalizations.of(context)!.outboundUIScreenTlsConfigs,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(controller: controller.serverNameController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIPageServerName), hintText: AppLocalizations.of(context)!.outboundUIPageServerNameExample)),
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.outboundUIPageAlpn), Wrap(spacing: 5.0, runSpacing: 5.0, children: children)]),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(AppLocalizations.of(context)!.outboundUIPageFingerprint), TextMenuPicker(title: state.downloadState.fingerprint.name, selections: StreamSettingsSecurityFingerprint.values, callback: (value) => controller.updateFingerprint(value))]),
-          TextField(controller: controller.pinnedPeerCertSha256Controller, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIPagePinnedPeerCertSha256), hintText: AppLocalizations.of(context)!.outboundUIPagePinnedPeerCertSha256)),
-          TextField(controller: controller.verifyPeerCertByNameController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIPageVerifyPeerCertByName), hintText: AppLocalizations.of(context)!.outboundUIPageVerifyPeerCertByName)),
-          TextField(controller: controller.echConfigListController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIPageEchConfigList), hintText: AppLocalizations.of(context)!.outboundUIPageEchConfigList)),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(AppLocalizations.of(context)!.outboundUIPageEchForceQuery), TextMenuPicker(title: state.downloadState.echForceQuery.name, selections: StreamSettingsEchForceQuery.values, callback: (value) => controller.updateEchForceQuery(value))]),
+          TextField(controller: controller.serverNameController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIScreenServerName), hintText: AppLocalizations.of(context)!.outboundUIScreenServerNameExample)),
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.outboundUIScreenAlpn), Wrap(spacing: 5.0, runSpacing: 5.0, children: children)]),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(AppLocalizations.of(context)!.outboundUIScreenFingerprint), TextMenuPicker(title: state.downloadState.fingerprint.name, selections: StreamSettingsSecurityFingerprint.values, callback: (value) => controller.updateFingerprint(value))]),
+          TextField(controller: controller.pinnedPeerCertSha256Controller, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIScreenPinnedPeerCertSha256), hintText: AppLocalizations.of(context)!.outboundUIScreenPinnedPeerCertSha256)),
+          TextField(controller: controller.verifyPeerCertByNameController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIScreenVerifyPeerCertByName), hintText: AppLocalizations.of(context)!.outboundUIScreenVerifyPeerCertByName)),
+          TextField(controller: controller.echConfigListController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIScreenEchConfigList), hintText: AppLocalizations.of(context)!.outboundUIScreenEchConfigList)),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(AppLocalizations.of(context)!.outboundUIScreenEchForceQuery), TextMenuPicker(title: state.downloadState.echForceQuery.name, selections: StreamSettingsEchForceQuery.values, callback: (value) => controller.updateEchForceQuery(value))]),
         ],
       ),
     );
@@ -258,15 +258,15 @@ class XhttpDownloadSettingsPage extends StatelessWidget {
 
   Widget _realitySection(BuildContext context, XhttpDownloadSettingsController controller, XhttpDownloadSettingsState state) {
     return SectionView(
-      title: AppLocalizations.of(context)!.outboundUIPageRealitySettings,
+      title: AppLocalizations.of(context)!.outboundUIScreenRealityConfigs,
       child: Column(
         children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(AppLocalizations.of(context)!.outboundUIPageFingerprint), TextMenuPicker(title: state.downloadState.fingerprint.name, selections: StreamSettingsSecurityFingerprint.values, callback: (value) => controller.updateFingerprint(value))]),
-          TextField(controller: controller.serverNameController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIPageServerName), hintText: AppLocalizations.of(context)!.outboundUIPageServerNameExample)),
-          TextField(controller: controller.passwordController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIPagePassword), hintText: AppLocalizations.of(context)!.outboundUIPagePassword)),
-          TextField(controller: controller.shortIdController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIPageShortId), hintText: AppLocalizations.of(context)!.outboundUIPageShortId)),
-          TextField(controller: controller.mldsa65VerifyController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIPageMldsa65Verify), hintText: AppLocalizations.of(context)!.outboundUIPageMldsa65Verify)),
-          TextField(controller: controller.spiderXController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIPageSpiderX), hintText: AppLocalizations.of(context)!.outboundUIPageSpiderX)),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(AppLocalizations.of(context)!.outboundUIScreenFingerprint), TextMenuPicker(title: state.downloadState.fingerprint.name, selections: StreamSettingsSecurityFingerprint.values, callback: (value) => controller.updateFingerprint(value))]),
+          TextField(controller: controller.serverNameController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIScreenServerName), hintText: AppLocalizations.of(context)!.outboundUIScreenServerNameExample)),
+          TextField(controller: controller.passwordController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIScreenPassword), hintText: AppLocalizations.of(context)!.outboundUIScreenPassword)),
+          TextField(controller: controller.shortIdController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIScreenShortId), hintText: AppLocalizations.of(context)!.outboundUIScreenShortId)),
+          TextField(controller: controller.mldsa65VerifyController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIScreenMldsa65Verify), hintText: AppLocalizations.of(context)!.outboundUIScreenMldsa65Verify)),
+          TextField(controller: controller.spiderXController, decoration: InputDecoration(label: Text(AppLocalizations.of(context)!.outboundUIScreenSpiderX), hintText: AppLocalizations.of(context)!.outboundUIScreenSpiderX)),
         ],
       ),
     );
@@ -278,7 +278,7 @@ class XhttpDownloadSettingsPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

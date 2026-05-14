@@ -22,7 +22,7 @@ class BackupPage extends StatelessWidget {
           final controller = context.read<BackupController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.backupPageTitle),
+              title: Text(AppLocalizations.of(context)!.backupScreenTitle),
               actions: [
                 IconButton(
                   onPressed: () => controller.importBackup(context),
@@ -60,7 +60,7 @@ class BackupPage extends StatelessWidget {
   ) {
     if (state.files.isEmpty) {
       return Center(
-        child: Text(AppLocalizations.of(context)!.backupPageNoFiles),
+        child: Text(AppLocalizations.of(context)!.backupScreenNoFiles),
       );
     } else {
       return RadioGroup<String>(
@@ -116,20 +116,20 @@ class BackupPage extends StatelessWidget {
             if (state.selection.isEmpty)
               Expanded(
                 child: SecondaryBottomButton(
-                  title: AppLocalizations.of(context)!.backupPageRestore,
+                  title: AppLocalizations.of(context)!.backupScreenRestore,
                   callback: null,
                 ),
               )
             else
               Expanded(
                 child: SecondaryBottomButton(
-                  title: AppLocalizations.of(context)!.backupPageRestore,
+                  title: AppLocalizations.of(context)!.backupScreenRestore,
                   callback: () => controller.restore(context),
                 ),
               ),
             Expanded(
               child: PrimaryBottomButton(
-                title: AppLocalizations.of(context)!.backupPageBackup,
+                title: AppLocalizations.of(context)!.backupScreenBackup,
                 callback: () => controller.backup(context),
               ),
             ),

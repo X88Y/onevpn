@@ -92,7 +92,7 @@ class AccountBubble extends StatelessWidget {
                         ),
                         const SizedBox(width: 16),
                         Text(
-                          AppLocalizations.of(context)!.homeFixVpn,
+                          AppLocalizations.of(context)!.mainFixVpn,
                           style: const TextStyle(
                             color: Color(0xFFFFC107),
                             fontSize: 16,
@@ -109,7 +109,7 @@ class AccountBubble extends StatelessWidget {
                 ListTile(
                   leading: Icon(Icons.description_outlined, color: Colors.white.withOpacity(0.7)),
                   title: Text(
-                    AppLocalizations.of(context)!.homeThirdPartyLicense,
+                    AppLocalizations.of(context)!.mainThirdPartyLicense,
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                   ),
                   onTap: () {
@@ -120,7 +120,7 @@ class AccountBubble extends StatelessWidget {
                 ListTile(
                   leading: Icon(Icons.privacy_tip_outlined, color: Colors.white.withOpacity(0.7)),
                   title: Text(
-                    AppLocalizations.of(context)!.homeTerms,
+                    AppLocalizations.of(context)!.mainTerms,
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                   ),
                   onTap: () {
@@ -131,7 +131,7 @@ class AccountBubble extends StatelessWidget {
                 ListTile(
                   leading: Icon(Icons.shield_outlined, color: Colors.white.withOpacity(0.7)),
                   title: Text(
-                    AppLocalizations.of(context)!.homePrivacy,
+                    AppLocalizations.of(context)!.mainPrivacy,
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                   ),
                   onTap: () {
@@ -144,7 +144,7 @@ class AccountBubble extends StatelessWidget {
                   ListTile(
                     leading: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
                     title: Text(
-                      AppLocalizations.of(context)!.homeDeleteAccount,
+                      AppLocalizations.of(context)!.mainDeleteAccount,
                       style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600),
                     ),
                     onTap: () {

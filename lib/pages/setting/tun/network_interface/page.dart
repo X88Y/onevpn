@@ -22,7 +22,7 @@ class NetworkInterfacePage extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title:
-                  Text(AppLocalizations.of(context)!.networkInterfacePageTitle),
+                  Text(AppLocalizations.of(context)!.networkInterfaceScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -55,7 +55,7 @@ class NetworkInterfacePage extends StatelessWidget {
     if (state.interfaceList.isEmpty) {
       return Center(
         child: Text(
-          AppLocalizations.of(context)!.networkInterfacePageNoInterface,
+          AppLocalizations.of(context)!.networkInterfaceScreenNoInterface,
         ),
       );
     } else {
@@ -94,7 +94,7 @@ class NetworkInterfacePage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

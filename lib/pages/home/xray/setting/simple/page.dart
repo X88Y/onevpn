@@ -25,7 +25,7 @@ class XraySettingSimplePage extends StatelessWidget {
               return Scaffold(
                 appBar: AppBar(
                   title: Text(
-                    AppLocalizations.of(context)!.xraySettingSimplePageTitle,
+                    AppLocalizations.of(context)!.xrayConfigSimpleScreenTitle,
                   ),
                 ),
                 body: SafeArea(child: _body(context, controller, state)),
@@ -67,11 +67,11 @@ class XraySettingSimplePage extends StatelessWidget {
     XraySettingSimpleCubitState state,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.logPageTitle,
+      title: AppLocalizations.of(context)!.logScreenTitle,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(AppLocalizations.of(context)!.xraySettingSimplePageEnableLog),
+          Text(AppLocalizations.of(context)!.xrayConfigSimpleScreenEnableLog),
           Switch(
             value: state.xraySetting.enableLog,
             onChanged: (value) => controller.updateEnableLog(value),
@@ -87,7 +87,7 @@ class XraySettingSimplePage extends StatelessWidget {
     XraySettingSimpleCubitState state,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.xraySettingSimplePageRouting,
+      title: AppLocalizations.of(context)!.xrayConfigSimpleScreenRouting,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -111,7 +111,7 @@ class XraySettingSimplePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.xraySettingSimplePageDomainStrategy),
+        Text(AppLocalizations.of(context)!.xrayConfigSimpleScreenDomainStrategy),
         TextMenuPicker(
           title: state.xraySetting.routing.domainStrategy.name,
           selections: RoutingDomainStrategy.simpleStrategy,
@@ -129,7 +129,7 @@ class XraySettingSimplePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.xraySettingSimplePageQueryStrategy),
+        Text(AppLocalizations.of(context)!.xrayConfigSimpleScreenQueryStrategy),
         TextMenuPicker(
           title: state.xraySetting.routing.queryStrategy.name,
           selections: DnsQueryStrategy.names,
@@ -147,7 +147,7 @@ class XraySettingSimplePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.xraySettingSimplePageDirectSet),
+        Text(AppLocalizations.of(context)!.xrayConfigSimpleScreenDirectSet),
         TextMenuPicker(
           title: state.xraySetting.routing.directSet.name,
           selections: SimpleCountry.names,
@@ -165,7 +165,7 @@ class XraySettingSimplePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.xraySettingSimplePageAppleDirect),
+        Text(AppLocalizations.of(context)!.xrayConfigSimpleScreenAppleDirect),
         Switch(
           value: state.xraySetting.routing.appleDirect,
           onChanged: (value) => controller.updateAppleDirect(value),
@@ -182,7 +182,7 @@ class XraySettingSimplePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.xraySettingSimplePageLocalDirect),
+        Text(AppLocalizations.of(context)!.xrayConfigSimpleScreenLocalDirect),
         Switch(
           value: state.xraySetting.routing.localDirect,
           onChanged: (value) => controller.updateLocalDirect(value),
@@ -199,7 +199,7 @@ class XraySettingSimplePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.xraySettingSimplePageEnableIPRule),
+        Text(AppLocalizations.of(context)!.xrayConfigSimpleScreenEnableIPRule),
         Switch(
           value: state.xraySetting.routing.enableIPRule,
           onChanged: (value) => controller.updateEnableIPRule(value),
@@ -216,7 +216,7 @@ class XraySettingSimplePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.xraySettingSimplePageLocalDns),
+        Text(AppLocalizations.of(context)!.xrayConfigSimpleScreenLocalDns),
         Switch(
           value: state.xraySetting.routing.localDns,
           onChanged: (value) => controller.updateLocalDns(value),
@@ -234,7 +234,7 @@ class XraySettingSimplePage extends StatelessWidget {
         .map((e) => _simpleDns(controller, state, e))
         .toList();
     return SectionView(
-      title: AppLocalizations.of(context)!.xraySettingSimplePageDns,
+      title: AppLocalizations.of(context)!.xrayConfigSimpleScreenDns,
       child: RadioGroup<int>(
         groupValue: state.xraySetting.dns.id,
         onChanged: (value) => controller.updateDnsId(value),
@@ -270,7 +270,7 @@ class XraySettingSimplePage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

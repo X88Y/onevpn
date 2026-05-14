@@ -13,7 +13,7 @@ class OutboundBlackHolePage extends StatelessWidget {
     final controller = OutboundBlackHoleController();
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.outboundBlackHolePageTitle),
+        title: Text(AppLocalizations.of(context)!.outboundBlackHoleScreenTitle),
       ),
       body: SafeArea(child: _body(context, controller)),
     );
@@ -35,11 +35,11 @@ class OutboundBlackHolePage extends StatelessWidget {
       child: Column(
         children: [
           TextRow(
-            title: AppLocalizations.of(context)!.outboundBlackHolePageProtocol,
+            title: AppLocalizations.of(context)!.outboundBlackHoleScreenProtocol,
             detail: controller.blackHoleState.protocol.name,
           ),
           TextRow(
-            title: AppLocalizations.of(context)!.outboundBlackHolePageTag,
+            title: AppLocalizations.of(context)!.outboundBlackHoleScreenTag,
             detail: controller.blackHoleState.tag.name,
           ),
         ],

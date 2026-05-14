@@ -34,9 +34,9 @@ extension ConfigReader on CoreConfigData {
       case PingDelayConstants.unknown:
         return "";
       case PingDelayConstants.error:
-        return AppLocalizations.of(context)!.pingError;
+        return AppLocalizations.of(context)!.appPingError;
       case PingDelayConstants.timeout:
-        return AppLocalizations.of(context)!.pingTimeout;
+        return AppLocalizations.of(context)!.appPingTimeout;
       default:
         return "${delay}ms";
     }

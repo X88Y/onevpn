@@ -20,7 +20,7 @@ class ThemePage extends StatelessWidget {
           final controller = context.read<ThemeController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.themePageTitle),
+              title: Text(AppLocalizations.of(context)!.themeScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -73,7 +73,7 @@ class ThemePage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

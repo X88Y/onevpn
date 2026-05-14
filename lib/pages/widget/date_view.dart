@@ -14,7 +14,7 @@ class DateView extends StatelessWidget {
     return Padding(
       padding: EdgeInsetsDirectional.only(top: 4),
       child: Text(
-        "${AppLocalizations.of(context)!.dateViewLastUpdateTime} $dateStr",
+        "${AppLocalizations.of(context)!.appDateViewLastUpdateTime} $dateStr",
         style: TextStyle(
           fontSize: 11,
           color: ColorManager.secondaryText(context),

@@ -147,7 +147,7 @@ class GeoDataListController extends Cubit<GeoDataListState> {
       if (context.mounted) {
         ContextAlert.showToast(
           context,
-          AppLocalizations.of(context)!.runningAndWait,
+          AppLocalizations.of(context)!.appRunningAndWait,
         );
       }
       return;
@@ -186,7 +186,7 @@ class GeoDataListController extends Cubit<GeoDataListState> {
       if (context.mounted) {
         ContextAlert.showToast(
           context,
-          AppLocalizations.of(context)!.runningAndWait,
+          AppLocalizations.of(context)!.appRunningAndWait,
         );
       }
       return;

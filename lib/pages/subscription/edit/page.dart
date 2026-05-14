@@ -23,7 +23,7 @@ class SubscriptionEditPage extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title:
-                  Text(AppLocalizations.of(context)!.subscriptionAddPageTitle),
+                  Text(AppLocalizations.of(context)!.subscriptionAddScreenTitle),
             ),
             body: SafeArea(child: _body(context, controller, state)),
           );
@@ -44,7 +44,7 @@ class SubscriptionEditPage extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               child: SectionView(
-                title: AppLocalizations.of(context)!.subscriptionAddPageSection,
+                title: AppLocalizations.of(context)!.subscriptionAddScreenSection,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -65,8 +65,8 @@ class SubscriptionEditPage extends StatelessWidget {
     return TextField(
       controller: controller.nameController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.subscriptionAddPageName),
-        hintText: AppLocalizations.of(context)!.subscriptionAddPageName,
+        label: Text(AppLocalizations.of(context)!.subscriptionAddScreenName),
+        hintText: AppLocalizations.of(context)!.subscriptionAddScreenName,
       ),
     );
   }
@@ -77,7 +77,7 @@ class SubscriptionEditPage extends StatelessWidget {
       children: [
         const SizedBox(height: 16),
         Text(
-          AppLocalizations.of(context)!.subscriptionAddPageUrl,
+          AppLocalizations.of(context)!.subscriptionAddScreenUrl,
           style: TextStyle(
             fontSize: 12,
             color: ColorManager.secondaryText(context),
@@ -97,7 +97,7 @@ class SubscriptionEditPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

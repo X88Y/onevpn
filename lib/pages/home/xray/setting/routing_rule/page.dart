@@ -25,7 +25,7 @@ class RoutingRulePage extends StatelessWidget {
           final controller = context.read<RoutingRuleController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.routingRulePageTitle),
+              title: Text(AppLocalizations.of(context)!.routingRuleScreenTitle),
             ),
             body: SafeArea(child: _body(context, controller, state)),
           );
@@ -80,11 +80,11 @@ class RoutingRulePage extends StatelessWidget {
                   controller: controller.domainControllers[index],
                   decoration: InputDecoration(
                     label: Text(
-                      AppLocalizations.of(context)!.routingRulePageDomain,
+                      AppLocalizations.of(context)!.routingRuleScreenDomain,
                     ),
                     hintText: AppLocalizations.of(
                       context,
-                    )!.routingRulePageDomainExample,
+                    )!.routingRuleScreenDomainExample,
                   ),
                 ),
               ),
@@ -102,7 +102,7 @@ class RoutingRulePage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(AppLocalizations.of(context)!.routingRulePageDomain),
+              Text(AppLocalizations.of(context)!.routingRuleScreenDomain),
               const Spacer(),
               IconButton(
                 onPressed: () => controller.appendDomain(),
@@ -134,11 +134,11 @@ class RoutingRulePage extends StatelessWidget {
                   controller: controller.ipControllers[index],
                   decoration: InputDecoration(
                     label: Text(
-                      AppLocalizations.of(context)!.routingRulePageIp,
+                      AppLocalizations.of(context)!.routingRuleScreenIp,
                     ),
                     hintText: AppLocalizations.of(
                       context,
-                    )!.routingRulePageIpExample,
+                    )!.routingRuleScreenIpExample,
                   ),
                 ),
               ),
@@ -156,7 +156,7 @@ class RoutingRulePage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(AppLocalizations.of(context)!.routingRulePageIp),
+              Text(AppLocalizations.of(context)!.routingRuleScreenIp),
               const Spacer(),
               IconButton(
                 onPressed: () => controller.appendIp(),
@@ -196,8 +196,8 @@ class RoutingRulePage extends StatelessWidget {
     return TextField(
       controller: controller.portController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.routingRulePagePort),
-        hintText: AppLocalizations.of(context)!.routingRulePagePortExample,
+        label: Text(AppLocalizations.of(context)!.routingRuleScreenPort),
+        hintText: AppLocalizations.of(context)!.routingRuleScreenPortExample,
       ),
     );
   }
@@ -206,8 +206,8 @@ class RoutingRulePage extends StatelessWidget {
     return TextField(
       controller: controller.sourcePortController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.routingRulePageSourcePort),
-        hintText: AppLocalizations.of(context)!.routingRulePagePortExample,
+        label: Text(AppLocalizations.of(context)!.routingRuleScreenSourcePort),
+        hintText: AppLocalizations.of(context)!.routingRuleScreenPortExample,
       ),
     );
   }
@@ -216,8 +216,8 @@ class RoutingRulePage extends StatelessWidget {
     return TextField(
       controller: controller.localPortController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.routingRulePageLocalPort),
-        hintText: AppLocalizations.of(context)!.routingRulePagePortExample,
+        label: Text(AppLocalizations.of(context)!.routingRuleScreenLocalPort),
+        hintText: AppLocalizations.of(context)!.routingRuleScreenPortExample,
       ),
     );
   }
@@ -230,7 +230,7 @@ class RoutingRulePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.routingRulePageNetwork),
+        Text(AppLocalizations.of(context)!.routingRuleScreenNetwork),
         TextMenuPicker(
           title: state.ruleState.network.name,
           selections: RoutingRuleNetwork.names,
@@ -254,11 +254,11 @@ class RoutingRulePage extends StatelessWidget {
                   controller: controller.sourceIPControllers[index],
                   decoration: InputDecoration(
                     label: Text(
-                      AppLocalizations.of(context)!.routingRulePageSourceIP,
+                      AppLocalizations.of(context)!.routingRuleScreenSourceIP,
                     ),
                     hintText: AppLocalizations.of(
                       context,
-                    )!.routingRulePageIpExample,
+                    )!.routingRuleScreenIpExample,
                   ),
                 ),
               ),
@@ -277,7 +277,7 @@ class RoutingRulePage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.routingRulePageSourceIP),
+              Text(AppLocalizations.of(context)!.routingRuleScreenSourceIP),
               IconButton(
                 onPressed: () => controller.appendSourceIP(),
                 icon: const Icon(Icons.add),
@@ -304,11 +304,11 @@ class RoutingRulePage extends StatelessWidget {
                   controller: controller.localIPControllers[index],
                   decoration: InputDecoration(
                     label: Text(
-                      AppLocalizations.of(context)!.routingRulePageLocalIP,
+                      AppLocalizations.of(context)!.routingRuleScreenLocalIP,
                     ),
                     hintText: AppLocalizations.of(
                       context,
-                    )!.routingRulePageIpExample,
+                    )!.routingRuleScreenIpExample,
                   ),
                 ),
               ),
@@ -327,7 +327,7 @@ class RoutingRulePage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.routingRulePageLocalIP),
+              Text(AppLocalizations.of(context)!.routingRuleScreenLocalIP),
               IconButton(
                 onPressed: () => controller.appendLocalIP(),
                 icon: const Icon(Icons.add),
@@ -346,7 +346,7 @@ class RoutingRulePage extends StatelessWidget {
     RoutingRuleCubitState state,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.routingRulePageProtocol,
+      title: AppLocalizations.of(context)!.routingRuleScreenProtocol,
       child: _protocol(context, controller, state),
     );
   }
@@ -382,15 +382,15 @@ class RoutingRulePage extends StatelessWidget {
       final key = TextField(
         controller: attr.key,
         decoration: InputDecoration(
-          label: Text(AppLocalizations.of(context)!.routingRulePageAttrsKey),
-          hintText: AppLocalizations.of(context)!.routingRulePageAttrsKey,
+          label: Text(AppLocalizations.of(context)!.routingRuleScreenAttrsKey),
+          hintText: AppLocalizations.of(context)!.routingRuleScreenAttrsKey,
         ),
       );
       final value = TextField(
         controller: attr.value,
         decoration: InputDecoration(
-          label: Text(AppLocalizations.of(context)!.routingRulePageAttrsValue),
-          hintText: AppLocalizations.of(context)!.routingRulePageAttrsValue,
+          label: Text(AppLocalizations.of(context)!.routingRuleScreenAttrsValue),
+          hintText: AppLocalizations.of(context)!.routingRuleScreenAttrsValue,
         ),
       );
       attrViews.add(key);
@@ -403,7 +403,7 @@ class RoutingRulePage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.routingRulePageAttrs),
+              Text(AppLocalizations.of(context)!.routingRuleScreenAttrs),
               IconButton(
                 onPressed: () => controller.appendAttr(),
                 icon: const Icon(Icons.add),
@@ -440,7 +440,7 @@ class RoutingRulePage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.routingRulePageOutboundTag),
+        Text(AppLocalizations.of(context)!.routingRuleScreenOutboundTag),
         TextMenuPicker(
           title: state.ruleState.outboundTag,
           selections: state.outboundTags,
@@ -454,8 +454,8 @@ class RoutingRulePage extends StatelessWidget {
     return TextField(
       controller: controller.ruleTagController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.routingRulePageRuleTag),
-        hintText: AppLocalizations.of(context)!.routingRulePageRuleTag,
+        label: Text(AppLocalizations.of(context)!.routingRuleScreenRuleTag),
+        hintText: AppLocalizations.of(context)!.routingRuleScreenRuleTag,
       ),
     );
   }
@@ -466,7 +466,7 @@ class RoutingRulePage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),

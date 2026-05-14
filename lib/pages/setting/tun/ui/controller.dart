@@ -166,15 +166,15 @@ class TunSettingUIController extends Cubit<TunSettingUIState> {
       context: context,
       builder: (ctx) => AlertDialog(
         content: Text(
-          AppLocalizations.of(context)!.tunSettingUIPagePerAppVPNPermission,
+          AppLocalizations.of(context)!.tunConfigUIScreenPerAppVPNPermission,
         ),
         actions: <Widget>[
           TextButton(
-            child: Text(AppLocalizations.of(context)!.buttonDecline),
+            child: Text(AppLocalizations.of(context)!.btnDecline),
             onPressed: () => Navigator.pop(ctx),
           ),
           TextButton(
-            child: Text(AppLocalizations.of(context)!.buttonAccept),
+            child: Text(AppLocalizations.of(context)!.btnAccept),
             onPressed: () {
               Navigator.pop(ctx);
               _acceptPermission(context);

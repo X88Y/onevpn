@@ -17,7 +17,7 @@ class ToolboxPage extends StatelessWidget {
           final controller = context.read<ToolboxController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.toolboxPageTitle),
+              title: Text(AppLocalizations.of(context)!.toolboxScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -51,7 +51,7 @@ class ToolboxPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.toolboxPageHideDockIcon),
+              Text(AppLocalizations.of(context)!.toolboxScreenHideDockIcon),
               Switch(
                 value: state.hideDockIcon,
                 onChanged: (value) => controller.updateHideDockIcon(value),

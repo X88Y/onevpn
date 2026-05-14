@@ -23,7 +23,7 @@ class GeoDatAddPage extends StatelessWidget {
           final controller = context.read<GeoDatAddController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.geoDatAddPageTitle),
+              title: Text(AppLocalizations.of(context)!.geoDatAddScreenTitle),
             ),
             body: SafeArea(child: _body(context, controller, state)),
           );
@@ -58,7 +58,7 @@ class GeoDatAddPage extends StatelessWidget {
     GeoDatAddState state,
   ) {
     return SectionView(
-      title: AppLocalizations.of(context)!.geoDatAddPageSection,
+      title: AppLocalizations.of(context)!.geoDatAddScreenSection,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -74,8 +74,8 @@ class GeoDatAddPage extends StatelessWidget {
     return TextField(
       controller: controller.nameController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.geoDatAddPageName),
-        hintText: AppLocalizations.of(context)!.geoDatAddPageName,
+        label: Text(AppLocalizations.of(context)!.geoDatAddScreenName),
+        hintText: AppLocalizations.of(context)!.geoDatAddScreenName,
       ),
     );
   }
@@ -88,7 +88,7 @@ class GeoDatAddPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.geoDatAddPageType),
+        Text(AppLocalizations.of(context)!.geoDatAddScreenType),
         TextMenuPicker<GeoDataType>(
           title: state.type.name,
           selections: GeoDataType.values,
@@ -102,9 +102,9 @@ class GeoDatAddPage extends StatelessWidget {
     return TextField(
       controller: controller.urlController,
       decoration: InputDecoration(
-        label: Text(AppLocalizations.of(context)!.geoDatAddPageUrl),
-        hintText: AppLocalizations.of(context)!.geoDatAddPageUrlExample,
-        helperText: AppLocalizations.of(context)!.helpURL,
+        label: Text(AppLocalizations.of(context)!.geoDatAddScreenUrl),
+        hintText: AppLocalizations.of(context)!.geoDatAddScreenUrlExample,
+        helperText: AppLocalizations.of(context)!.appHelpURL,
       ),
     );
   }
@@ -132,7 +132,7 @@ class GeoDatAddPage extends StatelessWidget {
     } else {
       return Expanded(
         child: PrimaryBottomButton(
-          title: AppLocalizations.of(context)!.buttonAdd,
+          title: AppLocalizations.of(context)!.btnAdd,
           callback: () => controller.save(context),
         ),
       );

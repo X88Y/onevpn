@@ -21,7 +21,7 @@ class FirstRunPage extends StatelessWidget {
           final controller = context.read<FirstRunController>();
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.firstRunPageTitle),
+              title: Text(AppLocalizations.of(context)!.firstRunScreenTitle),
             ),
             body: SafeArea(child: _body(context, state, controller)),
           );
@@ -65,7 +65,7 @@ class FirstRunPage extends StatelessWidget {
         .map((e) => RadioListTile<SimpleCountry>(value: e, title: Text(e.name)))
         .toList();
     return SectionView(
-      title: AppLocalizations.of(context)!.firstRunPageCountrySection,
+      title: AppLocalizations.of(context)!.firstRunScreenCountrySection,
       child: RadioGroup<SimpleCountry>(
         groupValue: state.country,
         onChanged: (value) => controller.updateCountry(value),
@@ -89,7 +89,7 @@ class FirstRunPage extends StatelessWidget {
       );
     }).toList();
     return SectionView(
-      title: AppLocalizations.of(context)!.firstRunPageInterfaceSection,
+      title: AppLocalizations.of(context)!.firstRunScreenInterfaceSection,
       child: RadioGroup<String>(
         groupValue: state.interface,
         onChanged: (value) => controller.updateInterface(value),
@@ -104,7 +104,7 @@ class FirstRunPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonNextStep,
+              title: AppLocalizations.of(context)!.btnNextStep,
               callback: () => controller.nextStep(context),
             ),
           ),

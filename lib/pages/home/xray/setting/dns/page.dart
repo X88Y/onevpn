@@ -28,7 +28,7 @@ class DnsPage extends StatelessWidget {
         builder: (context, state) {
           final controller = context.read<DnsController>();
           return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.dnsPageTitle)),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.dnsScreenTitle)),
         body: SafeArea(child: _body(context, controller, state)),
       );
         },
@@ -63,7 +63,7 @@ class DnsPage extends StatelessWidget {
       title: "",
       child: ListTile(
         onTap: () => controller.editHosts(context),
-        title: Text(AppLocalizations.of(context)!.dnsPageHosts),
+        title: Text(AppLocalizations.of(context)!.dnsScreenHosts),
         trailing: const Icon(Icons.chevron_right),
       ),
     );
@@ -76,13 +76,13 @@ class DnsPage extends StatelessWidget {
         )
         .toList();
     return SectionView(
-      title: AppLocalizations.of(context)!.helpOrder,
+      title: AppLocalizations.of(context)!.appHelpOrder,
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context)!.dnsPageServers),
+              Text(AppLocalizations.of(context)!.dnsScreenServers),
               IconButton(
                 onPressed: () => controller.appendServer(),
                 icon: const Icon(Icons.add),
@@ -145,7 +145,7 @@ class DnsPage extends StatelessWidget {
 
   Widget _tag(BuildContext context, DnsController controller, DnsCubitState state) {
     return TextRow(
-      title: AppLocalizations.of(context)!.dnsPageTag,
+      title: AppLocalizations.of(context)!.dnsScreenTag,
       detail: state.dnsState.tag,
     );
   }
@@ -154,7 +154,7 @@ class DnsPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.dnsPageQueryStrategy),
+        Text(AppLocalizations.of(context)!.dnsScreenQueryStrategy),
         TextMenuPicker(
           title: state.dnsState.queryStrategy.name,
           selections: DnsQueryStrategy.names,
@@ -168,7 +168,7 @@ class DnsPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.dnsPageDisableCache),
+        Text(AppLocalizations.of(context)!.dnsScreenDisableCache),
         Switch(
           value: state.dnsState.disableCache,
           onChanged: (value) => controller.updateDisableCache(value),
@@ -181,7 +181,7 @@ class DnsPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.dnsPageDisableFallback),
+        Text(AppLocalizations.of(context)!.dnsScreenDisableFallback),
         Switch(
           value: state.dnsState.disableFallback,
           onChanged: (value) => controller.updateDisableFallback(value),
@@ -196,7 +196,7 @@ class DnsPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.dnsPageDisableFallbackIfMatch),
+        Text(AppLocalizations.of(context)!.dnsScreenDisableFallbackIfMatch),
         Switch(
           value: state.dnsState.disableFallbackIfMatch,
           onChanged: (value) => controller.updateDisableFallbackIfMatch(value),
@@ -209,7 +209,7 @@ class DnsPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(AppLocalizations.of(context)!.dnsPageUseSystemHosts),
+        Text(AppLocalizations.of(context)!.dnsScreenUseSystemHosts),
         Switch(
           value: state.dnsState.useSystemHosts,
           onChanged: (value) => controller.updateUseSystemHosts(value),
@@ -224,7 +224,7 @@ class DnsPage extends StatelessWidget {
         children: [
           Expanded(
             child: PrimaryBottomButton(
-              title: AppLocalizations.of(context)!.buttonSave,
+              title: AppLocalizations.of(context)!.btnSave,
               callback: () => controller.save(context),
             ),
           ),
