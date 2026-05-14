@@ -35,85 +35,32 @@ extension XraySettingSimpleWriter on XraySettingSimple {
   }
 
   RoutingState _routingState(List<String> domain, List<String> ip) {
+    final rules = <RoutingRuleState>[];
+    if (routing.localDns) {
+      final rule = RoutingRuleState();
+      rule.inboundTag = <String>{DNSServerTag.localDns};
+      rule.outboundTag = RoutingOutboundTag.direct.name;
+      rule.ruleTag = RoutingRuleTag.localDnsDirect;
+      rules.add(rule);
+    }
+    if (domain.isNotEmpty) {
+      final rule = RoutingRuleState();
+      rule.domain = domain;
+      rule.outboundTag = RoutingOutboundTag.direct.name;
+      rule.ruleTag = RoutingRuleTag.domainDirect;
+      rules.add(rule);
+    }
+    if (ip.isNotEmpty) {
+      final rule = RoutingRuleState();
+      rule.ip = ip;
+      rule.outboundTag = RoutingOutboundTag.direct.name;
+      rule.ruleTag = RoutingRuleTag.ipDirect;
+      rules.add(rule);
+    }
+
     final state = RoutingState();
     state.domainStrategy = routing.domainStrategy;
-
-    if (routing.directSet == SimpleCountry.ru) {
-      // YummyVPN-RU-Direct default routing: block -> proxy -> direct
-      final blockRule = RoutingRuleState();
-      blockRule.domain = [
-        "geosite:win-spy",
-        "geosite:torrent",
-        "geosite:category-ads",
-      ];
-      blockRule.outboundTag = RoutingOutboundTag.block.name;
-      blockRule.ruleTag = "blockSites";
-      state.customRules.add(blockRule);
-
-      final proxyRule = RoutingRuleState();
-      proxyRule.domain = [
-        "geosite:google-play",
-        "geosite:github",
-        "geosite:twitch-ads",
-        "geosite:youtube",
-        "geosite:telegram",
-      ];
-      proxyRule.outboundTag = RoutingOutboundTag.proxy.name;
-      proxyRule.ruleTag = "proxySites";
-      state.customRules.add(proxyRule);
-
-      final directDomainRule = RoutingRuleState();
-      directDomainRule.domain = [
-        "geosite:private",
-        "geosite:category-ru",
-        "geosite:whitelist",
-        "geosite:microsoft",
-        "geosite:apple",
-        "geosite:epicgames",
-        "geosite:riot",
-        "geosite:escapefromtarkov",
-        "geosite:steam",
-        "geosite:twitch",
-        "geosite:pinterest",
-        "geosite:faceit",
-      ];
-      directDomainRule.outboundTag = RoutingOutboundTag.direct.name;
-      directDomainRule.ruleTag = "directSites";
-      state.customRules.add(directDomainRule);
-
-      final directIpRule = RoutingRuleState();
-      directIpRule.ip = [
-        "geoip:private",
-        "geoip:direct",
-      ];
-      directIpRule.outboundTag = RoutingOutboundTag.direct.name;
-      directIpRule.ruleTag = "directIp";
-      state.customRules.add(directIpRule);
-    } else {
-      final rules = <RoutingRuleState>[];
-      if (routing.localDns) {
-        final rule = RoutingRuleState();
-        rule.inboundTag = <String>{DNSServerTag.localDns};
-        rule.outboundTag = RoutingOutboundTag.direct.name;
-        rule.ruleTag = RoutingRuleTag.localDnsDirect;
-        rules.add(rule);
-      }
-      if (domain.isNotEmpty) {
-        final rule = RoutingRuleState();
-        rule.domain = domain;
-        rule.outboundTag = RoutingOutboundTag.direct.name;
-        rule.ruleTag = RoutingRuleTag.domainDirect;
-        rules.add(rule);
-      }
-      if (ip.isNotEmpty) {
-        final rule = RoutingRuleState();
-        rule.ip = ip;
-        rule.outboundTag = RoutingOutboundTag.direct.name;
-        rule.ruleTag = RoutingRuleTag.ipDirect;
-        rules.add(rule);
-      }
-      state.customRules.addAll(rules);
-    }
+    state.customRules.addAll(rules);
 
     return state;
   }
@@ -122,54 +69,20 @@ extension XraySettingSimpleWriter on XraySettingSimple {
     final state = DnsState();
     state.queryStrategy = routing.queryStrategy;
 
-    if (routing.directSet == SimpleCountry.ru) {
-      // YummyVPN-RU-Direct default DNS
-      state.hosts = {
-        "lkfl2.nalog.ru": ["213.24.64.175"],
-        "lknpd.nalog.ru": ["213.24.64.181"],
-      };
+    final server = DnsServerState();
+    server.address = dns.address;
+    server.queryStrategy = state.queryStrategy;
+    server.tag = DNSServerTag.defaultDns;
 
-      final defaultServer = DnsServerState();
-      defaultServer.address = "https://8.8.8.8/dns-query";
-      defaultServer.queryStrategy = state.queryStrategy;
-      defaultServer.tag = DNSServerTag.defaultDns;
-
-      final directServer = DnsServerState();
-      directServer.address = "https://77.88.8.8/dns-query";
-      directServer.queryStrategy = state.queryStrategy;
-      directServer.domains = [
-        "geosite:private",
-        "geosite:category-ru",
-        "geosite:whitelist",
-        "geosite:microsoft",
-        "geosite:apple",
-        "geosite:epicgames",
-        "geosite:riot",
-        "geosite:escapefromtarkov",
-        "geosite:steam",
-        "geosite:twitch",
-        "geosite:pinterest",
-        "geosite:faceit",
-      ];
-      directServer.tag = DNSServerTag.localDns;
-
-      state.servers = [defaultServer, directServer];
-    } else {
-      final server = DnsServerState();
-      server.address = dns.address;
-      server.queryStrategy = state.queryStrategy;
-      server.tag = DNSServerTag.defaultDns;
-
-      final servers = <DnsServerState>[server];
-      if (routing.localDns) {
-        final localServer = _localDns(domain);
-        localServer.tag = DNSServerTag.localDns;
-        localServer.queryStrategy = state.queryStrategy;
-        servers.add(localServer);
-        state.disableFallbackIfMatch = true;
-      }
-      state.servers = servers;
+    final servers = <DnsServerState>[server];
+    if (routing.localDns) {
+      final localServer = _localDns(domain);
+      localServer.tag = DNSServerTag.localDns;
+      localServer.queryStrategy = state.queryStrategy;
+      servers.add(localServer);
+      state.disableFallbackIfMatch = true;
     }
+    state.servers = servers;
 
     return state;
   }
