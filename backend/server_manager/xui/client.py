@@ -166,6 +166,7 @@ class XuiClient:
         flow: str = "xtls-rprx-vision",
         total_bytes: int = 0,
         expiry_time: int = 0,
+        enable: bool = True,
     ) -> None:
         await self.login()
         client = build_client_object(
@@ -176,6 +177,7 @@ class XuiClient:
             total_bytes=total_bytes,
             expiry_time=expiry_time,
         )
+        client["enable"] = enable
         body = {
             "id": inbound_id,
             "settings": json.dumps({"clients": [client]}),

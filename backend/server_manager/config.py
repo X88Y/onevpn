@@ -48,6 +48,7 @@ class Settings:
     traffic_sync_interval_s: int
     health_interval_s: int
     monitoring_sync_interval_s: int
+    subscription_sync_interval_s: int
     monitoring_targets_path: Optional[str]
     panel_request_timeout_s: int
     sub_path: str
@@ -96,6 +97,7 @@ def _load_settings() -> Settings:
         traffic_sync_interval_s=_int("TRAFFIC_SYNC_INTERVAL_S", 300),
         health_interval_s=_int("HEALTH_INTERVAL_S", 120),
         monitoring_sync_interval_s=_int("MONITORING_SYNC_INTERVAL_S", 60),
+        subscription_sync_interval_s=_int("SUBSCRIPTION_SYNC_INTERVAL_S", 300),
         monitoring_targets_path=_env("MONITORING_TARGETS_PATH"),
         panel_request_timeout_s=_int("PANEL_REQUEST_TIMEOUT_S", 30),
         sub_path=(_env("MANAGER_SUB_PATH") or "/sub").rstrip("/") or "/sub",

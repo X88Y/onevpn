@@ -33,6 +33,23 @@ def _user_email(user_uid: str) -> str:
     return f"mvm-{user_uid}"
 
 
+def _subscription_state_from_user(user_data: Dict[str, Any]) -> Tuple[int, bool]:
+    """Returns (expiry_time_ms, enable) from a user document dict."""
+    end = user_data.get("subscriptionEndsAt")
+    if end is None:
+        return 0, False
+    if hasattr(end, "timestamp"):
+        end_ts = end.timestamp()
+    else:
+        try:
+            end_ts = datetime.fromisoformat(str(end)).timestamp()
+        except Exception:  # noqa: BLE001
+            return 0, False
+    now_ts = datetime.now(timezone.utc).timestamp()
+    expiry_ms = int(end_ts * 1000)
+    return expiry_ms, end_ts > now_ts
+
+
 def _subscription_url(sub_id: str) -> str:
     base = settings.public_url.rstrip("/")
     sub_path = settings.sub_path.rstrip("/")
@@ -100,6 +117,8 @@ async def _provision_on_server(
     email: str,
     sub_id: str,
     client_uuid: str,
+    expiry_time: int = 0,
+    enable: bool = True,
 ) -> Tuple[bool, Optional[str]]:
     """Returns (ok, error_message)."""
     data = server_doc.to_dict() or {}
@@ -118,6 +137,8 @@ async def _provision_on_server(
                     client_uuid=client_uuid,
                     email=email,
                     sub_id=sub_id,
+                    expiry_time=expiry_time,
+                    enable=enable,
                 )
             except XuiError as add_exc:
                 if "duplicate email" in str(add_exc).lower():
@@ -160,6 +181,8 @@ async def _provision_on_server(
                         client_uuid=client_uuid,
                         email=email,
                         sub_id=sub_id,
+                        expiry_time=expiry_time,
+                        enable=enable,
                     )
                 else:
                     raise
@@ -261,6 +284,15 @@ async def provision_client(payload: ProvisionRequest) -> ProvisionResponse:
     email = str(record.get("email") or _user_email(user_uid))
     per_server: Dict[str, Dict[str, Any]] = dict(record.get("perServer") or {})
 
+    # Fetch user subscription state for panel-side expiry / enablement
+    user_snap = await asyncio.to_thread(
+        db.collection("users").document(user_uid).get
+    )
+    expiry_ms = 0
+    enable = True
+    if user_snap.exists:
+        expiry_ms, enable = _subscription_state_from_user(user_snap.to_dict() or {})
+
     healthy = await asyncio.to_thread(_healthy_servers_from_db, db)
     missing = [s for s in healthy if s.id not in per_server]
     if missing:
@@ -269,6 +301,8 @@ async def provision_client(payload: ProvisionRequest) -> ProvisionResponse:
             email=email,
             sub_id=sub_id,
             existing=per_server,
+            expiry_time=expiry_ms,
+            enable=enable,
         )
         if written:
             await asyncio.to_thread(
@@ -303,6 +337,8 @@ async def _provision_missing(
     email: str,
     sub_id: str,
     existing: Dict[str, Dict[str, Any]],
+    expiry_time: int = 0,
+    enable: bool = True,
 ) -> Tuple[Dict[str, Dict[str, Any]], bool]:
     """Provisions each server in `healthy_missing` and returns updated map."""
     per_server = dict(existing)
@@ -315,6 +351,8 @@ async def _provision_missing(
             email=email,
             sub_id=sub_id,
             client_uuid=client_uuid,
+            expiry_time=expiry_time,
+            enable=enable,
         )
         if not ok:
             return server_doc.id, None
@@ -410,11 +448,22 @@ async def regenerate_client(payload: ProvisionRequest) -> RegenerateResponse:
 
     random.shuffle(candidates)
 
+    # Fetch user subscription state for panel-side expiry / enablement
+    user_snap = await asyncio.to_thread(
+        db.collection("users").document(user_uid).get
+    )
+    expiry_ms = 0
+    enable = True
+    if user_snap.exists:
+        expiry_ms, enable = _subscription_state_from_user(user_snap.to_dict() or {})
+
     new_per_server, _written = await _provision_missing(
         healthy_missing=candidates,
         email=email,
         sub_id=new_sub_id,
         existing={},
+        expiry_time=expiry_ms,
+        enable=enable,
     )
 
     new_count = int(data.get("regenerationCount") or 0) + 1
