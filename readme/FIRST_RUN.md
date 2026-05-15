@@ -104,6 +104,7 @@ Copy the geo data files from `libXray/dat` into `assets/dat/`, and rename `times
 
 ```shell
 mkdir -p assets/dat
+cp -r ../libXray/dat/ assets/dat/
 cp ../libXray/dat/geoip.dat assets/dat/
 cp ../libXray/dat/geosite.dat assets/dat/
 cp ../libXray/dat/timestamp.txt assets/dat/timestamp

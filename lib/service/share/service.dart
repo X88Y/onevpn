@@ -2,10 +2,13 @@ import 'dart:async';
 
 
 import 'package:app_links/app_links.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 
 import 'package:mvmvpn/core/tools/logger.dart';
+import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
+import 'package:mvmvpn/pages/main/url.dart';
 import 'package:mvmvpn/service/localizations/service.dart';
 import 'package:mvmvpn/service/db/config_writer.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
@@ -93,7 +96,7 @@ final class ShareService {
           success = await AppShareService().addSubscription(
             url,
             uri.fragment,
-            true,
+            false,
           );
         }
       } else {
@@ -109,12 +112,30 @@ final class ShareService {
     }
 
     if (success) {
-      ToastService().showToast(
+      await _showImportResultDialog(
         appLocalizationsNoContext().mainOutboundViewImportSuccess,
       );
     } else {
-      ToastService().showToast(
+      await _showImportResultDialog(
         appLocalizationsNoContext().mainOutboundViewNoValidConfig,
+      );
+    }
+  }
+
+  Future<void> _showImportResultDialog(String message) async {
+    final context = rootNavigatorKey.currentContext;
+    if (context != null && context.mounted) {
+      await showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(AppLocalizations.of(ctx)!.btnOK),
+            ),
+          ],
+        ),
       );
     }
   }

@@ -90,7 +90,7 @@ import 'package:mvmvpn/core/tools/platform.dart';
 import 'package:mvmvpn/pages/subscription/edit/page.dart';
 import 'package:mvmvpn/pages/subscription/edit/params.dart';
 
-final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
 );
 
@@ -153,7 +153,7 @@ abstract final class RouterPath {
   static const language = "/language";
 
   static final router = GoRouter(
-    navigatorKey: _rootNavigatorKey,
+    navigatorKey: rootNavigatorKey,
     initialLocation: RouterPath.splash,
     debugLogDiagnostics: true,
     routes: [
