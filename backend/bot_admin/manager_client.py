@@ -11,10 +11,12 @@ def _client(timeout: float = 30.0) -> httpx.AsyncClient:
     )
 
 
-async def create_server(host: str, login: str, password: str, *, ssh_port: int = 22, label: str = None) -> dict:
+async def create_server(host: str, login: str, password: str, *, ssh_port: int = 22, label: str = None, country_code: str = None) -> dict:
     payload = {"host": host, "login": login, "password": password, "sshPort": ssh_port}
     if label:
         payload["label"] = label
+    if country_code:
+        payload["countryCode"] = country_code
     async with _client() as http:
         response = await http.post("/servers", json=payload)
         response.raise_for_status()

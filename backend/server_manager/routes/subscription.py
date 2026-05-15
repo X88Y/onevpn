@@ -14,7 +14,8 @@ import asyncio
 import base64
 import json
 import logging
-from typing import List
+import urllib.parse
+from typing import List, Tuple
 
 import httpx
 from fastapi import APIRouter, HTTPException, Response, status
@@ -28,6 +29,136 @@ from server_manager.firestore_client import (
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+# Common label substrings mapped to ISO 3166-1 alpha-2 country codes.
+# Used as a fallback when a server document has no explicit `countryCode`.
+_LABEL_TO_COUNTRY_CODE = {
+    "germany": "DE",
+    "deutschland": "DE",
+    "usa": "US",
+    "united states": "US",
+    "uk": "GB",
+    "united kingdom": "GB",
+    "britain": "GB",
+    "england": "GB",
+    "france": "FR",
+    "netherlands": "NL",
+    "holland": "NL",
+    "russia": "RU",
+    "russian": "RU",
+    "finland": "FI",
+    "estonia": "EE",
+    "sweden": "SE",
+    "norway": "NO",
+    "poland": "PL",
+    "turkey": "TR",
+    "turkiye": "TR",
+    "singapore": "SG",
+    "japan": "JP",
+    "korea": "KR",
+    "india": "IN",
+    "brazil": "BR",
+    "canada": "CA",
+    "australia": "AU",
+    "spain": "ES",
+    "italy": "IT",
+    "switzerland": "CH",
+    "austria": "AT",
+    "czech": "CZ",
+    "romania": "RO",
+    "bulgaria": "BG",
+    "hungary": "HU",
+    "latvia": "LV",
+    "lithuania": "LT",
+    "moldova": "MD",
+    "ukraine": "UA",
+    "belarus": "BY",
+    "kazakhstan": "KZ",
+    "armenia": "AM",
+    "georgia": "GE",
+    "azerbaijan": "AZ",
+    "israel": "IL",
+    "uae": "AE",
+    "dubai": "AE",
+    "south africa": "ZA",
+    "mexico": "MX",
+    "argentina": "AR",
+    "chile": "CL",
+    "colombia": "CO",
+    "peru": "PE",
+    "venezuela": "VE",
+    "hong kong": "HK",
+    "taiwan": "TW",
+    "thailand": "TH",
+    "vietnam": "VN",
+    "malaysia": "MY",
+    "indonesia": "ID",
+    "philippines": "PH",
+    "new zealand": "NZ",
+    "ireland": "IE",
+    "denmark": "DK",
+    "belgium": "BE",
+    "portugal": "PT",
+    "greece": "GR",
+    "slovenia": "SI",
+    "slovakia": "SK",
+    "croatia": "HR",
+    "serbia": "RS",
+    "bosnia": "BA",
+    "albania": "AL",
+    "north macedonia": "MK",
+    "macedonia": "MK",
+    "montenegro": "ME",
+    "luxembourg": "LU",
+    "malta": "MT",
+    "cyprus": "CY",
+    "iceland": "IS",
+    "liechtenstein": "LI",
+}
+
+
+def _country_code_to_flag(code: str) -> str:
+    """Convert a 2-letter ISO country code to a flag emoji."""
+    code = code.upper()
+    if len(code) != 2 or not code.isalpha():
+        return ""
+    return chr(ord(code[0]) + 127397) + chr(ord(code[1]) + 127397)
+
+
+def _get_server_flag_and_name(server_data: dict) -> Tuple[str, str]:
+    """Returns (flag_emoji, display_name) for a server."""
+    # 1. Explicit countryCode field
+    country_code = (server_data.get("countryCode") or "").strip()
+    if country_code:
+        flag = _country_code_to_flag(country_code)
+        name = (
+            (server_data.get("label") or "").strip()
+            or (server_data.get("serverPublicHost") or server_data.get("host") or "Server")
+        )
+        return flag, name
+
+    # 2. Try to infer from label
+    label = (server_data.get("label") or "").strip()
+    if label:
+        label_lower = label.lower()
+        for key, code in _LABEL_TO_COUNTRY_CODE.items():
+            if key in label_lower:
+                flag = _country_code_to_flag(code)
+                return flag, label
+
+    # 3. Fallback: label or host, no flag
+    name = label or (server_data.get("serverPublicHost") or server_data.get("host") or "Server")
+    return "", name
+
+
+def _rewrite_url_remark(url: str, display_name: str) -> str:
+    """Replace the fragment (#remark) of a vless/vmess/ss/trojan URL."""
+    if "#" in url:
+        base, _ = url.rsplit("#", 1)
+    else:
+        base = url
+    encoded_name = urllib.parse.quote(display_name, safe="")
+    return f"{base}#{encoded_name}"
 
 
 def _try_b64_decode(text: str) -> str:
@@ -53,21 +184,21 @@ async def _fetch_server_lines(
     http: httpx.AsyncClient,
     server_data: dict,
     sub_id: str,
-) -> List[str]:
+) -> Tuple[dict, List[str]]:
     public_host = server_data.get("serverPublicHost") or server_data.get("host")
     sub_port = server_data.get("subPort")
     if not public_host or not sub_port:
-        return []
+        return server_data, []
     url = f"https://{public_host}:{sub_port}/sub/{sub_id}"
     try:
         response = await http.get(url, timeout=15.0)
     except httpx.HTTPError as exc:
         logger.info("subscription fetch failed url=%s: %s", url, exc)
-        return []
+        return server_data, []
     if response.status_code != 200:
-        return []
+        return server_data, []
     decoded = _try_b64_decode(response.text)
-    return [line.strip() for line in decoded.splitlines() if line.strip()]
+    return server_data, [line.strip() for line in decoded.splitlines() if line.strip()]
 
 
 @router.get("/sub/{sub_id}")
@@ -101,36 +232,75 @@ async def aggregate_subscription(sub_id: str) -> Response:
 
     seen = set()
     merged: List[str] = []
-    for lines in results:
+    for server_data, lines in results:
+        flag, location_name = _get_server_flag_and_name(server_data)
+        display_name = f"{flag} {location_name}".strip() if flag else location_name
         for line in lines:
             if line in seen:
                 continue
             seen.add(line)
-            merged.append(line)
+            rewritten = _rewrite_url_remark(line, display_name)
+            merged.append(rewritten)
 
     # Happ Routing Profile
     # Documentation: https://www.happ.su/main/dev-docs/routing
-    # We enable GlobalProxy to ensure all traffic goes through the proxy by default,
-    # but the app can still apply its own bypass rules if configured.
     routing_profile = {
-        "GlobalProxy": 1,
-        "Geoipurl": "https://github.com/v2fly/geoip/releases/latest/download/geoip.dat",
-        "Geositeurl": "https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat",
-        "Rules": [
-            {"Outbound": "direct", "Domain": ["domain:ru", "geosite:ru", "regexp:.*\\.ru$"]},
-            {"Outbound": "direct", "IP": ["geoip:ru"]},
-            {"Outbound": "direct", "Domain": ["geosite:private"]},
-            {"Outbound": "direct", "IP": ["geoip:private"]},
-            {"Outbound": "proxy", "Port": "0-65535"},
-        ]
+        "Name": "MVM-RU",
+        "GlobalProxy": True,
+        "RemoteDNSType": "DoH",
+        "RemoteDNSDomain": "https://8.8.8.8/dns-query",
+        "RemoteDNSIP": "8.8.8.8",
+        "DomesticDNSType": "DoH",
+        "DomesticDNSDomain": "https://77.88.8.8/dns-query",
+        "DomesticDNSIP": "77.88.8.8",
+        "DnsHosts": {
+            "lkfl2.nalog.ru": "213.24.64.175",
+            "lknpd.nalog.ru": "213.24.64.181",
+        },
+        "Geoipurl": "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geoip@202604250521/release/geoip.dat",
+        "Geositeurl": "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite@202604152235/release/geosite.dat",
+        "DirectSites": [
+            "geosite:private",
+            "geosite:category-ru",
+            "geosite:whitelist",
+            "geosite:microsoft",
+            "geosite:apple",
+            "geosite:epicgames",
+            "geosite:riot",
+            "geosite:escapefromtarkov",
+            "geosite:steam",
+            "geosite:twitch",
+            "geosite:pinterest",
+            "geosite:faceit",
+        ],
+        "ProxySites": [
+            "geosite:google-play",
+            "geosite:github",
+            "geosite:twitch-ads",
+            "geosite:youtube",
+            "geosite:telegram",
+        ],
+        "BlockSites": [
+            "geosite:win-spy",
+            "geosite:torrent",
+            "geosite:category-ads",
+        ],
+        "DirectIp": ["geoip:private", "geoip:direct"],
+        "ProxyIp": [],
+        "BlockIp": [],
+        "DomainStrategy": "IPIfNonMatch",
+        "FakeDNS": False,
+        "UseChunkFiles": True,
+        "RouteOrder": "block-proxy-direct",
+        "LastUpdated": 1777094515,
     }
-    routing_json = json.dumps(routing_profile)
-    routing_b64 = base64.b64encode(routing_json.encode()).decode()
+    routing_json = json.dumps(routing_profile, separators=(",", ":"), ensure_ascii=False)
+    routing_b64 = base64.urlsafe_b64encode(routing_json.encode()).decode().rstrip("=")
 
     # Metadata headers for Happ and other compatible apps
     # Documentation: https://www.happ.su/main/dev-docs/app-management
     headers_lines = [
-        "#profile-title: base64:TVZNVnBu",  # "MVMVpn" in base64
+        "#profile-title: MVM Vpn",
         "#profile-update-interval: 12",
         "#support-url: https://t.me/MVM_Support",
         f"happ://routing/onadd/{routing_b64}",
@@ -141,7 +311,7 @@ async def aggregate_subscription(sub_id: str) -> Response:
     up = client_data.get("up", 0)
     down = client_data.get("down", 0)
     total = client_data.get("total", 0)
-    
+
     # Fetch user data for expiration
     user_uid = client_snap.id
     user_snap = db.collection("users").document(user_uid).get()
@@ -151,8 +321,9 @@ async def aggregate_subscription(sub_id: str) -> Response:
         if expire_at := user_data.get("subscriptionEndsAt"):
             if hasattr(expire_at, "timestamp"):
                 expire_ts = int(expire_at.timestamp())
-    
-    headers_lines.append(f"#subscription-userinfo: upload={up}; download={down}; total={total}; expire={expire_ts}")
+
+    sub_info = f"#subscription-userinfo: upload={up}; download={down}; total={total}; expire={expire_ts}"
+    headers_lines.append(sub_info)
 
     body = "\n".join(headers_lines + merged) + ("\n" if merged else "")
     payload = base64.b64encode(body.encode("utf-8")).decode("ascii")
@@ -161,6 +332,7 @@ async def aggregate_subscription(sub_id: str) -> Response:
         media_type="text/plain; charset=utf-8",
         headers={
             "Profile-Update-Interval": "12",
-            "Content-Disposition": f"inline; filename=\"mvm-{sub_id[:8]}\"",
+            "Subscription-UserInfo": sub_info.lstrip("#"),
+            "Content-Disposition": f'inline; filename="mvm-{sub_id[:8]}"',
         },
     )

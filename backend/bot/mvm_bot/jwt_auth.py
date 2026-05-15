@@ -32,9 +32,9 @@ def sign_vk_auth_jwt(vk_id: int) -> str:
 
 async def connect_redirect_url(tg_id: int) -> str:
     """Returns the Cloud Function URL for the lifetime subscription (Telegram)."""
-    return f"https://getlifetimesubscription-caas3uwkra-uc.a.run.app?tgId={tg_id}"
+    return f"https://getlifetimesubscription-caas3uwkra-ew.a.run.app?tgId={tg_id}"
 
 
 async def connect_redirect_url_vk(vk_id: int) -> str:
     """Returns the Cloud Function URL for the lifetime subscription (VK)."""
-    return f"https://getlifetimesubscription-caas3uwkra-uc.a.run.app?vkId={vk_id}"
+    return f"https://getlifetimesubscription-caas3uwkra-ew.a.run.app?vkId={vk_id}"

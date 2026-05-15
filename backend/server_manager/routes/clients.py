@@ -47,14 +47,6 @@ def _server_sub_url(server_data: Dict[str, Any], sub_id: str) -> Optional[str]:
     return f"https://{public_host}:{sub_port}/sub/{sub_id}"
 
 
-def _primary_sub_url(per_server: Dict[str, Dict[str, Any]]) -> Optional[str]:
-    for info in per_server.values():
-        url = info.get("subUrl")
-        if url:
-            return str(url)
-    return None
-
-
 def _extract_host_from_url(url: Optional[str]) -> Optional[str]:
     """Extracts the hostname/IP from a subscription URL like https://1.2.3.4:2096/sub/..."""
     if not url:
@@ -287,9 +279,7 @@ async def provision_client(payload: ProvisionRequest) -> ProvisionResponse:
                 },
             )
 
-    subscription_url = (
-        _primary_sub_url(per_server) or _subscription_url(sub_id)
-    )
+    subscription_url = _subscription_url(sub_id)
     stored_sub_url = str(record.get("subscriptionUrl") or "")
     if subscription_url != stored_sub_url:
         await asyncio.to_thread(
@@ -428,7 +418,7 @@ async def regenerate_client(payload: ProvisionRequest) -> RegenerateResponse:
     )
 
     new_count = int(data.get("regenerationCount") or 0) + 1
-    new_sub_url = _primary_sub_url(new_per_server) or _subscription_url(new_sub_id)
+    new_sub_url = _subscription_url(new_sub_id)
     update_payload = {
         "subId": new_sub_id,
         "subscriptionUrl": new_sub_url,

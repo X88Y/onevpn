@@ -9,6 +9,7 @@ class CreateServerRequest(BaseModel):
     password: str = Field(..., min_length=1)
     sshPort: Optional[int] = Field(default=22, ge=1, le=65535)
     label: Optional[str] = None
+    countryCode: Optional[str] = None
 
 
 class CreateServerResponse(BaseModel):
@@ -32,6 +33,7 @@ class ServerSummary(BaseModel):
     id: str
     host: str
     label: Optional[str] = None
+    countryCode: Optional[str] = None
     status: str
     panelUrl: Optional[str] = None
     clientCount: int = 0
