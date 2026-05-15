@@ -28,6 +28,46 @@ MOCK_CLIENT_COUNT = 3
 logger = logging.getLogger(__name__)
 
 
+async def _detect_country_code(ip_or_host: str) -> Optional[str]:
+    """Detect ISO 3166-1 alpha-2 country code from an IP using ip-api.com.
+
+    Falls back to resolving hostname to IP if a domain is passed.
+    Returns None on any failure so the caller never breaks.
+    """
+    import socket
+
+    ip = ip_or_host.strip()
+    # If it looks like a hostname, try to resolve to an IP first.
+    # Skip for obviously private / local addresses.
+    if not ip.replace(".", "").isdigit():
+        try:
+            ip = socket.gethostbyname(ip)
+        except Exception:  # noqa: BLE001
+            return None
+
+    # Skip private/reserved ranges – ip-api rejects them anyway.
+    parts = ip.split(".")
+    if len(parts) == 4 and parts[0].isdigit():
+        first_octet = int(parts[0])
+        second_octet = int(parts[1]) if parts[1].isdigit() else 0
+        if first_octet in (10, 127) or (first_octet == 172 and 16 <= second_octet <= 31) or (first_octet == 192 and second_octet == 168):
+            return None
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(
+                f"http://ip-api.com/json/{ip}",
+                params={"fields": "status,countryCode"},
+            )
+            response.raise_for_status()
+            data = response.json()
+            if data.get("status") == "success":
+                return str(data.get("countryCode") or "").strip() or None
+    except Exception:  # noqa: BLE001
+        logger.debug("ip-api lookup failed for %s", ip_or_host, exc_info=True)
+    return None
+
+
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -353,6 +393,15 @@ async def _run_install_for_job(
     except Exception:  # noqa: BLE001
         logger.exception("could not ensure default inbound")
 
+    # Auto-detect country code from server public IP
+    detected_country: Optional[str] = None
+    try:
+        detected_country = await _detect_country_code(outcome.server_public_host)
+    except Exception:  # noqa: BLE001
+        logger.debug(
+            "country detection failed for %s", outcome.server_public_host, exc_info=True
+        )
+
     update = {
         "panelUrl": outcome.panel_url,
         "panelUser": outcome.panel_user,
@@ -365,6 +414,8 @@ async def _run_install_for_job(
         "lastHealthAt": firestore.SERVER_TIMESTAMP,
         "updatedAt": firestore.SERVER_TIMESTAMP,
     }
+    if detected_country:
+        update["countryCode"] = detected_country.upper()
     await asyncio.to_thread(server_ref.set, update, merge=True)
 
     if inbound_id:
