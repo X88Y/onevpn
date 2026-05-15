@@ -355,7 +355,7 @@ async def aggregate_subscription(sub_id: str) -> Response:
     }
     if profile_web_page_url:
         response_headers["Profile-Web-Page-Url"] = profile_web_page_url
-    if announce:
+    if announce and announce.isascii():
         response_headers["Announce"] = announce
 
     return Response(
