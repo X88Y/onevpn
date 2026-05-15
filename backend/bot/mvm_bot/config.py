@@ -131,3 +131,19 @@ def vk_menu_banner_path() -> Optional[Path]:
         return path
 
     return None
+
+
+def manager_base_url() -> str:
+    url = env("MANAGER_BASE_URL")
+    if url is None:
+        raise RuntimeError("Set MANAGER_BASE_URL in bot/.env")
+
+    return url.rstrip("/")
+
+
+def manager_api_key() -> str:
+    key = env("MANAGER_API_KEY")
+    if key is None:
+        raise RuntimeError("Set MANAGER_API_KEY in bot/.env")
+
+    return key

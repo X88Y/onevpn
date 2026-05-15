@@ -7,7 +7,7 @@ import hmac
 import json
 import time
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, Optional, Union
 
 from aiohttp import ClientError, ClientSession
 
@@ -38,7 +38,7 @@ def _build_signature(data: dict[str, Any], api_key: str) -> str:
     return hmac.new(api_key.encode(), message.encode(), hashlib.sha256).hexdigest()
 
 
-def _normalize_amount(amount: float) -> int | float:
+def _normalize_amount(amount: float) -> Union[int, float]:
     """Convert amount to a stable JSON number used for signing.
 
     FreeKassa recalculates signatures from parsed request values. If we sign
@@ -70,9 +70,9 @@ async def create_order(
     ip: str,
     amount: float,
     currency: str = "RUB",
-    success_url: str | None = None,
-    failure_url: str | None = None,
-    notification_url: str | None = None,
+    success_url: Optional[str] = None,
+    failure_url: Optional[str] = None,
+    notification_url: Optional[str] = None,
 ) -> dict[str, Any]:
     """Create a FreeKassa order via API and return the response dict.
 
@@ -129,16 +129,16 @@ async def checkout_url(
     shop_id: int,
     api_key: str,
     provider: str,
-    user_id: int | str,
+    user_id: Union[int, str],
     plan_key: str,
     payment_system: int,
     email: str,
     ip: str,
     amount: float,
     currency: str = "RUB",
-    success_url: str | None = None,
-    failure_url: str | None = None,
-    notification_url: str | None = None,
+    success_url: Optional[str] = None,
+    failure_url: Optional[str] = None,
+    notification_url: Optional[str] = None,
 ) -> FreeKassaCheckout:
     """Create a FreeKassa order and return the checkout URL plus ``paymentId``.
 

@@ -1,7 +1,6 @@
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {
-  MANAGER_API_KEY,
   MANAGER_BASE_URL,
   getClientTraffic,
 } from "./managerClient";
@@ -14,7 +13,7 @@ void MANAGER_BASE_URL;
  * are populated by the manager's traffic_sync worker.
  */
 export const getMyVpnUsage = onCall(
-  {cors: true, maxInstances: 10, secrets: [MANAGER_API_KEY]},
+  {cors: true, maxInstances: 10, secrets: ["MANAGER_API_KEY"]},
   async (request) => {
     const decodedIdToken = request.auth?.token;
     if (!decodedIdToken) {

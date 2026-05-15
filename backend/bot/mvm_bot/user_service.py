@@ -5,12 +5,17 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
+import aiohttp
 from aiogram.types import User  # type: ignore[import-not-found]
 from firebase_admin import auth, firestore  # type: ignore[import-not-found,import-untyped]
+import logging
 
+from mvm_bot.config import manager_api_key, manager_base_url
 from mvm_bot.constants import REFERRAL_BONUS_DAYS, TRIAL_DAYS, TRIAL_FIELDS
 from mvm_bot.datetime_utils import as_utc_datetime
 from mvm_bot.firebase_client import init_firebase
+
+logger = logging.getLogger(__name__)
 
 
 def telegram_uid(tg_id: int) -> str:
@@ -31,9 +36,9 @@ def record_payment_checkout_click(
     currency: str,
     pay_url: str,
     channel: str,
-    correlation_id: str | None = None,
-    payment_method: str | None = None,
-    payment_system: int | None = None,
+    correlation_id: str = None,
+    payment_method: str = None,
+    payment_system: int = None,
 ) -> None:
     """Append one Firestore document per generated external pay link (user tap)."""
     payload: dict[str, Any] = {
@@ -715,3 +720,65 @@ async def start_vk_trial(profile: VkProfile) -> tuple[str, dict, list[str]]:
 
     data, activated = await asyncio.to_thread(activate)
     return uid, data, activated
+
+
+async def get_or_provision_sub_id(user_uid: str) -> Optional[str]:
+    db = init_firebase()
+    client_doc = await asyncio.to_thread(
+        lambda: db.collection("vpn_clients").document(user_uid).get()
+    )
+    if client_doc.exists:
+        data = client_doc.to_dict() or {}
+        if sub_id := data.get("subId"):
+            return str(sub_id)
+
+    # Provision if not found
+    async with aiohttp.ClientSession() as session:
+        url = f"{manager_base_url()}/clients/provision"
+        payload = {"userUid": user_uid}
+        headers = {"X-API-Key": manager_api_key()}
+        try:
+            async with session.post(url, json=payload, headers=headers) as resp:
+                if resp.status == 200:
+                    result = await resp.json()
+                    return result.get("subId")
+
+                logger.error(
+                    "Provisioning failed status=%s body=%s",
+                    resp.status,
+                    await resp.text(),
+                )
+        except Exception as exc:
+            logger.error("Provisioning error: %s", exc)
+
+    return None
+
+
+async def get_or_provision_sub_id_tg(tg_id: int) -> Optional[str]:
+    db = init_firebase()
+    auth_uid = telegram_uid(tg_id)
+    users_ref = db.collection("users")
+    user_docs = await asyncio.to_thread(
+        lambda: users_ref.where("externalTg", "in", [auth_uid, str(tg_id)])
+        .limit(1)
+        .get()
+    )
+    if not user_docs:
+        return None
+
+    return await get_or_provision_sub_id(user_docs[0].id)
+
+
+async def get_or_provision_sub_id_vk(vk_id: int) -> Optional[str]:
+    db = init_firebase()
+    auth_uid = vk_uid(vk_id)
+    users_ref = db.collection("users")
+    user_docs = await asyncio.to_thread(
+        lambda: users_ref.where("externalVk", "in", [auth_uid, str(vk_id)])
+        .limit(1)
+        .get()
+    )
+    if not user_docs:
+        return None
+
+    return await get_or_provision_sub_id(user_docs[0].id)

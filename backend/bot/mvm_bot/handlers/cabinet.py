@@ -170,7 +170,7 @@ async def start_trial_callback(callback: CallbackQuery) -> None:
             )
         await callback.message.answer(
             confirm,
-            reply_markup=main_menu_keyboard(callback.from_user.id, data),
+            reply_markup=await main_menu_keyboard(callback.from_user.id, data),
         )
 
 
@@ -555,7 +555,7 @@ async def successful_payment_handler(message: Message) -> None:
         f"✅ Подписка продлена на {plan['days']} дней.\n"
         f"📅 {format_subscription_end(data)}\n\n"
         "Приятного пользования VPN! 🚀",
-        reply_markup=main_menu_keyboard(message.from_user.id, data),
+        reply_markup=await main_menu_keyboard(message.from_user.id, data),
     )
 
 

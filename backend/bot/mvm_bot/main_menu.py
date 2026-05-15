@@ -33,13 +33,13 @@ def format_subscription_end(data: dict) -> str:
     return f"✅ Активна до {end:%d.%m.%Y}"
 
 
-def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
+async def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
     is_active = _has_active_subscription(data)
     rows: list[list[InlineKeyboardButton]] = [
         [
             InlineKeyboardButton(
                 text="🔗 Подключить",
-                url=connect_redirect_url(tg_id),
+                url=await connect_redirect_url(tg_id),
                 **({"style": "primary"} if is_active else {}),
             )
         ],
@@ -106,7 +106,7 @@ async def send_main_menu(message: Message, data: dict) -> None:
         return
 
     caption = main_menu_caption(data, platform="tg")
-    keyboard = main_menu_keyboard(message.from_user.id, data)
+    keyboard = await main_menu_keyboard(message.from_user.id, data)
     banner = menu_banner_path()
     if banner is not None:
         await message.answer_photo(

@@ -12,6 +12,7 @@ that acts as a bearer token (matches how Xray subscription URLs work).
 
 import asyncio
 import base64
+import json
 import logging
 from typing import List
 
@@ -107,7 +108,53 @@ async def aggregate_subscription(sub_id: str) -> Response:
             seen.add(line)
             merged.append(line)
 
-    body = "\n".join(merged) + ("\n" if merged else "")
+    # Happ Routing Profile
+    # Documentation: https://www.happ.su/main/dev-docs/routing
+    # We enable GlobalProxy to ensure all traffic goes through the proxy by default,
+    # but the app can still apply its own bypass rules if configured.
+    routing_profile = {
+        "GlobalProxy": 1,
+        "Geoipurl": "https://github.com/v2fly/geoip/releases/latest/download/geoip.dat",
+        "Geositeurl": "https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat",
+        "Rules": [
+            {"Outbound": "direct", "Domain": ["domain:ru", "geosite:ru", "regexp:.*\\.ru$"]},
+            {"Outbound": "direct", "IP": ["geoip:ru"]},
+            {"Outbound": "direct", "Domain": ["geosite:private"]},
+            {"Outbound": "direct", "IP": ["geoip:private"]},
+            {"Outbound": "proxy", "Port": "0-65535"},
+        ]
+    }
+    routing_json = json.dumps(routing_profile)
+    routing_b64 = base64.b64encode(routing_json.encode()).decode()
+
+    # Metadata headers for Happ and other compatible apps
+    # Documentation: https://www.happ.su/main/dev-docs/app-management
+    headers_lines = [
+        "#profile-title: base64:TVZNVnBu",  # "MVMVpn" in base64
+        "#profile-update-interval: 12",
+        "#support-url: https://t.me/MVM_Support",
+        f"happ://routing/onadd/{routing_b64}",
+    ]
+
+    # Add traffic info if available
+    client_data = client_snap.to_dict() or {}
+    up = client_data.get("up", 0)
+    down = client_data.get("down", 0)
+    total = client_data.get("total", 0)
+    
+    # Fetch user data for expiration
+    user_uid = client_snap.id
+    user_snap = db.collection("users").document(user_uid).get()
+    expire_ts = 0
+    if user_snap.exists:
+        user_data = user_snap.to_dict() or {}
+        if expire_at := user_data.get("subscriptionEndsAt"):
+            if hasattr(expire_at, "timestamp"):
+                expire_ts = int(expire_at.timestamp())
+    
+    headers_lines.append(f"#subscription-userinfo: upload={up}; download={down}; total={total}; expire={expire_ts}")
+
+    body = "\n".join(headers_lines + merged) + ("\n" if merged else "")
     payload = base64.b64encode(body.encode("utf-8")).decode("ascii")
     return Response(
         content=payload,

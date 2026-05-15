@@ -7,7 +7,7 @@ import hashlib
 import json
 import uuid
 from decimal import Decimal
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, Optional
 
 from aiohttp import ClientError, ClientSession
 
@@ -59,8 +59,8 @@ async def create_invoice(
     price_amount: float,
     price_currency: str,
     order_id: str,
-    success_url: str | None = None,
-    cancel_url: str | None = None,
+    success_url: Optional[str] = None,
+    cancel_url: Optional[str] = None,
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "amount": _amount_str(price_amount),
@@ -121,8 +121,8 @@ async def invoice_checkout_url(
     plan_key: str,
     price_amount: float,
     price_currency: str = "usd",
-    success_url: str | None = None,
-    cancel_url: str | None = None,
+    success_url: Optional[str] = None,
+    cancel_url: Optional[str] = None,
 ) -> HeleketInvoice:
     order_id = build_order_id(payer_provider, payer_user_id, plan_key)
     data = await create_invoice(

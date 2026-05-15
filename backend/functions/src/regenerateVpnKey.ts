@@ -1,7 +1,6 @@
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {
-  MANAGER_API_KEY,
   MANAGER_BASE_URL,
   regenerateClient,
 } from "./managerClient";
@@ -16,7 +15,7 @@ void MANAGER_BASE_URL;
  * `resource-exhausted` so the app can show a "try again" message.
  */
 export const regenerateVpnKey = onCall(
-  {cors: true, maxInstances: 10, secrets: [MANAGER_API_KEY]},
+  {cors: true, maxInstances: 10, secrets: ["MANAGER_API_KEY"]},
   async (request) => {
     const decodedIdToken = request.auth?.token;
     if (!decodedIdToken) {

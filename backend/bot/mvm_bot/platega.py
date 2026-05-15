@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, Optional, Union
 
 from aiohttp import ClientError, ClientSession
 
@@ -26,8 +26,8 @@ async def create_transaction(
     currency: str,
     description: str,
     payload: str,
-    return_url: str | None = None,
-    failed_url: str | None = None,
+    return_url: Optional[str] = None,
+    failed_url: Optional[str] = None,
 ) -> dict[str, Any]:
     body_data: dict[str, Any] = {
         "paymentDetails": {"amount": amount, "currency": currency},
@@ -70,13 +70,13 @@ async def transaction_checkout_url(
     merchant_id: str,
     secret: str,
     provider: str,
-    user_id: int | str,
+    user_id: Union[int, str],
     plan_key: str,
     amount: float,
     currency: str,
     description: str,
-    return_url: str | None = None,
-    failed_url: str | None = None,
+    return_url: Optional[str] = None,
+    failed_url: Optional[str] = None,
 ) -> PlategaCheckout:
     """Create a Platega transaction and return the checkout URL plus payload.
 

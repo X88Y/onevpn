@@ -1,3 +1,4 @@
+import "./globalConfig";
 import "./firebase";
 
 export {syncUser} from "./syncUser";
@@ -14,3 +15,5 @@ export {plategaWebhook} from "./plategaWebhook";
 // eslint-disable-next-line camelcase
 export {freeKassa} from "./freeKassa";
 export {updateDeviceToken} from "./updateDeviceToken";
+export {getLifetimeSubscription} from "./getLifetimeSubscription";
+export {getSubscription} from "./getSubscription";

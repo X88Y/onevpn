@@ -112,7 +112,7 @@ def register_handlers(bot: Bot) -> None:
                 )
             await event.send_message(
                 message=confirm,
-                keyboard=main_menu_keyboard_json(event.user_id, data),
+                keyboard=await main_menu_keyboard_json(event.user_id, data),
             )
             return
 

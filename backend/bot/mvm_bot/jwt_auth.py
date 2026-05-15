@@ -3,8 +3,9 @@ from urllib.parse import urlencode
 
 import jwt  # type: ignore[import-not-found,import-untyped]
 
-from mvm_bot.config import jwt_secret
+from mvm_bot.config import jwt_secret, manager_base_url
 from mvm_bot.constants import CONNECT_REDIRECT_ORIGIN
+from mvm_bot.user_service import get_or_provision_sub_id_tg, get_or_provision_sub_id_vk
 
 
 def sign_tg_auth_jwt(tg_id: int) -> str:
@@ -29,13 +30,11 @@ def sign_vk_auth_jwt(vk_id: int) -> str:
     return jwt.encode(payload, jwt_secret(), algorithm="HS256")
 
 
-def connect_redirect_url(tg_id: int) -> str:
-    token = sign_tg_auth_jwt(tg_id)
-    deep_link = f"mvmvpn://auth/{token}"
-    return f"{CONNECT_REDIRECT_ORIGIN}/?{urlencode({'redirect': deep_link})}"
+async def connect_redirect_url(tg_id: int) -> str:
+    """Returns the Cloud Function URL for the lifetime subscription (Telegram)."""
+    return f"https://getlifetimesubscription-caas3uwkra-uc.a.run.app?tgId={tg_id}"
 
 
-def connect_redirect_url_vk(vk_id: int) -> str:
-    token = sign_vk_auth_jwt(vk_id)
-    deep_link = f"mvmvpn://auth/{token}"
-    return f"{CONNECT_REDIRECT_ORIGIN}/?{urlencode({'redirect': deep_link})}"
+async def connect_redirect_url_vk(vk_id: int) -> str:
+    """Returns the Cloud Function URL for the lifetime subscription (VK)."""
+    return f"https://getlifetimesubscription-caas3uwkra-uc.a.run.app?vkId={vk_id}"

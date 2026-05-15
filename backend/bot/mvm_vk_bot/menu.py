@@ -18,13 +18,13 @@ def _has_active_subscription(data: dict) -> bool:
     return end > datetime.now(timezone.utc)
 
 
-def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
+async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
     is_active = _has_active_subscription(data)
     kb = Keyboard(inline=True)
     kb.add(
         OpenLink(
             label="🔗 Подключить",
-            link=connect_redirect_url_vk(vk_id),
+            link=await connect_redirect_url_vk(vk_id),
         ),
         color=KeyboardButtonColor.PRIMARY if is_active else None,
     )
@@ -106,7 +106,7 @@ def rub_checkout_keyboard_json(plan_key: str) -> str:
 
 async def send_main_menu(message: Message, data: dict) -> None:
     caption = main_menu_caption(data, platform="vk")
-    keyboard = main_menu_keyboard_json(message.from_id, data)
+    keyboard = await main_menu_keyboard_json(message.from_id, data)
     banner = vk_menu_banner_path()
     if banner is not None:
         uploader = PhotoMessageUploader(message.ctx_api)
