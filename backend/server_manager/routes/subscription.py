@@ -14,6 +14,7 @@ import asyncio
 import base64
 import json
 import logging
+import time
 import urllib.parse
 from typing import List, Tuple
 
@@ -297,15 +298,6 @@ async def aggregate_subscription(sub_id: str) -> Response:
     routing_json = json.dumps(routing_profile, separators=(",", ":"), ensure_ascii=False)
     routing_b64 = base64.urlsafe_b64encode(routing_json.encode()).decode().rstrip("=")
 
-    # Metadata headers for Happ and other compatible apps
-    # Documentation: https://www.happ.su/main/dev-docs/app-management
-    headers_lines = [
-        "#profile-title: MVM Vpn",
-        "#profile-update-interval: 12",
-        "#support-url: https://t.me/MVM_Support",
-        f"happ://routing/onadd/{routing_b64}",
-    ]
-
     # Add traffic info if available
     client_data = client_snap.to_dict() or {}
     up = client_data.get("up", 0)
@@ -322,17 +314,52 @@ async def aggregate_subscription(sub_id: str) -> Response:
             if hasattr(expire_at, "timestamp"):
                 expire_ts = int(expire_at.timestamp())
 
+    now_ts = int(time.time())
+    is_expired = expire_ts > 0 and expire_ts <= now_ts
+
+    if is_expired:
+        merged = []
+        profile_title = "Ваша подписка истекла VK: mvmvpn"
+        support_url = "https://m.vk.com/write-199074445"
+        profile_web_page_url = "https://m.vk.com/write-199074445"
+        announce = "Ваша подписка истекла VK: mvmvpn"
+    else:
+        profile_title = "MVM Vpn"
+        support_url = "https://t.me/MVM_Support"
+        profile_web_page_url = ""
+        announce = ""
+
+    # Metadata headers for Happ and other compatible apps
+    # Documentation: https://www.happ.su/main/dev-docs/app-management
+    headers_lines = [
+        f"#profile-title: {profile_title}",
+        "#profile-update-interval: 12",
+        f"#support-url: {support_url}",
+    ]
+    if profile_web_page_url:
+        headers_lines.append(f"#profile-web-page-url: {profile_web_page_url}")
+    if announce:
+        headers_lines.append(f"#announce: {announce}")
+    headers_lines.append(f"happ://routing/onadd/{routing_b64}")
+
     sub_info = f"#subscription-userinfo: upload={up}; download={down}; total={total}; expire={expire_ts}"
     headers_lines.append(sub_info)
 
     body = "\n".join(headers_lines + merged) + ("\n" if merged else "")
     payload = base64.b64encode(body.encode("utf-8")).decode("ascii")
+    response_headers = {
+        "Profile-Update-Interval": "1",
+        "Subscription-UserInfo": sub_info.lstrip("#"),
+        "Content-Disposition": f'inline; filename="mvm-{sub_id[:8]}"',
+        "Support-Url": support_url,
+    }
+    if profile_web_page_url:
+        response_headers["Profile-Web-Page-Url"] = profile_web_page_url
+    if announce:
+        response_headers["Announce"] = announce
+
     return Response(
         content=payload,
         media_type="text/plain; charset=utf-8",
-        headers={
-            "Profile-Update-Interval": "12",
-            "Subscription-UserInfo": sub_info.lstrip("#"),
-            "Content-Disposition": f'inline; filename="mvm-{sub_id[:8]}"',
-        },
+        headers=response_headers,
     )
