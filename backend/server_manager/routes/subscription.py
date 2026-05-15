@@ -333,7 +333,7 @@ async def aggregate_subscription(sub_id: str) -> Response:
     # Documentation: https://www.happ.su/main/dev-docs/app-management
     headers_lines = [
         f"#profile-title: {profile_title}",
-        "#profile-update-interval: 12",
+        "#profile-update-interval: 1",
         f"#support-url: {support_url}",
     ]
     if profile_web_page_url:
