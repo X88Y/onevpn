@@ -28,6 +28,86 @@ MOCK_CLIENT_COUNT = 3
 logger = logging.getLogger(__name__)
 
 
+_COUNTRY_CODE_TO_RU = {
+    "AD": "Андорра",
+    "AE": "ОАЭ",
+    "AL": "Албания",
+    "AM": "Армения",
+    "AR": "Аргентина",
+    "AT": "Австрия",
+    "AU": "Австралия",
+    "AZ": "Азербайджан",
+    "BA": "Босния и Герцеговина",
+    "BE": "Бельгия",
+    "BG": "Болгария",
+    "BR": "Бразилия",
+    "BY": "Беларусь",
+    "CA": "Канада",
+    "CH": "Швейцария",
+    "CL": "Чили",
+    "CO": "Колумбия",
+    "CY": "Кипр",
+    "CZ": "Чехия",
+    "DE": "Германия",
+    "DK": "Дания",
+    "EE": "Эстония",
+    "ES": "Испания",
+    "FI": "Финляндия",
+    "FR": "Франция",
+    "GB": "Великобритания",
+    "GE": "Грузия",
+    "GR": "Греция",
+    "HK": "Гонконг",
+    "HR": "Хорватия",
+    "HU": "Венгрия",
+    "ID": "Индонезия",
+    "IE": "Ирландия",
+    "IL": "Израиль",
+    "IN": "Индия",
+    "IS": "Исландия",
+    "IT": "Италия",
+    "JP": "Япония",
+    "KZ": "Казахстан",
+    "KR": "Корея",
+    "LT": "Литва",
+    "LU": "Люксембург",
+    "LV": "Латвия",
+    "MD": "Молдова",
+    "ME": "Черногория",
+    "MK": "Северная Македония",
+    "MT": "Мальта",
+    "MX": "Мексика",
+    "MY": "Малайзия",
+    "NL": "Нидерланды",
+    "NO": "Норвегия",
+    "NZ": "Новая Зеландия",
+    "PE": "Перу",
+    "PH": "Филиппины",
+    "PL": "Польша",
+    "PT": "Португалия",
+    "RO": "Румыния",
+    "RS": "Сербия",
+    "RU": "Россия",
+    "SE": "Швеция",
+    "SG": "Сингапур",
+    "SI": "Словения",
+    "SK": "Словакия",
+    "TH": "Таиланд",
+    "TR": "Турция",
+    "TW": "Тайвань",
+    "UA": "Украина",
+    "US": "США",
+    "UZ": "Узбекистан",
+    "VN": "Вьетнам",
+    "ZA": "ЮАР",
+    "AE": "ОАЭ",
+}
+
+
+def _ru_country_name(code: str) -> Optional[str]:
+    return _COUNTRY_CODE_TO_RU.get((code or "").upper())
+
+
 async def _detect_country_code(ip_or_host: str) -> Optional[str]:
     """Detect ISO 3166-1 alpha-2 country code from an IP using ip-api.com.
 
@@ -416,6 +496,11 @@ async def _run_install_for_job(
     }
     if detected_country:
         update["countryCode"] = detected_country.upper()
+        # Auto-set Russian label if missing
+        if not server_data.get("label"):
+            ru_name = _ru_country_name(detected_country)
+            if ru_name:
+                update["label"] = ru_name
     await asyncio.to_thread(server_ref.set, update, merge=True)
 
     if inbound_id:

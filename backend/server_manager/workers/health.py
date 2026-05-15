@@ -24,6 +24,84 @@ logger = logging.getLogger(__name__)
 
 _MANAGED_STATUSES = {"healthy", "error"}
 
+_COUNTRY_CODE_TO_RU = {
+    "AD": "Андорра",
+    "AE": "ОАЭ",
+    "AL": "Албания",
+    "AM": "Армения",
+    "AR": "Аргентина",
+    "AT": "Австрия",
+    "AU": "Австралия",
+    "AZ": "Азербайджан",
+    "BA": "Босния и Герцеговина",
+    "BE": "Бельгия",
+    "BG": "Болгария",
+    "BR": "Бразилия",
+    "BY": "Беларусь",
+    "CA": "Канада",
+    "CH": "Швейцария",
+    "CL": "Чили",
+    "CO": "Колумбия",
+    "CY": "Кипр",
+    "CZ": "Чехия",
+    "DE": "Германия",
+    "DK": "Дания",
+    "EE": "Эстония",
+    "ES": "Испания",
+    "FI": "Финляндия",
+    "FR": "Франция",
+    "GB": "Великобритания",
+    "GE": "Грузия",
+    "GR": "Греция",
+    "HK": "Гонконг",
+    "HR": "Хорватия",
+    "HU": "Венгрия",
+    "ID": "Индонезия",
+    "IE": "Ирландия",
+    "IL": "Израиль",
+    "IN": "Индия",
+    "IS": "Исландия",
+    "IT": "Италия",
+    "JP": "Япония",
+    "KZ": "Казахстан",
+    "KR": "Корея",
+    "LT": "Литва",
+    "LU": "Люксембург",
+    "LV": "Латвия",
+    "MD": "Молдова",
+    "ME": "Черногория",
+    "MK": "Северная Македония",
+    "MT": "Мальта",
+    "MX": "Мексика",
+    "MY": "Малайзия",
+    "NL": "Нидерланды",
+    "NO": "Норвегия",
+    "NZ": "Новая Зеландия",
+    "PE": "Перу",
+    "PH": "Филиппины",
+    "PL": "Польша",
+    "PT": "Португалия",
+    "RO": "Румыния",
+    "RS": "Сербия",
+    "RU": "Россия",
+    "SE": "Швеция",
+    "SG": "Сингапур",
+    "SI": "Словения",
+    "SK": "Словакия",
+    "TH": "Таиланд",
+    "TR": "Турция",
+    "TW": "Тайвань",
+    "UA": "Украина",
+    "US": "США",
+    "UZ": "Узбекистан",
+    "VN": "Вьетнам",
+    "ZA": "ЮАР",
+}
+
+
+def _ru_country_name(code: str) -> Optional[str]:
+    return _COUNTRY_CODE_TO_RU.get((code or "").upper())
+
 
 async def _detect_country_code(ip_or_host: str) -> Optional[str]:
     """Lightweight GeoIP lookup using ip-api.com. Returns ISO country code or None."""
@@ -71,13 +149,17 @@ async def _probe_one(snap: firestore.DocumentSnapshot) -> None:
 
     updates: dict = {}
 
-    # Backfill missing countryCode for healthy servers
-    if healthy and not data.get("countryCode"):
+    # Backfill missing countryCode / label for healthy servers
+    if healthy and (not data.get("countryCode") or not data.get("label")):
         host = data.get("serverPublicHost") or data.get("host")
         if host:
             detected = await _detect_country_code(str(host))
             if detected:
                 updates["countryCode"] = detected.upper()
+                if not data.get("label"):
+                    ru_name = _ru_country_name(detected)
+                    if ru_name:
+                        updates["label"] = ru_name
 
     new_status = "healthy" if healthy else "error"
     if new_status != current:
