@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 import jwt  # type: ignore[import-not-found,import-untyped]
 
@@ -31,10 +31,20 @@ def sign_vk_auth_jwt(vk_id: int) -> str:
 
 
 async def connect_redirect_url(tg_id: int) -> str:
-    """Returns the Cloud Function URL for the lifetime subscription (Telegram)."""
-    return f"https://getlifetimesubscription-caas3uwkra-ew.a.run.app?tgId={tg_id}"
+    """Returns the redirect URL for the subscription (Telegram)."""
+    sub_id = await get_or_provision_sub_id_tg(tg_id)
+    if not sub_id:
+        return f"https://getlifetimesubscription-caas3uwkra-ew.a.run.app?tgId={tg_id}"
+    sub_url = f"https://getsubscription-caas3uwkra-ew.a.run.app/?id={sub_id}"
+    happ_deeplink = f"happ://add/{sub_url}"
+    return f"{CONNECT_REDIRECT_ORIGIN}/sub?redir={quote(happ_deeplink, safe='')}"
 
 
 async def connect_redirect_url_vk(vk_id: int) -> str:
-    """Returns the Cloud Function URL for the lifetime subscription (VK)."""
-    return f"https://getlifetimesubscription-caas3uwkra-ew.a.run.app?vkId={vk_id}"
+    """Returns the redirect URL for the subscription (VK)."""
+    sub_id = await get_or_provision_sub_id_vk(vk_id)
+    if not sub_id:
+        return f"https://getlifetimesubscription-caas3uwkra-ew.a.run.app?vkId={vk_id}"
+    sub_url = f"https://getsubscription-caas3uwkra-ew.a.run.app/?id={sub_id}"
+    happ_deeplink = f"happ://add/{sub_url}"
+    return f"{CONNECT_REDIRECT_ORIGIN}/sub?redir={quote(happ_deeplink, safe='')}"

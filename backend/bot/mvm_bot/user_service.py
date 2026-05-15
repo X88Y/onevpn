@@ -782,3 +782,45 @@ async def get_or_provision_sub_id_vk(vk_id: int) -> Optional[str]:
         return None
 
     return await get_or_provision_sub_id(user_docs[0].id)
+
+
+async def grant_lifetime_subscription_tg(tg_id: int) -> None:
+    db = init_firebase()
+    auth_uid = telegram_uid(tg_id)
+    users_ref = db.collection("users")
+    user_docs = await asyncio.to_thread(
+        lambda: users_ref.where("externalTg", "in", [auth_uid, str(tg_id)])
+        .limit(1)
+        .get()
+    )
+    if not user_docs:
+        return
+    user_ref = user_docs[0].reference
+    lifetime_date = datetime(2099, 1, 1, tzinfo=timezone.utc)
+    await asyncio.to_thread(
+        lambda: user_ref.update({
+            "subscriptionEndsAt": lifetime_date,
+            "updatedAt": firestore.SERVER_TIMESTAMP,
+        })
+    )
+
+
+async def grant_lifetime_subscription_vk(vk_id: int) -> None:
+    db = init_firebase()
+    auth_uid = vk_uid(vk_id)
+    users_ref = db.collection("users")
+    user_docs = await asyncio.to_thread(
+        lambda: users_ref.where("externalVk", "in", [auth_uid, str(vk_id)])
+        .limit(1)
+        .get()
+    )
+    if not user_docs:
+        return
+    user_ref = user_docs[0].reference
+    lifetime_date = datetime(2099, 1, 1, tzinfo=timezone.utc)
+    await asyncio.to_thread(
+        lambda: user_ref.update({
+            "subscriptionEndsAt": lifetime_date,
+            "updatedAt": firestore.SERVER_TIMESTAMP,
+        })
+    )

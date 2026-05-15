@@ -1,5 +1,4 @@
 import {onRequest} from "firebase-functions/v2/https";
-import {Timestamp} from "firebase-admin/firestore";
 import {logger} from "firebase-functions";
 import {db} from "./firebase";
 import {provisionClient} from "./managerClient";
@@ -53,17 +52,6 @@ export const getLifetimeSubscription = onRequest(
         return;
       }
 
-
-      // 1. Grant lifetime subscription if not already set to a very far date
-      // We use 2099-01-01 as the lifetime date.
-      const lifetimeDate = new Date("2099-01-01T00:00:00Z");
-      await userRef.set(
-        {
-          subscriptionEndsAt: Timestamp.fromDate(lifetimeDate),
-          updatedAt: Timestamp.now(),
-        },
-        {merge: true}
-      );
 
       // 2. Provision client to get subId for the VPN link
       const provision = await provisionClient(userRef.id);
