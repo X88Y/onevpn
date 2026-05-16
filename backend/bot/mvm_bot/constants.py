@@ -23,7 +23,7 @@ SUBSCRIPTION_PLANS: dict[str, dict] = {
         "days": 30,
         "stars": 100,
         "label": "30 дней",
-        "rub": 1,
+        "rub": 50,
         "crypto_usd": 3.39,
     },
     "plan_90": {
