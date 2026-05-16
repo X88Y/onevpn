@@ -179,7 +179,7 @@ final class NotificationService {
         deviceName = iosInfo.modelName + " " + iosInfo.systemVersion;
       }
 
-      final callable = FirebaseFunctions.instance.httpsCallable('updateDeviceToken');
+      final callable = FirebaseFunctions.instanceFor(region: 'europe-west1').httpsCallable('updateDeviceToken');
       await callable.call({
         'random_uuid': deviceUuid,
         'name': deviceName,

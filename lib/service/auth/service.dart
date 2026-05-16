@@ -19,7 +19,7 @@ class AuthService {
   AuthService._internal();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFunctions _functions = FirebaseFunctions.instance;
+  final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
 
   User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
@@ -117,7 +117,7 @@ class AuthService {
 
   Future<UserModel?> syncUserWithBackend() async {
     try {
-      final myUserRes = await FirebaseFunctions.instance
+      final myUserRes = await _functions
           .httpsCallable('getMyUser')
           .call();
 
