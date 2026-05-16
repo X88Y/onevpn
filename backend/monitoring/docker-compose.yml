@@ -15,19 +15,19 @@ services:
       - "9090:9090"
     restart: unless-stopped
 
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
-      - GF_USERS_ALLOW_SIGN_UP=false
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
-    ports:
-      - "3000:3000"
-    restart: unless-stopped
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: grafana
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+  #     - GF_USERS_ALLOW_SIGN_UP=false
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #     - ./grafana/provisioning:/etc/grafana/provisioning
+  #     - ./grafana/dashboards:/var/lib/grafana/dashboards
+  #   ports:
+  #     - "3000:3000"
+  #   restart: unless-stopped
 
   node-exporter:
     image: prom/node-exporter:latest
