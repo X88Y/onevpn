@@ -40,6 +40,13 @@ async def connect_redirect_url(tg_id: int) -> str:
     return f"{CONNECT_REDIRECT_ORIGIN}/sub?redir={quote(happ_deeplink, safe='')}"
 
 
+def connect_redirect_url_legacy(tg_id: int) -> str:
+    """Returns the legacy redirect URL for the MVM app (Telegram)."""
+    token = sign_tg_auth_jwt(tg_id)
+    deep_link = f"mvmvpn://auth/{token}"
+    return f"{CONNECT_REDIRECT_ORIGIN}/?{urlencode({'redirect': deep_link})}"
+
+
 async def connect_redirect_url_vk(vk_id: int) -> str:
     """Returns the redirect URL for the subscription (VK)."""
     sub_id = await get_or_provision_sub_id_vk(vk_id)
@@ -48,3 +55,11 @@ async def connect_redirect_url_vk(vk_id: int) -> str:
     sub_url = f"https://getsubscription-caas3uwkra-ew.a.run.app/?id={sub_id}"
     happ_deeplink = f"happ://add/{sub_url}"
     return f"{CONNECT_REDIRECT_ORIGIN}/sub?redir={quote(happ_deeplink, safe='')}"
+
+
+def connect_redirect_url_vk_legacy(vk_id: int) -> str:
+    """Returns the legacy redirect URL for the MVM app (VK)."""
+    token = sign_vk_auth_jwt(vk_id)
+    deep_link = f"mvmvpn://auth/{token}"
+    return f"{CONNECT_REDIRECT_ORIGIN}/?{urlencode({'redirect': deep_link})}"
+
