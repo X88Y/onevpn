@@ -7,7 +7,6 @@ from vkbottle.tools import PhotoMessageUploader
 from mvm_bot.config import vk_menu_banner_path
 from mvm_bot.constants import SUBSCRIPTION_PLANS, SUPPORT_URL, TRIAL_FIELDS, VK_SUPPORT_URL
 from mvm_bot.datetime_utils import as_utc_datetime
-from mvm_bot.jwt_auth import connect_redirect_url_vk
 from mvm_bot.main_menu import main_menu_caption
 
 
@@ -24,7 +23,7 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
     kb.add(
         OpenLink(
             label="🔗 Подключить",
-            link=await connect_redirect_url_vk(vk_id),
+            link=data.get("remnawaveSubscriptionUrl") or "",
         ),
         color=KeyboardButtonColor.PRIMARY if is_active else None,
     )

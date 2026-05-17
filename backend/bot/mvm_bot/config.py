@@ -133,17 +133,13 @@ def vk_menu_banner_path() -> Optional[Path]:
     return None
 
 
-def manager_base_url() -> str:
-    url = env("MANAGER_BASE_URL")
-    if url is None:
-        raise RuntimeError("Set MANAGER_BASE_URL in bot/.env")
-
-    return url.rstrip("/")
+def remnawave_base_url() -> Optional[str]:
+    return env("REMNAWAVE_BASE_URL")
 
 
-def manager_api_key() -> str:
-    key = env("MANAGER_API_KEY")
-    if key is None:
-        raise RuntimeError("Set MANAGER_API_KEY in bot/.env")
+def remnawave_api_token() -> Optional[str]:
+    return env("REMNAWAVE_API_TOKEN")
 
-    return key
+
+def remnawave_internal_squad_uuid() -> Optional[str]:
+    return env("REMNAWAVE_INTERNAL_SQUAD_UUID")

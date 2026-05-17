@@ -52,6 +52,9 @@ class Settings:
     monitoring_targets_path: Optional[str]
     panel_request_timeout_s: int
     sub_path: str
+    remnawave_base_url: Optional[str]
+    remnawave_api_token: Optional[str]
+    remnawave_sync_interval_s: int
 
     @property
     def panel_request_timeout(self) -> float:
@@ -101,6 +104,10 @@ def _load_settings() -> Settings:
         monitoring_targets_path=_env("MONITORING_TARGETS_PATH"),
         panel_request_timeout_s=_int("PANEL_REQUEST_TIMEOUT_S", 30),
         sub_path=(_env("MANAGER_SUB_PATH") or "/sub").rstrip("/") or "/sub",
+        # Remnawave
+        remnawave_base_url=_env("REMNAWAVE_BASE_URL"),
+        remnawave_api_token=_env("REMNAWAVE_API_TOKEN"),
+        remnawave_sync_interval_s=_int("REMNAWAVE_SYNC_INTERVAL_S", 300),
     )
 
 

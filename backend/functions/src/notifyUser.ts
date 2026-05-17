@@ -1,6 +1,9 @@
 import {logger} from "firebase-functions/v2";
 import jwt from "jsonwebtoken";
 
+import {db} from "./firebase";
+import {externalIdCandidates, PROVIDER_FIELDS} from "./externalAuthJwt";
+
 const PLAN_LABEL: Record<string, string> = {
   plan_30: "30 дней",
   plan_90: "90 дней",
@@ -25,6 +28,30 @@ function formatDate(d: Date): string {
 }
 
 /**
+ * Looks up the user's raw Remnawave subscription URL.
+ * @param {"tg"|"vk"} provider Messaging platform.
+ * @param {string} userId Platform-specific numeric user id.
+ * @return {Promise<string|null>} Subscription URL when found.
+ */
+async function getRemnawaveSubUrl(
+  provider: "tg" | "vk",
+  userId: string
+): Promise<string | null> {
+  const field = PROVIDER_FIELDS[provider];
+  const candidates = externalIdCandidates(provider, userId);
+  const snap = await db.collection("users")
+    .where(field, "in", candidates)
+    .limit(1)
+    .get();
+  if (snap.empty) {
+    return null;
+  }
+  const data = snap.docs[0].data();
+  const url = data.remnawaveSubscriptionUrl;
+  return typeof url === "string" && url ? url : null;
+}
+
+/**
  * Sends a purchase success notification to the user via Telegram or VK.
  * Failures are logged but never throw — the subscription is already saved.
  * @param {"tg"|"vk"} provider Messaging platform.
@@ -44,7 +71,10 @@ export async function notifyPurchase(
     "✅ Оплата прошла успешно!\n\n" +
     `📅 Подписка активна до ${endStr}\n` +
     `(+${label})`;
-  const connectUrl = buildConnectRedirectUrl(provider, userId);
+  let connectUrl = await getRemnawaveSubUrl(provider, userId);
+  if (!connectUrl) {
+    connectUrl = buildConnectRedirectUrl(provider, userId);
+  }
 
   try {
     if (provider === "tg") {

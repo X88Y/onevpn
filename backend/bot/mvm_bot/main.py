@@ -1,10 +1,16 @@
 import asyncio
 import logging
+from pathlib import Path
+
+from dotenv import load_dotenv  # type: ignore[import-not-found]
+
+# Load .env BEFORE any project imports that read os.environ at import time
+_BOT_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(_BOT_DIR / ".env")
 
 from aiogram import Bot, Dispatcher  # type: ignore[import-not-found]
 from aiogram.fsm.storage.memory import MemoryStorage  # type: ignore[import-not-found]
 from aiogram.types import BotCommand  # type: ignore[import-not-found]
-from dotenv import load_dotenv  # type: ignore[import-not-found]
 
 from mvm_bot.config import bot_token
 from mvm_bot.constants import BOT_DIR
@@ -13,7 +19,6 @@ from mvm_bot.handlers import router
 
 
 async def main() -> None:
-    load_dotenv(BOT_DIR / ".env")
     logging.basicConfig(level=logging.INFO)
 
     bot = Bot(token=bot_token())

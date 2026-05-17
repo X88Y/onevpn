@@ -11,7 +11,6 @@ from aiogram.types import (  # type: ignore[import-not-found]
 from mvm_bot.config import menu_banner_path
 from mvm_bot.constants import PRIVACY_POLICY_URL, SUPPORT_URL, TERMS_URL, TRIAL_FIELDS
 from mvm_bot.datetime_utils import as_utc_datetime
-from mvm_bot.jwt_auth import connect_redirect_url
 
 
 def _has_active_subscription(data: dict) -> bool:
@@ -39,7 +38,7 @@ async def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(
                 text="🔗 Подключить",
-                url=await connect_redirect_url(tg_id),
+                url=data.get("remnawaveSubscriptionUrl") or "",
                 **({"style": "primary"} if is_active else {}),
             )
         ],

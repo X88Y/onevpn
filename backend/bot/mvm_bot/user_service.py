@@ -5,15 +5,19 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
-import aiohttp
 from aiogram.types import User  # type: ignore[import-not-found]
 from firebase_admin import auth, firestore  # type: ignore[import-not-found,import-untyped]
 import logging
 
-from mvm_bot.config import manager_api_key, manager_base_url
+from mvm_bot.config import remnawave_internal_squad_uuid
 from mvm_bot.constants import REFERRAL_BONUS_DAYS, TRIAL_DAYS, TRIAL_FIELDS
 from mvm_bot.datetime_utils import as_utc_datetime
 from mvm_bot.firebase_client import init_firebase
+from mvm_bot.remnawave_client import (
+    create_user as rw_create_user,
+    update_user as rw_update_user,
+    get_user_by_username as rw_get_user_by_username,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -124,6 +128,140 @@ def _missing_trial_defaults(data: dict) -> dict:
             payload[key] = value
 
     return payload
+
+
+def _remnawave_username(user_uid: str) -> str:
+    # Remnawave username max length is 36 characters.
+    # A UUID is 36 chars including hyphens; with "mvm-" prefix it becomes 40.
+    # Strip hyphens so it fits exactly: 4 + 32 = 36.
+    return f"mvm-{user_uid.replace('-', '')}"
+
+
+async def _ensure_remnawave_user(
+    user_uid: str,
+    user_data: dict,
+    *,
+    telegram_id: Optional[int] = None,
+) -> dict:
+    """Ensure a Remnawave user exists and sync its metadata to Firestore.
+
+    Returns the (possibly updated) user_data dict.
+    """
+    if user_data.get("remnawaveUuid") and user_data.get("remnawaveSubscriptionUrl"):
+        # Sync current subscription state to Remnawave
+        rw_uuid = user_data["remnawaveUuid"]
+        end = as_utc_datetime(user_data.get("subscriptionEndsAt"))
+        now = datetime.now(timezone.utc)
+        if end is None:
+            end = now
+        status = "ACTIVE" if end > now else "DISABLED"
+        try:
+            await rw_update_user(uuid=str(rw_uuid), expire_at=end, status=status)
+        except Exception:
+            logger.exception("Failed to sync Remnawave user %s", rw_uuid)
+        return user_data
+
+    username = _remnawave_username(user_uid)
+    rw_user = await rw_get_user_by_username(username)
+
+    if rw_user is None:
+        now = datetime.now(timezone.utc)
+        squad = remnawave_internal_squad_uuid()
+        squads = [squad] if squad else None
+        try:
+            rw_user = await rw_create_user(
+                username=username,
+                expire_at=now,
+                telegram_id=telegram_id,
+                status="ACTIVE",
+                active_internal_squads=squads,
+                description=f"MVM user {user_uid}",
+            )
+        except Exception:
+            logger.exception("Failed to create Remnawave user for %s", user_uid)
+            return user_data
+
+    rw_uuid = str(rw_user.get("uuid") or "")
+    rw_short = str(rw_user.get("shortUuid") or "")
+    rw_sub_url = str(rw_user.get("subscriptionUrl") or "")
+    if rw_uuid and rw_sub_url:
+        db = init_firebase()
+        users_ref = db.collection("users").document(user_uid)
+        await asyncio.to_thread(
+            lambda: users_ref.update(
+                {
+                    "remnawaveUuid": rw_uuid,
+                    "remnawaveShortUuid": rw_short,
+                    "remnawaveSubscriptionUrl": rw_sub_url,
+                    "updatedAt": firestore.SERVER_TIMESTAMP,
+                }
+            )
+        )
+        user_data = {
+            **user_data,
+            "remnawaveUuid": rw_uuid,
+            "remnawaveShortUuid": rw_short,
+            "remnawaveSubscriptionUrl": rw_sub_url,
+        }
+    return user_data
+
+
+async def _update_remnawave_subscription(
+    user_uid: str,
+    subscription_ends_at: Optional[datetime] = None,
+) -> None:
+    """Push the current subscription expiry (and status) to Remnawave."""
+    db = init_firebase()
+    users_ref = db.collection("users").document(user_uid)
+    snap = await asyncio.to_thread(users_ref.get)
+    if not snap.exists:
+        return
+    data = snap.to_dict() or {}
+    rw_uuid = data.get("remnawaveUuid")
+
+    if not rw_uuid:
+        username = _remnawave_username(user_uid)
+        rw_user = await rw_get_user_by_username(username)
+        if not rw_user:
+            # Fallback to old format for backward compatibility
+            old_username = f"mvm-{user_uid}"
+            if old_username != username:
+                rw_user = await rw_get_user_by_username(old_username)
+        if rw_user:
+            rw_uuid = str(rw_user.get("uuid") or "")
+            rw_short = str(rw_user.get("shortUuid") or "")
+            rw_sub_url = str(rw_user.get("subscriptionUrl") or "")
+            if rw_uuid and rw_sub_url:
+                await asyncio.to_thread(
+                    lambda: users_ref.update(
+                        {
+                            "remnawaveUuid": rw_uuid,
+                            "remnawaveShortUuid": rw_short,
+                            "remnawaveSubscriptionUrl": rw_sub_url,
+                            "updatedAt": firestore.SERVER_TIMESTAMP,
+                        }
+                    )
+                )
+        else:
+            logger.warning(
+                "Cannot update Remnawave subscription: user %s not found in Remnawave",
+                user_uid,
+            )
+            return
+
+    now = datetime.now(timezone.utc)
+    if subscription_ends_at is None:
+        subscription_ends_at = now
+
+    status = "ACTIVE" if subscription_ends_at > now else "DISABLED"
+    try:
+        await rw_update_user(
+            uuid=str(rw_uuid),
+            expire_at=subscription_ends_at,
+            status=status,
+        )
+    except Exception:
+        logger.exception("Failed to update Remnawave user %s", rw_uuid)
 
 
 def _connected_trial_providers(data: dict) -> list[str]:
@@ -513,6 +651,7 @@ async def save_vk_user(profile: VkProfile, referral_code: Optional[str] = None) 
 
     saved_snapshot = await asyncio.to_thread(user_ref.get)
     saved_data = saved_snapshot.to_dict() or {}
+    saved_data = await _ensure_remnawave_user(user_uid, saved_data)
     return user_uid, saved_data
 
 
@@ -573,6 +712,9 @@ async def save_telegram_user(tg_user: User, referral_code: Optional[str] = None)
 
     saved_snapshot = await asyncio.to_thread(user_ref.get)
     saved_data = saved_snapshot.to_dict() or {}
+    saved_data = await _ensure_remnawave_user(
+        user_uid, saved_data, telegram_id=tg_user.id
+    )
     return user_uid, saved_data
 
 
@@ -611,6 +753,8 @@ async def extend_subscription(tg_user: User, days: int) -> tuple[str, dict]:
         return _run(transaction)
 
     data = await asyncio.to_thread(extend)
+    end = as_utc_datetime(data.get("subscriptionEndsAt"))
+    await _update_remnawave_subscription(uid, end)
     return uid, data
 
 
@@ -645,6 +789,8 @@ async def start_telegram_trial(tg_user: User) -> tuple[str, dict, list[str]]:
         return update_in_transaction(transaction)
 
     data, activated = await asyncio.to_thread(activate)
+    end = as_utc_datetime(data.get("subscriptionEndsAt"))
+    await _update_remnawave_subscription(uid, end)
     return uid, data, activated
 
 
@@ -683,6 +829,8 @@ async def extend_subscription_vk(profile: VkProfile, days: int) -> tuple[str, di
         return _run(transaction)
 
     data = await asyncio.to_thread(extend)
+    end = as_utc_datetime(data.get("subscriptionEndsAt"))
+    await _update_remnawave_subscription(uid, end)
     return uid, data
 
 
@@ -719,42 +867,24 @@ async def start_vk_trial(profile: VkProfile) -> tuple[str, dict, list[str]]:
         return update_in_transaction(transaction)
 
     data, activated = await asyncio.to_thread(activate)
+    end = as_utc_datetime(data.get("subscriptionEndsAt"))
+    await _update_remnawave_subscription(uid, end)
     return uid, data, activated
 
 
-async def get_or_provision_sub_id(user_uid: str) -> Optional[str]:
+async def get_remnawave_sub_url(user_uid: str) -> Optional[str]:
     db = init_firebase()
-    client_doc = await asyncio.to_thread(
-        lambda: db.collection("vpn_clients").document(user_uid).get()
+    snap = await asyncio.to_thread(
+        lambda: db.collection("users").document(user_uid).get()
     )
-    if client_doc.exists:
-        data = client_doc.to_dict() or {}
-        if sub_id := data.get("subId"):
-            return str(sub_id)
-
-    # Provision if not found
-    async with aiohttp.ClientSession() as session:
-        url = f"{manager_base_url()}/clients/provision"
-        payload = {"userUid": user_uid}
-        headers = {"X-API-Key": manager_api_key()}
-        try:
-            async with session.post(url, json=payload, headers=headers) as resp:
-                if resp.status == 200:
-                    result = await resp.json()
-                    return result.get("subId")
-
-                logger.error(
-                    "Provisioning failed status=%s body=%s",
-                    resp.status,
-                    await resp.text(),
-                )
-        except Exception as exc:
-            logger.error("Provisioning error: %s", exc)
-
+    if snap.exists:
+        data = snap.to_dict() or {}
+        if sub_url := data.get("remnawaveSubscriptionUrl"):
+            return str(sub_url)
     return None
 
 
-async def get_or_provision_sub_id_tg(tg_id: int) -> Optional[str]:
+async def get_remnawave_sub_url_tg(tg_id: int) -> Optional[str]:
     db = init_firebase()
     auth_uid = telegram_uid(tg_id)
     users_ref = db.collection("users")
@@ -765,11 +895,22 @@ async def get_or_provision_sub_id_tg(tg_id: int) -> Optional[str]:
     )
     if not user_docs:
         return None
+    user_doc = user_docs[0]
+    data = user_doc.to_dict() or {}
+    if sub_url := data.get("remnawaveSubscriptionUrl"):
+        return str(sub_url)
 
-    return await get_or_provision_sub_id(user_docs[0].id)
+    # Fallback: ensure user exists in Remnawave
+    from aiogram.types import User
+    try:
+        _, data = await save_telegram_user(User(id=tg_id, is_bot=False, first_name=""))
+        return data.get("remnawaveSubscriptionUrl")
+    except Exception:
+        logger.exception("Failed to ensure Remnawave user for tg %s", tg_id)
+        return None
 
 
-async def get_or_provision_sub_id_vk(vk_id: int) -> Optional[str]:
+async def get_remnawave_sub_url_vk(vk_id: int) -> Optional[str]:
     db = init_firebase()
     auth_uid = vk_uid(vk_id)
     users_ref = db.collection("users")
@@ -780,8 +921,11 @@ async def get_or_provision_sub_id_vk(vk_id: int) -> Optional[str]:
     )
     if not user_docs:
         return None
-
-    return await get_or_provision_sub_id(user_docs[0].id)
+    user_doc = user_docs[0]
+    data = user_doc.to_dict() or {}
+    if sub_url := data.get("remnawaveSubscriptionUrl"):
+        return str(sub_url)
+    return None
 
 
 async def grant_lifetime_subscription_tg(tg_id: int) -> None:
@@ -803,6 +947,9 @@ async def grant_lifetime_subscription_tg(tg_id: int) -> None:
             "updatedAt": firestore.SERVER_TIMESTAMP,
         })
     )
+    data = user_docs[0].to_dict() or {}
+    user_uid = data.get("uid") or user_docs[0].id
+    await _update_remnawave_subscription(user_uid, lifetime_date)
 
 
 async def grant_lifetime_subscription_vk(vk_id: int) -> None:
@@ -824,3 +971,6 @@ async def grant_lifetime_subscription_vk(vk_id: int) -> None:
             "updatedAt": firestore.SERVER_TIMESTAMP,
         })
     )
+    data = user_docs[0].to_dict() or {}
+    user_uid = data.get("uid") or user_docs[0].id
+    await _update_remnawave_subscription(user_uid, lifetime_date)
