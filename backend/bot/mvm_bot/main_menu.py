@@ -9,7 +9,7 @@ from aiogram.types import (  # type: ignore[import-not-found]
 )
 
 from mvm_bot.config import menu_banner_path
-from mvm_bot.constants import PRIVACY_POLICY_URL, SUPPORT_URL, TERMS_URL, TRIAL_FIELDS
+from mvm_bot.constants import PRIVACY_POLICY_URL, SITE_LINKS, SUPPORT_URL, TERMS_URL, TRIAL_FIELDS
 from mvm_bot.datetime_utils import as_utc_datetime
 
 
@@ -94,6 +94,15 @@ def main_menu_caption(data: dict, platform: str = "tg") -> str:
             f"📋 Пользовательское соглашение:\n{TERMS_URL}\n"
             f"🔒 Политика конфиденциальности:\n{PRIVACY_POLICY_URL}\n\n"
         )
+
+    if SITE_LINKS:
+        if platform == "tg":
+            links_text = "\n".join(
+                f"<a href='https://{link}'>{link}</a>" for link in SITE_LINKS
+            )
+        else:
+            links_text = "\n".join(f"https://{link}" for link in SITE_LINKS)
+        caption += f"🌐 Резерв:\n{links_text}\n\n"
 
     caption += "👇 Выберите действие:"
     return caption

@@ -17,13 +17,19 @@ VK_SUPPORT_URL = "https://vk.ru/id1088965138"
 
 PRIVACY_POLICY_URL = "https://telegra.ph/Politika-konfidencialnosti-04-01-26"
 TERMS_URL = "https://telegra.ph/Polzovatelskoe-soglashenie-04-01-19"
+
+SITE_LINKS = [
+    'mvmvpn.vercel.app',
+    'мвм-скорость.рф',
+]
+
 # PRICE HERE
 SUBSCRIPTION_PLANS: dict[str, dict] = {
     "plan_30": {
         "days": 30,
         "stars": 100,
         "label": "30 дней",
-        "rub": 1,
+        "rub": 50,
         "crypto_usd": 3.39,
     },
     "plan_90": {
