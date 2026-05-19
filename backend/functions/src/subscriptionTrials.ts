@@ -4,7 +4,7 @@ import {
   type Transaction,
 } from "firebase-admin/firestore";
 
-export const TRIAL_DAYS = 1;
+export const TRIAL_DAYS = 4;
 
 export type TrialProvider = "tg" | "apple" | "vk";
 
