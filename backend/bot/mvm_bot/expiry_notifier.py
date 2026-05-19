@@ -94,6 +94,10 @@ async def check_and_notify_expired_subscriptions() -> None:
     if not snaps:
         return
 
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start_ms = int(today_start.timestamp() * 1000)
+
     notified_count = 0
     for snap in snaps:
         try:
@@ -103,12 +107,8 @@ async def check_and_notify_expired_subscriptions() -> None:
             if current_end is None:
                 continue
 
-            current_end_ms = _timestamp_ms(current_end)
-            if current_end_ms is None:
-                continue
-
             notified_for_ms = _timestamp_ms(user_data.get("expiryNotifiedForDateMs"))
-            if notified_for_ms == current_end_ms:
+            if notified_for_ms is not None and notified_for_ms >= today_start_ms:
                 continue
 
             tg_id = _extract_provider_id(user_data.get("externalTg"))
@@ -128,7 +128,9 @@ async def check_and_notify_expired_subscriptions() -> None:
                 await _notify_vk(vk_id, text)
 
             await asyncio.to_thread(
-                lambda: snap.reference.update({"expiryNotifiedForDateMs": current_end_ms})
+                lambda: snap.reference.update(
+                    {"expiryNotifiedForDateMs": int(now.timestamp() * 1000)}
+                )
             )
             notified_count += 1
         except Exception:
