@@ -30,6 +30,8 @@ def _extract_provider_id(value: Any) -> Optional[str]:
 def _timestamp_ms(value: Any) -> Optional[int]:
     if value is None:
         return None
+    if isinstance(value, (int, float)):
+        return int(value)
     if hasattr(value, "timestamp"):
         return int(value.timestamp() * 1000)
     return None
@@ -127,10 +129,11 @@ async def check_and_notify_expired_subscriptions() -> None:
             if vk_id:
                 await _notify_vk(vk_id, text)
 
+            # capture per-iteration values to avoid closure issues in the thread
+            ref = snap.reference
+            notified_at_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
             await asyncio.to_thread(
-                lambda: snap.reference.update(
-                    {"expiryNotifiedForDateMs": int(now.timestamp() * 1000)}
-                )
+                lambda r=ref, ts=notified_at_ms: r.update({"expiryNotifiedForDateMs": ts})
             )
             notified_count += 1
         except Exception:
