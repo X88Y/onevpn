@@ -2,7 +2,7 @@ from pathlib import Path
 
 BOT_DIR = Path(__file__).resolve().parents[1]
 MENU_BANNER_PATH = BOT_DIR / "assets" / "telegram_menu_banner.png"
-TRIAL_DAYS = 1
+TRIAL_DAYS = 4
 REFERRAL_BONUS_DAYS = 3
 TRIAL_FIELDS = {
     "tg": "isTelegramTrialActivated",
