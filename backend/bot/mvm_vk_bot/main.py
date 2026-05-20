@@ -32,6 +32,8 @@ def run() -> None:
     logger.info("Starting %s VK bot instance(s)", len(bots))
 
     async def _run_all() -> None:
+        for bot in bots:
+            bot.loop_wrapper._running = True
         await asyncio.gather(*(bot.run_polling() for bot in bots))
 
     asyncio.run(_run_all())
