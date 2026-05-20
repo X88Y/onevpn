@@ -22,12 +22,28 @@ def bot_token() -> str:
     return token
 
 
-def vk_bot_token() -> str:
-    token = env("VK_BOT_TOKEN")
-    if token is None:
-        raise RuntimeError("Set VK_BOT_TOKEN in bot/.env")
+def vk_bot_tokens() -> list[str]:
+    """Return all configured VK bot tokens.
 
-    return token
+    Supports ``VK_BOT_TOKENS`` (comma-separated) and falls back to
+    ``VK_BOT_TOKEN`` for backward compatibility.
+    """
+    raw = env("VK_BOT_TOKENS")
+    if raw:
+        tokens = [t.strip() for t in raw.split(",") if t.strip()]
+        if tokens:
+            return tokens
+    token = env("VK_BOT_TOKEN")
+    if token:
+        return [token]
+    return []
+
+
+def vk_bot_token() -> str:
+    tokens = vk_bot_tokens()
+    if not tokens:
+        raise RuntimeError("Set VK_BOT_TOKEN or VK_BOT_TOKENS in bot/.env")
+    return tokens[0]
 
 
 def service_account_path() -> Optional[str]:

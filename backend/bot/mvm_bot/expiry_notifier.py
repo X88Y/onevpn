@@ -8,7 +8,7 @@ from typing import Any, List, Optional
 import aiohttp
 from firebase_admin import firestore
 
-from mvm_bot.config import bot_token, vk_bot_token
+from mvm_bot.config import bot_token, vk_bot_tokens
 from mvm_bot.firebase_client import init_firebase
 
 logger = logging.getLogger(__name__)
@@ -56,28 +56,35 @@ async def _notify_telegram(user_id: str, text: str) -> None:
 
 
 async def _notify_vk(user_id: str, text: str) -> None:
-    token = vk_bot_token()
-    params = {
-        "user_id": user_id,
-        "message": text,
-        "random_id": str(int(datetime.now(timezone.utc).timestamp() * 1000)),
-        "access_token": token,
-        "v": "5.131",
-    }
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                "https://api.vk.com/method/messages.send", params=params
-            ) as resp:
-                if resp.status != 200:
-                    body = await resp.text()
-                    logger.warning("vk notify failed: %s %s", resp.status, body)
+    tokens = vk_bot_tokens()
+    if not tokens:
+        return
+
+    for token in tokens:
+        params = {
+            "user_id": user_id,
+            "message": text,
+            "random_id": str(int(datetime.now(timezone.utc).timestamp() * 1000)),
+            "access_token": token,
+            "v": "5.131",
+        }
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    "https://api.vk.com/method/messages.send", params=params
+                ) as resp:
+                    if resp.status != 200:
+                        body = await resp.text()
+                        logger.warning("vk notify failed: %s %s", resp.status, body)
+                        continue
+                    data = await resp.json()
+                    if data.get("error"):
+                        logger.debug("vk api error with token: %s", data["error"])
+                        continue
                     return
-                data = await resp.json()
-                if data.get("error"):
-                    logger.warning("vk api error: %s", data["error"])
-    except Exception:
-        logger.exception("vk notify error for user %s", user_id)
+        except Exception:
+            logger.exception("vk notify error for user %s with a token", user_id)
+            continue
 
 
 def _fetch_expired_users(db: firestore.Client) -> List[firestore.DocumentSnapshot]:
