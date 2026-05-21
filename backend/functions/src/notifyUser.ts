@@ -1,5 +1,5 @@
 import { logger } from "firebase-functions/v2";
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
 
 import { db } from "./firebase";
 import { externalIdCandidates, PROVIDER_FIELDS } from "./externalAuthJwt";
@@ -14,8 +14,8 @@ const PLAN_LABEL: Record<string, string> = {
 const ADMIN_TG_IDS = ["419467483", "555457790"];
 const ADMIN_BOT_TOKEN = "8647577068:AAG5fQPefel2IqUa5DNtYNdfQffXJ0ftvMo";
 
-const CONNECT_REDIRECT_ORIGIN =
-  process.env.CONNECT_REDIRECT_ORIGIN || "https://front-redirect.vercel.app";
+// const CONNECT_REDIRECT_ORIGIN =
+//   process.env.CONNECT_REDIRECT_ORIGIN || "https://front-redirect.vercel.app";
 
 /**
  * Formats a UTC Date as DD.MM.YYYY in the Russian locale.
@@ -279,13 +279,13 @@ async function notifyVk(
  * Reads the shared HS256 secret for auth deep links.
  * @return {string} Configured JWT secret.
  */
-function jwtSecret(): string {
-  const secret = process.env.MVMVPN_JWT_SECRET?.trim();
-  if (!secret) {
-    throw new Error("MVMVPN_JWT_SECRET is not configured");
-  }
-  return secret;
-}
+// function jwtSecret(): string {
+//   const secret = process.env.MVMVPN_JWT_SECRET?.trim();
+//   if (!secret) {
+//     throw new Error("MVMVPN_JWT_SECRET is not configured");
+//   }
+//   return secret;
+// }
 
 /**
  * Builds an app connect redirect URL for Telegram/VK users.
