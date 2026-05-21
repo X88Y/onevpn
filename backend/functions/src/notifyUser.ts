@@ -125,7 +125,75 @@ async function notifyTelegram(
 }
 
 /**
+ * Builds VK inline keyboard JSON with a connect link.
+ * @param {string} connectUrl Deep link redirect URL.
+ * @return {string} JSON keyboard payload.
+ */
+function buildVkKeyboard(connectUrl: string): string {
+  return JSON.stringify({
+    inline: true,
+    buttons: [
+      [
+        {
+          action: {
+            type: "open_link",
+            link: connectUrl,
+            label: "🔗 Подключить",
+          },
+        },
+      ],
+    ],
+  });
+}
+
+/**
+ * Attempts to send a VK message using a single token.
+ * @param {string} userId VK user id.
+ * @param {string} text Message body.
+ * @param {string} keyboard Keyboard JSON string.
+ * @param {string} token VK bot token.
+ * @return {Promise<boolean>} True when the API reports success.
+ */
+async function sendVkMessageWithToken(
+  userId: string,
+  text: string,
+  keyboard: string,
+  token: string
+): Promise<boolean> {
+  const params = new URLSearchParams({
+    user_id: userId,
+    message: text,
+    random_id: String(Date.now()),
+    keyboard,
+    access_token: token,
+    v: "5.231",
+  });
+  const resp = await fetch(
+    `https://api.vk.com/method/messages.send?${params.toString()}`,
+    {method: "POST"}
+  );
+  if (!resp.ok) {
+    const body = await resp.text();
+    logger.warn("notifyVk: request failed", {status: resp.status, body});
+    return false;
+  }
+  const json = (await resp.json()) as {
+    error?: {error_msg: string; error_code: number};
+  };
+  if (json.error) {
+    logger.warn("notifyVk: API error", {
+      error: json.error,
+      tokenPrefix: token.slice(0, 8),
+    });
+    return false;
+  }
+  return true;
+}
+
+/**
  * Sends a plain-text VK message to a single user id.
+ * Tries all configured VK bot tokens (multi-bot support) and stops at the
+ * first successful delivery.
  * @param {string} userId VK user id.
  * @param {string} text Message body.
  * @param {string} connectUrl Deep link redirect URL for account login.
@@ -136,45 +204,26 @@ async function notifyVk(
   text: string,
   connectUrl: string
 ): Promise<void> {
-  const token = process.env.VK_BOT_TOKEN;
-  if (!token) {
-    logger.warn("notifyVk: VK_BOT_TOKEN not configured");
+  const rawTokens =
+    process.env.VK_BOT_TOKENS || process.env.VK_BOT_TOKEN || "";
+  const tokens = rawTokens
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  if (tokens.length === 0) {
+    logger.warn("notifyVk: no VK tokens configured");
     return;
   }
-  const params = new URLSearchParams({
-    user_id: userId,
-    message: text,
-    random_id: String(Date.now()),
-    keyboard: JSON.stringify({
-      inline: true,
-      buttons: [
-        [
-          {
-            action: {
-              type: "open_link",
-              link: connectUrl,
-              label: "🔗 Подключить",
-            },
-          },
-        ],
-      ],
-    }),
-    access_token: token,
-    v: "5.131",
-  });
-  const resp = await fetch(
-    `https://api.vk.com/method/messages.send?${params.toString()}`,
-    {method: "POST"}
-  );
-  if (!resp.ok) {
-    const body = await resp.text();
-    logger.warn("notifyVk: request failed", {status: resp.status, body});
-    return;
+
+  const keyboard = buildVkKeyboard(connectUrl);
+  for (const token of tokens) {
+    const ok = await sendVkMessageWithToken(userId, text, keyboard, token);
+    if (ok) {
+      return;
+    }
   }
-  const json = (await resp.json()) as {error?: {error_msg: string}};
-  if (json.error) {
-    logger.warn("notifyVk: API error", {error: json.error});
-  }
+  logger.warn("notifyVk: all tokens failed", {userId});
 }
 
 /**
