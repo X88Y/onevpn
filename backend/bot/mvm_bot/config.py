@@ -30,6 +30,23 @@ def vk_bot_token() -> str:
     return token
 
 
+def vk_bot_tokens() -> list[str]:
+    """Return all configured VK bot tokens.
+
+    Supports ``VK_BOT_TOKENS`` (comma-separated) and falls back to
+    ``VK_BOT_TOKEN`` for backward compatibility.
+    """
+    raw = env("VK_BOT_TOKENS")
+    if raw:
+        tokens = [t.strip() for t in raw.split(",") if t.strip()]
+        if tokens:
+            return tokens
+    token = env("VK_BOT_TOKEN")
+    if token:
+        return [token]
+    return []
+
+
 def service_account_path() -> Optional[str]:
     path = (
         env("FIREBASE_SERVICE_ACCOUNT_PATH")

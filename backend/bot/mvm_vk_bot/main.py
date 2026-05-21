@@ -7,15 +7,17 @@ from dotenv import load_dotenv
 _BOT_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(_BOT_DIR / ".env")
 
-from vkbottle import Bot
+from vkbottle import API, Bot, run_multibot
 
-from mvm_bot.config import vk_bot_token
+from mvm_bot.config import vk_bot_token, vk_bot_tokens
 from mvm_bot.constants import BOT_DIR
 from mvm_vk_bot.handlers import register_handlers
 
 
 def run() -> None:
     logging.basicConfig(level=logging.INFO)
-    bot = Bot(token=vk_bot_token())
+    tokens = vk_bot_tokens()
+    bot = Bot()
     register_handlers(bot)
-    bot.run_forever()
+    # bot.run_forever()
+    run_multibot(bot, apis=(API(token) for token in tokens))
