@@ -67,7 +67,8 @@ export async function notifyPurchase(
   provider: "tg" | "vk",
   userId: string,
   planKey: string,
-  newEnd: Date
+  newEnd: Date,
+  amount?: string | number | null
 ): Promise<void> {
   const label = PLAN_LABEL[planKey] ?? planKey;
   const endStr = formatDate(newEnd);
@@ -90,7 +91,7 @@ export async function notifyPurchase(
     logger.warn("notifyPurchase: unexpected error", { provider, userId, err });
   }
 
-  void notifyAdminsPurchase(provider, userId, label, endStr);
+  void notifyAdminsPurchase(provider, userId, label, endStr, amount);
 }
 
 /**
@@ -142,13 +143,16 @@ async function notifyAdminsPurchase(
   provider: "tg" | "vk",
   userId: string,
   planLabel: string,
-  endStr: string
+  endStr: string,
+  amount?: string | number | null
 ): Promise<void> {
+  const amountStr = amount ? `${amount}` : "неизвестно";
   const text =
     "💰 Новая покупка!\n\n" +
     `Провайдер: ${provider}\n` +
     `User ID: ${userId}\n` +
     `Тариф: ${planLabel}\n` +
+    `Доход: ${amountStr}\n` +
     `Дата окончания: ${endStr}`;
 
   const url = `https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`;

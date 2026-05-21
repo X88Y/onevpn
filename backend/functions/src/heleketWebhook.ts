@@ -255,7 +255,8 @@ export const heleketWebhook = onRequest(
         parsedOrder.provider,
         parsedOrder.externalUserId,
         parsedOrder.planKey,
-        notifyNewEnd
+        notifyNewEnd,
+        (payload.amount as string | number | undefined) ?? null
       );
     }
 

@@ -294,7 +294,8 @@ export const freeKassa = onRequest(
         parsed.provider,
         parsed.externalUserId,
         parsed.planKey,
-        (notifyAfter as {newEnd: Date}).newEnd
+        (notifyAfter as {newEnd: Date}).newEnd,
+        amount
       );
     }
 
