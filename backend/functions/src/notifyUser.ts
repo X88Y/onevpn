@@ -293,23 +293,23 @@ function jwtSecret(): string {
  * @param {string} userId Platform user id.
  * @return {string} Web redirect URL containing deep link token.
  */
-function buildConnectRedirectUrl(
-  provider: "tg" | "vk",
-  userId: string
-): string {
-  const now = Math.floor(Date.now() / 1000);
-  const token = jwt.sign(
-    {
-      provider,
-      user: userId,
-      iat: now,
-      exp: now + 24 * 30 * 60 * 60,
-    },
-    jwtSecret(),
-    { algorithm: "HS256" }
-  );
-  const deepLink = `mvmvpn://auth/${token}`;
-  return `${CONNECT_REDIRECT_ORIGIN}/?${new URLSearchParams({
-    redirect: deepLink,
-  }).toString()}`;
-}
+// function buildConnectRedirectUrl(
+//   provider: "tg" | "vk",
+//   userId: string
+// ): string {
+//   const now = Math.floor(Date.now() / 1000);
+//   const token = jwt.sign(
+//     {
+//       provider,
+//       user: userId,
+//       iat: now,
+//       exp: now + 24 * 30 * 60 * 60,
+//     },
+//     jwtSecret(),
+//     { algorithm: "HS256" }
+//   );
+//   const deepLink = `mvmvpn://auth/${token}`;
+//   return `${CONNECT_REDIRECT_ORIGIN}/?${new URLSearchParams({
+//     redirect: deepLink,
+//   }).toString()}`;
+// }
