@@ -7,6 +7,7 @@ import {onRequest} from "firebase-functions/v2/https";
 
 import {db} from "./firebase";
 import {notifyPurchase} from "./notifyUser";
+import {extendReferrerOnPurchase} from "./referral";
 import {defineSecret} from "firebase-functions/params";
 
 const PLAN_DAYS: Record<string, number> = {
@@ -238,6 +239,7 @@ export const heleketWebhook = onRequest(
           planKey: parsedOrder.planKey,
           processedAt: FieldValue.serverTimestamp(),
         });
+        await extendReferrerOnPurchase(transaction, docRef, data);
         notifyNewEnd = newEnd;
       });
     } catch (err) {

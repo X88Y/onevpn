@@ -4,6 +4,7 @@ import {onRequest} from "firebase-functions/v2/https";
 
 import {db} from "./firebase";
 import {notifyPurchase} from "./notifyUser";
+import {extendReferrerOnPurchase} from "./referral";
 import {defineSecret} from "firebase-functions/params";
 
 /**
@@ -209,6 +210,7 @@ export const plategaWebhook = onRequest(
           currency: cb.currency ?? null,
           processedAt: FieldValue.serverTimestamp(),
         });
+        await extendReferrerOnPurchase(transaction, docRef, data);
         notifyAfter = {newEnd};
       });
     } catch (err) {

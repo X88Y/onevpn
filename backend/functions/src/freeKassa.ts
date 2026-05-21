@@ -6,6 +6,7 @@ import {onRequest} from "firebase-functions/v2/https";
 
 import {db} from "./firebase";
 import {notifyPurchase} from "./notifyUser";
+import {extendReferrerOnPurchase} from "./referral";
 import {defineSecret} from "firebase-functions/params";
 
 /**
@@ -277,6 +278,7 @@ export const freeKassa = onRequest(
           amount,
           processedAt: FieldValue.serverTimestamp(),
         });
+        await extendReferrerOnPurchase(transaction, docRef, data);
         notifyAfter = {newEnd};
       });
     } catch (err) {

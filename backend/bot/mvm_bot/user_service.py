@@ -10,7 +10,7 @@ from firebase_admin import auth, firestore  # type: ignore[import-not-found,impo
 import logging
 
 from mvm_bot.config import remnawave_internal_squad_uuid
-from mvm_bot.constants import REFERRAL_BONUS_DAYS, TRIAL_DAYS, TRIAL_FIELDS
+from mvm_bot.constants import REFERRAL_BONUS_DAYS, REFERRAL_PURCHASE_BONUS_DAYS, TRIAL_DAYS, TRIAL_FIELDS
 from mvm_bot.datetime_utils import as_utc_datetime
 from mvm_bot.firebase_client import init_firebase
 from mvm_bot.remnawave_client import (
@@ -479,7 +479,7 @@ async def _apply_referral_join_bonus(
 
 
 async def grant_purchase_referral_bonus_tg(tg_user: User) -> bool:
-    """Grant +REFERRAL_BONUS_DAYS to the referrer when a referred Telegram user makes a purchase."""
+    """Grant +REFERRAL_PURCHASE_BONUS_DAYS to the referrer when a referred Telegram user makes a purchase."""
     db = init_firebase()
     auth_uid = telegram_uid(tg_user.id)
     users_ref = db.collection("users")
@@ -500,7 +500,7 @@ async def grant_purchase_referral_bonus_tg(tg_user: User) -> bool:
     if not referrer_docs:
         return False
 
-    await _extend_doc_subscription(db, referrer_docs[0].reference, REFERRAL_BONUS_DAYS)
+    await _extend_doc_subscription(db, referrer_docs[0].reference, REFERRAL_PURCHASE_BONUS_DAYS)
     return True
 
 

@@ -19,7 +19,7 @@ from mvm_bot.config import (
     platega_return_url,
     platega_secret,
 )
-from mvm_bot.constants import CONNECT_REDIRECT_ORIGIN, REFERRAL_BONUS_DAYS, SUBSCRIPTION_PLANS, TRIAL_DAYS
+from mvm_bot.constants import CONNECT_REDIRECT_ORIGIN, REFERRAL_BONUS_DAYS, REFERRAL_PURCHASE_BONUS_DAYS, SUBSCRIPTION_PLANS, TRIAL_DAYS
 from mvm_bot.jwt_auth import sign_vk_auth_jwt
 from mvm_bot.main_menu import format_subscription_end
 from mvm_bot.freekassa import PAYMENT_CARD_RU, PAYMENT_SBERPAY, PAYMENT_SBP
@@ -356,8 +356,9 @@ def register_handlers(bot: Bot) -> None:
                     f"📱 Ваш реферальный код: ref_{referral_code}\n\n"
                     f"Попросите друга написать этот код боту при первом сообщении.\n\n"
                     f"🎁 За каждого приглашённого:\n"
-                    f"• Зарегистрировался — вы получите +{REFERRAL_BONUS_DAYS} дня\n\n"
-                    f"Новый пользователь тоже получит +{REFERRAL_BONUS_DAYS} дня!"
+                    f"• Зарегистрировался — вы получите +{REFERRAL_BONUS_DAYS} дней\n"
+                    f"• Совершил покупку — вы получите ещё +{REFERRAL_PURCHASE_BONUS_DAYS} дней\n\n"
+                    f"Новый пользователь тоже получит +{REFERRAL_BONUS_DAYS} дней!"
                 ),
             )
             return
