@@ -2,6 +2,7 @@ from pathlib import Path
 
 BOT_DIR = Path(__file__).resolve().parents[1]
 MENU_BANNER_PATH = BOT_DIR / "assets" / "telegram_menu_banner.png"
+MENU_BANNER_PATH_VK = BOT_DIR / "assets" / "vk_menu_banner.png"
 TRIAL_DAYS = 4
 REFERRAL_BONUS_DAYS = 3
 TRIAL_FIELDS = {

@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from mvm_bot.constants import BOT_DIR, MENU_BANNER_PATH
+from mvm_bot.constants import BOT_DIR, MENU_BANNER_PATH, MENU_BANNER_PATH_VK
 
 
 def env(name: str) -> Optional[str]:
@@ -143,7 +143,7 @@ def menu_banner_path() -> Optional[Path]:
 
 def vk_menu_banner_path() -> Optional[Path]:
     configured = env("VK_MENU_BANNER_PATH") or env("TELEGRAM_MENU_BANNER_PATH")
-    path = Path(configured).expanduser() if configured else MENU_BANNER_PATH
+    path = Path(configured).expanduser() if configured else MENU_BANNER_PATH_VK
     if path.exists():
         return path
 
