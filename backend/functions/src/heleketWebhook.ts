@@ -226,6 +226,9 @@ export const heleketWebhook = onRequest(
         const newEnd = new Date(base.getTime());
         newEnd.setUTCDate(newEnd.getUTCDate() + days);
 
+        // All reads must happen before all writes in a Firestore transaction.
+        await extendReferrerOnPurchase(transaction, docRef, data);
+
         transaction.set(
           docRef,
           {
@@ -239,7 +242,6 @@ export const heleketWebhook = onRequest(
           planKey: parsedOrder.planKey,
           processedAt: FieldValue.serverTimestamp(),
         });
-        await extendReferrerOnPurchase(transaction, docRef, data);
         notifyNewEnd = newEnd;
       });
     } catch (err) {

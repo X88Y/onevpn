@@ -193,6 +193,9 @@ export const plategaWebhook = onRequest(
         const newEnd = new Date(base.getTime());
         newEnd.setUTCDate(newEnd.getUTCDate() + days);
 
+        // All reads must happen before all writes in a Firestore transaction.
+        await extendReferrerOnPurchase(transaction, docRef, data);
+
         transaction.set(
           docRef,
           {
@@ -210,7 +213,6 @@ export const plategaWebhook = onRequest(
           currency: cb.currency ?? null,
           processedAt: FieldValue.serverTimestamp(),
         });
-        await extendReferrerOnPurchase(transaction, docRef, data);
         notifyAfter = {newEnd};
       });
     } catch (err) {

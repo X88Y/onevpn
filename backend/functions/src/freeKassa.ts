@@ -261,6 +261,9 @@ export const freeKassa = onRequest(
         const newEnd = new Date(base.getTime());
         newEnd.setUTCDate(newEnd.getUTCDate() + days);
 
+        // All reads must happen before all writes in a Firestore transaction.
+        await extendReferrerOnPurchase(transaction, docRef, data);
+
         transaction.set(
           docRef,
           {
@@ -278,7 +281,6 @@ export const freeKassa = onRequest(
           amount,
           processedAt: FieldValue.serverTimestamp(),
         });
-        await extendReferrerOnPurchase(transaction, docRef, data);
         notifyAfter = {newEnd};
       });
     } catch (err) {
