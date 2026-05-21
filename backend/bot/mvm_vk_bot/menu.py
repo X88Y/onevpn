@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 
 from vkbottle import Callback, Keyboard, KeyboardButtonColor, OpenLink
@@ -108,12 +109,15 @@ async def send_main_menu(message: Message, data: dict) -> None:
     keyboard = await main_menu_keyboard_json(message.from_id, data)
     banner = vk_menu_banner_path()
     if banner is not None:
-        uploader = PhotoMessageUploader(message.ctx_api)
-        photo = await uploader.upload(
-            file_source=str(banner),
-            peer_id=message.peer_id,
-        )
-        await message.answer(message=caption, attachment=photo, keyboard=keyboard)
-        return
+        try:
+            uploader = PhotoMessageUploader(message.ctx_api)
+            photo = await uploader.upload(
+                file_source=str(banner),
+                peer_id=message.peer_id,
+            )
+            await message.answer(message=caption, attachment=photo, keyboard=keyboard)
+            return
+        except Exception:
+            logging.exception("VK banner upload failed, falling back to text-only menu")
 
     await message.answer(message=caption, keyboard=keyboard)
