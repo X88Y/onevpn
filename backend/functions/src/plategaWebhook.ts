@@ -227,7 +227,8 @@ export const plategaWebhook = onRequest(
         parsed.externalUserId,
         parsed.planKey,
         (notifyAfter as {newEnd: Date}).newEnd,
-        (cb.amount as string | number | undefined) ?? null
+        (cb.amount as string | number | undefined) ?? null,
+        "platega"
       );
     }
 
