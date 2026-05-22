@@ -195,7 +195,7 @@ def delete_posts(vk, owner_id: int, post_ids: list[int]) -> None:
         except vk_api.exceptions.ApiError as e:
             print(f"  [{i}/{total}] Ошибка при удалении поста {post_id}: {e}")
 
-        time.sleep(1 / REQUESTS_PER_SECOND)
+        # time.sleep(1 / REQUESTS_PER_SECOND)
 
 
 def main():

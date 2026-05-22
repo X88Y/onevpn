@@ -5,7 +5,7 @@
 
 set -e
 
-REMOTE_HOST="92.118.232.155"
+REMOTE_HOST="185.230.143.98"
 REMOTE_USER="root"
 REMOTE_DIR="/root/mvm-vpn"
 
