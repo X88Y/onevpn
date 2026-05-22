@@ -9,19 +9,19 @@ This directory contains the backend services (Telegram Bot, VK Bot, and Server M
 - `.github/workflows/deploy-backend.yml`: GitHub Actions auto-deployment.
 
 ## Manual Deployment
-To deploy manually from your machine:
-1. Ensure you have SSH access to `185.230.143.98`.
+To deploy manually from your machine (using password authentication):
+1. Ensure you have the VPS password.
 2. Run:
    ```bash
    chmod +x backend/deploy.sh
-   ./backend/deploy.sh
+   SSH_PASSWORD="your_vps_password" ./backend/deploy.sh
    ```
 
 ## CI/CD Setup
 1. Go to your GitHub Repository Settings.
 2. Navigate to **Secrets and variables** > **Actions**.
 3. Add the following secrets:
-   - **`SSH_PRIVATE_KEY`**: Your private SSH key (the one matching the public key added to the server).
+   - **`SSH_PASSWORD`**: The root user password for the remote server.
    - **`REMOTE_HOST`**: `185.230.143.98`
    - **`REMOTE_USER`**: `root`
 

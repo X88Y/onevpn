@@ -8,20 +8,46 @@ set -e
 REMOTE_HOST="185.230.143.98"
 REMOTE_USER="root"
 REMOTE_DIR="/root/mvm-vpn"
+SSH_PASSWORD="${SSH_PASSWORD:-rA3cM2mA3kpZ}"
+
+# SSH and Rsync wrapper functions to support password-based authentication via sshpass
+run_ssh() {
+    if [ -n "$SSH_PASSWORD" ]; then
+        if ! command -v sshpass &> /dev/null; then
+            echo "Error: sshpass is required for password authentication but is not installed." >&2
+            exit 1
+        fi
+        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$@"
+    else
+        ssh "$@"
+    fi
+}
+
+run_rsync() {
+    if [ -n "$SSH_PASSWORD" ]; then
+        if ! command -v sshpass &> /dev/null; then
+            echo "Error: sshpass is required for password authentication but is not installed." >&2
+            exit 1
+        fi
+        rsync -avz -e "sshpass -p '$SSH_PASSWORD' ssh -o StrictHostKeyChecking=no" "$@"
+    else
+        rsync -avz "$@"
+    fi
+}
 
 echo "--- Starting Deployment to $REMOTE_HOST ---"
 
 # 1. Prepare remote directory
 echo "Preparing remote directory..."
-ssh $REMOTE_USER@$REMOTE_HOST "mkdir -p $REMOTE_DIR/backend && apt-get update && apt-get install -y rsync"
+run_ssh $REMOTE_USER@$REMOTE_HOST "mkdir -p $REMOTE_DIR/backend && apt-get update && apt-get install -y rsync"
 
 # 2. Upload code
 echo "Uploading backend code..."
-rsync -avz --exclude '__pycache__' --exclude '.venv' --exclude '.git' ./backend/ $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/backend/
+run_rsync --exclude '__pycache__' --exclude '.venv' --exclude '.git' ./backend/ $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/backend/
 
 # 3. Server-side setup and cleanup
 echo "Running server-side setup..."
-ssh $REMOTE_USER@$REMOTE_HOST << 'EOF'
+run_ssh $REMOTE_USER@$REMOTE_HOST << 'EOF'
     set -e
     
     # 3.1 Stop and delete old services (Scratch)
