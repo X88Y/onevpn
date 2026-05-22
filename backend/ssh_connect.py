@@ -91,7 +91,7 @@ class SSHConnector:
 
 if __name__ == "__main__":
     # Credentials provided by the user
-    IP_ADDRESS = "92.118.232.155"
+    IP_ADDRESS = "185.230.143.98"
     LOGIN = "root"
     PASSWORD = "rA3cM2mA3kpZ"
 

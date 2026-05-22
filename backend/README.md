@@ -10,7 +10,7 @@ This directory contains the backend services (Telegram Bot, VK Bot, and Server M
 
 ## Manual Deployment
 To deploy manually from your machine:
-1. Ensure you have SSH access to `92.118.232.155`.
+1. Ensure you have SSH access to `185.230.143.98`.
 2. Run:
    ```bash
    chmod +x backend/deploy.sh
@@ -22,7 +22,7 @@ To deploy manually from your machine:
 2. Navigate to **Secrets and variables** > **Actions**.
 3. Add the following secrets:
    - **`SSH_PRIVATE_KEY`**: Your private SSH key (the one matching the public key added to the server).
-   - **`REMOTE_HOST`**: `92.118.232.155`
+   - **`REMOTE_HOST`**: `185.230.143.98`
    - **`REMOTE_USER`**: `root`
 
 The workflow will trigger automatically whenever you push changes to the `backend/` directory on the `main` branch.
