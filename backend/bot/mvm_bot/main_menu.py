@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from aiogram import Bot  # type: ignore[import-not-found]
 from aiogram.enums import ParseMode  # type: ignore[import-not-found]
 from aiogram.types import (  # type: ignore[import-not-found]
     FSInputFile,
@@ -11,6 +12,36 @@ from aiogram.types import (  # type: ignore[import-not-found]
 from mvm_bot.config import menu_banner_path
 from mvm_bot.constants import PRIVACY_POLICY_URL, SITE_LINKS, SUPPORT_URL, TERMS_URL, TRIAL_FIELDS
 from mvm_bot.datetime_utils import as_utc_datetime
+
+_tg_banner_cache: dict[str, str] = {}
+
+
+def set_cached_banner(token: str, file_id: str) -> None:
+    _tg_banner_cache[token] = file_id
+
+
+def get_cached_banner(token: str) -> str | None:
+    return _tg_banner_cache.get(token)
+
+
+async def preload_menu_banner(bot: Bot) -> None:
+    banner = menu_banner_path()
+    if not banner:
+        return
+
+    import logging
+    from mvm_bot.firebase_client import get_tg_cached_attachment
+    token = bot.token
+    try:
+        cached = await get_tg_cached_attachment(token, [banner.name])
+        if cached:
+            set_cached_banner(token, cached)
+            logging.info(f"Loaded Telegram menu banner file_id from Firestore cache: {cached}")
+        else:
+            logging.info("No cached Telegram banner found in Firestore. It will be uploaded on the first user interaction.")
+    except Exception as e:
+        logging.error(f"Failed to preload Telegram menu banner: {e}")
+
 
 
 def _has_active_subscription(data: dict) -> bool:
@@ -117,12 +148,46 @@ async def send_main_menu(message: Message, data: dict) -> None:
     keyboard = await main_menu_keyboard(message.from_user.id, data)
     banner = menu_banner_path()
     if banner is not None:
-        await message.answer_photo(
-            FSInputFile(banner),
-            caption=caption,
-            reply_markup=keyboard,
-            parse_mode=ParseMode.HTML,
-        )
-        return
+        token = message.bot.token if message.bot else None
+        cached_photo = get_cached_banner(token) if token else None
+
+        # Check Firestore cache if not in memory
+        if not cached_photo and token:
+            from mvm_bot.firebase_client import get_tg_cached_attachment
+            cached_photo = await get_tg_cached_attachment(token, [banner.name])
+            if cached_photo:
+                set_cached_banner(token, cached_photo)
+
+        if cached_photo:
+            try:
+                await message.answer_photo(
+                    cached_photo,
+                    caption=caption,
+                    reply_markup=keyboard,
+                    parse_mode=ParseMode.HTML,
+                )
+                return
+            except Exception:
+                import logging
+                logging.exception("Failed to send main menu with cached Telegram banner")
+
+        # Fallback to uploading
+        try:
+            sent_message = await message.answer_photo(
+                FSInputFile(banner),
+                caption=caption,
+                reply_markup=keyboard,
+                parse_mode=ParseMode.HTML,
+            )
+            if token and sent_message.photo:
+                file_id = sent_message.photo[-1].file_id
+                set_cached_banner(token, file_id)
+                from mvm_bot.firebase_client import set_tg_cached_attachment
+                await set_tg_cached_attachment(token, [banner.name], file_id)
+            return
+        except Exception:
+            import logging
+            logging.exception("Telegram banner upload failed, falling back to text-only menu")
 
     await message.answer(caption, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+

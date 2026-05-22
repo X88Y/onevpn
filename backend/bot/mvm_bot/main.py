@@ -16,6 +16,7 @@ from mvm_bot.config import bot_token
 from mvm_bot.constants import BOT_DIR
 from mvm_bot.expiry_notifier import run_expiry_notifier_loop
 from mvm_bot.handlers import router
+from mvm_bot.main_menu import preload_menu_banner
 
 
 async def main() -> None:
@@ -29,6 +30,8 @@ async def main() -> None:
     )
     dispatcher = Dispatcher(storage=MemoryStorage())
     dispatcher.include_router(router)
+
+    await preload_menu_banner(bot)
 
     notifier_task = asyncio.create_task(run_expiry_notifier_loop())
 
