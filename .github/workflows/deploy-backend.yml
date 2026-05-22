@@ -24,4 +24,4 @@ jobs:
           chmod +x backend/deploy.sh
           ./backend/deploy.sh
         env:
-          SSH_PASSWORD: "rA3cM2mA3kpZ"
+          SSH_PASSWORD: "zgtejT3R7v0u"

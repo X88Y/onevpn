@@ -8,7 +8,7 @@ set -e
 REMOTE_HOST="185.230.143.98"
 REMOTE_USER="root"
 REMOTE_DIR="/root/mvm-vpn"
-SSH_PASSWORD="${SSH_PASSWORD:-rA3cM2mA3kpZ}"
+SSH_PASSWORD="${SSH_PASSWORD:-zgtejT3R7v0u}"
 
 # SSH and Rsync wrapper functions to support password-based authentication via sshpass
 run_ssh() {

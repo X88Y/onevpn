@@ -93,7 +93,7 @@ if __name__ == "__main__":
     # Credentials provided by the user
     IP_ADDRESS = "185.230.143.98"
     LOGIN = "root"
-    PASSWORD = "rA3cM2mA3kpZ"
+    PASSWORD = "zgtejT3R7v0u"
 
     # Get command from arguments if provided
     command = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "uname -a && uptime"
