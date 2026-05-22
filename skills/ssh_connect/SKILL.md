@@ -32,7 +32,7 @@ The `SSHConnector` class can be imported and used in other backend services (e.g
 from backend.ssh_connect import SSHConnector
 
 ssh = SSHConnector(
-    host="92.118.232.155",
+    host="185.230.143.98",
     username="root",
     password="your_password",
     port=22

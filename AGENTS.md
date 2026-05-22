@@ -231,7 +231,7 @@ Docker Compose stack with Prometheus and Grafana. The `server_manager` exposes m
 
 ### Backend (VPS)
 Pushing to `main` with changes under `backend/**` triggers `.github/workflows/deploy-backend.yml`. The workflow:
-1. SSHs into `92.118.232.155`.
+1. SSHs into `185.230.143.98`.
 2. Runs `backend/deploy.sh`.
 3. The script rsyncs code, creates a Python venv, installs dependencies from `requirements.txt` files, creates systemd services, and restarts them.
 
