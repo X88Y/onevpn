@@ -115,6 +115,19 @@ async def _get_or_upload_attachments(token: str, image_paths: List[Path]) -> Opt
     if token in _uploaded_attachments_cache:
         return _uploaded_attachments_cache[token]
 
+    # Check Firestore cache first
+    keys = [path.name for path in image_paths if path.exists()]
+    if keys:
+        try:
+            from mvm_bot.firebase_client import get_vk_cached_attachment
+            cached = await get_vk_cached_attachment(token, keys)
+            if cached:
+                _uploaded_attachments_cache[token] = cached
+                logger.info(f"Loaded attachments from Firestore cache for token {token[:8]}: {cached}")
+                return cached
+        except Exception as e:
+            logger.error(f"Failed to check Firestore cache: {e}")
+
     from vkbottle import API
     from vkbottle.tools import PhotoMessageUploader
 
@@ -126,17 +139,33 @@ async def _get_or_upload_attachments(token: str, image_paths: List[Path]) -> Opt
         if not path.exists():
             logger.warning(f"Image path does not exist: {path}")
             continue
-        try:
-            logger.info(f"Uploading photo {path.name} for token {token[:8]}...")
-            attachment_str = await uploader.upload(file_source=str(path))
-            uploaded_ids.append(attachment_str)
-        except Exception as e:
-            return  _get_or_upload_attachments(token, image_paths)
-            logger.error(f"Failed to upload photo {path.name} for token {token[:8]}: {e}")
+        
+        attempts = 5
+        success = False
+        for attempt in range(1, attempts + 1):
+            try:
+                logger.info(f"Uploading photo {path.name} for token {token[:8]} (attempt {attempt}/{attempts})...")
+                attachment_str = await uploader.upload(file_source=str(path))
+                uploaded_ids.append(attachment_str)
+                success = True
+                break
+            except Exception as e:
+                logger.error(f"Failed to upload photo {path.name} for token {token[:8]} (attempt {attempt}/{attempts}): {e}")
+                if attempt < attempts:
+                    await asyncio.sleep(3)
+        if not success:
+            logger.error(f"Failed to upload photo {path.name} for token {token[:8]} after all attempts.")
 
     if uploaded_ids:
         attachment_str = ",".join(uploaded_ids)
         _uploaded_attachments_cache[token] = attachment_str
+        if keys:
+            try:
+                from mvm_bot.firebase_client import set_vk_cached_attachment
+                await set_vk_cached_attachment(token, keys, attachment_str)
+                logger.info(f"Saved attachments to Firestore cache for token {token[:8]}: {attachment_str}")
+            except Exception as e:
+                logger.error(f"Failed to save to Firestore cache: {e}")
         return attachment_str
     return None
 
@@ -264,6 +293,12 @@ async def main():
         logger.error("No VK_BOT_TOKENS or VK_BOT_TOKEN found in environment/env file.")
         sys.exit(1)
     logger.info(f"Loaded {len(tokens)} VK bot token(s).")
+
+    # Pre-upload images/attachments at startup (with retries inside _get_or_upload_attachments)
+    if not args.dry_run and image_paths:
+        logger.info("Pre-uploading VK images/attachments for all tokens...")
+        for token in tokens:
+            await _get_or_upload_attachments(token, image_paths)
 
     db = init_firebase()
     users_ref = db.collection("users")
