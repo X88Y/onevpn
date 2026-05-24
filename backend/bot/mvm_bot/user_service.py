@@ -411,6 +411,7 @@ def _vk_users_mirror_payload(
     profile: VkProfile,
     auth_user: auth.UserRecord,
     exists: bool,
+    group_id: Optional[int] = None,
 ) -> dict:
     payload = {
         "uid": uid,
@@ -421,6 +422,8 @@ def _vk_users_mirror_payload(
         "lastName": profile.last_name,
         "updatedAt": firestore.SERVER_TIMESTAMP,
     }
+    if group_id is not None:
+        payload["vkGroupId"] = str(group_id)
     if not exists:
         payload["createdAt"] = firestore.SERVER_TIMESTAMP
 
@@ -464,6 +467,7 @@ def _vk_users_document_payload(
     exists: bool,
     current_data: Optional[dict] = None,
     referral_code: Optional[str] = None,
+    group_id: Optional[int] = None,
 ) -> dict:
     current_data = current_data or {}
     payload = {
@@ -471,6 +475,8 @@ def _vk_users_document_payload(
         "updatedAt": firestore.SERVER_TIMESTAMP,
         **_missing_trial_defaults(current_data),
     }
+    if group_id is not None:
+        payload["vkGroupId"] = str(group_id)
     if not current_data.get("referralCode"):
         payload["referralCode"] = generate_referral_code()
     if not exists:
@@ -682,7 +688,11 @@ async def apply_referral_code_vk(profile: VkProfile, referral_code: str) -> tupl
     return True, f"Реферальный код принят! Вы и ваш друг получили +{REFERRAL_BONUS_DAYS} дня к подписке. 🎉"
 
 
-async def save_vk_user(profile: VkProfile, referral_code: Optional[str] = None) -> tuple[str, dict]:
+async def save_vk_user(
+    profile: VkProfile,
+    referral_code: Optional[str] = None,
+    group_id: Optional[int] = None,
+) -> tuple[str, dict]:
     db = init_firebase()
     auth_uid = vk_uid(profile.id)
     auth_user = await asyncio.to_thread(ensure_vk_auth_user, auth_uid, profile)
@@ -721,14 +731,25 @@ async def save_vk_user(profile: VkProfile, referral_code: Optional[str] = None) 
     batch = db.batch()
     batch.set(
         vk_ref,
-        _vk_users_mirror_payload(auth_uid, profile, auth_user, vk_snapshot.exists),
+        _vk_users_mirror_payload(
+            auth_uid,
+            profile,
+            auth_user,
+            vk_snapshot.exists,
+            group_id=group_id,
+        ),
         merge=True,
     )
     batch.set(
         user_ref,
         _vk_users_document_payload(
-            user_uid, profile, auth_user, user_exists, user_data,
-            referral_code if is_new_user else None,
+            user_uid,
+            profile,
+            auth_user,
+            user_exists,
+            user_data,
+            referral_code=referral_code if is_new_user else None,
+            group_id=group_id,
         ),
         merge=True,
     )
@@ -882,8 +903,12 @@ async def start_telegram_trial(tg_user: User) -> tuple[str, dict, list[str]]:
     return uid, data, activated
 
 
-async def extend_subscription_vk(profile: VkProfile, days: int) -> tuple[str, dict]:
-    uid, _ = await save_vk_user(profile)
+async def extend_subscription_vk(
+    profile: VkProfile,
+    days: int,
+    group_id: Optional[int] = None,
+) -> tuple[str, dict]:
+    uid, _ = await save_vk_user(profile, group_id=group_id)
     db = init_firebase()
     auth_uid = vk_uid(profile.id)
     users_ref = db.collection("users")
@@ -922,8 +947,11 @@ async def extend_subscription_vk(profile: VkProfile, days: int) -> tuple[str, di
     return uid, data
 
 
-async def start_vk_trial(profile: VkProfile) -> tuple[str, dict, list[str]]:
-    uid, _ = await save_vk_user(profile)
+async def start_vk_trial(
+    profile: VkProfile,
+    group_id: Optional[int] = None,
+) -> tuple[str, dict, list[str]]:
+    uid, _ = await save_vk_user(profile, group_id=group_id)
     db = init_firebase()
     auth_uid = vk_uid(profile.id)
     users_ref = db.collection("users")

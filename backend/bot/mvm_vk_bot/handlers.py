@@ -55,13 +55,13 @@ def register_handlers(bot: Bot) -> None:
         profile = await fetch_vk_profile(message.ctx_api, message.from_id)
 
         if text == "Профиль":
-            _, data = await save_vk_user(profile)
+            _, data = await save_vk_user(profile, group_id=message.group_id)
             await send_main_menu(message, data)
             return
 
         if text.startswith("ref_"):
             code = text[4:]
-            _, data = await save_vk_user(profile)
+            _, data = await save_vk_user(profile, group_id=message.group_id)
             success, msg = await apply_referral_code_vk(profile, code)
             await message.answer(message=f"{'✅' if success else '❌'} {msg}")
 
@@ -74,7 +74,7 @@ def register_handlers(bot: Bot) -> None:
             await send_main_menu(message, data)
             return
 
-        _, data = await save_vk_user(profile)
+        _, data = await save_vk_user(profile, group_id=message.group_id)
 
         kb = Keyboard(one_time=False, inline=False)
         kb.add(Text("Профиль"))
@@ -113,7 +113,7 @@ def register_handlers(bot: Bot) -> None:
         profile = await fetch_vk_profile(event.ctx_api, event.user_id)
 
         if cmd == "trial":
-            _, data, activated = await start_vk_trial(profile)
+            _, data, activated = await start_vk_trial(profile, group_id=event.group_id)
             if activated:
                 providers = ", ".join(activated)
                 days = TRIAL_DAYS * len(activated)
@@ -362,7 +362,7 @@ def register_handlers(bot: Bot) -> None:
                 return
 
         if cmd == "invite":
-            _, data = await save_vk_user(profile)
+            _, data = await save_vk_user(profile, group_id=event.group_id)
             referral_code = data.get("referralCode")
             if not referral_code:
                 await event.send_message(message="Не удалось получить реферальный код. Попробуйте позже.")
