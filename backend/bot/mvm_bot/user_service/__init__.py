@@ -1,0 +1,101 @@
+from mvm_bot.user_service.helpers import (
+    VkProfile,
+    _display_name,
+    _display_name_vk,
+    _is_uuid,
+    _remnawave_username,
+    generate_referral_code,
+    telegram_uid,
+    vk_uid,
+)
+from mvm_bot.user_service.notifications import (
+    notify_referrer,
+    notify_tg_user,
+    notify_vk_user,
+)
+from mvm_bot.user_service.payments import (
+    record_payment_checkout_click,
+)
+from mvm_bot.user_service.auth import (
+    ensure_auth_user,
+    ensure_vk_auth_user,
+)
+from mvm_bot.user_service.remnawave import (
+    _ensure_remnawave_user,
+    _update_remnawave_subscription,
+    get_remnawave_sub_url,
+    get_remnawave_sub_url_tg,
+    get_remnawave_sub_url_vk,
+)
+from mvm_bot.user_service.trial import (
+    _build_trial_activation_payload,
+    _connected_trial_providers,
+    _initial_trial_fields,
+    _missing_trial_defaults,
+    start_telegram_trial,
+    start_vk_trial,
+)
+from mvm_bot.user_service.referrals import (
+    _apply_referral_join_bonus,
+    apply_referral_code_tg,
+    apply_referral_code_vk,
+    count_referrals,
+    grant_purchase_referral_bonus_tg,
+)
+from mvm_bot.user_service.core import (
+    _extend_doc_subscription,
+    _telegram_payload,
+    _users_payload,
+    _vk_users_document_payload,
+    _vk_users_mirror_payload,
+    extend_subscription,
+    extend_subscription_vk,
+    grant_lifetime_subscription_tg,
+    grant_lifetime_subscription_vk,
+    save_telegram_user,
+    save_vk_user,
+)
+
+__all__ = [
+    "telegram_uid",
+    "vk_uid",
+    "VkProfile",
+    "_display_name_vk",
+    "generate_referral_code",
+    "notify_tg_user",
+    "notify_vk_user",
+    "notify_referrer",
+    "_is_uuid",
+    "_display_name",
+    "_initial_trial_fields",
+    "_missing_trial_defaults",
+    "_remnawave_username",
+    "_ensure_remnawave_user",
+    "_update_remnawave_subscription",
+    "_connected_trial_providers",
+    "_build_trial_activation_payload",
+    "ensure_auth_user",
+    "ensure_vk_auth_user",
+    "_telegram_payload",
+    "_vk_users_mirror_payload",
+    "_users_payload",
+    "_vk_users_document_payload",
+    "_extend_doc_subscription",
+    "_apply_referral_join_bonus",
+    "grant_purchase_referral_bonus_tg",
+    "count_referrals",
+    "apply_referral_code_tg",
+    "apply_referral_code_vk",
+    "save_vk_user",
+    "save_telegram_user",
+    "extend_subscription",
+    "start_telegram_trial",
+    "extend_subscription_vk",
+    "start_vk_trial",
+    "get_remnawave_sub_url",
+    "get_remnawave_sub_url_tg",
+    "get_remnawave_sub_url_vk",
+    "grant_lifetime_subscription_tg",
+    "grant_lifetime_subscription_vk",
+    "record_payment_checkout_click",
+]
