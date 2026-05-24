@@ -6,7 +6,7 @@ import type {Request} from "firebase-functions/v2/https";
 import {onRequest} from "firebase-functions/v2/https";
 
 import {db} from "./firebase";
-import {notifyPurchase} from "./notifyUser";
+import {notifyPurchase, notifyReferrerOfBonus} from "./notifyUser";
 import {extendReferrerOnPurchase} from "./referral";
 import {defineSecret} from "firebase-functions/params";
 
@@ -202,10 +202,12 @@ export const heleketWebhook = onRequest(
     ];
 
     let notifyNewEnd: Date | null = null;
+    let referrerNotify: { provider: "tg" | "vk"; externalUserId: string } | null = null;
 
     try {
       await db.runTransaction(async (transaction) => {
         notifyNewEnd = null;
+        referrerNotify = null;
         const processedSnap = await transaction.get(processedRef);
         if (processedSnap.exists) {
           return;
@@ -227,7 +229,7 @@ export const heleketWebhook = onRequest(
         newEnd.setUTCDate(newEnd.getUTCDate() + days);
 
         // All reads must happen before all writes in a Firestore transaction.
-        await extendReferrerOnPurchase(transaction, docRef, data);
+        referrerNotify = await extendReferrerOnPurchase(transaction, docRef, data);
 
         transaction.set(
           docRef,
@@ -259,6 +261,14 @@ export const heleketWebhook = onRequest(
         (payload.amount as string | number | undefined) ?? null,
         "heleket"
       );
+      const refInfo = referrerNotify as any;
+      if (refInfo) {
+        void notifyReferrerOfBonus(
+          refInfo.provider,
+          refInfo.externalUserId,
+          "Друг, зарегистрировавшийся по вашей реферальной ссылке, совершил покупку! Вам начислено +15 дней подписки. 🎉"
+        );
+      }
     }
 
     res.status(200).send("OK");

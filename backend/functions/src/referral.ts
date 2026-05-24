@@ -27,10 +27,10 @@ export async function extendReferrerOnPurchase(
   transaction: Transaction,
   purchaserDocRef: FirebaseFirestore.DocumentReference,
   purchaserData: DocumentData
-): Promise<void> {
+): Promise<{ provider: "tg" | "vk"; externalUserId: string } | null> {
   const referredByCode = purchaserData.referredByCode;
   if (!referredByCode || typeof referredByCode !== "string") {
-    return;
+    return null;
   }
 
   const referrerQuery = db
@@ -39,12 +39,12 @@ export async function extendReferrerOnPurchase(
     .limit(1);
   const referrerSnap = await transaction.get(referrerQuery);
   if (referrerSnap.empty) {
-    return;
+    return null;
   }
 
   const referrerDoc = referrerSnap.docs[0];
   if (referrerDoc.ref.path === purchaserDocRef.path) {
-    return;
+    return null;
   }
 
   const referrerData = referrerDoc.data() || {};
@@ -60,4 +60,21 @@ export async function extendReferrerOnPurchase(
     },
     {merge: true}
   );
+
+  const extTg = referrerData.externalTg;
+  const extVk = referrerData.externalVk;
+  if (extTg && typeof extTg === "string") {
+    const tgId = extTg.split(":").pop();
+    if (tgId) {
+      return { provider: "tg", externalUserId: tgId };
+    }
+  } else if (extVk && typeof extVk === "string") {
+    const vkId = extVk.split(":").pop();
+    if (vkId) {
+      return { provider: "vk", externalUserId: vkId };
+    }
+  }
+
+  return null;
 }
+

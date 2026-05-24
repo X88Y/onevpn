@@ -5,7 +5,7 @@ import {FieldValue, Timestamp} from "firebase-admin/firestore";
 import {onRequest} from "firebase-functions/v2/https";
 
 import {db} from "./firebase";
-import {notifyPurchase} from "./notifyUser";
+import {notifyPurchase, notifyReferrerOfBonus} from "./notifyUser";
 import {extendReferrerOnPurchase} from "./referral";
 import {defineSecret} from "firebase-functions/params";
 
@@ -229,10 +229,12 @@ export const freeKassa = onRequest(
     const rawExternalId = parsed.externalUserId;
 
     let notifyAfter: {newEnd: Date} | null = null;
+    let referrerNotify: { provider: "tg" | "vk"; externalUserId: string } | null = null;
 
     try {
       await db.runTransaction(async (transaction) => {
         notifyAfter = null;
+        referrerNotify = null;
 
         // Idempotency — skip if already processed
         const processedSnap = await transaction.get(processedRef);
@@ -262,7 +264,7 @@ export const freeKassa = onRequest(
         newEnd.setUTCDate(newEnd.getUTCDate() + days);
 
         // All reads must happen before all writes in a Firestore transaction.
-        await extendReferrerOnPurchase(transaction, docRef, data);
+        referrerNotify = await extendReferrerOnPurchase(transaction, docRef, data);
 
         transaction.set(
           docRef,
@@ -298,6 +300,14 @@ export const freeKassa = onRequest(
         amount,
         "freekassa"
       );
+      const refInfo = referrerNotify as any;
+      if (refInfo) {
+        void notifyReferrerOfBonus(
+          refInfo.provider,
+          refInfo.externalUserId,
+          "Друг, зарегистрировавшийся по вашей реферальной ссылке, совершил покупку! Вам начислено +15 дней подписки. 🎉"
+        );
+      }
     }
 
     // FreeKassa requires plain "YES" to acknowledge the notification

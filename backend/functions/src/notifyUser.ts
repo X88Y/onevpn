@@ -96,6 +96,79 @@ export async function notifyPurchase(
 }
 
 /**
+ * Sends a referral bonus notification to the referrer via Telegram or VK.
+ * @param {"tg"|"vk"} provider Messaging platform.
+ * @param {string} userId Platform-specific numeric user id.
+ * @param {string} text Message text.
+ */
+export async function notifyReferrerOfBonus(
+  provider: "tg" | "vk",
+  userId: string,
+  text: string
+): Promise<void> {
+  try {
+    if (provider === "tg") {
+      const token = process.env.BOT_TOKEN;
+      if (!token) {
+        logger.warn("notifyReferrerOfBonus: BOT_TOKEN not configured");
+        return;
+      }
+      const url = `https://api.telegram.org/bot${token}/sendMessage`;
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: userId,
+          text,
+        }),
+      });
+      if (!resp.ok) {
+        const body = await resp.text();
+        logger.warn("notifyReferrerOfBonus: TG request failed", { status: resp.status, body });
+      }
+    } else {
+      const rawTokens = VK_BOT_TOKENS.split(",").map(t => t.trim()).filter(Boolean).join(",");
+      const tokens = rawTokens
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+      if (tokens.length === 0) {
+        logger.warn("notifyReferrerOfBonus: no VK tokens configured");
+        return;
+      }
+      for (const token of tokens) {
+        const params = new URLSearchParams({
+          user_id: userId,
+          message: text,
+          random_id: String(Date.now()),
+          access_token: token,
+          v: "5.231",
+        });
+        const resp = await fetch(
+          `https://api.vk.com/method/messages.send?${params.toString()}`,
+          { method: "POST" }
+        );
+        if (!resp.ok) {
+          const body = await resp.text();
+          logger.warn("notifyReferrerOfBonus: VK request failed", { status: resp.status, body });
+          continue;
+        }
+        const json = (await resp.json()) as {
+          error?: { error_msg: string; error_code: number };
+        };
+        if (!json.error) {
+          return;
+        }
+      }
+      logger.warn("notifyReferrerOfBonus: all VK tokens failed", { userId });
+    }
+  } catch (err) {
+    logger.warn("notifyReferrerOfBonus: unexpected error", { provider, userId, err });
+  }
+}
+
+
+/**
  * Sends a plain-text Telegram message to a single chat id.
  * @param {string} userId Telegram chat/user id.
  * @param {string} text Message body.
