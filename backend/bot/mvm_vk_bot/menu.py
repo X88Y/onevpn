@@ -70,17 +70,25 @@ def _has_active_subscription(data: dict) -> bool:
 async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
     is_active = _has_active_subscription(data)
     kb = Keyboard(inline=True)
-    kb.add(
-        OpenLink(
-            label="🔗 Подключить",
-            link=data.get("remnawaveSubscriptionUrl") or "",
-        ),
-        color=KeyboardButtonColor.PRIMARY if is_active else None,
-    )
-    if data.get(TRIAL_FIELDS["vk"]) is not True:
+    
+    sub_url = data.get("remnawaveSubscriptionUrl")
+    if sub_url:
+        kb.add(
+            OpenLink(
+                label="🔗 Подключить",
+                link=sub_url,
+            )
+        )
+        if data.get(TRIAL_FIELDS["vk"]) is not True:
+            kb.row()
+            kb.add(Callback(label="🎁 Получить VPN бесплатно", payload={"c": "trial"}))
+    else:
+        if data.get(TRIAL_FIELDS["vk"]) is not True:
+            kb.add(Callback(label="🎁 Получить VPN бесплатно", payload={"c": "trial"}))
+
+    if kb.buttons:
         kb.row()
-        kb.add(Callback(label="🎁 Получить VPN бесплатно", payload={"c": "trial"}))
-    kb.row()
+
     kb.add(
         Callback(label="💳 Купить подписку", payload={"c": "buy"}),
         color=KeyboardButtonColor.POSITIVE if not is_active else None,

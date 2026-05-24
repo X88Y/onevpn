@@ -4,7 +4,7 @@ import asyncio
 import logging
 from typing import TYPE_CHECKING
 
-from vkbottle import Keyboard, OpenLink
+from vkbottle import Keyboard, OpenLink, Text
 from vkbottle_types.events import GroupEventType
 
 from mvm_bot.config import (
@@ -54,15 +54,34 @@ def register_handlers(bot: Bot) -> None:
         text = (message.text or "").strip()
         profile = await fetch_vk_profile(message.ctx_api, message.from_id)
 
+        if text == "Профиль":
+            _, data = await save_vk_user(profile)
+            await send_main_menu(message, data)
+            return
+
         if text.startswith("ref_"):
             code = text[4:]
             _, data = await save_vk_user(profile)
             success, msg = await apply_referral_code_vk(profile, code)
             await message.answer(message=f"{'✅' if success else '❌'} {msg}")
+
+            kb = Keyboard(one_time=False, inline=False)
+            kb.add(Text("Профиль"))
+            await message.answer(
+                message="Добро пожаловать в MVM VPN! 🚀\n\nНажмите кнопку «Профиль» ниже для перехода в личный кабинет 👇",
+                keyboard=kb.get_json(),
+            )
             await send_main_menu(message, data)
             return
 
         _, data = await save_vk_user(profile)
+
+        kb = Keyboard(one_time=False, inline=False)
+        kb.add(Text("Профиль"))
+        await message.answer(
+            message="Добро пожаловать в MVM VPN! 🚀\n\nНажмите кнопку «Профиль» ниже для перехода в личный кабинет 👇",
+            keyboard=kb.get_json(),
+        )
         await send_main_menu(message, data)
 
     async def _ack(event: VkMessageEvent, snackbar_text: str | None = None) -> None:

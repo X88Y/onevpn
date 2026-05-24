@@ -10,9 +10,11 @@ from aiogram.types import (  # type: ignore[import-not-found]
     CallbackQuery,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
+    KeyboardButton,
     LabeledPrice,
     Message,
     PreCheckoutQuery,
+    ReplyKeyboardMarkup,
 )
 
 from mvm_bot.config import (
@@ -132,6 +134,27 @@ async def start(message: Message, command: CommandObject) -> None:
         referral_code = command.args[4:]
 
     _, data = await save_telegram_user(message.from_user, referral_code)
+
+    reply_markup = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="Профиль")]
+        ],
+        resize_keyboard=True
+    )
+    await message.answer(
+        "Добро пожаловать в MVM VPN! 🚀\n\nНажмите кнопку «Профиль» ниже для доступа к личному кабинету 👇",
+        reply_markup=reply_markup,
+    )
+    await send_main_menu(message, data)
+
+
+@router.message(F.text == "Профиль")
+async def profile_command(message: Message) -> None:
+    if message.from_user is None:
+        await message.answer("Cannot identify Telegram user.")
+        return
+
+    _, data = await save_telegram_user(message.from_user)
     await send_main_menu(message, data)
 
 
