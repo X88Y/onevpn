@@ -19,6 +19,7 @@ async def _main() -> None:
     await bot.set_my_commands(
         [
             BotCommand(command="start", description="Help"),
+            BotCommand(command="stats", description="Get purchase & conversion statistics"),
             BotCommand(command="add_server", description="Add a VPN server"),
             BotCommand(command="list_servers", description="List VPN servers (paginated)"),
             BotCommand(command="list_server", description="List VPN servers (paginated)"),
