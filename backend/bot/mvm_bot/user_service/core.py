@@ -65,6 +65,7 @@ def _vk_users_mirror_payload(
     }
     if group_id is not None:
         payload["vkGroupId"] = str(group_id)
+        payload["vkGroupIds"] = firestore.ArrayUnion([str(group_id)])
     if not exists:
         payload["createdAt"] = firestore.SERVER_TIMESTAMP
 
@@ -118,6 +119,7 @@ def _vk_users_document_payload(
     }
     if group_id is not None:
         payload["vkGroupId"] = str(group_id)
+        payload["vkGroupIds"] = firestore.ArrayUnion([str(group_id)])
     if not current_data.get("referralCode"):
         payload["referralCode"] = generate_referral_code()
     if not exists:
