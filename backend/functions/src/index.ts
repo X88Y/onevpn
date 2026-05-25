@@ -17,3 +17,4 @@ export {freeKassa} from "./freeKassa";
 export {updateDeviceToken} from "./updateDeviceToken";
 export {getLifetimeSubscription} from "./getLifetimeSubscription";
 export {getSubscription} from "./getSubscription";
+export {yoomoneyWebhook} from "./yoomoneyWebhook";

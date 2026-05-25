@@ -160,3 +160,26 @@ def remnawave_api_token() -> Optional[str]:
 
 def remnawave_internal_squad_uuid() -> Optional[str]:
     return env("REMNAWAVE_INTERNAL_SQUAD_UUID")
+
+
+def yoomoney_receiver() -> Optional[str]:
+    """YooMoney wallet number to receive payments (e.g. '4100116XXXXXXXXX')."""
+    return env("YOOMONEY_RECEIVER")
+
+
+def yoomoney_secret() -> Optional[str]:
+    """YooMoney HTTP-notification secret for SHA1 signature verification."""
+    return env("YOOMONEY_SECRET")
+
+
+def yoomoney_return_url() -> str:
+    """URL to redirect the user after a successful YooMoney payment."""
+    return env("YOOMONEY_RETURN_URL") or "https://t.me"
+
+
+def yoomoney_recurring_enabled() -> bool:
+    """Returns True if recurring auto-payments are enabled for YooKassa/YooMoney."""
+    val = env("YOOMONEY_RECURRING_ENABLED")
+    if val is None:
+        return True  # default to True
+    return val.lower() in ("true", "1", "yes", "on")

@@ -29,6 +29,8 @@ from mvm_bot.config import (
     platega_merchant_id,
     platega_return_url,
     platega_secret,
+    yoomoney_receiver,
+    yoomoney_return_url,
 )
 from mvm_bot.constants import CONNECT_REDIRECT_ORIGIN, REFERRAL_BONUS_DAYS, REFERRAL_PURCHASE_BONUS_DAYS, SUBSCRIPTION_PLANS, TRIAL_DAYS
 from mvm_bot.main_menu import (
@@ -40,6 +42,9 @@ from mvm_bot.freekassa import PAYMENT_CARD_RU, PAYMENT_SBERPAY, PAYMENT_SBP
 from mvm_bot.freekassa import checkout_url as freekassa_checkout_url
 from mvm_bot.heleket import invoice_checkout_url
 from mvm_bot.platega import transaction_checkout_url as platega_checkout_url
+from mvm_bot.yoomoney import PAYMENT_TYPE_CARD as YM_CARD
+from mvm_bot.yoomoney import PAYMENT_TYPE_SBP as YM_SBP
+from mvm_bot.yoomoney import checkout_url as yoomoney_checkout_url
 from mvm_bot.user_service import (
     apply_referral_code_tg,
     count_referrals,
@@ -90,6 +95,39 @@ def _payment_method_keyboard(plan_key: str) -> InlineKeyboardMarkup:
             ],
             [
                 InlineKeyboardButton(
+                    text=f"💳 ЮMoney карта — {plan['rub']} ₽",
+                    callback_data=f"buy:{plan_key}:ym_card",
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=f"📲 СБП (ЮMoney) — {plan['rub']} ₽",
+                    callback_data=f"buy:{plan_key}:ym_sbp",
+                    **{"style": "success"},
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=f"🔐 Crypto — {plan['rub']} ₽",
+                    callback_data=f"buy:{plan_key}:rub",
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🌐 Другие способы оплаты",
+                    callback_data=f"buy_other:{plan_key}",
+                ),
+            ],
+        ]
+    )
+
+
+def _other_payment_method_keyboard(plan_key: str) -> InlineKeyboardMarkup:
+    plan = SUBSCRIPTION_PLANS[plan_key]
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
                     text=f"📲 СБП (QR) — {plan['rub']} ₽",
                     callback_data=f"buy:{plan_key}:fk_sbp",
                 ),
@@ -115,8 +153,8 @@ def _payment_method_keyboard(plan_key: str) -> InlineKeyboardMarkup:
             ],
             [
                 InlineKeyboardButton(
-                    text=f"🔐 Crypto — {plan['rub']} ₽",
-                    callback_data=f"buy:{plan_key}:rub",
+                    text="« Назад",
+                    callback_data=f"buy:{plan_key}",
                 ),
             ],
         ]
@@ -224,7 +262,10 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
         text = f"{plan['label']} — выберите способ оплаты:"
         kb = _payment_method_keyboard(plan_key)
         if callback.message and isinstance(callback.message, Message):
-            await callback.message.answer(text, reply_markup=kb)
+            try:
+                await callback.message.edit_text(text, reply_markup=kb)
+            except Exception:
+                await callback.message.answer(text, reply_markup=kb)
         else:
             await bot.send_message(chat_id=callback.from_user.id, text=text, reply_markup=kb)
         return
@@ -249,6 +290,79 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
             payload=plan_key,
             currency="XTR",
             prices=[LabeledPrice(label=plan["label"], amount=plan["stars"])],
+        )
+        return
+
+    if method in ("ym_card", "ym_sbp"):
+        uid = callback.from_user.id
+        receiver = yoomoney_receiver()
+        if not receiver:
+            await bot.send_message(
+                chat_id=uid,
+                text="Оплата через ЮMoney сейчас недоступна. Напишите в поддержку.",
+            )
+            return
+        rub = plan.get("rub")
+        if rub is None:
+            await bot.send_message(
+                chat_id=uid,
+                text="Для этого плана оплата не настроена.",
+            )
+            return
+        if method == "ym_sbp":
+            payment_type = YM_SBP
+            method_label = "📲 СБП (ЮMoney)"
+        else:
+            payment_type = YM_CARD
+            method_label = "💳 ЮMoney карта"
+        try:
+            ym = await yoomoney_checkout_url(
+                receiver=receiver,
+                provider="tg",
+                user_id=uid,
+                plan_key=plan_key,
+                amount=float(rub),
+                payment_type=payment_type,
+                success_url=yoomoney_return_url(),
+            )
+            checkout = ym.url
+        except Exception:
+            logging.exception("YooMoney URL build failed")
+            await bot.send_message(
+                chat_id=uid,
+                text="Не удалось создать ссылку на оплату. Попробуйте позже или напишите в поддержку.",
+            )
+            return
+
+        try:
+            await asyncio.to_thread(
+                record_payment_checkout_click,
+                service="yoomoney",
+                provider="tg",
+                external_user_id=str(uid),
+                plan_key=plan_key,
+                amount=float(rub),
+                currency="RUB",
+                pay_url=checkout,
+                channel="telegram",
+                correlation_id=ym.label,
+                payment_method=method,
+            )
+        except Exception:
+            logging.exception("Failed to log YooMoney checkout click")
+
+        await bot.send_message(
+            chat_id=uid,
+            text=(
+                f"{method_label} — {plan['label']} ({float(rub):.0f} ₽)\n\n"
+                "После оплаты подписка продлится автоматически (обычно несколько минут).\n\n"
+                f"Ссылка: {checkout}"
+            ),
+            reply_markup=InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [InlineKeyboardButton(text="Оплатить", url=checkout)]
+                ]
+            ),
         )
         return
 
@@ -546,6 +660,35 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
         chat_id=callback.from_user.id,
         text="Неизвестный способ оплаты.",
     )
+
+
+
+@router.callback_query(F.data.startswith("buy_other:"))
+async def select_other_payment_callback(callback: CallbackQuery, bot: Bot) -> None:
+    if callback.data is None or callback.from_user is None:
+        await callback.answer("Ошибка.", show_alert=True)
+        return
+
+    parts = callback.data.split(":")
+    if len(parts) == 2:
+        _, plan_key = parts
+        plan = SUBSCRIPTION_PLANS.get(plan_key)
+        if plan is None:
+            await callback.answer("Неизвестный план.", show_alert=True)
+            return
+        await callback.answer()
+        text = f"{plan['label']} — другие способы оплаты:"
+        kb = _other_payment_method_keyboard(plan_key)
+        if callback.message and isinstance(callback.message, Message):
+            try:
+                await callback.message.edit_text(text, reply_markup=kb)
+            except Exception:
+                await callback.message.answer(text, reply_markup=kb)
+        else:
+            await bot.send_message(chat_id=callback.from_user.id, text=text, reply_markup=kb)
+        return
+
+    await callback.answer("Ошибка данных.", show_alert=True)
 
 
 @router.pre_checkout_query()

@@ -125,6 +125,40 @@ def rub_checkout_keyboard_json(plan_key: str) -> str:
     kb = Keyboard(inline=True)
     kb.add(
         Callback(
+            label=f"💳 ЮMoney карта — {plan['rub']} ₽",
+            payload={"c": "pay", "p": plan_key, "m": "ym_card"},
+        )
+    )
+    kb.row()
+    kb.add(
+        Callback(
+            label=f"📲 СБП (ЮMoney) — {plan['rub']} ₽",
+            payload={"c": "pay", "p": plan_key, "m": "ym_sbp"},
+        ),
+        color=KeyboardButtonColor.POSITIVE,
+    )
+    kb.row()
+    kb.add(
+        Callback(
+            label=f"🔐 Crypto — {plan['rub']} ₽",
+            payload={"c": "pay", "p": plan_key, "m": "rub"},
+        )
+    )
+    kb.row()
+    kb.add(
+        Callback(
+            label="🌐 Другие способы оплаты",
+            payload={"c": "other_pay", "p": plan_key},
+        )
+    )
+    return kb.get_json()
+
+
+def other_checkout_keyboard_json(plan_key: str) -> str:
+    plan = SUBSCRIPTION_PLANS[plan_key]
+    kb = Keyboard(inline=True)
+    kb.add(
+        Callback(
             label=f"📲 СБП (QR) — {plan['rub']} ₽",
             payload={"c": "pay", "p": plan_key, "m": "fk_sbp"},
         )
@@ -154,8 +188,8 @@ def rub_checkout_keyboard_json(plan_key: str) -> str:
     kb.row()
     kb.add(
         Callback(
-            label=f"🔐 Crypto — {plan['rub']} ₽",
-            payload={"c": "pay", "p": plan_key, "m": "rub"},
+            label="« Назад",
+            payload={"c": "plan", "p": plan_key},
         )
     )
     return kb.get_json()

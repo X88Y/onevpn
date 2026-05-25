@@ -18,6 +18,8 @@ from mvm_bot.config import (
     platega_merchant_id,
     platega_return_url,
     platega_secret,
+    yoomoney_receiver,
+    yoomoney_return_url,
 )
 from mvm_bot.constants import CONNECT_REDIRECT_ORIGIN, REFERRAL_BONUS_DAYS, REFERRAL_PURCHASE_BONUS_DAYS, SUBSCRIPTION_PLANS, TRIAL_DAYS
 from mvm_bot.jwt_auth import sign_vk_auth_jwt
@@ -26,6 +28,9 @@ from mvm_bot.freekassa import PAYMENT_CARD_RU, PAYMENT_SBERPAY, PAYMENT_SBP
 from mvm_bot.freekassa import checkout_url as freekassa_checkout_url
 from mvm_bot.heleket import invoice_checkout_url
 from mvm_bot.platega import transaction_checkout_url as platega_checkout_url
+from mvm_bot.yoomoney import PAYMENT_TYPE_CARD as YM_CARD
+from mvm_bot.yoomoney import PAYMENT_TYPE_SBP as YM_SBP
+from mvm_bot.yoomoney import checkout_url as yoomoney_checkout_url
 from mvm_bot.user_service import (
     apply_referral_code_vk,
     count_referrals,
@@ -35,6 +40,7 @@ from mvm_bot.user_service import (
 )
 from mvm_vk_bot.menu import (
     main_menu_keyboard_json,
+    other_checkout_keyboard_json,
     plan_selection_keyboard_json,
     rub_checkout_keyboard_json,
     send_main_menu,
@@ -155,6 +161,19 @@ def register_handlers(bot: Bot) -> None:
             )
             return
 
+        if cmd == "other_pay":
+            plan_key_raw = payload.get("p")
+            if not isinstance(plan_key_raw, str):
+                return
+            plan = SUBSCRIPTION_PLANS.get(plan_key_raw)
+            if plan is None:
+                return
+            await event.send_message(
+                message=f"{plan['label']} — другие способы оплаты:",
+                keyboard=other_checkout_keyboard_json(plan_key_raw),
+            )
+            return
+
         if cmd == "pay":
             method = payload.get("m")
             plan_key_raw = payload.get("p")
@@ -168,6 +187,69 @@ def register_handlers(bot: Bot) -> None:
             rub = plan.get("rub")
             if rub is None:
                 await event.send_message(message="Для этого плана оплата не настроена.")
+                return
+
+            if method in ("ym_card", "ym_sbp"):
+                receiver = yoomoney_receiver()
+                if not receiver:
+                    await event.send_message(
+                        message="Оплата через ЮMoney сейчас недоступна. Напишите в поддержку."
+                    )
+                    return
+                if method == "ym_sbp":
+                    payment_type = YM_SBP
+                    method_label = "📲 СБП (ЮMoney)"
+                else:
+                    payment_type = YM_CARD
+                    method_label = "💳 ЮMoney карта"
+                try:
+                    ym = await yoomoney_checkout_url(
+                        receiver=receiver,
+                        provider="vk",
+                        user_id=uid,
+                        plan_key=plan_key_raw,
+                        amount=float(rub),
+                        payment_type=payment_type,
+                        success_url=yoomoney_return_url(),
+                    )
+                    checkout = ym.url
+                except Exception:
+                    logging.exception("YooMoney URL build failed (VK)")
+                    await event.send_message(
+                        message=(
+                            "Не удалось создать ссылку на оплату. "
+                            "Попробуйте позже или напишите в поддержку."
+                        ),
+                    )
+                    return
+
+                try:
+                    await asyncio.to_thread(
+                        record_payment_checkout_click,
+                        service="yoomoney",
+                        provider="vk",
+                        external_user_id=str(uid),
+                        plan_key=plan_key_raw,
+                        amount=float(rub),
+                        currency="RUB",
+                        pay_url=checkout,
+                        channel="vk",
+                        correlation_id=ym.label,
+                        payment_method=method,
+                    )
+                except Exception:
+                    logging.exception("Failed to log YooMoney checkout click (VK)")
+                pay_kb = Keyboard(inline=True)
+                pay_kb.add(OpenLink(label="Оплатить", link=checkout))
+                await event.send_message(
+                    message=(
+                        f"{method_label} — {plan['label']} ({float(rub):.0f} ₽)\n\n"
+                        "После оплаты подписка продлится автоматически "
+                        "(обычно несколько минут).\n\n"
+                        f"Ссылка: {checkout}"
+                    ),
+                    keyboard=pay_kb.get_json(),
+                )
                 return
 
             if method == "platega":

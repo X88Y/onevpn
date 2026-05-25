@@ -6,10 +6,13 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, List, Optional
 
 import aiohttp
+import httpx
 from firebase_admin import firestore
 
-from mvm_bot.config import bot_token, vk_bot_tokens
+from mvm_bot.config import bot_token, vk_bot_tokens, yoomoney_receiver, yoomoney_secret, yoomoney_recurring_enabled
 from mvm_bot.firebase_client import init_firebase
+from mvm_bot.yoomoney import build_label
+from mvm_bot.constants import SUBSCRIPTION_PLANS
 
 logger = logging.getLogger(__name__)
 
@@ -124,6 +127,71 @@ def _fetch_expiring_soon_users(db: firestore.Client) -> List[firestore.DocumentS
     )
 
 
+async def attempt_autocharge(
+    user_id: str,
+    plan_key: str,
+    payment_method_id: str,
+    provider: str,
+) -> bool:
+    """Attempt to charge a saved payment method using YooKassa REST API."""
+    receiver = yoomoney_receiver()
+    secret = yoomoney_secret()
+    if not receiver or not secret:
+        logger.error("Autocharge failed: receiver or secret not configured")
+        return False
+
+    plan = SUBSCRIPTION_PLANS.get(plan_key)
+    if not plan:
+        logger.error(f"Autocharge failed: plan {plan_key} not found")
+        return False
+
+    amount = plan["rub"]
+    label = build_label(provider, user_id, plan_key)
+
+    payload = {
+        "amount": {
+            "value": f"{amount:.2f}",
+            "currency": "RUB"
+        },
+        "capture": True,
+        "payment_method_id": payment_method_id,
+        "description": f"Автопродление подписки MVMVpn ({plan['label']})",
+        "metadata": {
+            "label": label
+        }
+    }
+
+    headers = {
+        "Idempotence-Key": label,
+        "Content-Type": "application/json"
+    }
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.yookassa.ru/v3/payments",
+                json=payload,
+                headers=headers,
+                auth=(receiver, secret),
+                timeout=15.0
+            )
+            if response.status_code in (200, 201):
+                data = response.json()
+                status = data.get("status")
+                if status == "succeeded":
+                    logger.info(f"Autocharge succeeded for user {user_id} via label {label}")
+                    return True
+                else:
+                    logger.warning(f"Autocharge returned status {status} for user {user_id}")
+                    return False
+            else:
+                logger.error(f"Autocharge API request failed: {response.status_code} {response.text}")
+                return False
+    except Exception:
+        logger.exception(f"Autocharge error for user {user_id}")
+        return False
+
+
 async def check_and_notify_expired_subscriptions() -> None:
     db = init_firebase()
 
@@ -153,6 +221,57 @@ async def check_and_notify_expired_subscriptions() -> None:
 
             if not tg_id and not vk_id:
                 continue
+
+            payment_method_id = user_data.get("yookassaPaymentMethodId")
+            if payment_method_id and yoomoney_recurring_enabled():
+                # Try auto-charging
+                last_attempt = user_data.get("yookassaLastChargeAttemptAt")
+                should_charge = True
+                if last_attempt:
+                    if hasattr(last_attempt, "timestamp"):
+                        last_attempt_dt = last_attempt
+                    else:
+                        try:
+                            last_attempt_dt = datetime.fromisoformat(str(last_attempt))
+                        except Exception:
+                            last_attempt_dt = None
+                    if last_attempt_dt and (datetime.now(timezone.utc) - last_attempt_dt < timedelta(hours=24)):
+                        should_charge = False
+
+                if should_charge:
+                    provider = "tg" if tg_id else "vk"
+                    uid = tg_id if tg_id else vk_id
+                    plan_key = user_data.get("yookassaPlanKey") or "plan_30"
+
+                    # Update last attempt time in Firestore
+                    ref = snap.reference
+                    await asyncio.to_thread(
+                        lambda r=ref, ts=datetime.now(timezone.utc): r.update({"yookassaLastChargeAttemptAt": ts})
+                    )
+
+                    success = await attempt_autocharge(
+                        user_id=uid,
+                        plan_key=plan_key,
+                        payment_method_id=payment_method_id,
+                        provider=provider,
+                    )
+                    if success:
+                        # Auto-charge succeeded. The webhook will handle extending subscription.
+                        continue
+                    else:
+                        # Auto-charge failed. Notify user.
+                        fail_text = (
+                            "⚠️ Автоматическое продление вашей подписки не удалось (например, недостаточно средств на карте).\n\n"
+                            "Пожалуйста, продлите подписку вручную в личном кабинете."
+                        )
+                        if tg_id:
+                            await _notify_telegram(tg_id, fail_text)
+                        if vk_id:
+                            await _notify_vk(vk_id, fail_text)
+                        continue
+                else:
+                    # Already tried recently, skip
+                    continue
 
             text = (
                 "⌛ Ваша подписка истекла.\n\n"
@@ -206,6 +325,57 @@ async def check_and_notify_expiring_soon_subscriptions() -> None:
 
             if not tg_id and not vk_id:
                 continue
+
+            payment_method_id = user_data.get("yookassaPaymentMethodId")
+            if payment_method_id and yoomoney_recurring_enabled():
+                # Try auto-charging
+                last_attempt = user_data.get("yookassaLastChargeAttemptAt")
+                should_charge = True
+                if last_attempt:
+                    if hasattr(last_attempt, "timestamp"):
+                        last_attempt_dt = last_attempt
+                    else:
+                        try:
+                            last_attempt_dt = datetime.fromisoformat(str(last_attempt))
+                        except Exception:
+                            last_attempt_dt = None
+                    if last_attempt_dt and (datetime.now(timezone.utc) - last_attempt_dt < timedelta(hours=24)):
+                        should_charge = False
+
+                if should_charge:
+                    provider = "tg" if tg_id else "vk"
+                    uid = tg_id if tg_id else vk_id
+                    plan_key = user_data.get("yookassaPlanKey") or "plan_30"
+
+                    # Update last attempt time in Firestore
+                    ref = snap.reference
+                    await asyncio.to_thread(
+                        lambda r=ref, ts=datetime.now(timezone.utc): r.update({"yookassaLastChargeAttemptAt": ts})
+                    )
+
+                    success = await attempt_autocharge(
+                        user_id=uid,
+                        plan_key=plan_key,
+                        payment_method_id=payment_method_id,
+                        provider=provider,
+                    )
+                    if success:
+                        # Auto-charge succeeded. Webhook will extend subscription.
+                        continue
+                    else:
+                        # Auto-charge failed. Notify user.
+                        fail_text = (
+                            "⚠️ Автоматическое продление вашей подписки не удалось (например, недостаточно средств на карте).\n\n"
+                            "Пожалуйста, продлите подписку вручную в личном кабинете."
+                        )
+                        if tg_id:
+                            await _notify_telegram(tg_id, fail_text)
+                        if vk_id:
+                            await _notify_vk(vk_id, fail_text)
+                        continue
+                else:
+                    # Already tried recently, skip
+                    continue
 
             end_str = ""
             if hasattr(current_end, "strftime"):
