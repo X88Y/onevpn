@@ -67,6 +67,7 @@ def fetch_raw_data(db: Any, start_time: datetime) -> Dict[str, List[Dict[str, An
     freekassa = db.collection("freekassa_processed").where("processedAt", ">=", start_time).stream()
     platega = db.collection("platega_processed").where("processedAt", ">=", start_time).stream()
     heleket = db.collection("heleket_processed").where("processedAt", ">=", start_time).stream()
+    yoomoney = db.collection("yoomoney_processed").where("processedAt", ">=", start_time).stream()
 
     return {
         "users": [d.to_dict() for d in users],
@@ -74,6 +75,7 @@ def fetch_raw_data(db: Any, start_time: datetime) -> Dict[str, List[Dict[str, An
         "freekassa": [d.to_dict() for d in freekassa],
         "platega": [d.to_dict() for d in platega],
         "heleket": [d.to_dict() for d in heleket],
+        "yoomoney": [d.to_dict() for d in yoomoney],
     }
 
 
@@ -109,6 +111,7 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
     period_freekassa = filter_by_age(data["freekassa"], "processedAt", cutoff)
     period_platega = filter_by_age(data["platega"], "processedAt", cutoff)
     period_heleket = filter_by_age(data["heleket"], "processedAt", cutoff)
+    period_yoomoney = filter_by_age(data["yoomoney"], "processedAt", cutoff)
 
     purchases_count = 0
     revenue = 0.0
@@ -148,6 +151,16 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
             unique_buyers.add(f"heleket:{buyer}")
         else:
             unique_buyers.add(f"heleket_unknown:{p.get('orderId', '')}")
+
+    # YooMoney stats
+    yoomoney_revenue = 0.0
+    for p in period_yoomoney:
+        purchases_count += 1
+        amount = get_amount(p)
+        revenue += amount
+        yoomoney_revenue += amount
+        buyer = p.get("externalUserId") or "unknown"
+        unique_buyers.add(f"yoomoney:{buyer}")
 
     new_users_count = len(period_users)
     checkout_clicks_count = len(period_clicks)
@@ -194,6 +207,11 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
             if buyer and str(buyer) in new_user_external_ids:
                 purchasing_new_users.add(str(buyer))
 
+    for p in period_yoomoney:
+        buyer = p.get("externalUserId")
+        if buyer and str(buyer) in new_user_external_ids:
+            purchasing_new_users.add(str(buyer))
+
     user_conversion = 0.0
     if new_users_count > 0:
         user_conversion = (len(purchasing_new_users) / new_users_count) * 100.0
@@ -221,9 +239,11 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
         "freekassa_revenue": freekassa_revenue,
         "platega_revenue": platega_revenue,
         "heleket_revenue": heleket_revenue,
+        "yoomoney_revenue": yoomoney_revenue,
         "freekassa_count": len(period_freekassa),
         "platega_count": len(period_platega),
         "heleket_count": len(period_heleket),
+        "yoomoney_count": len(period_yoomoney),
     }
 
 
@@ -232,6 +252,7 @@ def format_stats_block(label: str, s: Dict[str, Any]) -> str:
         f"📅 <b>Период: {label}</b>\n\n"
         f"💵 <b>Выручка:</b> <code>{s['revenue']:.2f} RUB</code>\n"
         f"  • FreeKassa: <code>{s['freekassa_revenue']:.2f} RUB</code> ({s['freekassa_count']} шт)\n"
+        f"  • YooMoney: <code>{s['yoomoney_revenue']:.2f} RUB</code> ({s['yoomoney_count']} шт)\n"
         f"  • Platega: <code>{s['platega_revenue']:.2f} RUB</code> ({s['platega_count']} шт)\n"
         f"  • Heleket: <code>{s['heleket_revenue']:.2f} RUB</code> ({s['heleket_count']} шт)\n\n"
         f"🛍️ <b>Покупки:</b> {s['purchases_count']} шт\n"
