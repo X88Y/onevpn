@@ -13,6 +13,11 @@ from mvm_bot.remnawave_client import (
     update_user as rw_update_user,
     get_user_by_username as rw_get_user_by_username,
 )
+from mvm_bot.user_service.helpers import (
+    _remnawave_username,
+    telegram_uid,
+    vk_uid,
+)
 logger = logging.getLogger(__name__)
 
 
