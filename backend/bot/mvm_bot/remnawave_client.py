@@ -21,7 +21,10 @@ _sdk_instance: Optional[Any] = None
 _base = remnawave_base_url()
 _token = remnawave_api_token()
 print(f"Remnawave base URL: {_base}")
-print(f"Remnawave API token: {_token[:4]}...{_token[-4:]}")
+if _token:
+    print(f"Remnawave API token: {_token[:4]}...{_token[-4:]}")
+else:
+    print("Remnawave API token: None")
 if _base and _token:
     _sdk_instance = RemnawaveSDK(base_url=_base, token=_token)
 
@@ -89,6 +92,7 @@ async def update_user(
     status: Optional[str] = None,
     traffic_limit_strategy: Optional[str] = None,
     traffic_limit_bytes: Optional[int] = None,
+    description: Optional[str] = None,
 ) -> Dict[str, Any]:
     if _sdk_instance is None:
         raise RemnawaveError(
@@ -107,6 +111,8 @@ async def update_user(
         body.traffic_limit_strategy = TrafficLimitStrategy(traffic_limit_strategy)
     if traffic_limit_bytes is not None:
         body.traffic_limit_bytes = traffic_limit_bytes
+    if description is not None:
+        body.description = description
 
     resp = await _sdk_instance.users.update_user(body)
     return _user_to_dict(resp)

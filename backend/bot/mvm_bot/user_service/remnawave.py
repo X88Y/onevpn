@@ -13,9 +13,74 @@ from mvm_bot.remnawave_client import (
     update_user as rw_update_user,
     get_user_by_username as rw_get_user_by_username,
 )
-from mvm_bot.user_service.helpers import _remnawave_username, telegram_uid, vk_uid
-
 logger = logging.getLogger(__name__)
+
+
+async def build_user_description(user_uid: str, user_data: dict) -> str:
+    parts = [f"MVM user {user_uid}"]
+
+    external_tg = user_data.get("externalTg")
+    external_vk = user_data.get("externalVk")
+
+    db = init_firebase()
+
+    if external_tg:
+        tg_id = None
+        tg_username = None
+        if isinstance(external_tg, str):
+            if external_tg.startswith("tg:"):
+                tg_id = external_tg[3:]
+            else:
+                tg_id = external_tg
+        elif isinstance(external_tg, (int, float)):
+            tg_id = str(int(external_tg))
+
+        if tg_id:
+            try:
+                tg_doc_ref = db.collection("telegram_users").document(f"tg:{tg_id}")
+                tg_snap = await asyncio.to_thread(tg_doc_ref.get)
+                if tg_snap.exists:
+                    tg_info = tg_snap.to_dict() or {}
+                    tg_username = tg_info.get("username")
+                    if tg_info.get("tgId"):
+                        tg_id = str(tg_info.get("tgId"))
+            except Exception:
+                logger.exception("Failed to fetch telegram user info for %s", external_tg)
+
+        if tg_username:
+            parts.append(f"TG: https://t.me/{tg_username}")
+        elif tg_id:
+            parts.append(f"TG: tg://user?id={tg_id}")
+
+    if external_vk:
+        vk_id = None
+        vk_screen_name = None
+        if isinstance(external_vk, str):
+            if external_vk.startswith("vk:"):
+                vk_id = external_vk[3:]
+            else:
+                vk_id = external_vk
+        elif isinstance(external_vk, (int, float)):
+            vk_id = str(int(external_vk))
+
+        if vk_id:
+            try:
+                vk_doc_ref = db.collection("vk_users").document(f"vk:{vk_id}")
+                vk_snap = await asyncio.to_thread(vk_doc_ref.get)
+                if vk_snap.exists:
+                    vk_info = vk_snap.to_dict() or {}
+                    vk_screen_name = vk_info.get("screenName")
+                    if vk_info.get("vkId"):
+                        vk_id = str(vk_info.get("vkId"))
+            except Exception:
+                logger.exception("Failed to fetch vk user info for %s", external_vk)
+
+        if vk_screen_name:
+            parts.append(f"VK: https://vk.com/{vk_screen_name}")
+        elif vk_id:
+            parts.append(f"VK: https://vk.com/id{vk_id}")
+
+    return " | ".join(parts)
 
 
 async def _ensure_remnawave_user(
@@ -37,7 +102,13 @@ async def _ensure_remnawave_user(
             end = now
         status = "ACTIVE" if end > now else "DISABLED"
         try:
-            await rw_update_user(uuid=str(rw_uuid), expire_at=end, status=status)
+            desc = await build_user_description(user_uid, user_data)
+            await rw_update_user(
+                uuid=str(rw_uuid),
+                expire_at=end,
+                status=status,
+                description=desc,
+            )
         except Exception:
             logger.exception("Failed to sync Remnawave user %s", rw_uuid)
         return user_data
@@ -50,13 +121,14 @@ async def _ensure_remnawave_user(
         squad = remnawave_internal_squad_uuid()
         squads = [squad] if squad else None
         try:
+            desc = await build_user_description(user_uid, user_data)
             rw_user = await rw_create_user(
                 username=username,
                 expire_at=now,
                 telegram_id=telegram_id,
                 status="ACTIVE",
                 active_internal_squads=squads,
-                description=f"MVM user {user_uid}",
+                description=desc,
             )
         except Exception:
             logger.exception("Failed to create Remnawave user for %s", user_uid)
@@ -136,10 +208,12 @@ async def _update_remnawave_subscription(
 
     status = "ACTIVE" if subscription_ends_at > now else "DISABLED"
     try:
+        desc = await build_user_description(user_uid, data)
         await rw_update_user(
             uuid=str(rw_uuid),
             expire_at=subscription_ends_at,
             status=status,
+            description=desc,
         )
     except Exception:
         logger.exception("Failed to update Remnawave user %s", rw_uuid)

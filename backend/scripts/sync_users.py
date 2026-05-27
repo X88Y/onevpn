@@ -122,7 +122,8 @@ async def update_rw_user(
     uuid_str: str,
     status_str: str,
     expire_at: Optional[datetime] = None,
-    telegram_id: Optional[int] = None
+    telegram_id: Optional[int] = None,
+    description: Optional[str] = None,
 ):
     from remnawave.enums import UserStatus
     from remnawave.models import UpdateUserRequestDto
@@ -134,6 +135,8 @@ async def update_rw_user(
         body.expire_at = expire_at
     if telegram_id is not None:
         body.telegram_id = telegram_id
+    if description is not None:
+        body.description = description
     
     return await sdk.users.update_user(body)
 
@@ -201,6 +204,7 @@ async def main():
         from mvm_bot.firebase_client import init_firebase
         from mvm_bot.datetime_utils import as_utc_datetime
         from mvm_bot.config import remnawave_internal_squad_uuid
+        from mvm_bot.user_service.remnawave import build_user_description
         from remnawave import RemnawaveSDK
     except ImportError as e:
         logger.error(f"Failed to import dependencies: {e}. Are you inside the correct virtual environment?")
@@ -312,7 +316,10 @@ async def main():
                     if abs((rw_expire_at - ends_at).total_seconds()) > 5:
                         exp_diff = True
 
-            needs_rw_update = status_diff or tg_diff or exp_diff
+            target_description = await build_user_description(user_uid, user_data)
+            desc_diff = (matched_rw_user.description != target_description)
+
+            needs_rw_update = status_diff or tg_diff or exp_diff or desc_diff
             if needs_rw_update:
                 if not args.dry_run:
                     try:
@@ -321,7 +328,8 @@ async def main():
                             uuid_str=str(matched_rw_user.uuid),
                             status_str=target_status,
                             expire_at=ends_at if target_status == "ACTIVE" else None,
-                            telegram_id=tg_id
+                            telegram_id=tg_id,
+                            description=target_description
                         )
                         logger.info(f"Updated Remnawave user '{matched_rw_user.username}' (UUID: {matched_rw_user.uuid})")
                     except Exception as e:
@@ -331,7 +339,7 @@ async def main():
                             logger.error(f"Error details: {e.error.errors}")
                         raise
                 else:
-                    logger.info(f"[Dry Run] Would update Remnawave user '{matched_rw_user.username}': status={target_status}, expiry={ends_at if target_status == 'ACTIVE' else 'unchanged'}")
+                    logger.info(f"[Dry Run] Would update Remnawave user '{matched_rw_user.username}': status={target_status}, expiry={ends_at if target_status == 'ACTIVE' else 'unchanged'}, description={target_description}")
                 updated_count += 1
 
             # Sync subscription link and UUID to Firestore
@@ -362,6 +370,7 @@ async def main():
             # If active, set expire_at to ends_at.
             # If disabled, set it to a safe future date to pass Remnawave's "not in the past" validation.
             rw_expire_at = ends_at if target_status == "ACTIVE" else now + timedelta(minutes=10)
+            target_description = await build_user_description(user_uid, user_data)
 
             if not args.dry_run:
                 resp = await create_rw_user(
@@ -371,7 +380,7 @@ async def main():
                     status_str=target_status,
                     telegram_id=tg_id,
                     squad_uuid_str=remnawave_internal_squad_uuid(),
-                    description=f"MVM user {user_uid}"
+                    description=target_description
                 )
                 rw_uuid = str(resp.uuid)
                 rw_short = str(resp.short_uuid)
@@ -387,7 +396,7 @@ async def main():
                 )
                 logger.info(f"Created Remnawave user '{username_std}' (UUID: {rw_uuid}) and updated Firestore.")
             else:
-                logger.info(f"[Dry Run] Would create Remnawave user '{username_std}': status={target_status}, expiry={rw_expire_at}, telegram_id={tg_id}")
+                logger.info(f"[Dry Run] Would create Remnawave user '{username_std}': status={target_status}, expiry={rw_expire_at}, telegram_id={tg_id}, description={target_description}")
             created_count += 1
             synced_count += 1
 

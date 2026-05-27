@@ -59,6 +59,7 @@ async def update_user(
     status: Optional[str] = None,
     traffic_limit_strategy: Optional[str] = None,
     traffic_limit_bytes: Optional[int] = None,
+    description: Optional[str] = None,
 ) -> Dict[str, Any]:
     if _sdk_instance is None:
         raise RemnawaveError("Remnawave not configured")
@@ -75,6 +76,8 @@ async def update_user(
         body.traffic_limit_strategy = TrafficLimitStrategy(traffic_limit_strategy)
     if traffic_limit_bytes is not None:
         body.traffic_limit_bytes = traffic_limit_bytes
+    if description is not None:
+        body.description = description
 
     resp = await _sdk_instance.users.update_user(body)
     return _user_to_dict(resp)
