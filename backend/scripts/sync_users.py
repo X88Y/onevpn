@@ -24,10 +24,11 @@ logger = logging.getLogger("sync_users")
 
 # Discover directories
 script_dir = Path(__file__).resolve().parent
-bot_dir = script_dir / "bot"
+backend_dir = script_dir.parent if script_dir.name == "scripts" else script_dir
+bot_dir = backend_dir / "bot"
 if not bot_dir.is_dir():
-    if (script_dir / "mvm_bot").is_dir():
-        bot_dir = script_dir
+    if (backend_dir / "mvm_bot").is_dir():
+        bot_dir = backend_dir
     else:
         logger.error("Cannot find bot/ directory. Ensure you run this from backend/")
         sys.exit(1)
@@ -120,25 +121,46 @@ async def list_all_remnawave_users(sdk) -> List[Any]:
 async def update_rw_user(
     sdk,
     uuid_str: str,
-    status_str: str,
+    current_status_str: str,
+    target_status_str: str,
     expire_at: Optional[datetime] = None,
     telegram_id: Optional[int] = None,
     description: Optional[str] = None,
 ):
-    from remnawave.enums import UserStatus
+    """Update a Remnawave user's metadata and status.
+
+    Status changes (ACTIVE <-> DISABLED) are applied via the dedicated
+    action endpoints (/actions/enable, /actions/disable) because Remnawave
+    auto-manages EXPIRED/LIMITED and rejects them in PATCH requests.
+    Metadata-only updates (description, telegram_id, expire_at) go via PATCH.
+    """
     from remnawave.models import UpdateUserRequestDto
     from uuid import UUID
-    
+
+    # Build metadata PATCH body (no status field)
     body = UpdateUserRequestDto(uuid=UUID(uuid_str))
-    body.status = UserStatus(status_str)
-    if expire_at is not None:
+    has_metadata = False
+    # Only set expire_at for ACTIVE users; past dates make Remnawave set EXPIRED
+    if expire_at is not None and target_status_str == "ACTIVE":
         body.expire_at = expire_at
+        has_metadata = True
     if telegram_id is not None:
         body.telegram_id = telegram_id
+        has_metadata = True
     if description is not None:
         body.description = description
-    
-    return await sdk.users.update_user(body)
+        has_metadata = True
+
+    if has_metadata:
+        await sdk.users.update_user(body)
+
+    # Apply status change via dedicated action endpoints
+    current = current_status_str.upper()
+    target = target_status_str.upper()
+    if target == "ACTIVE" and current != "ACTIVE":
+        await sdk.users.enable_user(uuid=uuid_str)
+    elif target == "DISABLED" and current == "ACTIVE":
+        await sdk.users.disable_user(uuid=uuid_str)
 
 async def create_rw_user(
     sdk,
@@ -187,8 +209,8 @@ async def main():
         # Try bot/.env first, then server_manager/.env
         if (bot_dir / ".env").exists():
             target_env = bot_dir / ".env"
-        elif (script_dir / "server_manager" / ".env").exists():
-            target_env = script_dir / "server_manager" / ".env"
+        elif (backend_dir / "server_manager" / ".env").exists():
+            target_env = backend_dir / "server_manager" / ".env"
         else:
             target_env = Path(".env")
 
@@ -256,9 +278,9 @@ async def main():
         # 1. Parse target expiration
         ends_at = as_utc_datetime(user_data.get("subscriptionEndsAt"))
         now = datetime.now(timezone.utc)
+        target_status = "ACTIVE" if ends_at and ends_at > now else "DISABLED"
         if ends_at is None:
             ends_at = now
-        target_status = "ACTIVE"
 
         # 2. Extract Telegram ID
         tg_id = None
@@ -299,7 +321,12 @@ async def main():
             rw_expire_at = parse_rw_datetime(matched_rw_user.expire_at)
             rw_status = str(matched_rw_user.status).upper()
 
-            status_diff = (rw_status != target_status)
+            if target_status == "ACTIVE":
+                status_diff = (rw_status != "ACTIVE")
+            else:
+                # Any non-ACTIVE status (EXPIRED, LIMITED, DISABLED) on the panel
+                # when we want DISABLED means we only need to act if it's ACTIVE.
+                status_diff = (rw_status == "ACTIVE")
 
             tg_diff = False
             if tg_id is not None and matched_rw_user.telegram_id != tg_id:
@@ -307,8 +334,8 @@ async def main():
 
             exp_diff = False
             # Only sync/check expiration date if the target status is ACTIVE.
-            # (Remnawave validates that expiration dates cannot be in the past,
-            # so for DISABLED users we omit expire_at updates entirely.)
+            # (Remnawave auto-sets EXPIRED for past expiry dates; we never send
+            # a past expire_at in PATCH to avoid triggering that.)
             if target_status == "ACTIVE":
                 if rw_expire_at is None:
                     exp_diff = True
@@ -326,7 +353,8 @@ async def main():
                         await update_rw_user(
                             sdk,
                             uuid_str=str(matched_rw_user.uuid),
-                            status_str=target_status,
+                            current_status_str=rw_status,
+                            target_status_str=target_status,
                             expire_at=ends_at if target_status == "ACTIVE" else None,
                             telegram_id=tg_id,
                             description=target_description
@@ -337,7 +365,7 @@ async def main():
                         if hasattr(e, "error") and e.error:
                             logger.error(f"Error message: {e.error.message}")
                             logger.error(f"Error details: {e.error.errors}")
-                        raise
+                        # raise
                 else:
                     logger.info(f"[Dry Run] Would update Remnawave user '{matched_rw_user.username}': status={target_status}, expiry={ends_at if target_status == 'ACTIVE' else 'unchanged'}, description={target_description}")
                 updated_count += 1

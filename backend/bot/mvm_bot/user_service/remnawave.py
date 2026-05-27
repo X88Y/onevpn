@@ -16,6 +16,42 @@ from mvm_bot.remnawave_client import (
 logger = logging.getLogger(__name__)
 
 
+async def _apply_remnawave_status(
+    rw_uuid: str,
+    current_status: str,
+    target_status: str,
+    expire_at: Optional[datetime],
+    description: Optional[str] = None,
+) -> None:
+    """Apply status + metadata to a Remnawave user.
+
+    Remnawave only accepts ACTIVE/DISABLED in PATCH; EXPIRED/LIMITED are managed
+    internally and are rejected when sent. We therefore:
+    - Update metadata (expire_at only for ACTIVE, description) via PATCH.
+    - Change status only via the dedicated action endpoints (enable/disable).
+    """
+    # Build keyword args for the metadata PATCH (no status field)
+    kwargs: dict = {}
+    if target_status == "ACTIVE" and expire_at is not None:
+        kwargs["expire_at"] = expire_at
+    if description is not None:
+        kwargs["description"] = description
+    if kwargs:
+        await rw_update_user(uuid=rw_uuid, **kwargs)
+
+    # Apply status change via dedicated action endpoints
+    current = current_status.upper()
+    target = target_status.upper()
+    if target == "ACTIVE" and current != "ACTIVE":
+        from mvm_bot.remnawave_client import _sdk_instance
+        if _sdk_instance is not None:
+            await _sdk_instance.users.enable_user(uuid=rw_uuid)
+    elif target == "DISABLED" and current == "ACTIVE":
+        from mvm_bot.remnawave_client import _sdk_instance
+        if _sdk_instance is not None:
+            await _sdk_instance.users.disable_user(uuid=rw_uuid)
+
+
 async def build_user_description(user_uid: str, user_data: dict) -> str:
     parts = [f"MVM user {user_uid}"]
 
@@ -102,11 +138,21 @@ async def _ensure_remnawave_user(
             end = now
         status = "ACTIVE" if end > now else "DISABLED"
         try:
+            # Fetch current status to decide which action endpoint to call
+            from mvm_bot.remnawave_client import _sdk_instance
+            current_status = "UNKNOWN"
+            if _sdk_instance is not None:
+                try:
+                    rw_user_resp = await _sdk_instance.users.get_user_by_uuid(uuid=str(rw_uuid))
+                    current_status = str(rw_user_resp.status).upper()
+                except Exception:
+                    pass  # proceed with best-effort
             desc = await build_user_description(user_uid, user_data)
-            await rw_update_user(
-                uuid=str(rw_uuid),
+            await _apply_remnawave_status(
+                rw_uuid=str(rw_uuid),
+                current_status=current_status,
+                target_status=status,
                 expire_at=end,
-                status=status,
                 description=desc,
             )
         except Exception:
@@ -208,15 +254,26 @@ async def _update_remnawave_subscription(
 
     status = "ACTIVE" if subscription_ends_at > now else "DISABLED"
     try:
+        # Fetch current status to decide which action endpoint to call
+        from mvm_bot.remnawave_client import _sdk_instance
+        current_status = "UNKNOWN"
+        if _sdk_instance is not None:
+            try:
+                rw_user_resp = await _sdk_instance.users.get_user_by_uuid(uuid=str(rw_uuid))
+                current_status = str(rw_user_resp.status).upper()
+            except Exception:
+                pass  # proceed with best-effort
         desc = await build_user_description(user_uid, data)
-        await rw_update_user(
-            uuid=str(rw_uuid),
+        await _apply_remnawave_status(
+            rw_uuid=str(rw_uuid),
+            current_status=current_status,
+            target_status=status,
             expire_at=subscription_ends_at,
-            status=status,
             description=desc,
         )
     except Exception:
         logger.exception("Failed to update Remnawave user %s", rw_uuid)
+
 
 
 async def get_remnawave_sub_url(user_uid: str) -> Optional[str]:
