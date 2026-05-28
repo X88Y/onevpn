@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from html import escape
 
 from aiogram import Bot  # type: ignore[import-not-found]
 from aiogram.enums import ParseMode  # type: ignore[import-not-found]
@@ -115,6 +116,13 @@ def main_menu_caption(data: dict, platform: str = "tg") -> str:
         "📅 Подписка:\n"
         f"{format_subscription_end(data)}\n\n"
     )
+    sub_url = data.get("remnawaveSubscriptionUrl")
+    if sub_url:
+        if platform == "tg":
+            caption += f"🔗 <b>Подключить:</b> <a href='{escape(sub_url)}'>{escape(sub_url)}</a>\n\n"
+        else:
+            caption += f"🔗 Подключить:\n{sub_url}\n\n"
+
     if platform == "tg":
         caption += (
             f"<a href='{TERMS_URL}'>📋 Пользовательское соглашение</a>\n"
