@@ -129,8 +129,9 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
         amount = get_amount(p)
         revenue += amount
         freekassa_revenue += amount
-        buyer = p.get("externalUserId") or p.get("providerField") or "unknown"
-        unique_buyers.add(f"freekassa:{buyer}")
+        buyer = p.get("externalUserId") or "unknown"
+        provider = p.get("provider") or "tg"
+        unique_buyers.add(f"{provider}:{buyer}")
 
     # Platega stats
     platega_revenue = 0.0
@@ -140,7 +141,8 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
         revenue += amount
         platega_revenue += amount
         buyer = p.get("externalUserId") or "unknown"
-        unique_buyers.add(f"platega:{buyer}")
+        provider = p.get("provider") or "tg"
+        unique_buyers.add(f"{provider}:{buyer}")
 
     # Heleket stats
     heleket_revenue = 0.0
@@ -153,7 +155,8 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
         heleket_revenue += amount
         if parsed:
             buyer = parsed.get("externalUserId") or "unknown"
-            unique_buyers.add(f"heleket:{buyer}")
+            provider = parsed.get("provider") or "tg"
+            unique_buyers.add(f"{provider}:{buyer}")
         else:
             unique_buyers.add(f"heleket_unknown:{p.get('orderId', '')}")
 
@@ -165,7 +168,8 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
         revenue += amount
         yoomoney_revenue += amount
         buyer = p.get("externalUserId") or "unknown"
-        unique_buyers.add(f"yoomoney:{buyer}")
+        provider = p.get("provider") or "tg"
+        unique_buyers.add(f"{provider}:{buyer}")
 
     new_users_count = len(period_users)
     checkout_clicks_count = len(period_clicks)
@@ -182,14 +186,16 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
     for u in period_users:
         tg = u.get("externalTg")
         if tg:
-            new_user_external_ids.add(str(tg))
-            if tg.startswith("tg:"):
-                new_user_external_ids.add(tg[3:])
+            tg_str = str(tg)
+            new_user_external_ids.add(tg_str)
+            if tg_str.startswith("tg:"):
+                new_user_external_ids.add(tg_str[3:])
         vk = u.get("externalVk")
         if vk:
-            new_user_external_ids.add(str(vk))
-            if vk.startswith("vk:"):
-                new_user_external_ids.add(vk[3:])
+            vk_str = str(vk)
+            new_user_external_ids.add(vk_str)
+            if vk_str.startswith("vk:"):
+                new_user_external_ids.add(vk_str[3:])
         apple = u.get("externalAppleId")
         if apple:
             new_user_external_ids.add(str(apple))
@@ -394,14 +400,16 @@ def calculate_daily_chart_data(raw_data: Dict[str, List[Dict[str, Any]]], bins: 
         for u in bin_users:
             tg = u.get("externalTg")
             if tg:
-                new_user_external_ids.add(str(tg))
-                if tg.startswith("tg:"):
-                    new_user_external_ids.add(tg[3:])
+                tg_str = str(tg)
+                new_user_external_ids.add(tg_str)
+                if tg_str.startswith("tg:"):
+                    new_user_external_ids.add(tg_str[3:])
             vk = u.get("externalVk")
             if vk:
-                new_user_external_ids.add(str(vk))
-                if vk.startswith("vk:"):
-                    new_user_external_ids.add(vk[3:])
+                vk_str = str(vk)
+                new_user_external_ids.add(vk_str)
+                if vk_str.startswith("vk:"):
+                    new_user_external_ids.add(vk_str[3:])
             apple = u.get("externalAppleId")
             if apple:
                 new_user_external_ids.add(str(apple))
