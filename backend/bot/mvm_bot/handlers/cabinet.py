@@ -48,7 +48,7 @@ from mvm_bot.yoomoney import checkout_url as yoomoney_checkout_url
 from mvm_bot.user_service import (
     apply_referral_code_tg,
     count_referrals,
-    extend_subscription,
+    extend_subscription_with_tier,
     grant_purchase_referral_bonus_tg,
     record_payment_checkout_click,
     save_telegram_user,
@@ -63,24 +63,16 @@ class ReferralStates(StatesGroup):
 
 
 def _plan_selection_keyboard() -> InlineKeyboardMarkup:
-    p30 = SUBSCRIPTION_PLANS["plan_30"]
-    p90 = SUBSCRIPTION_PLANS["plan_90"]
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text=f"30 дней — {p30['rub']} ₽",
-                    callback_data="buy:plan_30",
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text=f"90 дней — {p90['rub']} ₽",
-                    callback_data="buy:plan_90",
-                ),
-            ],
-        ]
-    )
+    rows: list[list[InlineKeyboardButton]] = []
+    for plan_key in ["std_30", "std_90", "prem_30", "prem_90"]:
+        plan = SUBSCRIPTION_PLANS[plan_key]
+        rows.append([
+            InlineKeyboardButton(
+                text=f"{plan['emoji']} {plan['label']} — {plan['rub']} ₽ — {plan['tier_label']}",
+                callback_data=f"buy:{plan_key}",
+            ),
+        ])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
 def _payment_method_keyboard(plan_key: str) -> InlineKeyboardMarkup:
@@ -240,8 +232,11 @@ async def buy_subscription_callback(callback: CallbackQuery) -> None:
     await callback.answer()
     if callback.message and isinstance(callback.message, Message):
         await callback.message.answer(
-            "Доступные варианты:",
+            "Доступные варианты:\n\n"
+            "🤩 <b>Standart</b>: 1 устройство\n"
+            "💎 <b>Premium</b>: 7 устройств + дополнительные ускорители при ограничениях❗️",
             reply_markup=_plan_selection_keyboard(),
+            parse_mode=ParseMode.HTML,
         )
 
 
@@ -709,16 +704,17 @@ async def successful_payment_handler(message: Message) -> None:
         )
         return
 
-    _, data = await extend_subscription(message.from_user, plan["days"])
+    _, data = await extend_subscription_with_tier(message.from_user, plan_key)
 
     try:
         await grant_purchase_referral_bonus_tg(message.from_user)
     except Exception:
         logging.exception("Failed to grant referral purchase bonus")
 
+    tier_label = plan.get("tier_label", "")
     await message.answer(
         f"🎉 Оплата прошла успешно!\n\n"
-        f"✅ Подписка продлена на {plan['days']} дней.\n"
+        f"✅ Подписка {tier_label} продлена на {plan['days']} дней.\n"
         f"📅 {format_subscription_end(data)}\n\n"
         "Приятного пользования VPN! 🚀",
         reply_markup=await main_menu_keyboard(message.from_user.id, data),

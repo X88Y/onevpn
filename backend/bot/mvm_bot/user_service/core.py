@@ -7,6 +7,7 @@ from typing import Optional
 from aiogram.types import User  # type: ignore[import-not-found]
 from firebase_admin import auth, firestore  # type: ignore[import-not-found,import-untyped]
 
+from mvm_bot.constants import SUBSCRIPTION_PLANS, is_premium_plan
 from mvm_bot.datetime_utils import as_utc_datetime
 from mvm_bot.firebase_client import init_firebase
 from mvm_bot.user_service.helpers import (
@@ -375,6 +376,126 @@ async def extend_subscription_vk(
     data = await asyncio.to_thread(extend)
     end = as_utc_datetime(data.get("subscriptionEndsAt"))
     await _update_remnawave_subscription(uid, end)
+    return uid, data
+
+
+async def extend_subscription_with_tier(
+    tg_user: User, plan_key: str
+) -> tuple[str, dict]:
+    """Extend subscription with tier awareness.
+
+    - Premium: stores tier, resets from now if upgrading from standart.
+    - Standart: standard extend from max(now, end).
+    """
+    plan = SUBSCRIPTION_PLANS.get(plan_key)
+    if plan is None:
+        raise ValueError(f"Unknown plan key: {plan_key}")
+
+    days = plan["days"]
+    tier = plan.get("tier", "standart")
+    uid, _ = await save_telegram_user(tg_user)
+    db = init_firebase()
+    auth_uid = telegram_uid(tg_user.id)
+    users_ref = db.collection("users")
+
+    def extend() -> dict:
+        docs = (
+            users_ref.where("externalTg", "in", [auth_uid, str(tg_user.id)])
+            .limit(1)
+            .get()
+        )
+        if not docs:
+            raise RuntimeError("Telegram user was not found")
+
+        doc_ref = docs[0].reference
+        transaction = db.transaction()
+
+        @firestore.transactional
+        def _run(transaction: firestore.Transaction) -> dict:
+            snapshot = doc_ref.get(transaction=transaction)
+            data = snapshot.to_dict() or {}
+            now = datetime.now(timezone.utc)
+            current_end = as_utc_datetime(data.get("subscriptionEndsAt"))
+            current_tier = data.get("subscriptionTier")
+
+            # If upgrading from standart to premium, reset from now
+            if tier == "premium" and current_tier == "standart":
+                base = now
+            else:
+                base = current_end if current_end and current_end > now else now
+
+            payload = {
+                "subscriptionEndsAt": base + timedelta(days=days),
+                "subscriptionTier": tier,
+                "updatedAt": firestore.SERVER_TIMESTAMP,
+            }
+            transaction.set(doc_ref, payload, merge=True)
+            return {**data, **payload}
+
+        return _run(transaction)
+
+    data = await asyncio.to_thread(extend)
+    end = as_utc_datetime(data.get("subscriptionEndsAt"))
+    await _update_remnawave_subscription(uid, end, tier=tier)
+    return uid, data
+
+
+async def extend_subscription_vk_with_tier(
+    profile: VkProfile,
+    plan_key: str,
+    group_id: Optional[int] = None,
+) -> tuple[str, dict]:
+    """Extend VK subscription with tier awareness."""
+    plan = SUBSCRIPTION_PLANS.get(plan_key)
+    if plan is None:
+        raise ValueError(f"Unknown plan key: {plan_key}")
+
+    days = plan["days"]
+    tier = plan.get("tier", "standart")
+    uid, _ = await save_vk_user(profile, group_id=group_id)
+    db = init_firebase()
+    auth_uid = vk_uid(profile.id)
+    users_ref = db.collection("users")
+
+    def extend() -> dict:
+        docs = (
+            users_ref.where("externalVk", "in", [auth_uid, str(profile.id)])
+            .limit(1)
+            .get()
+        )
+        if not docs:
+            raise RuntimeError("VK user was not found")
+
+        doc_ref = docs[0].reference
+        transaction = db.transaction()
+
+        @firestore.transactional
+        def _run(transaction: firestore.Transaction) -> dict:
+            snapshot = doc_ref.get(transaction=transaction)
+            data = snapshot.to_dict() or {}
+            now = datetime.now(timezone.utc)
+            current_end = as_utc_datetime(data.get("subscriptionEndsAt"))
+            current_tier = data.get("subscriptionTier")
+
+            # If upgrading from standart to premium, reset from now
+            if tier == "premium" and current_tier == "standart":
+                base = now
+            else:
+                base = current_end if current_end and current_end > now else now
+
+            payload = {
+                "subscriptionEndsAt": base + timedelta(days=days),
+                "subscriptionTier": tier,
+                "updatedAt": firestore.SERVER_TIMESTAMP,
+            }
+            transaction.set(doc_ref, payload, merge=True)
+            return {**data, **payload}
+
+        return _run(transaction)
+
+    data = await asyncio.to_thread(extend)
+    end = as_utc_datetime(data.get("subscriptionEndsAt"))
+    await _update_remnawave_subscription(uid, end, tier=tier)
     return uid, data
 
 

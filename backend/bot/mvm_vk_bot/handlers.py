@@ -143,7 +143,11 @@ def register_handlers(bot: Bot) -> None:
 
         if cmd == "buy":
             await event.send_message(
-                message="Доступные варианты:",
+                message=(
+                    "Доступные варианты:\n\n"
+                    "🤩 Standart: 1 устройство\n"
+                    "💎 Premium: 7 устройств + дополнительные ускорители при ограничениях❗️"
+                ),
                 keyboard=plan_selection_keyboard_json(),
             )
             return

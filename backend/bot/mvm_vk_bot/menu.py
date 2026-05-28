@@ -107,22 +107,18 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
 
 
 def plan_selection_keyboard_json() -> str:
-    p30 = SUBSCRIPTION_PLANS["plan_30"]
-    p90 = SUBSCRIPTION_PLANS["plan_90"]
     kb = Keyboard(inline=True)
-    kb.add(
-        Callback(
-            label=f"30 дней — {p30['rub']} ₽",
-            payload={"c": "plan", "p": "plan_30"},
+    plan_keys = ["std_30", "std_90", "prem_30", "prem_90"]
+    for i, plan_key in enumerate(plan_keys):
+        plan = SUBSCRIPTION_PLANS[plan_key]
+        if i > 0:
+            kb.row()
+        kb.add(
+            Callback(
+                label=f"{plan['emoji']} {plan['label']} — {plan['rub']} ₽ — {plan['tier_label']}",
+                payload={"c": "plan", "p": plan_key},
+            )
         )
-    )
-    kb.row()
-    kb.add(
-        Callback(
-            label=f"90 дней — {p90['rub']} ₽",
-            payload={"c": "plan", "p": "plan_90"},
-        )
-    )
     return kb.get_json()
 
 

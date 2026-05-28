@@ -13,9 +13,19 @@ import {defineSecret} from "firebase-functions/params";
 const PLAN_DAYS: Record<string, number> = {
   plan_30: 30,
   plan_90: 90,
+  std_30: 30,
+  std_90: 90,
+  prem_30: 30,
+  prem_90: 90,
 };
 
-const ORDER_ID_RE = /^mvm-(tg|vk)-(\d+)-(plan_\d+)-([a-zA-Z0-9]+)$/;
+const PREMIUM_PLANS = new Set(["prem_30", "prem_90"]);
+
+function planTier(planKey: string): "premium" | "standart" {
+  return PREMIUM_PLANS.has(planKey) ? "premium" : "standart";
+}
+
+const ORDER_ID_RE = /^mvm-(tg|vk)-(\d+)-(\w+_\d+)-([a-zA-Z0-9]+)$/;
 
 type ParsedOrderId = {
   provider: "tg" | "vk";
@@ -224,7 +234,10 @@ export const heleketWebhook = onRequest(
 
         const docRef = userSnap.docs[0].ref;
         const data = userSnap.docs[0].data() || {};
-        const base = subscriptionBaseDate(data);
+        const tier = planTier(parsedOrder.planKey);
+        const base = (tier === "premium" && data.subscriptionTier === "standart")
+          ? new Date()
+          : subscriptionBaseDate(data);
         const newEnd = new Date(base.getTime());
         newEnd.setUTCDate(newEnd.getUTCDate() + days);
 
@@ -235,6 +248,7 @@ export const heleketWebhook = onRequest(
           docRef,
           {
             subscriptionEndsAt: Timestamp.fromDate(newEnd),
+            subscriptionTier: tier,
             updatedAt: FieldValue.serverTimestamp(),
           },
           {merge: true}

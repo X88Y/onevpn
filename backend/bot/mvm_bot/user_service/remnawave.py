@@ -6,6 +6,7 @@ from typing import Optional
 from firebase_admin import firestore  # type: ignore[import-not-found,import-untyped]
 
 from mvm_bot.config import remnawave_internal_squad_uuid
+from mvm_bot.constants import PREMIUM_EXTERNAL_SQUAD_UUID, PREMIUM_INTERNAL_SQUAD_UUID
 from mvm_bot.datetime_utils import as_utc_datetime
 from mvm_bot.firebase_client import init_firebase
 from mvm_bot.remnawave_client import (
@@ -27,6 +28,7 @@ async def _apply_remnawave_status(
     target_status: str,
     expire_at: Optional[datetime],
     description: Optional[str] = None,
+    tier: Optional[str] = None,
 ) -> None:
     """Apply status + metadata to a Remnawave user.
 
@@ -34,6 +36,7 @@ async def _apply_remnawave_status(
     internally and are rejected when sent. We therefore:
     - Update metadata (expire_at only for ACTIVE, description) via PATCH.
     - Change status only via the dedicated action endpoints (enable/disable).
+    - Apply tier-specific squads (premium gets squad, standart removes it).
     """
     # Build keyword args for the metadata PATCH (no status field)
     kwargs: dict = {}
@@ -41,6 +44,16 @@ async def _apply_remnawave_status(
         kwargs["expire_at"] = expire_at
     if description is not None:
         kwargs["description"] = description
+
+    # Apply tier-based squads
+    if tier == "premium":
+        kwargs["active_internal_squads"] = [PREMIUM_INTERNAL_SQUAD_UUID]
+        kwargs["external_squad_uuid"] = PREMIUM_EXTERNAL_SQUAD_UUID
+    elif tier == "standart":
+        # Remove premium squads — assign default squad or empty
+        default_squad = remnawave_internal_squad_uuid()
+        kwargs["active_internal_squads"] = [default_squad] if default_squad else []
+
     if kwargs:
         await rw_update_user(uuid=rw_uuid, **kwargs)
 
@@ -142,6 +155,7 @@ async def _ensure_remnawave_user(
         if end is None:
             end = now
         status = "ACTIVE" if end > now else "DISABLED"
+        current_tier = user_data.get("subscriptionTier")
         try:
             # Fetch current status to decide which action endpoint to call
             from mvm_bot.remnawave_client import _sdk_instance
@@ -159,6 +173,7 @@ async def _ensure_remnawave_user(
                 target_status=status,
                 expire_at=end,
                 description=desc,
+                tier=current_tier if status == "ACTIVE" else None,
             )
         except Exception:
             logger.exception("Failed to sync Remnawave user %s", rw_uuid)
@@ -213,8 +228,14 @@ async def _ensure_remnawave_user(
 async def _update_remnawave_subscription(
     user_uid: str,
     subscription_ends_at: Optional[datetime] = None,
+    tier: Optional[str] = None,
 ) -> None:
-    """Push the current subscription expiry (and status) to Remnawave."""
+    """Push the current subscription expiry (and status) to Remnawave.
+
+    When *tier* is provided, also applies the appropriate squad config:
+    - "premium" → assign premium external/internal squads
+    - "standart" → remove premium squads, revert to default
+    """
     db = init_firebase()
     users_ref = db.collection("users").document(user_uid)
     snap = await asyncio.to_thread(users_ref.get)
@@ -253,6 +274,9 @@ async def _update_remnawave_subscription(
             )
             return
 
+    # Use tier from param, fall back to Firestore document
+    effective_tier = tier or data.get("subscriptionTier")
+
     now = datetime.now(timezone.utc)
     if subscription_ends_at is None:
         subscription_ends_at = now
@@ -275,6 +299,7 @@ async def _update_remnawave_subscription(
             target_status=status,
             expire_at=subscription_ends_at,
             description=desc,
+            tier=effective_tier if status == "ACTIVE" else None,
         )
     except Exception:
         logger.exception("Failed to update Remnawave user %s", rw_uuid)

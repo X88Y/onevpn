@@ -8,6 +8,10 @@ const PLAN_LABEL: Record<string, string> = {
   plan_30: "30 дней",
   plan_90: "90 дней",
   plan_180: "180 дней",
+  std_30: "🤩 30 дней — Standart",
+  std_90: "🤩 90 дней — Standart",
+  prem_30: "💎 30 дней — Premium",
+  prem_90: "💎 90 дней — Premium",
 };
 
 /** Hard-coded admin Telegram IDs and bot token for purchase alerts. */

@@ -93,6 +93,8 @@ async def update_user(
     traffic_limit_strategy: Optional[str] = None,
     traffic_limit_bytes: Optional[int] = None,
     description: Optional[str] = None,
+    active_internal_squads: Optional[List[str]] = None,
+    external_squad_uuid: Optional[str] = None,
 ) -> Dict[str, Any]:
     if _sdk_instance is None:
         raise RemnawaveError(
@@ -113,6 +115,10 @@ async def update_user(
         body.traffic_limit_bytes = traffic_limit_bytes
     if description is not None:
         body.description = description
+    if active_internal_squads is not None:
+        body.active_internal_squads = [UUID(s) for s in active_internal_squads]
+    if external_squad_uuid is not None:
+        body.external_squad_uuid = UUID(external_squad_uuid)
 
     resp = await _sdk_instance.users.update_user(body)
     return _user_to_dict(resp)

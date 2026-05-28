@@ -16,7 +16,17 @@ const PLAN_DAYS: Record<string, number> = {
   plan_30: 30,
   plan_90: 90,
   plan_180: 180,
+  std_30: 30,
+  std_90: 90,
+  prem_30: 30,
+  prem_90: 90,
 };
+
+const PREMIUM_PLANS = new Set(["prem_30", "prem_90"]);
+
+function planTier(planKey: string): "premium" | "standart" {
+  return PREMIUM_PLANS.has(planKey) ? "premium" : "standart";
+}
 
 type ParsedPayload = {
   provider: "tg" | "vk";
@@ -191,7 +201,10 @@ export const plategaWebhook = onRequest(
 
         const docRef = userSnap.docs[0].ref;
         const data = userSnap.docs[0].data() || {};
-        const base = subscriptionBaseDate(data);
+        const tier = planTier(parsed.planKey);
+        const base = (tier === "premium" && data.subscriptionTier === "standart")
+          ? new Date()
+          : subscriptionBaseDate(data);
         const newEnd = new Date(base.getTime());
         newEnd.setUTCDate(newEnd.getUTCDate() + days);
 
@@ -202,6 +215,7 @@ export const plategaWebhook = onRequest(
           docRef,
           {
             subscriptionEndsAt: Timestamp.fromDate(newEnd),
+            subscriptionTier: tier,
             updatedAt: FieldValue.serverTimestamp(),
           },
           {merge: true}

@@ -25,20 +25,49 @@ SITE_LINKS = [
     'мвм-скорость.рф',
 ]
 
+PREMIUM_EXTERNAL_SQUAD_UUID = "d997add1-ecf9-43aa-874c-f235426ffef0"
+PREMIUM_INTERNAL_SQUAD_UUID = "c2b488c4-2509-476c-923f-6620570ee3cc"
+
 # PRICE HERE
 SUBSCRIPTION_PLANS: dict[str, dict] = {
-    "plan_30": {
+    "std_30": {
         "days": 30,
         "stars": 100,
         "label": "30 дней",
         "rub": 50,
-        "crypto_usd": 3.39,
+        "tier": "standart",
+        "emoji": "🤩",
+        "tier_label": "Standart",
     },
-    "plan_90": {
+    "std_90": {
         "days": 90,
         "stars": 240,
         "label": "90 дней",
         "rub": 150,
-        "crypto_usd": 6.34,
+        "tier": "standart",
+        "emoji": "🤩",
+        "tier_label": "Standart",
+    },
+    "prem_30": {
+        "days": 30,
+        "stars": 200,
+        "label": "30 дней",
+        "rub": 150,
+        "tier": "premium",
+        "emoji": "💎",
+        "tier_label": "Premium",
+    },
+    "prem_90": {
+        "days": 90,
+        "stars": 500,
+        "label": "90 дней",
+        "rub": 450,
+        "tier": "premium",
+        "emoji": "💎",
+        "tier_label": "Premium",
     },
 }
+
+def is_premium_plan(plan_key: str) -> bool:
+    plan = SUBSCRIPTION_PLANS.get(plan_key)
+    return plan is not None and plan.get("tier") == "premium"

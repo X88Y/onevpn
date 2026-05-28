@@ -16,7 +16,17 @@ const PLAN_DAYS: Record<string, number> = {
   plan_30: 30,
   plan_90: 90,
   plan_180: 180,
+  std_30: 30,
+  std_90: 90,
+  prem_30: 30,
+  prem_90: 90,
 };
+
+const PREMIUM_PLANS = new Set(["prem_30", "prem_90"]);
+
+function planTier(planKey: string): "premium" | "standart" {
+  return PREMIUM_PLANS.has(planKey) ? "premium" : "standart";
+}
 
 /**
  * FreeKassa server IPs allowed to send payment notifications.
@@ -33,11 +43,11 @@ const ALLOWED_IPS = new Set([
 // 1) mvm:{provider}:{userId}:{planKey}:{nonce}
 // 2) mvm_{provider}_{userId}_{planKey}_{nonce}
 const ORDER_ID_RE =
-  /^mvm(?::|_)(tg|vk)(?::|_)(\d+)(?::|_)(plan_\w+)(?::|_)\d+$/;
+  /^mvm(?::|_)(tg|vk)(?::|_)(\d+)(?::|_)(\w+)(?::|_)\d+$/;
 // Legacy format (Telegram-only, no provider prefix):
 // mvm:{tgId}:{planKey}:{nonce} OR mvm_{tgId}_{planKey}_{nonce}
 const ORDER_ID_RE_LEGACY =
-  /^mvm(?::|_)(\d+)(?::|_)(plan_\w+)(?::|_)\d+$/;
+  /^mvm(?::|_)(\d+)(?::|_)(\w+)(?::|_)\d+$/;
 
 type ParsedOrderId = {
   provider: "tg" | "vk";
@@ -259,7 +269,10 @@ export const freeKassa = onRequest(
 
         const docRef = userSnap.docs[0].ref;
         const data = userSnap.docs[0].data() || {};
-        const base = subscriptionBaseDate(data);
+        const tier = planTier(parsed.planKey);
+        const base = (tier === "premium" && data.subscriptionTier === "standart")
+          ? new Date()
+          : subscriptionBaseDate(data);
         const newEnd = new Date(base.getTime());
         newEnd.setUTCDate(newEnd.getUTCDate() + days);
 
@@ -270,6 +283,7 @@ export const freeKassa = onRequest(
           docRef,
           {
             subscriptionEndsAt: Timestamp.fromDate(newEnd),
+            subscriptionTier: tier,
             updatedAt: FieldValue.serverTimestamp(),
           },
           {merge: true}
