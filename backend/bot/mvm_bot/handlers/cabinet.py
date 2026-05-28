@@ -101,7 +101,7 @@ def _payment_method_keyboard(plan_key: str) -> InlineKeyboardMarkup:
             ],
             [
                 InlineKeyboardButton(
-                    text=f"📲 СБП (ЮMoney) — {plan['rub']} ₽",
+                    text=f"📲 СБП (QR) — {plan['rub']} ₽",
                     callback_data=f"buy:{plan_key}:ym_sbp",
                     **{"style": "success"},
                 ),
@@ -311,7 +311,7 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
             return
         if method == "ym_sbp":
             payment_type = YM_SBP
-            method_label = "📲 СБП (ЮMoney)"
+            method_label = "📲 СБП (QR)"
         else:
             payment_type = YM_CARD
             method_label = "💳 ЮMoney карта"

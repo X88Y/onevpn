@@ -138,7 +138,7 @@ def rub_checkout_keyboard_json(plan_key: str) -> str:
     kb.row()
     kb.add(
         Callback(
-            label=f"📲 СБП (ЮMoney) — {plan['rub']} ₽",
+            label=f"📲 СБП (QR) — {plan['rub']} ₽",
             payload={"c": "pay", "p": plan_key, "m": "ym_sbp"},
         ),
         color=KeyboardButtonColor.POSITIVE,
