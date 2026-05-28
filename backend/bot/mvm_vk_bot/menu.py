@@ -81,10 +81,16 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
         )
         if data.get(TRIAL_FIELDS["vk"]) is not True:
             kb.row()
-            kb.add(Callback(label="🎁 Получить VPN бесплатно", payload={"c": "trial"}))
+            kb.add(
+                Callback(label="🎁 Получить VPN бесплатно", payload={"c": "trial"}),
+                color=KeyboardButtonColor.POSITIVE,
+            )
     else:
         if data.get(TRIAL_FIELDS["vk"]) is not True:
-            kb.add(Callback(label="🎁 Получить VPN бесплатно", payload={"c": "trial"}))
+            kb.add(
+                Callback(label="🎁 Получить VPN бесплатно", payload={"c": "trial"}),
+                color=KeyboardButtonColor.POSITIVE,
+            )
 
     if kb.buttons:
         kb.row()

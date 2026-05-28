@@ -81,6 +81,7 @@ async def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
                 InlineKeyboardButton(
                     text="🎁 Получить VPN бесплатно",
                     callback_data="menu:start_trial",
+                    **{"style": "success"},
                 )
             ]
         )
