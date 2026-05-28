@@ -113,18 +113,17 @@ async def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
 
 def main_menu_caption(data: dict, platform: str = "tg") -> str:
     tier = data.get("subscriptionTier")
+    devices = data.get("devices")
+    devices_count = len(devices) if isinstance(devices, (list, dict)) else 0
+
     if tier == "premium":
-        tier_part = "Подписка (💎 Premium)"
-    elif tier == "standart":
-        tier_part = "Подписка (🤩 Standart)"
+        tier_part = f"💎 Premium ({devices_count}/7)"
     else:
-        if _has_active_subscription(data):
-            tier_part = "Подписка (🤩 Standart)"
-        else:
-            tier_part = "Подписка"
+        tier_part = f"🤩 Standart ({devices_count}/1)"
+
     caption = (
         "🛡️ MVM | Личный кабинет\n\n"
-        f"📅 {tier_part}\n"
+        f"📅 Подписка: {tier_part}\n"
         f"{format_subscription_end(data)}\n\n"
     )
     sub_url = data.get("remnawaveSubscriptionUrl")

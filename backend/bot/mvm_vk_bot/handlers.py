@@ -145,8 +145,8 @@ def register_handlers(bot: Bot) -> None:
             await event.send_message(
                 message=(
                     "Доступные варианты:\n\n"
-                    "🤩 Standart: 1 устройство\n"
-                    "💎 Premium: 7 устройств + дополнительные ускорители при ограничениях❗️"
+                    "🤩 Standart: 1 устройство; базовые ускорители при ограничениях❗️\n\n"
+                    "💎 Premium: 7 устройств; дополнительные ускорители при ограничениях❗️"
                 ),
                 keyboard=plan_selection_keyboard_json(),
             )

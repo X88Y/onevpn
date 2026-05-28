@@ -233,8 +233,8 @@ async def buy_subscription_callback(callback: CallbackQuery) -> None:
     if callback.message and isinstance(callback.message, Message):
         await callback.message.answer(
             "Доступные варианты:\n\n"
-            "🤩 <b>Standart</b>: 1 устройство\n"
-            "💎 <b>Premium</b>: 7 устройств + дополнительные ускорители при ограничениях❗️",
+            "🤩 <b>Standart</b>: 1 устройство; базовые ускорители при ограничениях❗️\n\n"
+            "💎 <b>Premium</b>: 7 устройств; дополнительные ускорители при ограничениях❗️",
             reply_markup=_plan_selection_keyboard(),
             parse_mode=ParseMode.HTML,
         )
@@ -711,12 +711,14 @@ async def successful_payment_handler(message: Message) -> None:
     except Exception:
         logging.exception("Failed to grant referral purchase bonus")
 
+    end = as_utc_datetime(data.get("subscriptionEndsAt"))
+    end_str = f"{end:%d.%m.%Y}" if end else ""
+    tier_emoji = "💎" if plan.get("tier") == "premium" else "🤩"
     tier_label = plan.get("tier_label", "")
     await message.answer(
-        f"🎉 Оплата прошла успешно!\n\n"
-        f"✅ Подписка {tier_label} продлена на {plan['days']} дней.\n"
-        f"📅 {format_subscription_end(data)}\n\n"
-        "Приятного пользования VPN! 🚀",
+        f"✅ Оплата прошла успешно!\n\n"
+        f"📅 Подписка активна до {end_str}\n"
+        f"(+ {plan['days']} дней — {tier_emoji} {tier_label})",
         reply_markup=await main_menu_keyboard(message.from_user.id, data),
     )
 
