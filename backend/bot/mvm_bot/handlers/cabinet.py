@@ -233,8 +233,14 @@ async def buy_subscription_callback(callback: CallbackQuery) -> None:
     if callback.message and isinstance(callback.message, Message):
         await callback.message.answer(
             "Доступные варианты:\n\n"
-            "🤩 <b>Standart</b>: 1 устройство; базовые ускорители при ограничениях❗️\n\n"
-            "💎 <b>Premium</b>: 7 устройств; дополнительные ускорители при ограничениях❗️",
+            "🤩 <b>Standart</b>:\n"
+            "— 1 устройство;\n"
+            "— базовые ускорители при ограничениях;\n"
+            "— 6 серверов;\n\n"
+            "💎 <b>Premium</b>:\n"
+            "— 7 устройств;\n"
+            "— дополнительные ускорители при ограничениях;\n"
+            "— 22 сервера;",
             reply_markup=_plan_selection_keyboard(),
             parse_mode=ParseMode.HTML,
         )
