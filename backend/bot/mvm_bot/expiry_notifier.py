@@ -284,9 +284,9 @@ async def check_and_notify_expired_subscriptions() -> None:
                 await _notify_vk(vk_id, text)
 
             ref = snap.reference
-            notified_at_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+            current_end_ms = _timestamp_ms(current_end)
             await asyncio.to_thread(
-                lambda r=ref, ts=notified_at_ms: r.update({"expiryNotifiedForDateMs": ts})
+                lambda r=ref, ts=current_end_ms: r.update({"expiryNotifiedForDateMs": ts})
             )
             notified_count += 1
         except Exception:
@@ -303,10 +303,6 @@ async def check_and_notify_expiring_soon_subscriptions() -> None:
     if not snaps:
         return
 
-    now = datetime.now(timezone.utc)
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    today_start_ms = int(today_start.timestamp() * 1000)
-
     notified_count = 0
     for snap in snaps:
         try:
@@ -316,8 +312,9 @@ async def check_and_notify_expiring_soon_subscriptions() -> None:
             if current_end is None:
                 continue
 
+            current_end_ms = _timestamp_ms(current_end)
             notified_for_ms = _timestamp_ms(user_data.get("preExpiryNotifiedAtMs"))
-            if notified_for_ms is not None and notified_for_ms >= today_start_ms:
+            if notified_for_ms is not None and current_end_ms is not None and notified_for_ms >= current_end_ms:
                 continue
 
             tg_id = _extract_provider_id(user_data.get("externalTg"))
@@ -394,9 +391,9 @@ async def check_and_notify_expiring_soon_subscriptions() -> None:
                 await _notify_vk(vk_id, text)
 
             ref = snap.reference
-            notified_at_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+            current_end_ms = _timestamp_ms(current_end)
             await asyncio.to_thread(
-                lambda r=ref, ts=notified_at_ms: r.update({"preExpiryNotifiedAtMs": ts})
+                lambda r=ref, ts=current_end_ms: r.update({"preExpiryNotifiedAtMs": ts})
             )
             notified_count += 1
         except Exception:
