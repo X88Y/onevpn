@@ -199,10 +199,6 @@ async def check_and_notify_expired_subscriptions() -> None:
     if not snaps:
         return
 
-    now = datetime.now(timezone.utc)
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    today_start_ms = int(today_start.timestamp() * 1000)
-
     notified_count = 0
     for snap in snaps:
         try:
@@ -212,8 +208,12 @@ async def check_and_notify_expired_subscriptions() -> None:
             if current_end is None:
                 continue
 
+            # Send only once per subscription expiry: compare stored expiry ts
+            # with the current subscriptionEndsAt so a renewed-then-expired user
+            # gets notified again, but a still-expired user is never spammed.
+            current_end_ms = _timestamp_ms(current_end)
             notified_for_ms = _timestamp_ms(user_data.get("expiryNotifiedForDateMs"))
-            if notified_for_ms is not None and notified_for_ms >= today_start_ms:
+            if notified_for_ms is not None and current_end_ms is not None and notified_for_ms >= current_end_ms:
                 continue
 
             tg_id = _extract_provider_id(user_data.get("externalTg"))
