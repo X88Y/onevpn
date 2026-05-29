@@ -66,15 +66,18 @@ def format_subscription_end(data: dict) -> str:
 
 async def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
     is_active = _has_active_subscription(data)
-    rows: list[list[InlineKeyboardButton]] = [
-        [
-            InlineKeyboardButton(
-                text="🔗 Подключить",
-                url=data.get("remnawaveSubscriptionUrl") or "",
-                **({"style": "primary"} if is_active else {}),
-            )
-        ],
-    ]
+    rows: list[list[InlineKeyboardButton]] = []
+    sub_url = data.get("remnawaveSubscriptionUrl")
+    if is_active and sub_url:
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text="🔗 Подключить",
+                    url=sub_url,
+                    **{"style": "primary"},
+                )
+            ]
+        )
     if data.get(TRIAL_FIELDS["tg"]) is not True:
         rows.append(
             [
@@ -127,7 +130,7 @@ def main_menu_caption(data: dict, platform: str = "tg") -> str:
         f"{format_subscription_end(data)}\n\n"
     )
     sub_url = data.get("remnawaveSubscriptionUrl")
-    if sub_url:
+    if sub_url and _has_active_subscription(data):
         if platform == "tg":
             caption += f"🔗 <b>Подключить:</b> <a href='{escape(sub_url)}'>{escape(sub_url)}</a>\n\n"
         else:

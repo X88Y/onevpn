@@ -72,7 +72,7 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
     kb = Keyboard(inline=True)
     
     sub_url = data.get("remnawaveSubscriptionUrl")
-    if sub_url:
+    if is_active and sub_url:
         kb.add(
             OpenLink(
                 label="🔗 Подключить",
