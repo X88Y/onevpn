@@ -2,7 +2,7 @@
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from server_manager.config import settings
 
@@ -52,14 +52,19 @@ async def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
         raise
 
 
+_UNSET = object()
+
+
 async def update_user(
     uuid: str,
     *,
-    expire_at: Optional[datetime] = None,
-    status: Optional[str] = None,
-    traffic_limit_strategy: Optional[str] = None,
-    traffic_limit_bytes: Optional[int] = None,
-    description: Optional[str] = None,
+    expire_at: Optional[datetime] = _UNSET,
+    status: Optional[str] = _UNSET,
+    traffic_limit_strategy: Optional[str] = _UNSET,
+    traffic_limit_bytes: Optional[int] = _UNSET,
+    description: Optional[str] = _UNSET,
+    active_internal_squads: Optional[List[str]] = _UNSET,
+    external_squad_uuid: Optional[str] = _UNSET,
 ) -> Dict[str, Any]:
     if _sdk_instance is None:
         raise RemnawaveError("Remnawave not configured")
@@ -68,16 +73,20 @@ async def update_user(
     from uuid import UUID
 
     body = UpdateUserRequestDto(uuid=UUID(uuid))
-    if expire_at is not None:
+    if expire_at is not _UNSET:
         body.expire_at = expire_at
-    if status is not None:
-        body.status = UserStatus(status)
-    if traffic_limit_strategy is not None:
-        body.traffic_limit_strategy = TrafficLimitStrategy(traffic_limit_strategy)
-    if traffic_limit_bytes is not None:
+    if status is not _UNSET:
+        body.status = UserStatus(status) if status is not None else None
+    if traffic_limit_strategy is not _UNSET:
+        body.traffic_limit_strategy = TrafficLimitStrategy(traffic_limit_strategy) if traffic_limit_strategy is not None else None
+    if traffic_limit_bytes is not _UNSET:
         body.traffic_limit_bytes = traffic_limit_bytes
-    if description is not None:
+    if description is not _UNSET:
         body.description = description
+    if active_internal_squads is not _UNSET:
+        body.active_internal_squads = [UUID(s) for s in active_internal_squads] if active_internal_squads is not None else None
+    if external_squad_uuid is not _UNSET:
+        body.external_squad_uuid = UUID(external_squad_uuid) if external_squad_uuid is not None else None
 
     resp = await _sdk_instance.users.update_user(body)
     return _user_to_dict(resp)

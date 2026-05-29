@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 import random
 import asyncio
 import json
@@ -23,6 +24,7 @@ from server_manager.models import (
     TrafficPerServer,
     TrafficResponse,
 )
+from server_manager.remnawave.client import RemnawaveError, update_user as remnawave_update_user
 from server_manager.xui.client import XuiClient, XuiError, server_from_doc
 
 logger = logging.getLogger(__name__)
@@ -515,3 +517,109 @@ async def get_client_traffic(user_uid: str) -> TrafficResponse:
         syncedAt=_isoformat(last.get("syncedAt")),
         perServer=per,
     )
+
+
+class SyncRemnawaveResponse(BaseModel):
+    ok: bool
+    userUid: str
+    status: Optional[str] = None
+    skipped: bool = False
+
+
+@router.post("/sync-remnawave", response_model=SyncRemnawaveResponse)
+async def sync_remnawave_user(payload: ProvisionRequest) -> SyncRemnawaveResponse:
+    """Immediately pushes a single user's subscription state to Remnawave.
+
+    Called by Firebase Cloud Functions right after a successful payment so
+    the VPN access is updated without waiting for the periodic sync worker.
+    Silently skips (returns ``skipped=True``) when Remnawave is not configured
+    or the user has no ``remnawaveUuid`` stored in Firestore.
+    """
+    from server_manager.config import settings as _settings
+
+    user_uid = payload.userUid.strip()
+    if not user_uid:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="userUid required")
+
+    if not _settings.remnawave_base_url or not _settings.remnawave_api_token:
+        return SyncRemnawaveResponse(ok=True, userUid=user_uid, skipped=True)
+
+    db = init_firestore()
+    user_snap = await asyncio.to_thread(db.collection("users").document(user_uid).get)
+    if not user_snap.exists:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    data = user_snap.to_dict() or {}
+    rw_uuid = data.get("remnawaveUuid")
+    if not rw_uuid:
+        return SyncRemnawaveResponse(ok=True, userUid=user_uid, skipped=True)
+
+    from datetime import datetime, timezone
+
+    end = data.get("subscriptionEndsAt")
+    expire_at: Optional[datetime] = None
+    is_active = False
+    if end is not None:
+        end_dt: Optional[datetime] = None
+        if hasattr(end, "timestamp"):
+            end_dt = end
+            if not hasattr(end_dt, "tzinfo") or end_dt.tzinfo is None:
+                end_dt = end_dt.replace(tzinfo=timezone.utc)
+        else:
+            try:
+                end_dt = datetime.fromisoformat(str(end))
+                if end_dt.tzinfo is None:
+                    end_dt = end_dt.replace(tzinfo=timezone.utc)
+            except Exception:  # noqa: BLE001
+                end_dt = None
+        if end_dt is not None:
+            expire_at = end_dt
+            is_active = end_dt > datetime.now(timezone.utc)
+
+    if expire_at is None:
+        expire_at = datetime.now(timezone.utc)
+
+    rw_status = "ACTIVE" if is_active else "DISABLED"
+
+    tier = data.get("subscriptionTier")
+    squad_kwargs = {}
+    if is_active:
+        # Constants from constants/env
+        PREMIUM_EXTERNAL_SQUAD_UUID = "d997add1-ecf9-43aa-874c-f235426ffef0"
+        PREMIUM_INTERNAL_SQUAD_UUID = "c2b488c4-2509-476c-923f-6620570ee3cc"
+
+        if tier == "premium":
+            squad_kwargs["active_internal_squads"] = [PREMIUM_INTERNAL_SQUAD_UUID]
+            squad_kwargs["external_squad_uuid"] = PREMIUM_EXTERNAL_SQUAD_UUID
+        else:
+            import os
+            default_squad = os.getenv("REMNAWAVE_INTERNAL_SQUAD_UUID")
+            squad_kwargs["active_internal_squads"] = [default_squad] if default_squad else []
+            squad_kwargs["external_squad_uuid"] = None
+
+    try:
+        await remnawave_update_user(
+            uuid=str(rw_uuid),
+            expire_at=expire_at,
+            status=rw_status,
+            **squad_kwargs,
+        )
+    except RemnawaveError as exc:
+        logger.warning("sync-remnawave skipped (not configured): %s", exc)
+        return SyncRemnawaveResponse(ok=True, userUid=user_uid, skipped=True)
+    except Exception:
+        logger.exception("sync-remnawave failed user_uid=%s rw_uuid=%s", user_uid, rw_uuid)
+        raise HTTPException(
+            status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to sync with Remnawave",
+        )
+
+    logger.info(
+        "sync-remnawave ok user_uid=%s rw_uuid=%s status=%s expire_at=%s squads=%s",
+        user_uid,
+        rw_uuid,
+        rw_status,
+        expire_at.isoformat(),
+        squad_kwargs,
+    )
+    return SyncRemnawaveResponse(ok=True, userUid=user_uid, status=rw_status)

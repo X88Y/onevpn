@@ -129,3 +129,26 @@ export async function getClientTraffic(
     `/clients/${encodeURIComponent(userUid)}/traffic`
   );
 }
+
+export type SyncRemnawaveResponse = {
+  ok: boolean;
+  userUid: string;
+  status?: string | null;
+  skipped?: boolean;
+};
+
+/**
+ * Immediately pushes a user's updated subscription state to Remnawave.
+ * Should be called fire-and-forget after every successful payment so the
+ * VPN access window is updated without waiting for the periodic sync worker.
+ * @param {string} userUid Canonical Firestore users doc id.
+ * @return {Promise<SyncRemnawaveResponse>} Sync result from server_manager.
+ */
+export async function syncRemnawaveUser(
+  userUid: string
+): Promise<SyncRemnawaveResponse> {
+  return managerRequest<SyncRemnawaveResponse>("/clients/sync-remnawave", {
+    method: "POST",
+    body: {userUid},
+  });
+}

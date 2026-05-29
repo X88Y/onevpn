@@ -158,9 +158,25 @@ async def update_rw_user(
     current = current_status_str.upper()
     target = target_status_str.upper()
     if target == "ACTIVE" and current != "ACTIVE":
-        await sdk.users.enable_user(uuid=uuid_str)
+        try:
+            await sdk.users.enable_user(uuid=uuid_str)
+        except Exception as exc:
+            exc_str = str(exc).lower()
+            # A030: Remnawave auto-activates the user when a future expire_at is
+            # PATCH'd on an EXPIRED user, so enable_user then fails. Treat as success.
+            if "already enabled" in exc_str or "a030" in exc_str:
+                logger.debug("enable_user ignored (already active) uuid=%s", uuid_str)
+            else:
+                raise
     elif target == "DISABLED" and current == "ACTIVE":
-        await sdk.users.disable_user(uuid=uuid_str)
+        try:
+            await sdk.users.disable_user(uuid=uuid_str)
+        except Exception as exc:
+            exc_str = str(exc).lower()
+            if "already disabled" in exc_str:
+                logger.debug("disable_user ignored (already disabled) uuid=%s", uuid_str)
+            else:
+                raise
 
 async def create_rw_user(
     sdk,
@@ -362,10 +378,6 @@ async def main():
                         logger.info(f"Updated Remnawave user '{matched_rw_user.username}' (UUID: {matched_rw_user.uuid})")
                     except Exception as e:
                         logger.error(f"Failed to update Remnawave user '{matched_rw_user.username}': {e}")
-                        if hasattr(e, "error") and e.error:
-                            logger.error(f"Error message: {e.error.message}")
-                            logger.error(f"Error details: {e.error.errors}")
-                        # raise
                 else:
                     logger.info(f"[Dry Run] Would update Remnawave user '{matched_rw_user.username}': status={target_status}, expiry={ends_at if target_status == 'ACTIVE' else 'unchanged'}, description={target_description}")
                 updated_count += 1

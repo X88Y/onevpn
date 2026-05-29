@@ -1,3 +1,4 @@
+from mvm_bot.constants import PREMIUM_EXTERNAL_SQUAD_UUID
 import asyncio
 import logging
 from datetime import datetime, timezone
@@ -6,7 +7,7 @@ from typing import Optional
 from firebase_admin import firestore  # type: ignore[import-not-found,import-untyped]
 
 from mvm_bot.config import remnawave_internal_squad_uuid
-from mvm_bot.constants import PREMIUM_EXTERNAL_SQUAD_UUID, PREMIUM_INTERNAL_SQUAD_UUID
+from mvm_bot.constants import PREMIUM_INTERNAL_SQUAD_UUID
 from mvm_bot.datetime_utils import as_utc_datetime
 from mvm_bot.firebase_client import init_firebase
 from mvm_bot.remnawave_client import (
@@ -182,18 +183,29 @@ async def _ensure_remnawave_user(
     username = _remnawave_username(user_uid)
     rw_user = await rw_get_user_by_username(username)
 
+    current_tier = user_data.get("subscriptionTier")
+    end = as_utc_datetime(user_data.get("subscriptionEndsAt"))
+    now = datetime.now(timezone.utc)
+    expire_at = end if end is not None else now
+    is_active = expire_at > now
+
     if rw_user is None:
-        now = datetime.now(timezone.utc)
-        squad = remnawave_internal_squad_uuid()
-        squads = [squad] if squad else None
+        # Determine squads based on the user's current tier so a user who
+        # already paid premium is placed in the correct squad immediately.
+        if current_tier == "premium" and is_active:
+            initial_squads = [PREMIUM_INTERNAL_SQUAD_UUID]
+        else:
+            default_squad = remnawave_internal_squad_uuid()
+            initial_squads = [default_squad] if default_squad else None
+
         try:
             desc = await build_user_description(user_uid, user_data)
             rw_user = await rw_create_user(
                 username=username,
-                expire_at=now,
+                expire_at=expire_at,
                 telegram_id=telegram_id,
-                status="ACTIVE",
-                active_internal_squads=squads,
+                status="ACTIVE" if is_active else "DISABLED",
+                active_internal_squads=initial_squads,
                 description=desc,
             )
         except Exception:
@@ -222,6 +234,27 @@ async def _ensure_remnawave_user(
             "remnawaveShortUuid": rw_short,
             "remnawaveSubscriptionUrl": rw_sub_url,
         }
+
+        # Sync subscription state and squad membership for users found by
+        # username (UUID was not previously stored in Firestore). This covers
+        # the case where a user purchased premium before their first bot login.
+        try:
+            rw_current_status = str(rw_user.get("status") or "UNKNOWN").upper()
+            desc = await build_user_description(user_uid, user_data)
+            await _apply_remnawave_status(
+                rw_uuid=rw_uuid,
+                current_status=rw_current_status,
+                target_status="ACTIVE" if is_active else "DISABLED",
+                expire_at=expire_at,
+                description=desc,
+                tier=current_tier if is_active else None,
+            )
+        except Exception:
+            logger.exception(
+                "Failed to sync Remnawave status/squads for new uuid=%s uid=%s",
+                rw_uuid,
+                user_uid,
+            )
     return user_data
 
 

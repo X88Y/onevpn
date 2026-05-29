@@ -4,10 +4,12 @@ import type {DocumentData} from "firebase-admin/firestore";
 import {FieldValue, Timestamp} from "firebase-admin/firestore";
 import type {Request} from "firebase-functions/v2/https";
 import {onRequest} from "firebase-functions/v2/https";
+import {logger} from "firebase-functions";
 
 import {db} from "./firebase";
 import {notifyPurchase, notifyReferrerOfBonus} from "./notifyUser";
 import {extendReferrerOnPurchase} from "./referral";
+import {MANAGER_API_KEY, MANAGER_BASE_URL, syncRemnawaveUser} from "./managerClient";
 import {defineSecret} from "firebase-functions/params";
 
 const PLAN_DAYS: Record<string, number> = {
@@ -119,6 +121,7 @@ export const heleketWebhook = onRequest(
       defineSecret("MVMVPN_JWT_SECRET"),
       defineSecret("BOT_TOKEN"),
       defineSecret("VK_BOT_TOKEN"),
+      MANAGER_API_KEY,
     ],
   },
   async (req: Request, res) => {
@@ -212,11 +215,13 @@ export const heleketWebhook = onRequest(
     ];
 
     let notifyNewEnd: Date | null = null;
+    let notifyUsersDocId: string | null = null;
     let referrerNotify: { provider: "tg" | "vk"; externalUserId: string } | null = null;
 
     try {
       await db.runTransaction(async (transaction) => {
         notifyNewEnd = null;
+        notifyUsersDocId = null;
         referrerNotify = null;
         const processedSnap = await transaction.get(processedRef);
         if (processedSnap.exists) {
@@ -259,6 +264,7 @@ export const heleketWebhook = onRequest(
           processedAt: FieldValue.serverTimestamp(),
         });
         notifyNewEnd = newEnd;
+        notifyUsersDocId = docRef.id;
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -283,6 +289,12 @@ export const heleketWebhook = onRequest(
           "Друг, зарегистрировавшийся по вашей реферальной ссылке, совершил покупку! Вам начислено +15 дней подписки. 🎉"
         );
       }
+    }
+
+    if (notifyUsersDocId && MANAGER_BASE_URL.value()) {
+      void syncRemnawaveUser(notifyUsersDocId).catch((e) =>
+        logger.warn("heleket: syncRemnawaveUser failed", e)
+      );
     }
 
     res.status(200).send("OK");

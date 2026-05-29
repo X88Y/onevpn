@@ -2,10 +2,12 @@ import type {DocumentData} from "firebase-admin/firestore";
 import {FieldValue, Timestamp} from "firebase-admin/firestore";
 import {onRequest} from "firebase-functions/v2/https";
 import {defineSecret} from "firebase-functions/params";
+import {logger} from "firebase-functions";
 
 import {db} from "./firebase";
 import {notifyPurchase, notifyReferrerOfBonus} from "./notifyUser";
 import {extendReferrerOnPurchase} from "./referral";
+import {MANAGER_API_KEY, MANAGER_BASE_URL, syncRemnawaveUser} from "./managerClient";
 
 /**
  * Days to extend subscription per plan key.
@@ -107,6 +109,7 @@ export const yoomoneyWebhook = onRequest(
       defineSecret("MVMVPN_JWT_SECRET"),
       defineSecret("BOT_TOKEN"),
       defineSecret("VK_BOT_TOKEN"),
+      MANAGER_API_KEY,
     ],
   },
   async (req, res) => {
@@ -201,6 +204,7 @@ export const yoomoneyWebhook = onRequest(
 
     let transactionResult: {
       notifyAfter: { newEnd: Date } | null;
+      usersDocId: string | null;
       referrerNotify: { provider: "tg" | "vk"; externalUserId: string } | null;
     };
 
@@ -211,6 +215,7 @@ export const yoomoneyWebhook = onRequest(
         if (processedSnap.exists) {
           return {
             notifyAfter: null,
+            usersDocId: null,
             referrerNotify: null,
           };
         }
@@ -274,6 +279,7 @@ export const yoomoneyWebhook = onRequest(
 
         return {
           notifyAfter: {newEnd},
+          usersDocId: docRef.id,
           referrerNotify: refNotify,
         };
       });
@@ -301,6 +307,12 @@ export const yoomoneyWebhook = onRequest(
             "совершил покупку! Вам начислено +15 дней подписки. 🎉"
         );
       }
+    }
+
+    if (transactionResult.usersDocId && MANAGER_BASE_URL.value()) {
+      void syncRemnawaveUser(transactionResult.usersDocId).catch((e) =>
+        logger.warn("yoomoney: syncRemnawaveUser failed", e)
+      );
     }
 
     // YooKassa requires a 200 response to acknowledge the notification

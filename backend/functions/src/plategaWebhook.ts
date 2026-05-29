@@ -1,10 +1,12 @@
 import type {DocumentData} from "firebase-admin/firestore";
 import {FieldValue, Timestamp} from "firebase-admin/firestore";
 import {onRequest} from "firebase-functions/v2/https";
+import {logger} from "firebase-functions";
 
 import {db} from "./firebase";
 import {notifyPurchase, notifyReferrerOfBonus} from "./notifyUser";
 import {extendReferrerOnPurchase} from "./referral";
+import {MANAGER_API_KEY, MANAGER_BASE_URL, syncRemnawaveUser} from "./managerClient";
 import {defineSecret} from "firebase-functions/params";
 
 /**
@@ -102,6 +104,7 @@ export const plategaWebhook = onRequest(
       defineSecret("MVMVPN_JWT_SECRET"),
       defineSecret("BOT_TOKEN"),
       defineSecret("VK_BOT_TOKEN"),
+      MANAGER_API_KEY,
     ],
   },
   async (req, res) => {
@@ -176,11 +179,13 @@ export const plategaWebhook = onRequest(
     ];
 
     let notifyAfter: {newEnd: Date} | null = null;
+    let notifyUsersDocId: string | null = null;
     let referrerNotify: { provider: "tg" | "vk"; externalUserId: string } | null = null;
 
     try {
       await db.runTransaction(async (transaction) => {
         notifyAfter = null;
+        notifyUsersDocId = null;
         referrerNotify = null;
         const processedSnap = await transaction.get(processedRef);
         if (processedSnap.exists) {
@@ -230,6 +235,7 @@ export const plategaWebhook = onRequest(
           processedAt: FieldValue.serverTimestamp(),
         });
         notifyAfter = {newEnd};
+        notifyUsersDocId = docRef.id;
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -254,6 +260,12 @@ export const plategaWebhook = onRequest(
           "Друг, зарегистрировавшийся по вашей реферальной ссылке, совершил покупку! Вам начислено +15 дней подписки. 🎉"
         );
       }
+    }
+
+    if (notifyUsersDocId && MANAGER_BASE_URL.value()) {
+      void syncRemnawaveUser(notifyUsersDocId).catch((e) =>
+        logger.warn("platega: syncRemnawaveUser failed", e)
+      );
     }
 
     res.status(200).send("OK");
