@@ -170,20 +170,13 @@ def main_menu_caption(data: dict, platform: str = "tg", remnawave_devices: list 
     caption = (
         "🛡️ MVM | Личный кабинет\n\n"
         f"📅 Подписка: {tier_part}\n"
-        f"{format_subscription_end(data)}\n"
-        f"📱 Устройства: {devices_part}\n\n"
+        f"{format_subscription_end(data)}\n\n"
     )
-    sub_url = data.get("remnawaveSubscriptionUrl")
-    if sub_url and has_active_subscription(data):
-        if platform == "tg":
-            caption += f"🔗 <b>Подключить:</b> <a href='{escape(sub_url)}'>{escape(sub_url)}</a>\n\n"
-        else:
-            caption += f"🔗 Подключить:\n{sub_url}\n\n"
 
     if platform == "tg":
         caption += (
-            f"<a href='{TERMS_URL}'>📋 Пользовательское соглашение</a>\n"
-            f"<a href='{PRIVACY_POLICY_URL}'>🔒 Политика конфиденциальности</a>\n\n"
+            f"<a href='{escape(TERMS_URL)}'>📋 Пользовательское соглашение</a>\n"
+            f"<a href='{escape(PRIVACY_POLICY_URL)}'>🔒 Политика конфиденциальности</a>\n\n"
         )
     elif platform == "vk":
         caption += (
@@ -204,6 +197,13 @@ def main_menu_caption(data: dict, platform: str = "tg", remnawave_devices: list 
         else:
             links_text = "\n".join(f"https://{link}" for link in SITE_LINKS)
         caption += f"🌐 Резерв:\n{links_text}\n\n"
+
+    sub_url = data.get("remnawaveSubscriptionUrl")
+    if sub_url and has_active_subscription(data):
+        if platform == "tg":
+            caption += f"🔗 Ключ подключения:\n<a href='{escape(sub_url)}'>{escape(sub_url)}</a>\n\n"
+        else:
+            caption += f"🔗 Ключ подключения:\n{sub_url}\n\n"
 
     caption += "👇 Выберите действие:"
     return caption
