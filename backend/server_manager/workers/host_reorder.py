@@ -2,7 +2,7 @@
 
 Sorting rules (applied every HOST_REORDER_INTERVAL_S seconds):
   1. By tag priority:
-       BALANCER > SPEED_SERVER > RU_SERVER > BYPASS_WL > BYPASS_WL_PREMIUM
+       SPEED_SERVER > BALANCER > BYPASS_WL > BYPASS_WL_PREMIUM > RU_SERVER
        > (other known tags alphabetically) > (no tag)
   2. Within each tag group:
        - BALANCER and RU_SERVER: original view_position preserved (no internal reorder).
@@ -28,9 +28,9 @@ logger = logging.getLogger(__name__)
 _TAG_PRIORITY: List[str] = [
     "SPEED_SERVER",
     "BALANCER",
-    "RU_SERVER",
     "BYPASS_WL",
     "BYPASS_WL_PREMIUM",
+    "RU_SERVER",
 ]
 _TAG_ORDER: Dict[str, int] = {tag: i for i, tag in enumerate(_TAG_PRIORITY)}
 _UNKNOWN_TAG_BASE: int = len(_TAG_PRIORITY)

@@ -1,8 +1,8 @@
 """Reorder Remnawave hosts by tag priority + live node user count.
 
 Tag priority order (first = shown first in subscription):
-    1. BALANCER
-    2. SPEED_SERVER
+    1. SPEED_SERVER
+    2. BALANCER
     3. BYPASS_WL
     4. BYPASS_WL_PREMIUM
     5. RU_SERVER
