@@ -177,6 +177,11 @@ def main_menu_caption(data: dict, platform: str = "tg", remnawave_devices: list 
             f"<a href='{TERMS_URL}'>📋 Пользовательское соглашение</a>\n"
             f"<a href='{PRIVACY_POLICY_URL}'>🔒 Политика конфиденциальности</a>\n\n"
         )
+    elif platform == "vk":
+        caption += (
+            f"[{TERMS_URL}|📋 Пользовательское соглашение]\n"
+            f"[{PRIVACY_POLICY_URL}|🔒 Политика конфиденциальности]\n\n"
+        )
     else:
         caption += (
             f"📋 Пользовательское соглашение:\n{TERMS_URL}\n"
