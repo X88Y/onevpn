@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 # Tag priority — edit here to change the subscription display order
 # ---------------------------------------------------------------------------
 _TAG_PRIORITY: List[str] = [
-    "BALANCER",
     "SPEED_SERVER",
+    "BALANCER",
     "RU_SERVER",
     "BYPASS_WL",
     "BYPASS_WL_PREMIUM",

@@ -58,8 +58,8 @@ def _load_env(env_path: Optional[str] = None) -> None:
 # Tag priority — add / reorder as needed
 # ---------------------------------------------------------------------------
 TAG_PRIORITY: List[str] = [
-    "BALANCER",
     "SPEED_SERVER",
+    "BALANCER",
     "BYPASS_WL",
     "BYPASS_WL_PREMIUM",
     "RU_SERVER",
