@@ -55,6 +55,7 @@ class Settings:
     remnawave_base_url: Optional[str]
     remnawave_api_token: Optional[str]
     remnawave_sync_interval_s: int
+    host_reorder_interval_s: int
 
     @property
     def panel_request_timeout(self) -> float:
@@ -108,6 +109,7 @@ def _load_settings() -> Settings:
         remnawave_base_url=_env("REMNAWAVE_BASE_URL"),
         remnawave_api_token=_env("REMNAWAVE_API_TOKEN"),
         remnawave_sync_interval_s=_int("REMNAWAVE_SYNC_INTERVAL_S", 300),
+        host_reorder_interval_s=_int("HOST_REORDER_INTERVAL_S", 300),
     )
 
 

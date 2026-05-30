@@ -16,6 +16,7 @@ from server_manager.workers.traffic_sync import run_traffic_sync_loop
 from server_manager.workers.monitoring_sync import run_monitoring_sync_loop
 from server_manager.workers.subscription_sync import run_subscription_sync_loop
 from server_manager.workers.remnawave_sync import run_remnawave_sync_loop
+from server_manager.workers.host_reorder import run_host_reorder_loop
 
 logger = logging.getLogger("server_manager")
 
@@ -25,12 +26,13 @@ async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     logging.basicConfig(level=settings.log_level.upper())
     init_firestore()
     tasks = [
-        asyncio.create_task(run_install_loop(), name="install_worker"),
-        asyncio.create_task(run_traffic_sync_loop(), name="traffic_sync"),
-        asyncio.create_task(run_health_loop(), name="health_check"),
-        asyncio.create_task(run_monitoring_sync_loop(), name="monitoring_sync"),
-        asyncio.create_task(run_subscription_sync_loop(), name="subscription_sync"),
-        asyncio.create_task(run_remnawave_sync_loop(), name="remnawave_sync"),
+        # asyncio.create_task(run_install_loop(), name="install_worker"),
+        # asyncio.create_task(run_traffic_sync_loop(), name="traffic_sync"),
+        # asyncio.create_task(run_health_loop(), name="health_check"),
+        # asyncio.create_task(run_monitoring_sync_loop(), name="monitoring_sync"),
+        # asyncio.create_task(run_subscription_sync_loop(), name="subscription_sync"),
+        # asyncio.create_task(run_remnawave_sync_loop(), name="remnawave_sync"),
+        asyncio.create_task(run_host_reorder_loop(), name="host_reorder"),
     ]
     logger.info("server_manager started workers=%s", [t.get_name() for t in tasks])
     try:
