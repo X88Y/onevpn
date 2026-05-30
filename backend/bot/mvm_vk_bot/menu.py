@@ -226,7 +226,7 @@ async def send_main_menu(message: Message, data: dict) -> None:
 
         if cached_photo:
             try:
-                await message.answer(message=caption, attachment=cached_photo, keyboard=keyboard)
+                await message.answer(message=caption, attachment=cached_photo, keyboard=keyboard, dont_parse_links=True)
                 return
             except Exception:
                 logging.exception("Failed to send main menu with cached banner")
@@ -241,12 +241,12 @@ async def send_main_menu(message: Message, data: dict) -> None:
                 if token:
                     set_cached_banner(token, photo)
                     await set_vk_cached_attachment(token, [banner.name], photo)
-                await message.answer(message=caption, attachment=photo, keyboard=keyboard)
+                await message.answer(message=caption, attachment=photo, keyboard=keyboard, dont_parse_links=True)
                 return
             except Exception:
                 logging.exception("VK banner upload failed, falling back to text-only menu")
 
-    await message.answer(message=caption, keyboard=keyboard)
+    await message.answer(message=caption, keyboard=keyboard, dont_parse_links=True)
 
 
 async def send_main_menu_from_event(event: MessageEvent, data: dict) -> None:
@@ -272,7 +272,7 @@ async def send_main_menu_from_event(event: MessageEvent, data: dict) -> None:
                 set_cached_banner(token, cached_photo)
         if cached_photo:
             try:
-                await event.send_message(message=caption, attachment=cached_photo, keyboard=keyboard)
+                await event.send_message(message=caption, attachment=cached_photo, keyboard=keyboard, dont_parse_links=True)
                 return
             except Exception:
                 logging.exception("Failed to send main menu with cached banner from event")
@@ -287,12 +287,12 @@ async def send_main_menu_from_event(event: MessageEvent, data: dict) -> None:
                 if token:
                     set_cached_banner(token, photo)
                     await set_vk_cached_attachment(token, [banner.name], photo)
-                await event.send_message(message=caption, attachment=photo, keyboard=keyboard)
+                await event.send_message(message=caption, attachment=photo, keyboard=keyboard, dont_parse_links=True)
                 return
             except Exception:
                 logging.exception("VK banner upload failed from event, falling back to text-only menu")
 
-    await event.send_message(message=caption, keyboard=keyboard)
+    await event.send_message(message=caption, keyboard=keyboard, dont_parse_links=True)
 
 
 def devices_keyboard_json(devices: list) -> str:

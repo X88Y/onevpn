@@ -263,6 +263,7 @@ def register_handlers(bot: Bot) -> None:
                         f"Ссылка: {checkout}"
                     ),
                     keyboard=pay_kb.get_json(),
+                    dont_parse_links=True,
                 )
                 return
 
@@ -326,6 +327,7 @@ def register_handlers(bot: Bot) -> None:
                         f"Ссылка: {checkout}"
                     ),
                     keyboard=pay_kb.get_json(),
+                    dont_parse_links=True,
                 )
                 return
 
@@ -390,6 +392,7 @@ def register_handlers(bot: Bot) -> None:
                         f"Ссылка: {checkout}"
                     ),
                     keyboard=pay_kb.get_json(),
+                    dont_parse_links=True,
                 )
                 return
 
@@ -454,6 +457,7 @@ def register_handlers(bot: Bot) -> None:
                         f"Ссылка: {checkout}"
                     ),
                     keyboard=pay_kb.get_json(),
+                    dont_parse_links=True,
                 )
                 return
 
