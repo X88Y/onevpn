@@ -12,7 +12,15 @@ from aiogram.types import (  # type: ignore[import-not-found]
 )
 
 from mvm_bot.config import menu_banner_path
-from mvm_bot.constants import PRIVACY_POLICY_URL, SITE_LINKS, SUPPORT_URL, TERMS_URL, TRIAL_FIELDS
+from mvm_bot.constants import (
+    PRIVACY_POLICY_URL,
+    SITE_LINKS,
+    SUPPORT_URL,
+    TERMS_URL,
+    TRIAL_FIELDS,
+    VK_PRIVACY_POLICY_URL,
+    VK_TERMS_URL,
+)
 from mvm_bot.datetime_utils import as_utc_datetime
 
 _tg_banner_cache: dict[str, str] = {}
@@ -179,8 +187,8 @@ def main_menu_caption(data: dict, platform: str = "tg", remnawave_devices: list 
         )
     elif platform == "vk":
         caption += (
-            f"[{TERMS_URL}|📋 Пользовательское соглашение]\n"
-            f"[{PRIVACY_POLICY_URL}|🔒 Политика конфиденциальности]\n\n"
+            f"[{VK_TERMS_URL}|📋 Пользовательское соглашение]\n"
+            f"[{VK_PRIVACY_POLICY_URL}|🔒 Политика конфиденциальности]\n\n"
         )
     else:
         caption += (

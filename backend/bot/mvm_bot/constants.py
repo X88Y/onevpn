@@ -19,6 +19,8 @@ VK_SUPPORT_URL = "https://vk.ru/id1088965138"
 
 PRIVACY_POLICY_URL = "https://telegra.ph/Politika-konfidencialnosti-04-01-26"
 TERMS_URL = "https://telegra.ph/Polzovatelskoe-soglashenie-04-01-19"
+VK_PRIVACY_POLICY_URL = "https://vk.com/@mvmvpn-politika-konfidencialnosti"
+VK_TERMS_URL = "https://vk.com/@mvmvpn-polzovatelskoe-soglashenie"
 
 SITE_LINKS = [
     'mvmvpn.vercel.app',
