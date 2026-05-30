@@ -35,6 +35,7 @@ from mvm_bot.config import (
 from mvm_bot.constants import CONNECT_REDIRECT_ORIGIN, REFERRAL_BONUS_DAYS, REFERRAL_PURCHASE_BONUS_DAYS, SUBSCRIPTION_PLANS, TRIAL_DAYS
 from mvm_bot.main_menu import (
     format_subscription_end,
+    has_active_subscription,
     main_menu_keyboard,
     send_main_menu,
 )
@@ -842,9 +843,13 @@ async def view_devices_callback(callback: CallbackQuery) -> None:
     if callback.from_user is None:
         await callback.answer("Cannot identify Telegram user.", show_alert=True)
         return
-    await callback.answer()
 
     _, data = await save_telegram_user(callback.from_user)
+    if not has_active_subscription(data):
+        await callback.answer("❌ У вас нет активной подписки.", show_alert=True)
+        return
+
+    await callback.answer()
     tier = data.get("subscriptionTier")
     rw_uuid = data.get("remnawaveUuid")
 

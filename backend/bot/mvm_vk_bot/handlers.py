@@ -40,6 +40,7 @@ from mvm_bot.user_service import (
 )
 from mvm_bot.remnawave_client import get_user_hwid_devices, delete_user_hwid_device
 from mvm_vk_bot.menu import (
+    has_active_subscription,
     main_menu_keyboard_json,
     other_checkout_keyboard_json,
     plan_selection_keyboard_json,
@@ -479,6 +480,9 @@ def register_handlers(bot: Bot) -> None:
 
         if cmd == "devices":
             _, data = await save_vk_user(profile, group_id=event.group_id)
+            if not has_active_subscription(data):
+                await event.send_message(message="❌ У вас нет активной подписки.")
+                return
             tier = data.get("subscriptionTier")
             rw_uuid = data.get("remnawaveUuid")
 

@@ -60,7 +60,7 @@ async def preupload_menu_banner(tokens: list[str]) -> None:
             logging.error(f"Failed to pre-upload banner for token {token[:8]} after all attempts.")
 
 
-def _has_active_subscription(data: dict) -> bool:
+def has_active_subscription(data: dict) -> bool:
     end = as_utc_datetime(data.get("subscriptionEndsAt"))
     if end is None:
         return False
@@ -68,7 +68,7 @@ def _has_active_subscription(data: dict) -> bool:
 
 
 async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
-    is_active = _has_active_subscription(data)
+    is_active = has_active_subscription(data)
     kb = Keyboard(inline=True)
     
     sub_url = data.get("remnawaveSubscriptionUrl")
@@ -100,8 +100,9 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
         color=KeyboardButtonColor.POSITIVE if not is_active else None,
     )
     kb.row()
-    kb.add(Callback(label="📱 Мои устройства", payload={"c": "devices"}))
-    kb.row()
+    if is_active:
+        kb.add(Callback(label="📱 Мои устройства", payload={"c": "devices"}))
+        kb.row()
     kb.add(Callback(label="👥 Пригласить друзей", payload={"c": "invite"}))
     kb.row()
     kb.add(OpenLink(label="💬 Поддержка", link=VK_SUPPORT_URL))

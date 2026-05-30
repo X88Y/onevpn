@@ -46,7 +46,7 @@ async def preload_menu_banner(bot: Bot) -> None:
 
 
 
-def _has_active_subscription(data: dict) -> bool:
+def has_active_subscription(data: dict) -> bool:
     end = as_utc_datetime(data.get("subscriptionEndsAt"))
     if end is None:
         return False
@@ -66,7 +66,7 @@ def format_subscription_end(data: dict) -> str:
 
 
 async def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
-    is_active = _has_active_subscription(data)
+    is_active = has_active_subscription(data)
     rows: list[list[InlineKeyboardButton]] = []
     sub_url = data.get("remnawaveSubscriptionUrl")
     if is_active and sub_url:
@@ -89,21 +89,26 @@ async def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
                 )
             ]
         )
-    rows.extend(
+    rows.append(
         [
-            [
-                InlineKeyboardButton(
-                    text="💳 Купить подписку",
-                    callback_data="menu:buy_subscription",
-                    **({"style": "success"} if not is_active else {}),
-                )
-            ],
+            InlineKeyboardButton(
+                text="💳 Купить подписку",
+                callback_data="menu:buy_subscription",
+                **({"style": "success"} if not is_active else {}),
+            )
+        ]
+    )
+    if is_active:
+        rows.append(
             [
                 InlineKeyboardButton(
                     text="📱 Мои устройства",
                     callback_data="menu:devices",
                 )
-            ],
+            ]
+        )
+    rows.extend(
+        [
             [
                 InlineKeyboardButton(
                     text="👥 Пригласить друзей",
@@ -161,7 +166,7 @@ def main_menu_caption(data: dict, platform: str = "tg", remnawave_devices: list 
         f"📱 Устройства: {devices_part}\n\n"
     )
     sub_url = data.get("remnawaveSubscriptionUrl")
-    if sub_url and _has_active_subscription(data):
+    if sub_url and has_active_subscription(data):
         if platform == "tg":
             caption += f"🔗 <b>Подключить:</b> <a href='{escape(sub_url)}'>{escape(sub_url)}</a>\n\n"
         else:
