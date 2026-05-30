@@ -38,12 +38,15 @@ from mvm_bot.user_service import (
     save_vk_user,
     start_vk_trial,
 )
+from mvm_bot.remnawave_client import get_user_hwid_devices, delete_user_hwid_device
 from mvm_vk_bot.menu import (
     main_menu_keyboard_json,
     other_checkout_keyboard_json,
     plan_selection_keyboard_json,
     rub_checkout_keyboard_json,
     send_main_menu,
+    send_main_menu_from_event,
+    devices_keyboard_json,
 )
 from mvm_vk_bot.profile import fetch_vk_profile
 
@@ -472,4 +475,103 @@ def register_handlers(bot: Bot) -> None:
                     f"Новый пользователь тоже получит +{REFERRAL_BONUS_DAYS} дней!"
                 ),
             )
+            return
+
+        if cmd == "devices":
+            _, data = await save_vk_user(profile, group_id=event.group_id)
+            tier = data.get("subscriptionTier")
+            rw_uuid = data.get("remnawaveUuid")
+
+            devices = []
+            if rw_uuid:
+                try:
+                    devices = await get_user_hwid_devices(rw_uuid)
+                except Exception:
+                    logging.exception("Failed to fetch Remnawave devices for VK")
+
+            devices_count = len(devices)
+            limit = 7 if tier == "premium" else 1
+
+            text = f"📱 Мои устройства\n\n"
+            text += f"⚙️ Лимит: {devices_count} / {limit}\n\n"
+
+            if not devices:
+                text += "У вас нет подключенных устройств. Устройства подключаются автоматически при входе в приложение MVM VPN на вашем телефоне или компьютере."
+            else:
+                text += "Список ваших устройств:\n"
+                for i, dev in enumerate(devices, 1):
+                    if isinstance(dev, dict):
+                        model = dev.get("deviceModel") or dev.get("device_model")
+                        plat = dev.get("platform")
+                        os_v = dev.get("osVersion") or dev.get("os_version")
+                        parts = []
+                        if model:
+                            parts.append(model)
+                        if plat:
+                            parts.append(plat)
+                        if os_v:
+                            parts.append(os_v)
+
+                        name = " ".join(parts) if parts else (dev.get("hwid") or "Unknown Device")
+                        text += f"{i}. {name}\n"
+                text += "\nВыберите устройство для удаления 👇"
+
+            kb = devices_keyboard_json(devices)
+            await event.send_message(message=text, keyboard=kb)
+            return
+
+        if cmd == "del_dev":
+            hwid = payload.get("id")
+            if not isinstance(hwid, str):
+                return
+            _, data = await save_vk_user(profile, group_id=event.group_id)
+            rw_uuid = data.get("remnawaveUuid")
+            if not rw_uuid:
+                await event.send_message(message="❌ Пользователь Remnawave не найден.")
+                return
+
+            try:
+                await delete_user_hwid_device(rw_uuid, hwid)
+                devices = await get_user_hwid_devices(rw_uuid)
+            except Exception:
+                logging.exception("Failed to delete Remnawave device for VK")
+                await event.send_message(message="❌ Ошибка при удалении устройства.")
+                return
+
+            tier = data.get("subscriptionTier")
+            devices_count = len(devices)
+            limit = 7 if tier == "premium" else 1
+
+            text = f"✅ Устройство успешно удалено\n\n"
+            text += f"📱 Мои устройства\n"
+            text += f"⚙️ Лимит: {devices_count} / {limit}\n\n"
+
+            if not devices:
+                text += "У вас нет подключенных устройств."
+            else:
+                text += "Список ваших устройств:\n"
+                for i, dev in enumerate(devices, 1):
+                    if isinstance(dev, dict):
+                        model = dev.get("deviceModel") or dev.get("device_model")
+                        plat = dev.get("platform")
+                        os_v = dev.get("osVersion") or dev.get("os_version")
+                        parts = []
+                        if model:
+                            parts.append(model)
+                        if plat:
+                            parts.append(plat)
+                        if os_v:
+                            parts.append(os_v)
+
+                        name = " ".join(parts) if parts else (dev.get("hwid") or "Unknown Device")
+                        text += f"{i}. {name}\n"
+                text += "\nВыберите устройство для удаления 👇"
+
+            kb = devices_keyboard_json(devices)
+            await event.send_message(message=text, keyboard=kb)
+            return
+
+        if cmd == "main":
+            _, data = await save_vk_user(profile, group_id=event.group_id)
+            await send_main_menu_from_event(event, data)
             return

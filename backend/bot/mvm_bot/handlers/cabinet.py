@@ -54,6 +54,9 @@ from mvm_bot.user_service import (
     save_telegram_user,
     start_telegram_trial,
 )
+from mvm_bot.remnawave_client import get_user_hwid_devices, delete_user_hwid_device
+
+
 
 router = Router()
 
@@ -808,3 +811,154 @@ async def process_referral_code_input(message: Message, state: FSMContext) -> No
 
     success, text = await apply_referral_code_tg(message.from_user, code)
     await message.answer(f"{'✅' if success else '❌'} {text}")
+
+
+def _devices_keyboard(devices: list) -> InlineKeyboardMarkup:
+    rows = []
+    for dev in devices:
+        if isinstance(dev, dict):
+            hwid = dev.get("hwid")
+            model = dev.get("deviceModel") or dev.get("device_model") or dev.get("hwid") or "Device"
+            if hwid:
+                # Truncate device name to fit nicely on button
+                btn_name = model[:20] + "..." if len(model) > 20 else model
+                rows.append([
+                    InlineKeyboardButton(
+                        text=f"❌ Удалить {btn_name}",
+                        callback_data=f"dev:del:{hwid}"
+                    )
+                ])
+    rows.append([
+        InlineKeyboardButton(
+            text="« Назад",
+            callback_data="menu:main"
+        )
+    ])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+@router.callback_query(F.data == "menu:devices")
+async def view_devices_callback(callback: CallbackQuery) -> None:
+    if callback.from_user is None:
+        await callback.answer("Cannot identify Telegram user.", show_alert=True)
+        return
+    await callback.answer()
+
+    _, data = await save_telegram_user(callback.from_user)
+    tier = data.get("subscriptionTier")
+    rw_uuid = data.get("remnawaveUuid")
+
+    devices = []
+    if rw_uuid:
+        try:
+            devices = await get_user_hwid_devices(rw_uuid)
+        except Exception:
+            logging.exception("Failed to fetch Remnawave devices for cabinet")
+
+    devices_count = len(devices)
+    limit = 7 if tier == "premium" else 1
+
+    text = f"📱 <b>Мои устройства</b>\n\n"
+    text += f"⚙️ Лимит: <b>{devices_count} / {limit}</b>\n\n"
+
+    if not devices:
+        text += "У вас нет подключенных устройств. Устройства подключаются автоматически при входе в приложение MVM VPN на вашем телефоне или компьютере."
+    else:
+        text += "Список ваших устройств:\n"
+        for i, dev in enumerate(devices, 1):
+            if isinstance(dev, dict):
+                model = dev.get("deviceModel") or dev.get("device_model")
+                plat = dev.get("platform")
+                os_v = dev.get("osVersion") or dev.get("os_version")
+                parts = []
+                if model:
+                    parts.append(model)
+                if plat:
+                    parts.append(plat)
+                if os_v:
+                    parts.append(os_v)
+
+                name = " ".join(parts) if parts else (dev.get("hwid") or "Unknown Device")
+                text += f"{i}. {name}\n"
+        text += "\nВыберите устройство для удаления 👇"
+
+    kb = _devices_keyboard(devices)
+    if callback.message and isinstance(callback.message, Message):
+        try:
+            await callback.message.edit_text(text, reply_markup=kb, parse_mode=ParseMode.HTML)
+        except Exception:
+            await callback.message.answer(text, reply_markup=kb, parse_mode=ParseMode.HTML)
+
+
+@router.callback_query(F.data.startswith("dev:del:"))
+async def delete_device_callback(callback: CallbackQuery) -> None:
+    if callback.from_user is None or not callback.data:
+        await callback.answer("Ошибка.", show_alert=True)
+        return
+
+    hwid = callback.data[8:]
+    _, data = await save_telegram_user(callback.from_user)
+    rw_uuid = data.get("remnawaveUuid")
+    if not rw_uuid:
+        await callback.answer("❌ Пользователь Remnawave не найден", show_alert=True)
+        return
+
+    try:
+        await delete_user_hwid_device(rw_uuid, hwid)
+        await callback.answer("✅ Устройство успешно удалено", show_alert=True)
+        devices = await get_user_hwid_devices(rw_uuid)
+    except Exception:
+        logging.exception("Failed to delete Remnawave device")
+        await callback.answer("❌ Ошибка при удалении устройства", show_alert=True)
+        return
+
+    tier = data.get("subscriptionTier")
+    devices_count = len(devices)
+    limit = 7 if tier == "premium" else 1
+
+    text = f"📱 <b>Мои устройства</b>\n\n"
+    text += f"⚙️ Лимит: <b>{devices_count} / {limit}</b>\n\n"
+
+    if not devices:
+        text += "У вас нет подключенных устройств. Устройства подключаются автоматически при входе в приложение MVM VPN на вашем телефоне или компьютере."
+    else:
+        text += "Список ваших устройств:\n"
+        for i, dev in enumerate(devices, 1):
+            if isinstance(dev, dict):
+                model = dev.get("deviceModel") or dev.get("device_model")
+                plat = dev.get("platform")
+                os_v = dev.get("osVersion") or dev.get("os_version")
+                parts = []
+                if model:
+                    parts.append(model)
+                if plat:
+                    parts.append(plat)
+                if os_v:
+                    parts.append(os_v)
+
+                name = " ".join(parts) if parts else (dev.get("hwid") or "Unknown Device")
+                text += f"{i}. {name}\n"
+        text += "\nВыберите устройство для удаления 👇"
+
+    kb = _devices_keyboard(devices)
+    if callback.message and isinstance(callback.message, Message):
+        try:
+            await callback.message.edit_text(text, reply_markup=kb, parse_mode=ParseMode.HTML)
+        except Exception:
+            pass
+
+
+@router.callback_query(F.data == "menu:main")
+async def back_to_main_callback(callback: CallbackQuery) -> None:
+    if callback.from_user is None:
+        await callback.answer("Cannot identify Telegram user.")
+        return
+    await callback.answer()
+    _, data = await save_telegram_user(callback.from_user)
+    if callback.message and isinstance(callback.message, Message):
+        try:
+            await callback.message.delete()
+        except Exception:
+            pass
+    await send_main_menu(callback.message, data, user=callback.from_user)
+

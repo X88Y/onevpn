@@ -8,6 +8,7 @@ from aiogram.types import (  # type: ignore[import-not-found]
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     Message,
+    User,
 )
 
 from mvm_bot.config import menu_banner_path
@@ -99,6 +100,12 @@ async def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
             ],
             [
                 InlineKeyboardButton(
+                    text="📱 Мои устройства",
+                    callback_data="menu:devices",
+                )
+            ],
+            [
+                InlineKeyboardButton(
                     text="👥 Пригласить друзей",
                     callback_data="menu:invite_friends",
                 )
@@ -114,20 +121,44 @@ async def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def main_menu_caption(data: dict, platform: str = "tg") -> str:
+def main_menu_caption(data: dict, platform: str = "tg", remnawave_devices: list | None = None) -> str:
     tier = data.get("subscriptionTier")
-    devices = data.get("devices")
-    devices_count = len(devices) if isinstance(devices, (list, dict)) else 0
+    devices = remnawave_devices if remnawave_devices is not None else []
+    devices_count = len(devices)
 
     if tier == "premium":
         tier_part = f"💎 Premium ({devices_count}/7)"
     else:
         tier_part = f"🤩 Standart ({devices_count}/1)"
 
+    devices_part = "нет"
+    if devices:
+        devices_names = []
+        for dev in devices:
+            if isinstance(dev, dict):
+                model = dev.get("deviceModel") or dev.get("device_model")
+                plat = dev.get("platform")
+                os_v = dev.get("osVersion") or dev.get("os_version")
+                parts = []
+                if model:
+                    parts.append(model)
+                if plat:
+                    parts.append(plat)
+                if os_v:
+                    parts.append(os_v)
+
+                if parts:
+                    devices_names.append(" ".join(parts))
+                else:
+                    devices_names.append(dev.get("hwid") or "Unknown Device")
+        if devices_names:
+            devices_part = ", ".join(devices_names)
+
     caption = (
         "🛡️ MVM | Личный кабинет\n\n"
         f"📅 Подписка: {tier_part}\n"
-        f"{format_subscription_end(data)}\n\n"
+        f"{format_subscription_end(data)}\n"
+        f"📱 Устройства: {devices_part}\n\n"
     )
     sub_url = data.get("remnawaveSubscriptionUrl")
     if sub_url and _has_active_subscription(data):
@@ -160,13 +191,24 @@ def main_menu_caption(data: dict, platform: str = "tg") -> str:
     return caption
 
 
-async def send_main_menu(message: Message, data: dict) -> None:
-    if message.from_user is None:
+async def send_main_menu(message: Message, data: dict, user: User | None = None) -> None:
+    actual_user = user or message.from_user
+    if actual_user is None:
         await message.answer("Cannot identify Telegram user.")
         return
 
-    caption = main_menu_caption(data, platform="tg")
-    keyboard = await main_menu_keyboard(message.from_user.id, data)
+    rw_uuid = data.get("remnawaveUuid")
+    devices = []
+    if rw_uuid:
+        try:
+            from mvm_bot.remnawave_client import get_user_hwid_devices
+            devices = await get_user_hwid_devices(rw_uuid)
+        except Exception:
+            import logging
+            logging.exception("Failed to fetch Remnawave devices for main menu")
+
+    caption = main_menu_caption(data, platform="tg", remnawave_devices=devices)
+    keyboard = await main_menu_keyboard(actual_user.id, data)
     banner = menu_banner_path()
     if banner is not None:
         token = message.bot.token if message.bot else None

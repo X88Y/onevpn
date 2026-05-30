@@ -122,3 +122,33 @@ async def update_user(
 
     resp = await _sdk_instance.users.update_user(body)
     return _user_to_dict(resp)
+
+
+async def get_user_hwid_devices(user_uuid: str) -> List[Dict[str, Any]]:
+    if _sdk_instance is None:
+        raise RemnawaveError("Remnawave not configured")
+    try:
+        resp = await _sdk_instance.hwid.get_hwid_user(uuid=str(user_uuid))
+        return [d.model_dump(by_alias=True, mode="json") for d in resp.devices]
+    except Exception as exc:
+        if "404" in str(exc) or "not found" in str(exc).lower():
+            return []
+        logger.exception("Remnawave get_user_hwid_devices failed")
+        raise
+
+
+async def delete_user_hwid_device(user_uuid: str, hwid: str) -> None:
+    if _sdk_instance is None:
+        raise RemnawaveError("Remnawave not configured")
+    try:
+        from uuid import UUID
+        from remnawave.models.hwid import DeleteUserHwidDeviceRequestDto
+        body = DeleteUserHwidDeviceRequestDto(
+            user_uuid=UUID(user_uuid),
+            hwid=hwid
+        )
+        await _sdk_instance.hwid.delete_hwid_to_user(body)
+    except Exception as exc:
+        logger.exception("Remnawave delete_user_hwid_device failed")
+        raise
+

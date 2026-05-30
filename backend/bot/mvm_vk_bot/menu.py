@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timezone
 
 from vkbottle import Callback, Keyboard, KeyboardButtonColor, OpenLink
-from vkbottle.bot import Message
+from vkbottle.bot import Message, MessageEvent
 from vkbottle.tools import PhotoMessageUploader
 
 from mvm_bot.config import vk_menu_banner_path
@@ -99,6 +99,8 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
         Callback(label="💳 Купить подписку", payload={"c": "buy"}),
         color=KeyboardButtonColor.POSITIVE if not is_active else None,
     )
+    kb.row()
+    kb.add(Callback(label="📱 Мои устройства", payload={"c": "devices"}))
     kb.row()
     kb.add(Callback(label="👥 Пригласить друзей", payload={"c": "invite"}))
     kb.row()
@@ -198,7 +200,16 @@ def other_checkout_keyboard_json(plan_key: str) -> str:
 
 
 async def send_main_menu(message: Message, data: dict) -> None:
-    caption = main_menu_caption(data, platform="vk")
+    rw_uuid = data.get("remnawaveUuid")
+    devices = []
+    if rw_uuid:
+        try:
+            from mvm_bot.remnawave_client import get_user_hwid_devices
+            devices = await get_user_hwid_devices(rw_uuid)
+        except Exception:
+            logging.exception("Failed to fetch Remnawave devices for VK main menu")
+
+    caption = main_menu_caption(data, platform="vk", remnawave_devices=devices)
     keyboard = await main_menu_keyboard_json(message.from_id, data)
     banner = vk_menu_banner_path()
     if banner is not None:
@@ -235,3 +246,80 @@ async def send_main_menu(message: Message, data: dict) -> None:
                 logging.exception("VK banner upload failed, falling back to text-only menu")
 
     await message.answer(message=caption, keyboard=keyboard)
+
+
+async def send_main_menu_from_event(event: MessageEvent, data: dict) -> None:
+    rw_uuid = data.get("remnawaveUuid")
+    devices = []
+    if rw_uuid:
+        try:
+            from mvm_bot.remnawave_client import get_user_hwid_devices
+            devices = await get_user_hwid_devices(rw_uuid)
+        except Exception:
+            logging.exception("Failed to fetch Remnawave devices for VK event main menu")
+
+    caption = main_menu_caption(data, platform="vk", remnawave_devices=devices)
+    keyboard = await main_menu_keyboard_json(event.user_id, data)
+    banner = vk_menu_banner_path()
+    if banner is not None:
+        token = getattr(getattr(event.ctx_api, "token_generator", None), "token", None)
+        cached_photo = get_cached_banner(token) if token else None
+        if not cached_photo and token:
+            from mvm_bot.firebase_client import get_vk_cached_attachment
+            cached_photo = await get_vk_cached_attachment(token, [banner.name])
+            if cached_photo:
+                set_cached_banner(token, cached_photo)
+        if cached_photo:
+            try:
+                await event.send_message(message=caption, attachment=cached_photo, keyboard=keyboard)
+                return
+            except Exception:
+                logging.exception("Failed to send main menu with cached banner from event")
+        else:
+            try:
+                from mvm_bot.firebase_client import set_vk_cached_attachment
+                uploader = PhotoMessageUploader(event.ctx_api)
+                photo = await uploader.upload(
+                    file_source=str(banner),
+                    peer_id=event.peer_id,
+                )
+                if token:
+                    set_cached_banner(token, photo)
+                    await set_vk_cached_attachment(token, [banner.name], photo)
+                await event.send_message(message=caption, attachment=photo, keyboard=keyboard)
+                return
+            except Exception:
+                logging.exception("VK banner upload failed from event, falling back to text-only menu")
+
+    await event.send_message(message=caption, keyboard=keyboard)
+
+
+def devices_keyboard_json(devices: list) -> str:
+    kb = Keyboard(inline=True)
+    added = False
+    for d in devices:
+        if isinstance(d, dict):
+            hwid = d.get("hwid")
+            model = d.get("deviceModel") or d.get("device_model") or d.get("hwid") or "Device"
+            if hwid:
+                if added:
+                    kb.row()
+                label = f"❌ Удалить {model}"
+                if len(label) > 40:
+                    label = label[:37] + "..."
+                kb.add(
+                    Callback(
+                        label=label,
+                        payload={"c": "del_dev", "id": hwid}
+                    )
+                )
+                added = True
+    if added:
+        kb.row()
+    kb.add(
+        Callback(
+            label="« Назад",
+            payload={"c": "main"}
+        )
+    )
+    return kb.get_json()

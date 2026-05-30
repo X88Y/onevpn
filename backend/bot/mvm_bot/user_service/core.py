@@ -545,3 +545,5 @@ async def grant_lifetime_subscription_vk(vk_id: int) -> None:
     data = user_docs[0].to_dict() or {}
     user_uid = data.get("uid") or user_docs[0].id
     await _update_remnawave_subscription(user_uid, lifetime_date)
+
+
