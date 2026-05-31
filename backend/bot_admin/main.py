@@ -25,6 +25,7 @@ async def _main() -> None:
             BotCommand(command="list_server", description="List VPN servers (paginated)"),
             BotCommand(command="disable_server", description="Disable server <id>"),
             BotCommand(command="enable_server", description="Enable server <id>"),
+            BotCommand(command="create_tw_cdn", description="Create TimeWeb CDNs with token"),
             BotCommand(command="cancel", description="Cancel current flow"),
         ]
     )

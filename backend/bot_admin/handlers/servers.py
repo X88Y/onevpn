@@ -327,3 +327,44 @@ async def on_error_server(callback: CallbackQuery, callback_data: ServerAction):
         await _show_server_list(callback, page=callback_data.page)
     except httpx.HTTPError as exc:
         await callback.answer(f"❌ Failed to mark as error: {exc}", show_alert=True)
+
+
+@router.message(Command("create_tw_cdn"))
+async def cmd_create_tw_cdn(message: Message, command: CommandObject) -> None:
+    if not _is_admin(message.from_user.id if message.from_user else None):
+        await message.answer("Access denied.")
+        return
+    token = (command.args or "").strip()
+    if not token:
+        await message.answer("Usage: /create_tw_cdn <token>")
+        return
+
+    status_msg = await message.answer("⏳ Running TimeWeb CDN sync on Remnawave (apply=True)...")
+
+    logs = []
+    def log_cb(msg: str) -> None:
+        logs.append(msg)
+
+    try:
+        from scripts.time_web import run_sync
+        await run_sync(token=token, apply=True, env_path=None, log_callback=log_cb)
+
+        output = "".join(logs)
+        if len(output) > 3500:
+            output = output[-3500:]
+
+        await status_msg.edit_text(
+            f"✅ CDN synchronization complete!\n\n<pre>{escape(output)}</pre>",
+            parse_mode="HTML"
+        )
+    except Exception as e:
+        logger.exception("Error executing CDN sync")
+        output = "".join(logs)
+        if len(output) > 3000:
+            output = output[-3000:]
+
+        await status_msg.edit_text(
+            f"❌ CDN synchronization failed: {escape(str(e))}\n\n<pre>{escape(output)}</pre>",
+            parse_mode="HTML"
+        )
+
