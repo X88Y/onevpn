@@ -967,3 +967,53 @@ async def back_to_main_callback(callback: CallbackQuery) -> None:
             pass
     await send_main_menu(callback.message, data, user=callback.from_user)
 
+
+@router.callback_query(F.data == "menu:how_to_connect")
+async def how_to_connect_callback(callback: CallbackQuery) -> None:
+    await callback.answer()
+    if callback.message and isinstance(callback.message, Message):
+        text = (
+            "Видео инструкция подключения на телефон👇\n"
+            "https://vk.ru/clip-223445666_456239017\n\n"
+            "Видео инструкция подключения на ПК👇\n"
+            "https://vk.ru/clip-223445666_456239018"
+        )
+        await callback.message.answer(text)
+
+
+@router.callback_query(F.data.startswith("survey:"))
+async def survey_callback(callback: CallbackQuery) -> None:
+    if callback.from_user is None:
+        await callback.answer("Error.")
+        return
+        
+    reason = callback.data.split(":")[1]
+    
+    from mvm_bot.user_service.helpers import telegram_uid
+    from mvm_bot.firebase_client import init_firebase
+    from datetime import datetime, timezone
+    
+    try:
+        db = init_firebase()
+        auth_uid = telegram_uid(callback.from_user.id)
+        docs = (
+            db.collection("users")
+            .where("externalTg", "in", [auth_uid, str(callback.from_user.id)])
+            .limit(1)
+            .get()
+        )
+        if docs:
+            docs[0].reference.update({
+                "surveyAnswer": reason,
+                "surveyAnsweredAt": datetime.now(timezone.utc)
+            })
+    except Exception:
+        logging.exception("Failed to save survey response for Telegram user")
+        
+    await callback.answer()
+    if callback.message and isinstance(callback.message, Message):
+        try:
+            await callback.message.edit_text("❤️Спасибо за уделенное время. Вы помогли сделать наш сервис лучше.")
+        except Exception:
+            await callback.message.answer("❤️Спасибо за уделенное время. Вы помогли сделать наш сервис лучше.")
+

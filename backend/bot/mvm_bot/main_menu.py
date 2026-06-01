@@ -125,6 +125,12 @@ async def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
             ],
             [
                 InlineKeyboardButton(
+                    text="❓ Как подключить",
+                    callback_data="menu:how_to_connect",
+                )
+            ],
+            [
+                InlineKeyboardButton(
                     text="💬 Поддержка",
                     url=SUPPORT_URL,
                 )

@@ -105,6 +105,8 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
         kb.row()
     kb.add(Callback(label="👥 Пригласить друзей", payload={"c": "invite"}))
     kb.row()
+    kb.add(Callback(label="❓ Как подключить", payload={"c": "how_to_connect"}))
+    kb.row()
     kb.add(OpenLink(label="💬 Поддержка", link=VK_SUPPORT_URL))
     return kb.get_json()
 

@@ -56,6 +56,7 @@ def _build_trial_activation_payload(data: dict) -> tuple[dict, list[str]]:
     current_end = as_utc_datetime(data.get("subscriptionEndsAt"))
     base = current_end if current_end and current_end > now else now
     payload["subscriptionEndsAt"] = base + timedelta(days=TRIAL_DAYS * len(activated))
+    payload["trialActivatedAt"] = now
     for provider in activated:
         payload[TRIAL_FIELDS[provider]] = True
 

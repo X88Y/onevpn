@@ -579,6 +579,35 @@ def register_handlers(bot: Bot) -> None:
             await event.send_message(message=text, keyboard=kb)
             return
 
+        if cmd == "how_to_connect":
+            text = (
+                "Видео инструкция подключения на телефон👇\n"
+                "https://vk.ru/clip-223445666_456239017\n\n"
+                "Видео инструкция подключения на ПК👇\n"
+                "https://vk.ru/clip-223445666_456239018"
+            )
+            await event.send_message(message=text)
+            return
+
+        if cmd == "survey":
+            reason = payload.get("r")
+            from mvm_bot.user_service.helpers import vk_uid
+            from mvm_bot.firebase_client import init_firebase
+            from datetime import datetime, timezone
+            try:
+                db = init_firebase()
+                auth_uid = vk_uid(profile.id)
+                docs = db.collection("users").where("externalVk", "in", [auth_uid, str(profile.id)]).limit(1).get()
+                if docs:
+                    docs[0].reference.update({
+                        "surveyAnswer": reason,
+                        "surveyAnsweredAt": datetime.now(timezone.utc)
+                    })
+            except Exception:
+                logging.exception("Failed to save survey response for VK user")
+            await event.send_message(message="❤️Спасибо за уделенное время. Вы помогли сделать наш сервис лучше.")
+            return
+
         if cmd == "main":
             _, data = await save_vk_user(profile, group_id=event.group_id)
             await send_main_menu_from_event(event, data)
