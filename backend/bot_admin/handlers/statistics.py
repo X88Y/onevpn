@@ -121,6 +121,8 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
     purchases_count = 0
     revenue = 0.0
     unique_buyers: Set[str] = set()
+    premium_count = 0
+    standard_count = 0
 
     # FreeKassa stats
     freekassa_revenue = 0.0
@@ -132,6 +134,12 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
         buyer = p.get("externalUserId") or "unknown"
         provider = p.get("provider") or "tg"
         unique_buyers.add(f"{provider}:{buyer}")
+        
+        pk = p.get("planKey")
+        if pk in {"prem_30", "prem_90"}:
+            premium_count += 1
+        else:
+            standard_count += 1
 
     # Platega stats
     platega_revenue = 0.0
@@ -143,13 +151,19 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
         buyer = p.get("externalUserId") or "unknown"
         provider = p.get("provider") or "tg"
         unique_buyers.add(f"{provider}:{buyer}")
+        
+        pk = p.get("planKey")
+        if pk in {"prem_30", "prem_90"}:
+            premium_count += 1
+        else:
+            standard_count += 1
 
     # Heleket stats
     heleket_revenue = 0.0
     for p in period_heleket:
         purchases_count += 1
         parsed = parse_heleket_order_id(p.get("orderId"))
-        plan_key = p.get("planKey")
+        plan_key = p.get("planKey") or (parsed.get("planKey") if parsed else None)
         amount = get_amount(p, plan_key)
         revenue += amount
         heleket_revenue += amount
@@ -159,6 +173,11 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
             unique_buyers.add(f"{provider}:{buyer}")
         else:
             unique_buyers.add(f"heleket_unknown:{p.get('orderId', '')}")
+            
+        if plan_key in {"prem_30", "prem_90"}:
+            premium_count += 1
+        else:
+            standard_count += 1
 
     # YooMoney stats
     yoomoney_revenue = 0.0
@@ -170,6 +189,12 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
         buyer = p.get("externalUserId") or "unknown"
         provider = p.get("provider") or "tg"
         unique_buyers.add(f"{provider}:{buyer}")
+        
+        pk = p.get("planKey")
+        if pk in {"prem_30", "prem_90"}:
+            premium_count += 1
+        else:
+            standard_count += 1
 
     new_users_count = len(period_users)
     checkout_clicks_count = len(period_clicks)
@@ -255,10 +280,15 @@ def calculate_period_stats(data: Dict[str, List[Dict[str, Any]]], cutoff: dateti
         "platega_count": len(period_platega),
         "heleket_count": len(period_heleket),
         "yoomoney_count": len(period_yoomoney),
+        "premium_count": premium_count,
+        "standard_count": standard_count,
     }
 
 
 def format_stats_block(label: str, s: Dict[str, Any]) -> str:
+    total_tiers = s['premium_count'] + s['standard_count']
+    ratio_std = (s['standard_count'] / total_tiers * 100) if total_tiers > 0 else 0.0
+    ratio_prem = (s['premium_count'] / total_tiers * 100) if total_tiers > 0 else 0.0
     return (
         f"📅 <b>Период: {label}</b>\n\n"
         f"💵 <b>Выручка:</b> <code>{s['revenue']:.2f} RUB</code>\n"
@@ -267,6 +297,8 @@ def format_stats_block(label: str, s: Dict[str, Any]) -> str:
         f"  • Platega: <code>{s['platega_revenue']:.2f} RUB</code> ({s['platega_count']} шт)\n"
         f"  • Heleket: <code>{s['heleket_revenue']:.2f} RUB</code> ({s['heleket_count']} шт)\n\n"
         f"🛍️ <b>Покупки:</b> {s['purchases_count']} шт\n"
+        f"  • Standard: <code>{s['standard_count']}</code> ({ratio_std:.1f}%)\n"
+        f"  • Premium: <code>{s['premium_count']}</code> ({ratio_prem:.1f}%)\n"
         f"👤 <b>Покупатели:</b> {s['unique_buyers_count']}\n"
         f"🆕 <b>Новые юзеры:</b> {s['new_users_count']}\n"
         f"🖱️ <b>Клики на оплату:</b> {s['checkout_clicks_count']}\n\n"
@@ -361,6 +393,8 @@ def calculate_daily_chart_data(raw_data: Dict[str, List[Dict[str, Any]]], bins: 
     earnings = []
     click_conversions = []
     user_conversions = []
+    standard_purchases = []
+    premium_purchases = []
     
     for bin_start, bin_end in bins:
         label = bin_start.strftime("%d %b")  # e.g. "21 May"
@@ -388,6 +422,42 @@ def calculate_daily_chart_data(raw_data: Dict[str, List[Dict[str, Any]]], bins: 
         
         # Purchases Count
         purchases_count = len(bin_freekassa) + len(bin_platega) + len(bin_heleket) + len(bin_yoomoney)
+        
+        # Standard vs Premium purchases breakdown
+        std_count = 0
+        prem_count = 0
+        
+        for p in bin_freekassa:
+            pk = p.get("planKey")
+            if pk in {"prem_30", "prem_90"}:
+                prem_count += 1
+            else:
+                std_count += 1
+                
+        for p in bin_platega:
+            pk = p.get("planKey")
+            if pk in {"prem_30", "prem_90"}:
+                prem_count += 1
+            else:
+                std_count += 1
+                
+        for p in bin_heleket:
+            parsed = parse_heleket_order_id(p.get("orderId"))
+            pk = p.get("planKey") or (parsed.get("planKey") if parsed else None)
+            if pk in {"prem_30", "prem_90"}:
+                prem_count += 1
+            else:
+                std_count += 1
+                
+        for p in bin_yoomoney:
+            pk = p.get("planKey")
+            if pk in {"prem_30", "prem_90"}:
+                prem_count += 1
+            else:
+                std_count += 1
+                
+        standard_purchases.append(std_count)
+        premium_purchases.append(prem_count)
         
         # Click-to-Pay Conversion
         click_count = len(bin_clicks)
@@ -444,37 +514,66 @@ def calculate_daily_chart_data(raw_data: Dict[str, List[Dict[str, Any]]], bins: 
         "earnings": earnings,
         "click_conversions": click_conversions,
         "user_conversions": user_conversions,
+        "standard_purchases": standard_purchases,
+        "premium_purchases": premium_purchases,
     }
 
 
 def plot_charts_to_buffer(chart_data: Dict[str, List[Any]]) -> io.BytesIO:
     labels = chart_data["labels"]
     regs = chart_data["registrations"]
-    earnings = chart_data["earnings"]
     click_conv = chart_data["click_conversions"]
     user_conv = chart_data["user_conversions"]
+    std_purch = chart_data.get("standard_purchases", [0] * len(labels))
+    prem_purch = chart_data.get("premium_purchases", [0] * len(labels))
     
-    # 3 subplots vertically stacked
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 15))
+    # 2x2 grid layout
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 14))
     
-    # Plot 1: Registrations
+    # Plot 1: Registrations (Top-Left)
     bars1 = ax1.bar(labels, regs, color="#3b82f6", width=0.4, alpha=0.85, edgecolor="#2563eb", linewidth=1.2)
     ax1.set_title("Регистрации (по дням)", fontsize=14, fontweight="bold", pad=10)
     ax1.grid(True, linestyle="--", alpha=0.5)
     
-    # Plot 2: Earnings
-    bars2 = ax2.bar(labels, earnings, color="#10b981", width=0.4, alpha=0.85, edgecolor="#059669", linewidth=1.2)
-    ax2.set_title("Выручка (по дням, RUB)", fontsize=14, fontweight="bold", pad=10)
+    # Plot 2: Conversions (Top-Right)
+    ax2.plot(labels, click_conv, marker="o", color="#f59e0b", linewidth=2.5, label="Клик -> Оплата")
+    ax2.plot(labels, user_conv, marker="s", color="#8b5cf6", linewidth=2.5, label="Рег -> Оплата")
+    ax2.set_title("Конверсия (по дням, %)", fontsize=14, fontweight="bold", pad=10)
     ax2.grid(True, linestyle="--", alpha=0.5)
+    ax2.set_ylim(-5, 105)
+    ax2.legend(loc="upper right", framealpha=0.9)
     
-    # Plot 3: Conversions
-    ax3.plot(labels, click_conv, marker="o", color="#f59e0b", linewidth=2.5, label="Клик -> Оплата")
-    ax3.plot(labels, user_conv, marker="s", color="#8b5cf6", linewidth=2.5, label="Рег -> Оплата")
-    ax3.set_title("Конверсия (по дням, %)", fontsize=14, fontweight="bold", pad=10)
+    # Plot 3: Standard vs Premium daily purchases (Bottom-Left)
+    bars_std = ax3.bar(labels, std_purch, color="#94a3b8", width=0.4, alpha=0.85, edgecolor="#64748b", linewidth=1.2, label="Standard")
+    bars_prem = ax3.bar(labels, prem_purch, bottom=std_purch, color="#10b981", width=0.4, alpha=0.85, edgecolor="#059669", linewidth=1.2, label="Premium")
+    ax3.set_title("Подписки по типам (по дням)", fontsize=14, fontweight="bold", pad=10)
     ax3.grid(True, linestyle="--", alpha=0.5)
-    ax3.set_ylim(-5, 105)
-    ax3.legend(loc="upper right", framealpha=0.9)
+    ax3.legend(loc="upper left", framealpha=0.9)
     
+    # Plot 4: Overall Subscription Ratio (Bottom-Right)
+    total_std = sum(std_purch)
+    total_prem = sum(prem_purch)
+    if total_std + total_prem > 0:
+        pie_labels = ["Standard", "Premium"]
+        pie_sizes = [total_std, total_prem]
+        pie_colors = ["#94a3b8", "#10b981"]
+        explode = (0, 0.05) if total_prem > 0 else (0, 0)
+        ax4.pie(
+            pie_sizes,
+            explode=explode,
+            labels=pie_labels,
+            colors=pie_colors,
+            autopct="%1.1f%%",
+            startangle=140,
+            shadow=False,
+            textprops={"fontsize": 12, "weight": "bold"}
+        )
+        ax4.set_title(f"Соотношение подписок (всего: {total_std + total_prem} шт)", fontsize=14, fontweight="bold", pad=10)
+    else:
+        ax4.text(0.5, 0.5, "Нет покупок за этот период", ha="center", va="center", fontsize=14, color="#666")
+        ax4.set_title("Соотношение подписок", fontsize=14, fontweight="bold", pad=10)
+        ax4.axis("off")
+        
     show_labels = len(labels) <= 15
     
     # Styling and Annotating plots
@@ -498,25 +597,35 @@ def plot_charts_to_buffer(chart_data: Dict[str, List[Any]]) -> io.BytesIO:
                              textcoords="offset points",
                              ha="center", va="bottom", fontsize=9, fontweight="bold", color="#1e3a8a")
                              
-        # Annotate Earnings
-        for bar in bars2:
-            height = bar.get_height()
-            if height > 0:
-                ax2.annotate(f"{height:.0f}",
-                             xy=(bar.get_x() + bar.get_width() / 2, height),
-                             xytext=(0, 3),
-                             textcoords="offset points",
-                             ha="center", va="bottom", fontsize=9, fontweight="bold", color="#065f46")
-                             
         # Annotate Conversions
         for i, val in enumerate(click_conv):
             if val > 0:
-                ax3.annotate(f"{val:.1f}%", xy=(i, val), xytext=(0, 7), textcoords="offset points",
+                ax2.annotate(f"{val:.1f}%", xy=(i, val), xytext=(0, 7), textcoords="offset points",
                              ha="center", va="bottom", fontsize=8, fontweight="bold", color="#d97706")
         for i, val in enumerate(user_conv):
             if val > 0:
-                ax3.annotate(f"{val:.1f}%", xy=(i, val), xytext=(0, -14), textcoords="offset points",
+                ax2.annotate(f"{val:.1f}%", xy=(i, val), xytext=(0, -14), textcoords="offset points",
                              ha="center", va="bottom", fontsize=8, fontweight="bold", color="#7c3aed")
+                             
+        # Annotate Stacked Bars
+        for i in range(len(labels)):
+            s_val = std_purch[i]
+            p_val = prem_purch[i]
+            if s_val > 0:
+                ax3.annotate(f"{s_val}",
+                             xy=(i, s_val / 2),
+                             ha="center", va="center", fontsize=8, fontweight="bold", color="#fff")
+            if p_val > 0:
+                ax3.annotate(f"{p_val}",
+                             xy=(i, s_val + p_val / 2),
+                             ha="center", va="center", fontsize=8, fontweight="bold", color="#fff")
+            total = s_val + p_val
+            if total > 0:
+                ax3.annotate(f"{total}",
+                             xy=(i, total),
+                             xytext=(0, 3),
+                             textcoords="offset points",
+                             ha="center", va="bottom", fontsize=9, fontweight="bold", color="#333")
                              
     plt.tight_layout()
     
@@ -661,9 +770,19 @@ async def cmd_stats_chart(message: Message) -> None:
         # Add summary stats in the caption for easy reading
         total_regs = sum(chart_data["registrations"])
         total_revenue = sum(chart_data["earnings"])
+        total_std = sum(chart_data["standard_purchases"])
+        total_prem = sum(chart_data["premium_purchases"])
+        total_purchases = total_std + total_prem
+        
+        ratio_std = (total_std / total_purchases * 100) if total_purchases > 0 else 0.0
+        ratio_prem = (total_prem / total_purchases * 100) if total_purchases > 0 else 0.0
+        
         caption += (
             f"👤 Всего регистраций: <b>{total_regs}</b>\n"
             f"💵 Общая выручка: <b>{total_revenue:.2f} RUB</b>\n"
+            f"🛍️ Всего покупок: <b>{total_purchases} шт</b>\n"
+            f"  • Standard: <b>{total_std} шт</b> ({ratio_std:.1f}%)\n"
+            f"  • Premium: <b>{total_prem} шт</b> ({ratio_prem:.1f}%)\n"
         )
         
         photo = BufferedInputFile(buf.getvalue(), filename="stats_chart.png")
