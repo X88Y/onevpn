@@ -106,7 +106,6 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
     kb.add(Callback(label="👥 Пригласить друзей", payload={"c": "invite"}))
     kb.row()
     kb.add(Callback(label="❓ Как подключить", payload={"c": "how_to_connect"}))
-    kb.row()
     kb.add(OpenLink(label="💬 Поддержка", link=VK_SUPPORT_URL))
     return kb.get_json()
 
@@ -299,25 +298,27 @@ async def send_main_menu_from_event(event: MessageEvent, data: dict) -> None:
 
 def devices_keyboard_json(devices: list) -> str:
     kb = Keyboard(inline=True)
-    added = False
+    valid_devices = []
     for d in devices:
         if isinstance(d, dict):
             hwid = d.get("hwid")
-            model = d.get("deviceModel") or d.get("device_model") or d.get("hwid") or "Device"
             if hwid:
-                if added:
-                    kb.row()
-                label = f"❌ Удалить {model}"
-                if len(label) > 40:
-                    label = label[:37] + "..."
-                kb.add(
-                    Callback(
-                        label=label,
-                        payload={"c": "del_dev", "id": hwid}
-                    )
-                )
-                added = True
-    if added:
+                valid_devices.append(d)
+
+    for i, d in enumerate(valid_devices):
+        if i > 0 and i % 2 == 0:
+            kb.row()
+        model = d.get("deviceModel") or d.get("device_model") or d.get("hwid") or "Device"
+        label = f"❌ {model}"
+        if len(label) > 40:
+            label = label[:37] + "..."
+        kb.add(
+            Callback(
+                label=label,
+                payload={"c": "del_dev", "id": d.get("hwid")}
+            )
+        )
+    if valid_devices:
         kb.row()
     kb.add(
         Callback(
