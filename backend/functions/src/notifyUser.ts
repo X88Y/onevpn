@@ -1,8 +1,8 @@
-import { logger } from "firebase-functions/v2";
+import {logger} from "firebase-functions/v2";
 // import jwt from "jsonwebtoken";
 
-import { db } from "./firebase";
-import { externalIdCandidates, PROVIDER_FIELDS } from "./externalAuthJwt";
+import {db} from "./firebase";
+import {externalIdCandidates, PROVIDER_FIELDS} from "./externalAuthJwt";
 
 const PLAN_LABEL: Record<string, string> = {
   plan_30: "30 дней",
@@ -66,6 +66,8 @@ async function getRemnawaveSubUrl(
  * @param {string} userId Platform-specific numeric user id.
  * @param {string} planKey Plan key, e.g. "plan_30".
  * @param {Date} newEnd New subscription expiry date.
+ * @param {string|number|null} [amount] Optional amount.
+ * @param {string} [gateway] Optional payment gateway.
  */
 export async function notifyPurchase(
   provider: "tg" | "vk",
@@ -81,7 +83,7 @@ export async function notifyPurchase(
     "✅ Оплата прошла успешно!\n\n" +
     `📅 Подписка активна до ${endStr}\n` +
     `(+ ${label})`;
-  const connectUrl = await getRemnawaveSubUrl(provider, userId) ?? 'https://vk.ru/id1088965138';
+  const connectUrl = await getRemnawaveSubUrl(provider, userId) ?? "https://vk.ru/id1088965138";
   // if (!connectUrl) {
   //   connectUrl = buildConnectRedirectUrl(provider, userId);
   // }
@@ -93,7 +95,7 @@ export async function notifyPurchase(
       await notifyVk(userId, text, connectUrl);
     }
   } catch (err) {
-    logger.warn("notifyPurchase: unexpected error", { provider, userId, err });
+    logger.warn("notifyPurchase: unexpected error", {provider, userId, err});
   }
 
   void notifyAdminsPurchase(provider, userId, label, endStr, amount, gateway);
@@ -120,7 +122,7 @@ export async function notifyReferrerOfBonus(
       const url = `https://api.telegram.org/bot${token}/sendMessage`;
       const resp = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
           chat_id: userId,
           text,
@@ -128,10 +130,16 @@ export async function notifyReferrerOfBonus(
       });
       if (!resp.ok) {
         const body = await resp.text();
-        logger.warn("notifyReferrerOfBonus: TG request failed", { status: resp.status, body });
+        logger.warn(
+          "notifyReferrerOfBonus: TG request failed",
+          {status: resp.status, body}
+        );
       }
     } else {
-      const rawTokens = VK_BOT_TOKENS.split(",").map(t => t.trim()).filter(Boolean).join(",");
+      const rawTokens =
+        process.env.VK_BOT_TOKENS ||
+        process.env.VK_BOT_TOKEN ||
+        VK_BOT_TOKENS;
       const tokens = rawTokens
         .split(",")
         .map((t) => t.trim())
@@ -150,11 +158,14 @@ export async function notifyReferrerOfBonus(
         });
         const resp = await fetch(
           `https://api.vk.com/method/messages.send?${params.toString()}`,
-          { method: "POST" }
+          {method: "POST"}
         );
         if (!resp.ok) {
           const body = await resp.text();
-          logger.warn("notifyReferrerOfBonus: VK request failed", { status: resp.status, body });
+          logger.warn(
+            "notifyReferrerOfBonus: VK request failed",
+            {status: resp.status, body}
+          );
           continue;
         }
         const json = (await resp.json()) as {
@@ -164,10 +175,13 @@ export async function notifyReferrerOfBonus(
           return;
         }
       }
-      logger.warn("notifyReferrerOfBonus: all VK tokens failed", { userId });
+      logger.warn("notifyReferrerOfBonus: all VK tokens failed", {userId});
     }
   } catch (err) {
-    logger.warn("notifyReferrerOfBonus: unexpected error", { provider, userId, err });
+    logger.warn(
+      "notifyReferrerOfBonus: unexpected error",
+      {provider, userId, err}
+    );
   }
 }
 
@@ -192,20 +206,20 @@ async function notifyTelegram(
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
   const resp = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
       chat_id: userId,
       text,
       reply_markup: {
         inline_keyboard: [[
-          { text: "🔗 Подключить", url: connectUrl, style: "success" },
+          {text: "🔗 Подключить", url: connectUrl},
         ]],
       },
     }),
   });
   if (!resp.ok) {
     const body = await resp.text();
-    logger.warn("notifyTelegram: request failed", { status: resp.status, body });
+    logger.warn("notifyTelegram: request failed", {status: resp.status, body});
   }
 }
 
@@ -216,6 +230,8 @@ async function notifyTelegram(
  * @param {string} userId Buyer platform user id.
  * @param {string} planLabel Human-readable plan label.
  * @param {string} endStr Formatted subscription expiry date.
+ * @param {string|number|null} [amount] Optional amount.
+ * @param {string} [gateway] Optional payment gateway.
  */
 async function notifyAdminsPurchase(
   provider: "tg" | "vk",
@@ -241,8 +257,8 @@ async function notifyAdminsPurchase(
     try {
       const resp = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: chatId, text }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({chat_id: chatId, text}),
       });
       if (!resp.ok) {
         const body = await resp.text();
@@ -253,7 +269,7 @@ async function notifyAdminsPurchase(
         });
       }
     } catch (err) {
-      logger.warn("notifyAdminsPurchase: unexpected error", { chatId, err });
+      logger.warn("notifyAdminsPurchase: unexpected error", {chatId, err});
     }
   }
 }
@@ -304,11 +320,11 @@ async function sendVkMessageWithToken(
   });
   const resp = await fetch(
     `https://api.vk.com/method/messages.send?${params.toString()}`,
-    { method: "POST" }
+    {method: "POST"}
   );
   if (!resp.ok) {
     const body = await resp.text();
-    logger.warn("notifyVk: request failed", { status: resp.status, body });
+    logger.warn("notifyVk: request failed", {status: resp.status, body});
     return false;
   }
   const json = (await resp.json()) as {
@@ -323,7 +339,8 @@ async function sendVkMessageWithToken(
   }
   return true;
 }
-const VK_BOT_TOKENS = 'vk1.a.yCG8RlbvAvh9p8fRZxiWb8PIsw3fI3P5KQlHEA7jCMxKZPRYJBVdNdehSZMXwW83tz6uPy9Cvkkcyr-Z88it9J1OnhpIPa6YORUO-nnp__xLPKfdXtzymOkxBYwD9r_uX_QDwZaeto8aY93GQecShAjHjmANvelDDKrKWB7T-z9d1LmcNK_2r4TCP1dTNagi7ekfyxrui3u0kYgFp-WV8A,vk1.a.J-qP_B4VFuvCb63pN3WsbtLHeQuMwULBtE1jjIYcSPCUbzPxTK40f4w0hRoQAz5Fde1suVTaxlJeif0Ik5tuqvLfrqIuNN9gzMVwbvePxL2qM7az43Q-K43jOjnFzPvxslhoQFEJd_TujzvKDG9CZMrdL6iWV-pTj5QseHIkS5DRIIJg1oSuK-bO6K1kEa-2QuNdiLTEuahjay5C7Oiuzg,vk1.a.Qb3E7UwlrezOaQ_2AWjTwReYFhFKIbgTRXv-jaamJB7gAFr0jpiVzGGFq-ovrlF-z2GrnAg8Z9-jWZ3kzTXjja4Ua0BhP0WdY-uCiGcMFXJwJcT9R1SaMWLM4Ypl6yLTYAnb92n5yyYHbH05C47vLx-TRSdv6IQ8-SoEINdt2qi9WjowkQwInJP7rmUd33iIWlmhMo3Dc6dXP4AHUCZi9w,vk1.a.7vXl0_XMqSO5K3gtgHdRPfyef9CKhpxGM5smZnMUJ9lk47i1ekyeAQDaVUX3cmsk13alGGdER3qNd8Sodq4JwbFw7mr17cv47MG5zvB2mpxTUuDL0ZWMbw6QgUfM-I4uz2OhbectnzaRybxg5PS583skDvUrfIPbjWd8UKZZjpGmNMeLv5H9YXpZzXcuApnuqm2c3eSg7fL8NQU1phem-g,vk1.a.iDPTGrW2wgpg6qsm-82dRYiBpX5S_7m4Z1qIxjPhK5GC4uKJnfe7beksq3m4LhNgYdflm1ex-C-r4qaajzq6LVStu8QURL_rryOLot7qWgnkSgnGM3L9CS5EnenpN0jvIvGnPMcb1hJSuPrBARF1nvshjplSQd-t6kwmKhUcm1d7mUzc-0t95rieuqoKn1tKPpF5n3CC-3HnDzLyQ8gl8A,vk1.a.xiQBLVtxpiDUJ7YpezJ_dmdv3cK1DjKGDqWTfabHUBsLKFWPr_6u-9Jeow1Hp289GOcejd53dMxgk98DgpdZJFbxX6i5BeeHyyEso-PwTDAYZf9s1F06j3EC8YWbrKE3-BkB6BkZ-6ne5ONmiFsFl02ds0iRrGGZZzP5lDomkic9aqvrBZTnuzXhwAujKKSsNr6SoZTPj7fMh4vq5ocDqg'
+// eslint-disable-next-line max-len
+const VK_BOT_TOKENS = "vk1.a.yCG8RlbvAvh9p8fRZxiWb8PIsw3fI3P5KQlHEA7jCMxKZPRYJBVdNdehSZMXwW83tz6uPy9Cvkkcyr-Z88it9J1OnhpIPa6YORUO-nnp__xLPKfdXtzymOkxBYwD9r_uX_QDwZaeto8aY93GQecShAjHjmANvelDDKrKWB7T-z9d1LmcNK_2r4TCP1dTNagi7ekfyxrui3u0kYgFp-WV8A,vk1.a.J-qP_B4VFuvCb63pN3WsbtLHeQuMwULBtE1jjIYcSPCUbzPxTK40f4w0hRoQAz5Fde1suVTaxlJeif0Ik5tuqvLfrqIuNN9gzMVwbvePxL2qM7az43Q-K43jOjnFzPvxslhoQFEJd_TujzvKDG9CZMrdL6iWV-pTj5QseHIkS5DRIIJg1oSuK-bO6K1kEa-2QuNdiLTEuahjay5C7Oiuzg,vk1.a.Qb3E7UwlrezOaQ_2AWjTwReYFhFKIbgTRXv-jaamJB7gAFr0jpiVzGGFq-ovrlF-z2GrnAg8Z9-jWZ3kzTXjja4Ua0BhP0WdY-uCiGcMFXJwJcT9R1SaMWLM4Ypl6yLTYAnb92n5yyYHbH05C47vLx-TRSdv6IQ8-SoEINdt2qi9WjowkQwInJP7rmUd33iIWlmhMo3Dc6dXP4AHUCZi9w,vk1.a.7vXl0_XMqSO5K3gtgHdRPfyef9CKhpxGM5smZnMUJ9lk47i1ekyeAQDaVUX3cmsk13alGGdER3qNd8Sodq4JwbFw7mr17cv47MG5zvB2mpxTUuDL0ZWMbw6QgUfM-I4uz2OhbectnzaRybxg5PS583skDvUrfIPbjWd8UKZZjpGmNMeLv5H9YXpZzXcuApnuqm2c3eSg7fL8NQU1phem-g,vk1.a.iDPTGrW2wgpg6qsm-82dRYiBpX5S_7m4Z1qIxjPhK5GC4uKJnfe7beksq3m4LhNgYdflm1ex-C-r4qaajzq6LVStu8QURL_rryOLot7qWgnkSgnGM3L9CS5EnenpN0jvIvGnPMcb1hJSuPrBARF1nvshjplSQd-t6kwmKhUcm1d7mUzc-0t95rieuqoKn1tKPpF5n3CC-3HnDzLyQ8gl8A,vk1.a.xiQBLVtxpiDUJ7YpezJ_dmdv3cK1DjKGDqWTfabHUBsLKFWPr_6u-9Jeow1Hp289GOcejd53dMxgk98DgpdZJFbxX6i5BeeHyyEso-PwTDAYZf9s1F06j3EC8YWbrKE3-BkB6BkZ-6ne5ONmiFsFl02ds0iRrGGZZzP5lDomkic9aqvrBZTnuzXhwAujKKSsNr6SoZTPj7fMh4vq5ocDqg";
 /**
  * Sends a plain-text VK message to a single user id.
  * Tries all configured VK bot tokens (multi-bot support) and stops at the
@@ -338,7 +355,10 @@ async function notifyVk(
   text: string,
   connectUrl: string
 ): Promise<void> {
-  const rawTokens = VK_BOT_TOKENS.split(",").map(t => t.trim()).filter(Boolean).join(",");
+  const rawTokens =
+    process.env.VK_BOT_TOKENS ||
+    process.env.VK_BOT_TOKEN ||
+    VK_BOT_TOKENS;
 
   const tokens = rawTokens
     .split(",")
@@ -357,7 +377,7 @@ async function notifyVk(
       return;
     }
   }
-  logger.warn("notifyVk: all tokens failed", { userId });
+  logger.warn("notifyVk: all tokens failed", {userId});
 }
 
 /**
