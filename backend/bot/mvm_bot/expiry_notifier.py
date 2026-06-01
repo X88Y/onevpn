@@ -575,15 +575,22 @@ async def check_and_send_trial_retention_messages() -> None:
                 
             elapsed = now - trial_act_dt
             
-            vpn_snap = await asyncio.to_thread(db.collection("vpn_clients").document(snap.id).get)
-            if vpn_snap.exists:
-                vpn_data = vpn_snap.to_dict() or {}
-                last_traffic = vpn_data.get("lastTraffic") or {}
-                total_traffic = last_traffic.get("total", 0)
-            else:
-                total_traffic = 0
-                
-            if total_traffic >= 1024 * 1024:
+            from mvm_bot.user_service.helpers import _remnawave_username
+            from mvm_bot.remnawave_client import get_user_by_username, RemnawaveError
+
+            username = _remnawave_username(snap.id)
+            total_traffic = 0
+            try:
+                rw_user = await get_user_by_username(username)
+                if rw_user:
+                    total_traffic = rw_user.get("userTraffic", {}).get("usedTrafficBytes", 0)
+            except RemnawaveError:
+                logger.warning("Remnawave client is not configured, skipping trial retention check for user %s", snap.id)
+                continue
+            except Exception:
+                logger.exception("Failed to get Remnawave user traffic for %s", snap.id)
+
+            if total_traffic >= 100 * 1024 * 1024:
                 continue
                 
             tg_id = _extract_provider_id(user_data.get("externalTg"))
