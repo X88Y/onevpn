@@ -973,8 +973,11 @@ async def how_to_connect_callback(callback: CallbackQuery) -> None:
     await callback.answer()
     if callback.message and isinstance(callback.message, Message):
         text = (
+            "❓Как подключить\n\n"
             "Видео инструкция подключения на телефон👇\n"
             "https://vk.ru/clip-223445666_456239017\n\n"
+            "Видео инструкция подключения к белым спискам👇\n"
+            "https://vk.ru/clip-223445666_456239020\n\n"
             "Видео инструкция подключения на ПК👇\n"
             "https://vk.ru/clip-223445666_456239018"
         )
