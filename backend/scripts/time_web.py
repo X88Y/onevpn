@@ -21,6 +21,7 @@ import argparse
 import asyncio
 import logging
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
@@ -202,6 +203,46 @@ def extract_cdn_info(data: dict):
     return resource_id, cname
 
 
+def make_dns_safe(name: str) -> str:
+    """Convert node name to a safe subdomain label."""
+    import re
+    # Lowercase, replace non-alphanumeric (excluding hyphen) with hyphen
+    safe_name = name.lower()
+    safe_name = re.sub(r'[^a-z0-9\-]', '-', safe_name)
+    safe_name = re.sub(r'-+', '-', safe_name)
+    return safe_name.strip('-')
+
+
+class GoDaddyClient:
+    def __init__(self, key: str, secret: str, base_url: str = "https://api.godaddy.com"):
+        self.key = key
+        self.secret = secret
+        self.base_url = base_url.rstrip("/")
+        self.headers = {
+            "Authorization": f"sso-key {key}:{secret}",
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+
+    async def create_or_update_a_record(self, domain: str, name: str, ip: str, ttl: int = 600) -> None:
+        url = f"{self.base_url}/v1/domains/{domain}/records/A/{name}"
+        payload = [
+            {
+                "data": ip,
+                "ttl": ttl
+            }
+        ]
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.put(url, headers=self.headers, json=payload)
+            if resp.status_code in (200, 201):
+                logger.info(f"Successfully set GoDaddy A record: {name}.{domain} -> {ip}")
+            elif resp.status_code == 200:
+                logger.info(f"Successfully set GoDaddy A record: {name}.{domain} -> {ip}")
+            else:
+                logger.error(f"Failed to set GoDaddy DNS record: {resp.status_code} {resp.text}")
+                resp.raise_for_status()
+
+
 # ---------------------------------------------------------------------------
 # Core Logic
 # ---------------------------------------------------------------------------
@@ -254,9 +295,15 @@ async def run_sync(*, token: str, apply: bool, env_path: Optional[str] = None, l
 
         host_tag = os.getenv("HOST_TAG", "BYPASS_WL")
 
+        # GoDaddy Config
+        godaddy_key = os.getenv("GODADDY_API_KEY", "h2JrEBpTXqkB_5UqmTT45FCngsCqvDRisJf")
+        godaddy_secret = os.getenv("GODADDY_API_SECRET", "XrGHB6E55JfRLjhA5wTJn2")
+        godaddy_domain = os.getenv("GODADDY_DOMAIN", "duck69.xyz")
+
         # Initialize clients
         sdk = RemnawaveSDK(base_url=remnawave_base, token=remnawave_token)
         tw_client = TimeWebClient(token=token)
+        gd_client = GoDaddyClient(key=godaddy_key, secret=godaddy_secret)
 
         # Auto-detect Project ID if not configured
         project_id_env = os.getenv("TIMEWEB_PROJECT_ID")
@@ -326,6 +373,25 @@ async def run_sync(*, token: str, apply: bool, env_path: Optional[str] = None, l
             cdn_name = f"mvm-cdn-{node.name}-{suffix.lower()}"
             remark = f"🇪🇺Моб Инет обход {node.country_code.upper()}|TW|{suffix}"
 
+            # Create GoDaddy DNS record
+            dns_safe_name = make_dns_safe(node.name)
+            subdomain_record_name = f"{dns_safe_name}-{suffix.lower()}.sub"
+            origin_domain = f"{subdomain_record_name}.{godaddy_domain}"
+
+            if apply:
+                logger.info(f"  Ensuring GoDaddy A record: {origin_domain} -> {node.address}...")
+                try:
+                    await gd_client.create_or_update_a_record(
+                        domain=godaddy_domain,
+                        name=subdomain_record_name,
+                        ip=node.address
+                    )
+                except Exception as e:
+                    logger.error(f"  Failed to create/update GoDaddy A record: {e}")
+                    raise e
+            else:
+                logger.info(f"  [DRY-RUN] Would ensure GoDaddy A record: {origin_domain} -> {node.address}")
+
             # Check if CDN resource already exists
             existing_res = next((r for r in tw_resources if r.get("name") == cdn_name), None)
             
@@ -341,10 +407,10 @@ async def run_sync(*, token: str, apply: bool, env_path: Optional[str] = None, l
                     await tw_client.disable_cache(resource_id)
             else:
                 if apply:
-                    logger.info(f"  Creating new CDN resource '{cdn_name}' in TimeWeb for IP {node.address}...")
+                    logger.info(f"  Creating new CDN resource '{cdn_name}' in TimeWeb for origin '{origin_domain}'...")
                     res_data = await tw_client.create_cdn_resource(
                         name=cdn_name,
-                        host_ip=node.address,
+                        host_ip=origin_domain,
                         project_id=timeweb_project_id,
                         preset_id=timeweb_preset_id
                     )
@@ -354,7 +420,7 @@ async def run_sync(*, token: str, apply: bool, env_path: Optional[str] = None, l
                     logger.info(f"  Disabling cache on CDN resource {resource_id}...")
                     await tw_client.disable_cache(resource_id)
                 else:
-                    logger.info(f"  [DRY-RUN] Would create CDN resource '{cdn_name}' in TimeWeb for IP {node.address}")
+                    logger.info(f"  [DRY-RUN] Would create CDN resource '{cdn_name}' in TimeWeb for origin '{origin_domain}'")
                     logger.info(f"  [DRY-RUN] Would disable cache on the new CDN resource")
                     resource_id = 99999
                     cdn_domain = f"placeholder-{node.name}.cdn.twcstorage.ru"
