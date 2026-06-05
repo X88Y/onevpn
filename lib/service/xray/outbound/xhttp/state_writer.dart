@@ -24,6 +24,55 @@ extension XhttpExtraStateWriter on XhttpExtraState {
       xhttpSettings.scMinPostsIntervalMs = scMinPostsIntervalMs;
     }
 
+    if (seqKey.isNotEmpty) {
+      xhttpSettings.seqKey = seqKey;
+    }
+    if (sessionKey.isNotEmpty) {
+      xhttpSettings.sessionKey = sessionKey;
+    }
+    if (noSSEHeader) {
+      xhttpSettings.noSSEHeader = noSSEHeader;
+    }
+    if (xPaddingKey.isNotEmpty) {
+      xhttpSettings.xPaddingKey = xPaddingKey;
+    }
+    if (seqPlacement.isNotEmpty) {
+      xhttpSettings.seqPlacement = seqPlacement;
+    }
+    if (uplinkDataKey.isNotEmpty) {
+      xhttpSettings.uplinkDataKey = uplinkDataKey;
+    }
+    if (xPaddingHeader.isNotEmpty) {
+      xhttpSettings.xPaddingHeader = xPaddingHeader;
+    }
+    if (xPaddingMethod.isNotEmpty) {
+      xhttpSettings.xPaddingMethod = xPaddingMethod;
+    }
+    if (uplinkChunkSize.isNotEmpty) {
+      xhttpSettings.uplinkChunkSize = int.tryParse(uplinkChunkSize) ?? uplinkChunkSize;
+    }
+    if (sessionPlacement.isNotEmpty) {
+      xhttpSettings.sessionPlacement = sessionPlacement;
+    }
+    if (uplinkHTTPMethod.isNotEmpty) {
+      xhttpSettings.uplinkHTTPMethod = uplinkHTTPMethod;
+    }
+    if (xPaddingObfsMode) {
+      xhttpSettings.xPaddingObfsMode = xPaddingObfsMode;
+    }
+    if (xPaddingPlacement.isNotEmpty) {
+      xhttpSettings.xPaddingPlacement = xPaddingPlacement;
+    }
+    if (scMaxBufferedPosts.isNotEmpty) {
+      xhttpSettings.scMaxBufferedPosts = int.tryParse(scMaxBufferedPosts) ?? scMaxBufferedPosts;
+    }
+    if (uplinkDataPlacement.isNotEmpty) {
+      xhttpSettings.uplinkDataPlacement = uplinkDataPlacement;
+    }
+    if (scStreamUpServerSecs.isNotEmpty) {
+      xhttpSettings.scStreamUpServerSecs = scStreamUpServerSecs;
+    }
+
     final xmux = XrayXhttpSettingsXmuxStandard.standard;
     if (maxConcurrency.isNotEmpty) {
       xmux.maxConcurrency = maxConcurrency;
@@ -32,7 +81,7 @@ extension XhttpExtraStateWriter on XhttpExtraState {
       xmux.maxConnections = maxConnections;
     }
     if (cMaxReuseTimes.isNotEmpty) {
-      xmux.cMaxReuseTimes = maxConnections;
+      xmux.cMaxReuseTimes = cMaxReuseTimes;
     }
     if (hMaxReusableSecs.isNotEmpty) {
       xmux.hMaxReusableSecs = hMaxReusableSecs;

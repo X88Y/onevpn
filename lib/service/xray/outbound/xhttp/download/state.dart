@@ -35,4 +35,21 @@ class XhttpDownloadState {
   var hMaxReusableSecs = "0";
   var hMaxRequestTimes = "0";
   var hKeepAlivePeriod = "0";
+
+  var seqKey = "";
+  var sessionKey = "";
+  var noSSEHeader = false;
+  var xPaddingKey = "";
+  var seqPlacement = "";
+  var uplinkDataKey = "";
+  var xPaddingHeader = "";
+  var xPaddingMethod = "";
+  var uplinkChunkSize = "";
+  var sessionPlacement = "";
+  var uplinkHTTPMethod = "";
+  var xPaddingObfsMode = false;
+  var xPaddingPlacement = "";
+  var scMaxBufferedPosts = "";
+  var uplinkDataPlacement = "";
+  var scStreamUpServerSecs = "";
 }

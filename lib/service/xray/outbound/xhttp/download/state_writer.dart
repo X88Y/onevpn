@@ -78,7 +78,7 @@ extension XhttpDownloadStateWriter on XhttpDownloadState {
   }
 
   XrayXhttpSettings get _xhttpSettings {
-    final xhttpSettings = _xhttpSettingsWithExtra;
+    final xhttpSettings = XrayXhttpSettingsStandard.standard;
     if (EmptyTool.checkString(xhttpHost)) {
       xhttpSettings.host = xhttpHost;
     }
@@ -86,6 +86,13 @@ extension XhttpDownloadStateWriter on XhttpDownloadState {
       xhttpSettings.path = xhttpPath;
     }
     xhttpSettings.mode = xhttpMode.name;
+
+    final extra = _xhttpSettingsWithExtra;
+    extra.host = xhttpSettings.host;
+    extra.path = xhttpSettings.path;
+    extra.mode = xhttpSettings.mode;
+    xhttpSettings.extra = extra;
+
     return xhttpSettings;
   }
 
@@ -106,6 +113,55 @@ extension XhttpDownloadStateWriter on XhttpDownloadState {
     }
     if (scMinPostsIntervalMs.isNotEmpty) {
       xhttpSettings.scMinPostsIntervalMs = scMinPostsIntervalMs;
+    }
+
+    if (seqKey.isNotEmpty) {
+      xhttpSettings.seqKey = seqKey;
+    }
+    if (sessionKey.isNotEmpty) {
+      xhttpSettings.sessionKey = sessionKey;
+    }
+    if (noSSEHeader) {
+      xhttpSettings.noSSEHeader = noSSEHeader;
+    }
+    if (xPaddingKey.isNotEmpty) {
+      xhttpSettings.xPaddingKey = xPaddingKey;
+    }
+    if (seqPlacement.isNotEmpty) {
+      xhttpSettings.seqPlacement = seqPlacement;
+    }
+    if (uplinkDataKey.isNotEmpty) {
+      xhttpSettings.uplinkDataKey = uplinkDataKey;
+    }
+    if (xPaddingHeader.isNotEmpty) {
+      xhttpSettings.xPaddingHeader = xPaddingHeader;
+    }
+    if (xPaddingMethod.isNotEmpty) {
+      xhttpSettings.xPaddingMethod = xPaddingMethod;
+    }
+    if (uplinkChunkSize.isNotEmpty) {
+      xhttpSettings.uplinkChunkSize = int.tryParse(uplinkChunkSize) ?? uplinkChunkSize;
+    }
+    if (sessionPlacement.isNotEmpty) {
+      xhttpSettings.sessionPlacement = sessionPlacement;
+    }
+    if (uplinkHTTPMethod.isNotEmpty) {
+      xhttpSettings.uplinkHTTPMethod = uplinkHTTPMethod;
+    }
+    if (xPaddingObfsMode) {
+      xhttpSettings.xPaddingObfsMode = xPaddingObfsMode;
+    }
+    if (xPaddingPlacement.isNotEmpty) {
+      xhttpSettings.xPaddingPlacement = xPaddingPlacement;
+    }
+    if (scMaxBufferedPosts.isNotEmpty) {
+      xhttpSettings.scMaxBufferedPosts = int.tryParse(scMaxBufferedPosts) ?? scMaxBufferedPosts;
+    }
+    if (uplinkDataPlacement.isNotEmpty) {
+      xhttpSettings.uplinkDataPlacement = uplinkDataPlacement;
+    }
+    if (scStreamUpServerSecs.isNotEmpty) {
+      xhttpSettings.scStreamUpServerSecs = scStreamUpServerSecs;
     }
 
     final xmux = XrayXhttpSettingsXmuxStandard.standard;

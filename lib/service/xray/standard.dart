@@ -198,6 +198,22 @@ extension XrayXhttpSettingsStandard on XrayXhttpSettings {
     null,
     null,
     null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
   );
 }
 

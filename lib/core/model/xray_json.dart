@@ -644,13 +644,30 @@ class XrayXhttpSettings {
   String? path;
   String? mode;
   Map<String, String>? headers;
-  String? xPaddingBytes;
+  dynamic xPaddingBytes;
   bool? noGRPCHeader;
-  String? scMaxEachPostBytes;
-  String? scMinPostsIntervalMs;
+  dynamic scMaxEachPostBytes;
+  dynamic scMinPostsIntervalMs;
   XrayXhttpSettingsXmux? xmux;
   XrayStreamSettings? downloadSettings;
   XrayXhttpSettings? extra;
+
+  String? seqKey;
+  String? sessionKey;
+  bool? noSSEHeader;
+  String? xPaddingKey;
+  String? seqPlacement;
+  String? uplinkDataKey;
+  String? xPaddingHeader;
+  String? xPaddingMethod;
+  dynamic uplinkChunkSize;
+  String? sessionPlacement;
+  String? uplinkHTTPMethod;
+  bool? xPaddingObfsMode;
+  String? xPaddingPlacement;
+  dynamic scMaxBufferedPosts;
+  String? uplinkDataPlacement;
+  dynamic scStreamUpServerSecs;
 
   XrayXhttpSettings(
     this.host,
@@ -664,6 +681,22 @@ class XrayXhttpSettings {
     this.xmux,
     this.downloadSettings,
     this.extra,
+    this.seqKey,
+    this.sessionKey,
+    this.noSSEHeader,
+    this.xPaddingKey,
+    this.seqPlacement,
+    this.uplinkDataKey,
+    this.xPaddingHeader,
+    this.xPaddingMethod,
+    this.uplinkChunkSize,
+    this.sessionPlacement,
+    this.uplinkHTTPMethod,
+    this.xPaddingObfsMode,
+    this.xPaddingPlacement,
+    this.scMaxBufferedPosts,
+    this.uplinkDataPlacement,
+    this.scStreamUpServerSecs,
   );
 
   factory XrayXhttpSettings.fromJson(Map<String, dynamic> json) =>
@@ -674,11 +707,11 @@ class XrayXhttpSettings {
 
 @JsonSerializable(explicitToJson: true, includeIfNull: false)
 class XrayXhttpSettingsXmux {
-  String? maxConcurrency;
-  String? maxConnections;
-  String? cMaxReuseTimes;
-  String? hMaxReusableSecs;
-  String? hMaxRequestTimes;
+  dynamic maxConcurrency;
+  dynamic maxConnections;
+  dynamic cMaxReuseTimes;
+  dynamic hMaxReusableSecs;
+  dynamic hMaxRequestTimes;
   int? hKeepAlivePeriod;
 
   XrayXhttpSettingsXmux(

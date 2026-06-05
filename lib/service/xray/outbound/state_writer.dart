@@ -289,6 +289,9 @@ extension OutboundStateWriter on OutboundState {
 
     if (!xhttpExtra.isBlank) {
       xhttpSettings.extra = xhttpExtra.xrayJson;
+      xhttpSettings.extra?.host = xhttpSettings.host;
+      xhttpSettings.extra?.path = xhttpSettings.path;
+      xhttpSettings.extra?.mode = xhttpSettings.mode;
 
       if (xhttpExtra.headers.isNotEmpty) {
         xhttpSettings.headers = xhttpExtra.headers;

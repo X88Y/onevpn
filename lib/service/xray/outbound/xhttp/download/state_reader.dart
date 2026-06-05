@@ -49,6 +49,9 @@ extension XhttpDownloadStateReader on XhttpDownloadState {
 
     if (settings.xhttpSettings != null) {
       _readExtraSettings(settings.xhttpSettings!);
+      if (settings.xhttpSettings!.extra != null) {
+        _readExtraSettings(settings.xhttpSettings!.extra!);
+      }
     }
 
     return true;
@@ -142,34 +145,108 @@ extension XhttpDownloadStateReader on XhttpDownloadState {
     if (EmptyTool.checkMap(settings.headers)) {
       headers = settings.headers!;
     }
-    if (EmptyTool.checkString(settings.xPaddingBytes)) {
-      xPaddingBytes = settings.xPaddingBytes!;
+    if (settings.xPaddingBytes != null) {
+      final str = settings.xPaddingBytes.toString();
+      if (str.isNotEmpty) {
+        xPaddingBytes = str;
+      }
     }
     if (settings.noGRPCHeader != null) {
       noGRPCHeader = settings.noGRPCHeader!;
     }
-    if (EmptyTool.checkString(settings.scMaxEachPostBytes)) {
-      scMaxEachPostBytes = settings.scMaxEachPostBytes!;
+    if (settings.scMaxEachPostBytes != null) {
+      final str = settings.scMaxEachPostBytes.toString();
+      if (str.isNotEmpty) {
+        scMaxEachPostBytes = str;
+      }
     }
-    if (EmptyTool.checkString(settings.scMinPostsIntervalMs)) {
-      scMinPostsIntervalMs = settings.scMinPostsIntervalMs!;
-    }
+    if (settings.scMinPostsIntervalMs != null) {
+       final str = settings.scMinPostsIntervalMs.toString();
+       if (str.isNotEmpty) {
+         scMinPostsIntervalMs = str;
+       }
+     }
+
+     if (settings.seqKey != null) {
+       seqKey = settings.seqKey!;
+     }
+     if (settings.sessionKey != null) {
+       sessionKey = settings.sessionKey!;
+     }
+     if (settings.noSSEHeader != null) {
+       noSSEHeader = settings.noSSEHeader!;
+     }
+     if (settings.xPaddingKey != null) {
+       xPaddingKey = settings.xPaddingKey!;
+     }
+     if (settings.seqPlacement != null) {
+       seqPlacement = settings.seqPlacement!;
+     }
+     if (settings.uplinkDataKey != null) {
+       uplinkDataKey = settings.uplinkDataKey!;
+     }
+     if (settings.xPaddingHeader != null) {
+       xPaddingHeader = settings.xPaddingHeader!;
+     }
+     if (settings.xPaddingMethod != null) {
+       xPaddingMethod = settings.xPaddingMethod!;
+     }
+     if (settings.uplinkChunkSize != null) {
+       uplinkChunkSize = settings.uplinkChunkSize.toString();
+     }
+     if (settings.sessionPlacement != null) {
+       sessionPlacement = settings.sessionPlacement!;
+     }
+     if (settings.uplinkHTTPMethod != null) {
+       uplinkHTTPMethod = settings.uplinkHTTPMethod!;
+     }
+     if (settings.xPaddingObfsMode != null) {
+       xPaddingObfsMode = settings.xPaddingObfsMode!;
+     }
+     if (settings.xPaddingPlacement != null) {
+       xPaddingPlacement = settings.xPaddingPlacement!;
+     }
+     if (settings.scMaxBufferedPosts != null) {
+       scMaxBufferedPosts = settings.scMaxBufferedPosts.toString();
+     }
+     if (settings.uplinkDataPlacement != null) {
+       uplinkDataPlacement = settings.uplinkDataPlacement!;
+     }
+     if (settings.scStreamUpServerSecs != null) {
+       scStreamUpServerSecs = settings.scStreamUpServerSecs.toString();
+     }
+
     if (settings.xmux != null) {
       final xmux = settings.xmux!;
-      if (EmptyTool.checkString(xmux.maxConcurrency)) {
-        maxConcurrency = xmux.maxConcurrency!;
+      if (xmux.maxConcurrency != null) {
+        final str = xmux.maxConcurrency.toString();
+        if (str.isNotEmpty) {
+          maxConcurrency = str;
+        }
       }
-      if (EmptyTool.checkString(xmux.maxConnections)) {
-        maxConnections = xmux.maxConnections!;
+      if (xmux.maxConnections != null) {
+        final str = xmux.maxConnections.toString();
+        if (str.isNotEmpty) {
+          maxConnections = str;
+        }
       }
-      if (EmptyTool.checkString(xmux.cMaxReuseTimes)) {
-        cMaxReuseTimes = xmux.cMaxReuseTimes!;
+      if (xmux.cMaxReuseTimes != null) {
+        final str = xmux.cMaxReuseTimes.toString();
+        if (str.isNotEmpty) {
+          cMaxReuseTimes = str;
+        }
       }
-      if (EmptyTool.checkString(xmux.hMaxReusableSecs)) {
-        hMaxReusableSecs = xmux.hMaxReusableSecs!;
+      if (xmux.hMaxReusableSecs != null) {
+        final str = xmux.hMaxReusableSecs.toString();
+        if (str.isNotEmpty) {
+          hMaxReusableSecs = str;
+        }
       }
-      if (EmptyTool.checkString(xmux.hMaxRequestTimes)) {
-        hMaxRequestTimes = xmux.hMaxRequestTimes!;
+      if (xmux.hMaxRequestTimes != null) {
+        final str = xmux.hMaxRequestTimes.toString();
+        if (str.isNotEmpty) {
+          hMaxRequestTimes = str;
+        }
       }
       if (xmux.hKeepAlivePeriod != null) {
         hKeepAlivePeriod = "${xmux.hKeepAlivePeriod!}";

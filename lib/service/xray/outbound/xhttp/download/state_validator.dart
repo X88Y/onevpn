@@ -46,6 +46,21 @@ extension XhttpDownloadStateValidator on XhttpDownloadState {
     hMaxReusableSecs = hMaxReusableSecs.removeWhitespace;
     hMaxRequestTimes = hMaxRequestTimes.removeWhitespace;
     hKeepAlivePeriod = hKeepAlivePeriod.removeWhitespace;
+
+    seqKey = seqKey.removeWhitespace;
+    sessionKey = sessionKey.removeWhitespace;
+    xPaddingKey = xPaddingKey.removeWhitespace;
+    seqPlacement = seqPlacement.removeWhitespace;
+    uplinkDataKey = uplinkDataKey.removeWhitespace;
+    xPaddingHeader = xPaddingHeader.removeWhitespace;
+    xPaddingMethod = xPaddingMethod.removeWhitespace;
+    uplinkChunkSize = uplinkChunkSize.removeWhitespace;
+    sessionPlacement = sessionPlacement.removeWhitespace;
+    uplinkHTTPMethod = uplinkHTTPMethod.removeWhitespace;
+    xPaddingPlacement = xPaddingPlacement.removeWhitespace;
+    scMaxBufferedPosts = scMaxBufferedPosts.removeWhitespace;
+    uplinkDataPlacement = uplinkDataPlacement.removeWhitespace;
+    scStreamUpServerSecs = scStreamUpServerSecs.removeWhitespace;
   }
 
   bool get isBlank {
@@ -158,6 +173,23 @@ extension XhttpDownloadStateValidator on XhttpDownloadState {
         return false;
       }
     }
+
+    if (EmptyTool.checkString(seqKey)) return false;
+    if (EmptyTool.checkString(sessionKey)) return false;
+    if (noSSEHeader) return false;
+    if (EmptyTool.checkString(xPaddingKey)) return false;
+    if (EmptyTool.checkString(seqPlacement)) return false;
+    if (EmptyTool.checkString(uplinkDataKey)) return false;
+    if (EmptyTool.checkString(xPaddingHeader)) return false;
+    if (EmptyTool.checkString(xPaddingMethod)) return false;
+    if (EmptyTool.checkString(uplinkChunkSize)) return false;
+    if (EmptyTool.checkString(sessionPlacement)) return false;
+    if (EmptyTool.checkString(uplinkHTTPMethod)) return false;
+    if (xPaddingObfsMode) return false;
+    if (EmptyTool.checkString(xPaddingPlacement)) return false;
+    if (EmptyTool.checkString(scMaxBufferedPosts)) return false;
+    if (EmptyTool.checkString(uplinkDataPlacement)) return false;
+    if (EmptyTool.checkString(scStreamUpServerSecs)) return false;
 
     return true;
   }

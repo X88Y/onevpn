@@ -652,10 +652,10 @@ XrayXhttpSettings _$XrayXhttpSettingsFromJson(Map<String, dynamic> json) =>
       (json['headers'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, e as String),
       ),
-      json['xPaddingBytes'] as String?,
+      json['xPaddingBytes'],
       json['noGRPCHeader'] as bool?,
-      json['scMaxEachPostBytes'] as String?,
-      json['scMinPostsIntervalMs'] as String?,
+      json['scMaxEachPostBytes'],
+      json['scMinPostsIntervalMs'],
       json['xmux'] == null
           ? null
           : XrayXhttpSettingsXmux.fromJson(
@@ -669,6 +669,22 @@ XrayXhttpSettings _$XrayXhttpSettingsFromJson(Map<String, dynamic> json) =>
       json['extra'] == null
           ? null
           : XrayXhttpSettings.fromJson(json['extra'] as Map<String, dynamic>),
+      json['seqKey'] as String?,
+      json['sessionKey'] as String?,
+      json['noSSEHeader'] as bool?,
+      json['xPaddingKey'] as String?,
+      json['seqPlacement'] as String?,
+      json['uplinkDataKey'] as String?,
+      json['xPaddingHeader'] as String?,
+      json['xPaddingMethod'] as String?,
+      json['uplinkChunkSize'],
+      json['sessionPlacement'] as String?,
+      json['uplinkHTTPMethod'] as String?,
+      json['xPaddingObfsMode'] as bool?,
+      json['xPaddingPlacement'] as String?,
+      json['scMaxBufferedPosts'],
+      json['uplinkDataPlacement'] as String?,
+      json['scStreamUpServerSecs'],
     );
 
 Map<String, dynamic> _$XrayXhttpSettingsToJson(XrayXhttpSettings instance) =>
@@ -684,16 +700,32 @@ Map<String, dynamic> _$XrayXhttpSettingsToJson(XrayXhttpSettings instance) =>
       'xmux': ?instance.xmux?.toJson(),
       'downloadSettings': ?instance.downloadSettings?.toJson(),
       'extra': ?instance.extra?.toJson(),
+      'seqKey': ?instance.seqKey,
+      'sessionKey': ?instance.sessionKey,
+      'noSSEHeader': ?instance.noSSEHeader,
+      'xPaddingKey': ?instance.xPaddingKey,
+      'seqPlacement': ?instance.seqPlacement,
+      'uplinkDataKey': ?instance.uplinkDataKey,
+      'xPaddingHeader': ?instance.xPaddingHeader,
+      'xPaddingMethod': ?instance.xPaddingMethod,
+      'uplinkChunkSize': ?instance.uplinkChunkSize,
+      'sessionPlacement': ?instance.sessionPlacement,
+      'uplinkHTTPMethod': ?instance.uplinkHTTPMethod,
+      'xPaddingObfsMode': ?instance.xPaddingObfsMode,
+      'xPaddingPlacement': ?instance.xPaddingPlacement,
+      'scMaxBufferedPosts': ?instance.scMaxBufferedPosts,
+      'uplinkDataPlacement': ?instance.uplinkDataPlacement,
+      'scStreamUpServerSecs': ?instance.scStreamUpServerSecs,
     };
 
 XrayXhttpSettingsXmux _$XrayXhttpSettingsXmuxFromJson(
   Map<String, dynamic> json,
 ) => XrayXhttpSettingsXmux(
-  json['maxConcurrency'] as String?,
-  json['maxConnections'] as String?,
-  json['cMaxReuseTimes'] as String?,
-  json['hMaxReusableSecs'] as String?,
-  json['hMaxRequestTimes'] as String?,
+  json['maxConcurrency'],
+  json['maxConnections'],
+  json['cMaxReuseTimes'],
+  json['hMaxReusableSecs'],
+  json['hMaxRequestTimes'],
   (json['hKeepAlivePeriod'] as num?)?.toInt(),
 );
 
