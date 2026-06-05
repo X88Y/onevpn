@@ -6,14 +6,16 @@ import os
 # ---------------------------------------------------------------------------
 _script_dir = Path(__file__).resolve().parent
 
-# Try to locate the bot/ folder (works whether this file lives in backend/ or backend/bot/)
+# Try to locate the bot/ folder (works whether this file lives in backend/, backend/bot/ or backend/scripts/)
 if (_script_dir / "bot" / "mvm_bot").is_dir():
     BOT_DIR = _script_dir / "bot"
 elif (_script_dir / "mvm_bot").is_dir():
     BOT_DIR = _script_dir
+elif (_script_dir.parent / "bot" / "mvm_bot").is_dir():
+    BOT_DIR = _script_dir.parent / "bot"
 else:
     raise RuntimeError(
-        "Cannot find bot/ directory. Place this file in backend/ or backend/bot/"
+        "Cannot find bot/ directory. Place this file in backend/, backend/bot/, or backend/scripts/"
     )
 
 sys.path.insert(0, str(BOT_DIR))
@@ -28,10 +30,6 @@ else:
     print(f"Warning: {_env_path} not found, relying on existing environment variables")
 
 VK_BOT_TOKEN = os.getenv("VK_BOT_TOKENS", "").split(",")[0].strip()  # Use the first token if multiple are provided
-if not VK_BOT_TOKEN:
-    raise RuntimeError(
-        "VK_BOT_TOKEN is not set. Provide it in bot/.env or as an environment variable."
-    )
 """
 VK Wall Post Deleter
 Удаляет все посты со стены группы или пользователя через VK API (vk_bottle / vk_api).
@@ -58,7 +56,7 @@ import re
 DEFAULT_TOKEN    = VK_BOT_TOKEN  # токен группы или пользователя
 DEFAULT_GROUP_ID = 0                     # оставь 0 — будет определён автоматически из токена
 
-REQUESTS_PER_SECOND = 10   # VK разрешает до 3 запросов/сек
+REQUESTS_PER_SECOND = 5   # VK разрешает до 3 запросов/сек
 BATCH_SIZE          = 100  # сколько постов получать за раз (макс. 100)
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -156,12 +154,20 @@ def get_all_post_ids(vk, owner_id: int) -> list[int]:
     print("Получаем список постов...")
     while True:
         start_time = time.time()
-        response = vk.wall.get(
-            owner_id=owner_id,
-            count=BATCH_SIZE,
-            offset=offset,
-            filter="owner",   # только посты владельца (не чужие)
-        )
+        try:
+            response = vk.wall.get(
+                owner_id=owner_id,
+                count=BATCH_SIZE,
+                offset=offset,
+                filter="owner",   # только посты владельца (не чужие)
+            )
+        except vk_api.exceptions.ApiError as e:
+            if e.code == 9:
+                print("Flood control detected on wall.get. Sleeping for 5 seconds...")
+                time.sleep(5)
+                continue
+            raise
+
         items = response.get("items", [])
         if not items:
             break
@@ -189,13 +195,25 @@ def delete_posts(vk, owner_id: int, post_ids: list[int]) -> None:
     print(f"\nНачинаем удаление {total} постов...")
 
     for i, post_id in enumerate(post_ids, 1):
-        try:
-            vk.wall.delete(owner_id=owner_id, post_id=post_id)
-            print(f"  [{i}/{total}] Удалён пост {post_id}")
-        except vk_api.exceptions.ApiError as e:
-            print(f"  [{i}/{total}] Ошибка при удалении поста {post_id}: {e}")
+        retries = 5
+        while retries > 0:
+            try:
+                vk.wall.delete(owner_id=owner_id, post_id=post_id)
+                print(f"  [{i}/{total}] Удалён пост {post_id}")
+                break
+            except vk_api.exceptions.ApiError as e:
+                if e.code == 9:  # Flood control
+                    print(f"  [{i}/{total}] Flood control detected on wall.delete. Sleeping for 5 seconds before retry (retries left: {retries-1})...")
+                    time.sleep(5)
+                    retries -= 1
+                else:
+                    print(f"  [{i}/{total}] Ошибка при удалении поста {post_id}: {e}")
+                    break
+            except Exception as e:
+                print(f"  [{i}/{total}] Непредвиденная ошибка при удалении поста {post_id}: {e}")
+                break
 
-        # time.sleep(1 / REQUESTS_PER_SECOND)
+        time.sleep(1 / REQUESTS_PER_SECOND)
 
 
 def main():
