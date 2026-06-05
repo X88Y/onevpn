@@ -32,7 +32,7 @@
 		EB68C7192F94D172007C293A /* Messages.g.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB68C7102F94D172007C293A /* Messages.g.swift */; };
 		EB68C71A2F94D172007C293A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB68C7142F94D172007C293A /* GoogleService-Info.plist */; };
 		EB8B84072C0751410096E1FF /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB8B84062C0751410096E1FF /* NetworkExtension.framework */; };
-		EB8B840F2C0751410096E1FF /* SvyatVPNTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EB8B84042C0751410096E1FF /* tunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		EB8B840F2C0751410096E1FF /* tunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EB8B84042C0751410096E1FF /* tunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EB8B84372C0755150096E1FF /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = EB8B84362C07550A0096E1FF /* libresolv.tbd */; };
 		EB8B84382C07551D0096E1FF /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = EB8B84362C07550A0096E1FF /* libresolv.tbd */; };
 /* End PBXBuildFile section */
@@ -95,10 +95,10 @@
 		EB68C7102F94D172007C293A /* Messages.g.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Messages.g.swift; sourceTree = "<group>"; };
 		EB68C7122F94D172007C293A /* Vpn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vpn.swift; sourceTree = "<group>"; };
 		EB68C7142F94D172007C293A /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		EB8B84042C0751410096E1FF /* SvyatVPNTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = tunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB8B84042C0751410096E1FF /* tunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = tunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB8B84062C0751410096E1FF /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 		EB8B840B2C0751410096E1FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EB8B840C2C0751410096E1FF /* SvyatVPNTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = tunnel.entitlements; sourceTree = "<group>"; };
+		EB8B840C2C0751410096E1FF /* tunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = tunnel.entitlements; sourceTree = "<group>"; };
 		EB8B84152C0751EF0096E1FF /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		EB8B84362C07550A0096E1FF /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
 		EB9154222D8EBE8800BFED8B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
@@ -151,7 +151,7 @@
 				EBAB56EC2D81887B0080EC55 /* c */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
-				EB8B84082C0751410096E1FF /* SvyatVPNTunnel */,
+				EB8B84082C0751410096E1FF /* tunnel */,
 				EB8B84052C0751410096E1FF /* Frameworks */,
 				97C146EF1CF9000F007C117D /* Products */,
 				C6A9C313CEC3B87D422ED407 /* Pods */,
@@ -162,7 +162,7 @@
 			isa = PBXGroup;
 			children = (
 				97C146EE1CF9000F007C117D /* Runner.app */,
-				EB8B84042C0751410096E1FF /* SvyatVPNTunnel.appex */,
+				EB8B84042C0751410096E1FF /* tunnel.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -259,7 +259,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		EB8B84082C0751410096E1FF /* SvyatVPNTunnel */ = {
+		EB8B84082C0751410096E1FF /* tunnel */ = {
 			isa = PBXGroup;
 			children = (
 				EB68C6FA2F94D127007C293A /* Tunnel */,
@@ -301,7 +301,6 @@
 				97C146EC1CF9000F007C117D /* Resources */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				C3738DF5DD0B8E24A48D55F4 /* [CP] Embed Pods Frameworks */,
-				8F0DCAE058477CCA8669953B /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -432,23 +431,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin\n";
-		};
-		8F0DCAE058477CCA8669953B /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		9740EEB61CF901F6004384FC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;

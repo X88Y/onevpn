@@ -1,12 +1,9 @@
-import 'package:firebase_core/firebase_core.dart';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mvmvpn/core/pigeon/flutter_api.dart';
 import 'package:mvmvpn/core/pigeon/host_api.dart';
 import 'package:mvmvpn/core/pigeon/messages.g.dart';
 import 'package:mvmvpn/core/tools/platform.dart';
-import 'package:mvmvpn/firebase_options.dart';
 import 'package:mvmvpn/pages/main/router.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -14,7 +11,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await _initBridge();
-  await _initFirebase();
 
   if (AppPlatform.isDesktop) {
     await windowManager.ensureInitialized();
@@ -39,22 +35,4 @@ Future<void> main() async {
 Future<void> _initBridge() async {
   BridgeFlutterApi.setUp(AppFlutterApi());
   await AppHostApi().initTunFilesDir();
-}
-
-Future<void> _initFirebase() async {
-  if (AppPlatform.isWindows || AppPlatform.isLinux) {
-    return;
-  }
-  FirebaseOptions? options;
-  if (AppPlatform.isMacOS) {
-    final useSystemExtension = await AppHostApi().useSystemExtension();
-    if (useSystemExtension) {
-      options = DefaultFirebaseOptions.macosSE;
-    } else {
-      options = DefaultFirebaseOptions.currentPlatform;
-    }
-  } else {
-    options = DefaultFirebaseOptions.currentPlatform;
-  }
-  await Firebase.initializeApp(options: options);
 }

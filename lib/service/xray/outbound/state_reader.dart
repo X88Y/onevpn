@@ -480,7 +480,11 @@ extension OutboundStateReader on OutboundState {
       }
       xhttpMode = mode;
     }
-    // extra
+    // Read from the root of settings first
+    if (!xhttpExtra.readFromXrayJson(settings)) {
+      return false;
+    }
+    // Then override/merge from extra if present
     if (settings.extra != null) {
       if (!xhttpExtra.readFromXrayJson(settings.extra!)) {
         return false;

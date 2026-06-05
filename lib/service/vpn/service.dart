@@ -37,7 +37,6 @@ import 'package:mvmvpn/service/xray/setting/inbounds_state.dart';
 import 'package:mvmvpn/service/xray/setting/state_reader.dart';
 import 'package:mvmvpn/service/xray/setting/state_writer.dart';
 import 'package:mvmvpn/service/auth/service.dart';
-import 'package:mvmvpn/service/subscription/service.dart';
 
 final class VpnService {
   static final VpnService _singleton = VpnService._internal();

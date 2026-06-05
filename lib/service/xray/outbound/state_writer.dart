@@ -290,9 +290,28 @@ extension OutboundStateWriter on OutboundState {
     if (!xhttpExtra.isBlank) {
       xhttpSettings.extra = xhttpExtra.xrayJson;
 
+      if (xhttpExtra.headers.isNotEmpty) {
+        xhttpSettings.headers = xhttpExtra.headers;
+      }
+      if (xhttpExtra.xPaddingBytes.isNotEmpty) {
+        xhttpSettings.xPaddingBytes = xhttpExtra.xPaddingBytes;
+      }
+      if (xhttpExtra.noGRPCHeader) {
+        xhttpSettings.noGRPCHeader = xhttpExtra.noGRPCHeader;
+      }
+      if (xhttpExtra.scMaxEachPostBytes.isNotEmpty) {
+        xhttpSettings.scMaxEachPostBytes = xhttpExtra.scMaxEachPostBytes;
+      }
+      if (xhttpExtra.scMinPostsIntervalMs.isNotEmpty) {
+        xhttpSettings.scMinPostsIntervalMs = xhttpExtra.scMinPostsIntervalMs;
+      }
+      xhttpSettings.xmux = xhttpSettings.extra?.xmux;
+      xhttpSettings.downloadSettings = xhttpSettings.extra?.downloadSettings;
+
       // fix stream-one can not use downloadSettings
       if (xhttpMode == XhttpMode.streamOne) {
         xhttpSettings.extra?.downloadSettings = null;
+        xhttpSettings.downloadSettings = null;
       }
     }
 

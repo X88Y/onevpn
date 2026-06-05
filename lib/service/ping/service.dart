@@ -32,6 +32,27 @@ class PingService {
     eventBus.updatePinging(false);
   }
 
+  Future<void> pingAllConfigs() async {
+    final eventBus = AppEventBus.instance;
+    eventBus.updatePinging(true);
+    final db = AppDatabase();
+    final subscriptions = await db.subscriptionDao.allRows;
+    final allSubIds = [DBConstants.defaultId, ...subscriptions.map((s) => s.id)];
+    
+    final allRows = <CoreConfigData>[];
+    for (final subId in allSubIds) {
+      final outboundRows = await db.coreConfigDao.allOutboundRowsWithDataBySubId(subId);
+      final rawRows = await db.coreConfigDao.allRawRowsWithDataBySubId(subId);
+      allRows.addAll(outboundRows);
+      allRows.addAll(rawRows);
+    }
+    
+    if (allRows.isNotEmpty) {
+      await _pingConfigs(db, allRows);
+    }
+    eventBus.updatePinging(false);
+  }
+
   Future<int> _pingOutbound(CoreConfigData row, PingState pingState) async {
     if (EmptyTool.checkString(row.data)) {
       final outbound = OutboundState();

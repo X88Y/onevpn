@@ -1,11 +1,13 @@
 import 'dart:async';
-import 'package:mvmvpn/core/tools/logger.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mvmvpn/core/constants/preferences.dart';
 import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/db/dao/config_query.dart';
+import 'package:mvmvpn/core/db/database/enum.dart';
 import 'package:mvmvpn/core/network/model.dart';
 import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 import 'package:mvmvpn/pages/home/xray/outbound/params.dart';
@@ -16,16 +18,13 @@ import 'package:mvmvpn/pages/widget/menu_picker.dart';
 import 'package:mvmvpn/service/background_task/service.dart';
 import 'package:mvmvpn/service/share/service.dart';
 import 'package:mvmvpn/service/toast/service.dart';
-import 'package:mvmvpn/service/auth/model.dart';
 import 'package:mvmvpn/service/auth/service.dart';
 import 'package:mvmvpn/service/vpn/service.dart';
 import 'package:mvmvpn/service/xray/outbound/state.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/service/ping/service.dart';
+import 'package:mvmvpn/service/subscription/service.dart';
 
-import 'package:mvmvpn/core/network/client.dart';
-import 'package:mvmvpn/core/pigeon/flutter_api.dart';
-import 'package:mvmvpn/core/pigeon/messages.g.dart';
-import 'package:mvmvpn/core/pigeon/model_reader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -35,6 +34,7 @@ class HomeState {
   final bool highlightSocials;
   final bool highlightBubbles;
   final String? connectingProvider;
+  final List<ConfigQueryRow> configs;
 
   const HomeState({
     required this.configId,
@@ -42,6 +42,7 @@ class HomeState {
     this.highlightSocials = false,
     this.highlightBubbles = false,
     this.connectingProvider,
+    this.configs = const [],
   });
 
   factory HomeState.initial() =>
@@ -55,6 +56,7 @@ class HomeState {
     bool? highlightBubbles,
     String? connectingProvider,
     bool clearConnectingProvider = false,
+    List<ConfigQueryRow>? configs,
   }) {
     return HomeState(
       configId: configId ?? this.configId,
@@ -66,6 +68,7 @@ class HomeState {
       connectingProvider: clearConnectingProvider
           ? null
           : (connectingProvider ?? this.connectingProvider),
+      configs: configs ?? this.configs,
     );
   }
 }
@@ -79,34 +82,19 @@ class HomeController extends Cubit<HomeState> {
   }
 
   late final StreamSubscription<void> _toastSubscription;
-  Timer? _userUpdateTimer;
+  StreamSubscription<List<ConfigQueryRow>>? _configsSubscription;
 
   Future<void> _asyncInit() async {
     _initToastStream();
     final id = await PreferencesKey().readLastConfigId();
     emit(state.copyWith(configId: id));
-    await BackgroundTaskService().checkSubscriptionUpdate();
 
-    _startUserUpdateTimer();
-  }
-
-  void _startUserUpdateTimer() {
-    _userUpdateTimer = Timer.periodic(const Duration(seconds: 7), (timer) {
-      _updateUserData();
+    final db = AppDatabase();
+    _configsSubscription = db.coreConfigDao.allConfigsStream().listen((data) {
+      emit(state.copyWith(configs: data));
     });
-  }
 
-  Future<void> _updateUserData() async {
-    if (AuthService().currentUser != null) {
-      final userModel = await AuthService().syncUserWithBackend();
-      final subscriptionEndsAt = userModel?.subscriptionEndsAt;
-      if (subscriptionEndsAt != state.subscriptionEndsAt) {
-        emit(state.copyWith(
-          subscriptionEndsAt: subscriptionEndsAt,
-          clearSubscriptionEndsAt: subscriptionEndsAt == null,
-        ));
-      }
-    }
+    await BackgroundTaskService().checkSubscriptionUpdate();
   }
 
   void _initToastStream() {
@@ -137,8 +125,6 @@ class HomeController extends Cubit<HomeState> {
       case IconMenuId.subscribeLink:
         _addSubscription(context);
         break;
-
-
       case IconMenuId.pickFile:
         await ShareService().pickFile();
         break;
@@ -171,8 +157,6 @@ class HomeController extends Cubit<HomeState> {
     context.push(RouterPath.subscriptionAdd);
   }
 
-
-
   String formatGeoLocation(BuildContext context, GeoLocation location) {
     var text = "";
     text += AppLocalizations.of(context)!.nodeInfoScreenDuration;
@@ -201,25 +185,20 @@ class HomeController extends Cubit<HomeState> {
   }
 
   void updateConfigId(BuildContext context, int value) {
+    PreferencesKey().saveLastConfigId(value);
     emit(state.copyWith(configId: value));
   }
 
-  void triggerSocialHighlight() {
-    emit(state.copyWith(highlightSocials: true));
-    Future.delayed(const Duration(milliseconds: 5000), () {
-      if (!isClosed) {
-        emit(state.copyWith(highlightSocials: false));
-      }
-    });
+  Future<void> importFromClipboard() async {
+    await ShareService().readPasteboard();
   }
 
-  void triggerBubbleHighlight() {
-    emit(state.copyWith(highlightBubbles: true));
-    Future.delayed(const Duration(milliseconds: 5000), () {
-      if (!isClosed) {
-        emit(state.copyWith(highlightBubbles: false));
-      }
-    });
+  Future<void> pingAll() async {
+    await PingService().pingAllConfigs();
+  }
+
+  Future<void> updateSubscription() async {
+    await SubscriptionService().refreshAllSubscription();
   }
 
   Future<void> startVpn(BuildContext context) async {
@@ -227,7 +206,6 @@ class HomeController extends Cubit<HomeState> {
     if (eventBus.state.vpnLoading || eventBus.state.isUpdatingSubscription) return;
 
     final isRunning = eventBus.state.runningId != DBConstants.defaultId;
-    
     eventBus.updateVpnLoading(true);
 
     try {
@@ -236,45 +214,25 @@ class HomeController extends Cubit<HomeState> {
         return;
       }
 
-      if (AuthService().currentUser == null) {
-        eventBus.updateVpnLoading(false);
-        triggerSocialHighlight();
-        return;
-      }
-
-      final user = eventBus.state.userData;
-      if (user != null && !user.hasActiveSubscription) {
-        eventBus.updateVpnLoading(false);
-        triggerBubbleHighlight();
-        return;
-      }
-
       int targetConfigId = state.configId;
 
-      if (AuthService().currentUser != null) {
-        var newConfigId = await AuthService().fetchAndSetRandomVpnKey();
-        if (newConfigId == null) {
-          if (context.mounted) {
-            ContextAlert.showToast(context, AppLocalizations.of(context)!.mainRegeneratingKey);
-          }
-          newConfigId = await AuthService().fetchAndSetRandomVpnKey(forceRegenerate: true);
-        }
-
-        if (newConfigId != null) {
-          targetConfigId = newConfigId;
-          updateConfigId(context, newConfigId);
-        }
-      }
-
       if (targetConfigId == DBConstants.defaultId) {
-        eventBus.updateVpnLoading(false);
-        if (context.mounted) {
-          ContextAlert.showToast(
-            context,
-            AppLocalizations.of(context)!.appVpnSelectOneConfig,
-          );
+        // Fallback to first available config in list if none is selected
+        final configs = await AppDatabase().select(AppDatabase().coreConfig).get();
+        final serverConfigs = configs.where((c) => c.type == CoreConfigType.outbound.name || c.type == CoreConfigType.raw.name).toList();
+        if (serverConfigs.isNotEmpty) {
+          targetConfigId = serverConfigs.first.id;
+          updateConfigId(context, targetConfigId);
+        } else {
+          eventBus.updateVpnLoading(false);
+          if (context.mounted) {
+            ContextAlert.showToast(
+              context,
+              AppLocalizations.of(context)!.appVpnSelectOneConfig,
+            );
+          }
+          return;
         }
-        return;
       }
 
       final permission = await VpnService().checkPermission();
@@ -290,40 +248,6 @@ class HomeController extends Cubit<HomeState> {
       eventBus.updateVpnLoading(false);
       rethrow;
     }
-  }
-
-  Future<void> signInWithApple() async {
-    emit(state.copyWith(connectingProvider: 'apple'));
-    try {
-      final result = await AuthService().signInWithApple();
-      if (result != null) {
-        await AuthService().syncUserWithBackend();
-        await AuthService().activateTrial();
-        final userModel = await AuthService().syncUserWithBackend();
-        final subscriptionEndsAt = userModel?.subscriptionEndsAt;
-        emit(state.copyWith(
-            subscriptionEndsAt: subscriptionEndsAt,
-            clearSubscriptionEndsAt: subscriptionEndsAt == null,
-            clearConnectingProvider: true));
-        ToastService().showToast(AppLocalizations.of(context)!.mainSignInSuccess);
-      } else {
-        emit(state.copyWith(clearConnectingProvider: true));
-        ToastService().showToast(AppLocalizations.of(context)!.mainSignInFailed);
-      }
-    } catch (e) {
-      emit(state.copyWith(clearConnectingProvider: true));
-      ToastService().showToast(AppLocalizations.of(context)!.mainSignInFailed);
-    }
-  }
-
-  void connectTelegram() {
-    final url = AppEventBus.instance.state.userData?.telegramUrl ?? 'https://t.me/mvmvpnbot';
-    launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-  }
-
-  void connectVK() {
-    final url = AppEventBus.instance.state.userData?.vkUrl ?? 'https://vk.com/mvmvpn';
-    launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
   Future<void> clearAllData() async {
@@ -347,7 +271,7 @@ class HomeController extends Cubit<HomeState> {
   @override
   Future<void> close() {
     _toastSubscription.cancel();
-    _userUpdateTimer?.cancel();
+    _configsSubscription?.cancel();
     return super.close();
   }
 }

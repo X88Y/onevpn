@@ -109,6 +109,26 @@ class CoreConfigDao extends DatabaseAccessor<AppDatabase>
     }
   }
 
+  Stream<List<ConfigQueryRow>> allConfigsStream() async* {
+    final query = _allConfigRowsQuery
+      ..where(coreConfig.type.equals(CoreConfigType.outbound.name) |
+              coreConfig.type.equals(CoreConfigType.raw.name));
+    final queryStream = query.watch();
+    await for (final rows in queryStream) {
+      final results = await _convertConfigQueryRows(rows);
+      yield results;
+    }
+  }
+
+  Future<List<ConfigQueryRow>> get allConfigs async {
+    final query = _allConfigRowsQuery
+      ..where(coreConfig.type.equals(CoreConfigType.outbound.name) |
+              coreConfig.type.equals(CoreConfigType.raw.name));
+    final rows = await query.get();
+    final results = await _convertConfigQueryRows(rows);
+    return results;
+  }
+
   Future<List<ConfigQueryRow>> get allOutboundRows async {
     final query = _allConfigRowsQuery
       ..where(coreConfig.type.equals(CoreConfigType.outbound.name));

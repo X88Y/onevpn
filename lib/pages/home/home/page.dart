@@ -1,20 +1,21 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/db/dao/config_query.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
 import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 import 'package:mvmvpn/pages/home/home/controller.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
 import 'package:mvmvpn/service/event_bus/state.dart';
+import 'package:mvmvpn/service/ping/service.dart';
+import 'package:mvmvpn/pages/widget/menu_picker.dart';
+import 'package:mvmvpn/pages/home/component/subscription_row/controller.dart';
+import 'package:mvmvpn/pages/home/component/config_row/controller.dart';
 
-import 'component/home_painters.dart';
-import 'component/ambient_orbs.dart';
-import 'component/social_bubble.dart';
-import 'component/auth_button.dart';
-import 'component/subscription_pill.dart';
-import 'component/account_bubble.dart';
-import 'component/home_center_button.dart';
+import 'package:mvmvpn/pages/home/home/component/home_painters.dart';
+import 'package:mvmvpn/pages/home/home/component/ambient_orbs.dart';
+import 'package:mvmvpn/pages/home/home/component/home_center_button.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -138,9 +139,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           child: Column(
                             children: [
                               _buildTopBar(context, controller, eventState, homeState, isLoading),
-                              const SizedBox(height: 20),
-                              _buildAuthButtons(context, controller, eventState, homeState, isLoading),
-                              const Spacer(),
+                              const SizedBox(height: 10),
                               HomeCenterButton(
                                 controller: controller,
                                 isRunning: isRunning,
@@ -149,11 +148,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 sonarController: _sonarController,
                                 pulseAnim: _pulseAnim,
                               ),
-                              const SizedBox(height: 28),
+                              const SizedBox(height: 15),
                               _buildStatusText(eventState, isRunning, isLoading),
-                              const Spacer(),
-                              SubscriptionPill(eventState: eventState, shimmerController: _bgController),
+                              const SizedBox(height: 12),
+                              _buildSelectedServerInfo(context, controller, homeState),
                               const SizedBox(height: 16),
+                              _buildActionButtonsRow(context, controller, eventState),
+                              const SizedBox(height: 16),
+                              Expanded(
+                                child: _buildServerList(context, controller, homeState),
+                              ),
                             ],
                           ),
                         ),
@@ -170,101 +174,367 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget _buildTopBar(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState, bool isLoading) {
-    final user = eventState.userData;
-    final isAppleLinked = (user?.isAppleLinked ?? false) && !Platform.isAndroid;
-    final isTelegramLinked = user?.isTelegramLinked ?? false;
-    final isVkLinked = user?.isVkLinked ?? false;
-    final hasSocials = isAppleLinked || isTelegramLinked || isVkLinked;
-
     return Row(
       children: [
-        AccountBubble(controller: controller, isSmall: !hasSocials, isLoading: isLoading || homeState.connectingProvider != null),
+        IconButton(
+          icon: const Icon(Icons.info_outline_rounded, color: Colors.white70),
+          onPressed: () => controller.gotoNodeInfo(context),
+        ),
         const Spacer(),
-        if (isAppleLinked) ...[
-          SocialBubble(
-            icon: FontAwesomeIcons.apple,
-            glowColor: Colors.grey[300]!,
-            onTap: () => controller.signInWithApple(),
-            isHighlighted: homeState.highlightBubbles,
-            isLoading: homeState.connectingProvider == 'apple',
-            isEnabled: !isLoading && homeState.connectingProvider == null,
-          ),
-          const SizedBox(width: 10),
-        ],
-        if (isTelegramLinked) ...[
-          SocialBubble(
-            icon: FontAwesomeIcons.telegram,
-            glowColor: const Color(0xFF2AABEE),
-            onTap: () => controller.connectTelegram(),
-            isHighlighted: homeState.highlightBubbles,
-            isLoading: homeState.connectingProvider == 'telegram',
-            isEnabled: !isLoading && homeState.connectingProvider == null,
-          ),
-          const SizedBox(width: 10),
-        ],
-        if (isVkLinked)
-          SocialBubble(
-            icon: FontAwesomeIcons.vk,
-            glowColor: const Color(0xFF4C75A3),
-            onTap: () => controller.connectVK(),
-            isHighlighted: homeState.highlightBubbles,
-            isLoading: homeState.connectingProvider == 'vk',
-            isEnabled: !isLoading && homeState.connectingProvider == null,
-          ),
+        IconButton(
+          icon: const Icon(Icons.settings_outlined, color: Colors.white70),
+          onPressed: () => controller.gotoSettings(context),
+        ),
       ],
     );
   }
 
-  Widget _buildAuthButtons(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState, bool isLoading) {
-    final user = eventState.userData;
-    final buttons = <Widget>[];
-
-    if (!(user?.isAppleLinked ?? false) && !Platform.isAndroid) {
-      buttons.add(HomeAuthButton(
-        icon: FontAwesomeIcons.apple,
-        gradient: const LinearGradient(colors: [Color(0xFF5A5A5A), Color(0xFF2A2A2A)]),
-        glowColor: Colors.grey[400]!,
-        title: AppLocalizations.of(context)!.mainFreeSubscription,
-        onTap: () => controller.signInWithApple(),
-        isHighlighted: homeState.highlightSocials,
-        isLoading: homeState.connectingProvider == 'apple',
-        isEnabled: !isLoading && homeState.connectingProvider == null,
-      ));
-    }
-    if (!(user?.isTelegramLinked ?? false)) {
-      buttons.add(HomeAuthButton(
-        icon: FontAwesomeIcons.telegram,
-        gradient: const LinearGradient(colors: [Color(0xFF2AABEE), Color(0xFF0D47A1)]),
-        glowColor: const Color(0xFF2AABEE),
-        title: AppLocalizations.of(context)!.mainConnectTelegram,
-        onTap: () => controller.connectTelegram(),
-        isHighlighted: homeState.highlightSocials || homeState.highlightBubbles,
-        isLoading: homeState.connectingProvider == 'telegram',
-        isEnabled: !isLoading && homeState.connectingProvider == null,
-      ));
-    }
-    if (!(user?.isVkLinked ?? false)) {
-      buttons.add(HomeAuthButton(
-        icon: FontAwesomeIcons.vk,
-        gradient: const LinearGradient(colors: [Color(0xFF4C75A3), Color(0xFF2D4F7A)]),
-        glowColor: const Color(0xFF4C75A3),
-        title: AppLocalizations.of(context)!.mainConnectVK,
-        onTap: () => controller.connectVK(),
-        isHighlighted: homeState.highlightSocials || homeState.highlightBubbles,
-        isLoading: homeState.connectingProvider == 'vk',
-        isEnabled: !isLoading && homeState.connectingProvider == null,
-      ));
+  Widget _buildSelectedServerInfo(BuildContext context, HomeController controller, HomeState homeState) {
+    CoreConfigData? selectedConfig;
+    for (final row in homeState.configs) {
+      if (row is ConfigItem && row.config.id == homeState.configId) {
+        selectedConfig = row.config;
+        break;
+      }
     }
 
-    if (buttons.isEmpty) return const SizedBox.shrink();
+    final name = selectedConfig?.name ?? "No Server Selected";
+    final delay = (selectedConfig?.delay != null && selectedConfig!.delay != PingDelayConstants.unknown)
+        ? PingService().parsePingResponse(selectedConfig.delay)
+        : "";
 
-    return Column(
-      children: [
-        for (var i = 0; i < buttons.length; i++) ...[
-          buttons[i],
-          if (i < buttons.length - 1) const SizedBox(height: 10),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.04),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.dns_rounded, size: 14, color: Colors.white.withOpacity(0.5)),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+            ),
+          ),
+          if (delay.isNotEmpty) ...[
+            const SizedBox(width: 8),
+            Container(
+              width: 4,
+              height: 4,
+              decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withOpacity(0.3)),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              delay,
+              style: TextStyle(
+                color: (selectedConfig!.delay > 0 && selectedConfig.delay < 300)
+                    ? const Color(0xFF00E5A0)
+                    : selectedConfig.delay >= 300
+                        ? const Color(0xFFFFD700)
+                        : Colors.redAccent,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtonsRow(BuildContext context, HomeController controller, AppEventBusState eventState) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 46,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFF7B61FF).withOpacity(0.25),
+                  const Color(0xFF00B8D4).withOpacity(0.15),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFF7B61FF).withOpacity(0.35)),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => controller.importFromClipboard(),
+                borderRadius: BorderRadius.circular(14),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.content_paste_rounded, size: 16, color: Color(0xFF9E8CFF)),
+                      const SizedBox(width: 8),
+                      Text(
+                        AppLocalizations.of(context)!.navReadPasteboard,
+                        style: const TextStyle(
+                          color: Color(0xFFD4CCFF),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        _iconActionButton(
+          icon: Icons.speed_rounded,
+          tooltip: "Ping All",
+          isLoading: eventState.pinging,
+          onPressed: () => controller.pingAll(),
+        ),
+        const SizedBox(width: 10),
+        _iconActionButton(
+          icon: Icons.sync_rounded,
+          tooltip: "Update Subscriptions",
+          isLoading: eventState.downloading,
+          onPressed: () => controller.updateSubscription(),
+        ),
       ],
+    );
+  }
+
+  Widget _iconActionButton({
+    required IconData icon,
+    required String tooltip,
+    required bool isLoading,
+    required VoidCallback onPressed,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: Container(
+        width: 46,
+        height: 46,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.04),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.white.withOpacity(0.08)),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: isLoading ? null : onPressed,
+            borderRadius: BorderRadius.circular(14),
+            child: Center(
+              child: isLoading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                    )
+                  : Icon(icon, color: Colors.white70, size: 18),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildServerList(BuildContext context, HomeController controller, HomeState homeState) {
+    if (homeState.configs.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.dns_outlined, size: 40, color: Colors.white.withOpacity(0.15)),
+            const SizedBox(height: 12),
+            Text(
+              "No servers found.\nImport a subscription URL or server configuration.",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white.withOpacity(0.35), fontSize: 13, height: 1.4),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A0C16).withOpacity(0.6),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.06)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: ListView.separated(
+          padding: EdgeInsets.zero,
+          itemCount: homeState.configs.length,
+          separatorBuilder: (_, __) => Divider(color: Colors.white.withOpacity(0.03), height: 1),
+          itemBuilder: (ctx, index) {
+            final row = homeState.configs[index];
+            if (row is SubscriptionItem) {
+              return _buildSubscriptionRow(ctx, controller, row);
+            } else if (row is ConfigItem) {
+              return _buildConfigRow(ctx, controller, row, homeState.configId);
+            }
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubscriptionRow(
+    BuildContext context,
+    HomeController controller,
+    SubscriptionItem item,
+  ) {
+    final expandIcon = item.subscription.expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () async {
+          final db = AppDatabase();
+          if (item.subscription.id == DBConstants.defaultId) {
+            await PreferencesKey().saveLocalSubscriptionExpanded(!item.subscription.expanded);
+          } else {
+            final row = item.subscription.copyWith(expanded: !item.subscription.expanded);
+            await db.subscriptionDao.updateRow(row);
+          }
+          await controller.pingAll(); // Keep state refreshed
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Icon(Icons.folder_open_rounded, size: 16, color: Colors.blueAccent.withOpacity(0.7)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  "${item.subscription.name} (${item.count})",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+              ),
+              if (item.subscription.id > DBConstants.defaultId)
+                IconMenuPicker(
+                  icon: Icons.more_vert_rounded,
+                  menus: const [
+                    IconMenuId.refresh,
+                    IconMenuId.share,
+                    IconMenuId.edit,
+                    IconMenuId.delete,
+                    IconMenuId.clean,
+                  ],
+                  callback: (menuId) => SubscriptionRowController().moreAction(context, item.subscription, menuId),
+                )
+              else
+                IconMenuPicker(
+                  icon: Icons.more_vert_rounded,
+                  menus: const [IconMenuId.clean],
+                  callback: (menuId) => SubscriptionRowController().moreAction(context, item.subscription, menuId),
+                ),
+              Icon(expandIcon, color: Colors.white30, size: 18),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConfigRow(
+    BuildContext context,
+    HomeController controller,
+    ConfigItem item,
+    int selectedConfigId,
+  ) {
+    final data = item.config;
+    final isSelected = data.id == selectedConfigId;
+    final runningId = AppEventBus.instance.state.runningId;
+    final isRunning = data.id == runningId;
+
+    Color statusBg = Colors.transparent;
+    Color nameColor = Colors.white70;
+    if (isRunning) {
+      statusBg = const Color(0xFF00E5A0).withOpacity(0.12);
+      nameColor = const Color(0xFF00E5A0);
+    } else if (isSelected) {
+      statusBg = const Color(0xFF7B61FF).withOpacity(0.08);
+      nameColor = const Color(0xFF9E8CFF);
+    }
+
+    final delayText = (data.delay != PingDelayConstants.unknown) ? PingService().parsePingResponse(data.delay) : "";
+
+    return Material(
+      color: statusBg,
+      child: InkWell(
+        onTap: () => controller.updateConfigId(context, data.id),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+          child: Row(
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isRunning
+                      ? const Color(0xFF00E5A0)
+                      : isSelected
+                          ? const Color(0xFF7B61FF)
+                          : Colors.transparent,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  data.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: nameColor,
+                    fontSize: 12.5,
+                    fontWeight: isSelected || isRunning ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                ),
+              ),
+              if (delayText.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Text(
+                  delayText,
+                  style: TextStyle(
+                    color: (data.delay > 0 && data.delay < 300)
+                        ? const Color(0xFF00E5A0)
+                        : data.delay >= 300
+                            ? const Color(0xFFFFD700)
+                            : Colors.redAccent,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+              const SizedBox(width: 8),
+              IconMenuPicker(
+                icon: Icons.more_vert_rounded,
+                menus: const [
+                  IconMenuId.edit,
+                  IconMenuId.share,
+                  IconMenuId.copy,
+                  IconMenuId.delete,
+                ],
+                callback: (menuId) => ConfigRowController().moreAction(context, data, menuId),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -294,7 +564,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Decorative line
         Container(
           width: 40,
           height: 2,
@@ -310,7 +579,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           duration: const Duration(milliseconds: 400),
           style: TextStyle(
             color: textColor,
-            fontSize: 17,
+            fontSize: 15,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
             shadows: [
