@@ -25,7 +25,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
-  String _activeTab = 'all';
+  String _activeTab = 'wifi';
   late final TabController _tabController = TabController(length: 2, vsync: this);
   late AnimationController _orbitController;
   late AnimationController _pulseController;
@@ -238,12 +238,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   List<ConfigQueryRow> _getFilteredConfigs(List<ConfigQueryRow> configs) {
     final results = <ConfigQueryRow>[];
-    final isAllTab = _activeTab == 'all';
+    final isWifiTab = _activeTab == 'wifi';
 
     bool matchesTab(String name) {
-      if (isAllTab) return true;
       final nameLower = name.toLowerCase();
       final hasLte = nameLower.contains('lte');
+      if (isWifiTab) {
+        return !hasLte;
+      }
       return hasLte;
     }
 
@@ -286,17 +288,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return results;
   }
 
-  String _getTabAllTitle(BuildContext context) {
+  String _getTabWifiTitle(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
-    if (locale == 'ru') return 'Все';
-    if (locale == 'zh') return '全部';
-    if (locale == 'fa') return 'همه';
-    return 'All';
+    if (locale == 'ru') return 'Wi-Fi';
+    if (locale == 'zh') return 'Wi-Fi';
+    if (locale == 'fa') return 'وای‌فای';
+    return 'Wi-Fi';
   }
 
   Widget _buildListHeader(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState) {
     final title = _getServersTitle(context);
-    final isAll = _activeTab == 'all';
+    final isWifi = _activeTab == 'wifi';
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 0),
@@ -314,19 +316,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           GestureDetector(
             onTap: () {
               setState(() {
-                _activeTab = 'all';
+                _activeTab = 'wifi';
               });
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: isAll ? const Color(0xFF00B4A2) : Colors.white.withOpacity(0.06),
+                color: isWifi ? const Color(0xFF00B4A2) : Colors.white.withOpacity(0.06),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                _getTabAllTitle(context),
+                _getTabWifiTitle(context),
                 style: TextStyle(
-                  color: isAll ? Colors.white : Colors.white.withOpacity(0.4),
+                  color: isWifi ? Colors.white : Colors.white.withOpacity(0.4),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -343,13 +345,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: !isAll ? const Color(0xFF00B4A2) : Colors.white.withOpacity(0.06),
+                color: !isWifi ? const Color(0xFF00B4A2) : Colors.white.withOpacity(0.06),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 "LTE",
                 style: TextStyle(
-                  color: !isAll ? Colors.white : Colors.white.withOpacity(0.4),
+                  color: !isWifi ? Colors.white : Colors.white.withOpacity(0.4),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -454,7 +456,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             Icon(Icons.dns_outlined, size: 40, color: Colors.white.withOpacity(0.15)),
             const SizedBox(height: 12),
             Text(
-              _activeTab == 'all' ? "No servers found." : "No LTE servers found.",
+              _activeTab == 'wifi' ? "No Wi-Fi servers found." : "No LTE servers found.",
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white.withOpacity(0.35), fontSize: 13, height: 1.4),
             ),
