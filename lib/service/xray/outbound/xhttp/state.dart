@@ -31,6 +31,14 @@ class XhttpExtraState {
   var uplinkDataPlacement = "";
   var scStreamUpServerSecs = "";
 
+  /// PR #6258 – ASCII character table used to generate session IDs.
+  /// Predefined presets: "base62", "hex", "HEX".
+  var sessionIDTable = "";
+
+  /// PR #6258 – session-ID length range, stored as a range string "min-max"
+  /// or a bare integer string (e.g. "12" or "8-16").
+  var sessionIDLength = "";
+
   var downloadSettings = XhttpDownloadState();
 }
 

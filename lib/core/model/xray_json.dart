@@ -669,6 +669,14 @@ class XrayXhttpSettings {
   String? uplinkDataPlacement;
   dynamic scStreamUpServerSecs;
 
+  /// PR #6258 – custom session-ID character table (ASCII only).
+  /// Predefined presets: "base62", "hex", "HEX".
+  String? sessionIDTable;
+
+  /// PR #6258 – random session-ID length range, serialised as a range string
+  /// like "8-16" or a bare integer like "12".
+  dynamic sessionIDLength;
+
   XrayXhttpSettings(
     this.host,
     this.path,
@@ -697,6 +705,8 @@ class XrayXhttpSettings {
     this.scMaxBufferedPosts,
     this.uplinkDataPlacement,
     this.scStreamUpServerSecs,
+    this.sessionIDTable,
+    this.sessionIDLength,
   );
 
   factory XrayXhttpSettings.fromJson(Map<String, dynamic> json) =>

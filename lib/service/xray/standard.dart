@@ -214,6 +214,8 @@ extension XrayXhttpSettingsStandard on XrayXhttpSettings {
     null,
     null,
     null,
+    null, // sessionIDTable
+    null, // sessionIDLength
   );
 }
 

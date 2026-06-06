@@ -73,6 +73,17 @@ extension XhttpExtraStateWriter on XhttpExtraState {
       xhttpSettings.scStreamUpServerSecs = scStreamUpServerSecs;
     }
 
+    // PR #6258 – session-ID customisation
+    if (sessionIDTable.isNotEmpty) {
+      xhttpSettings.sessionIDTable = sessionIDTable;
+    }
+    if (sessionIDLength.isNotEmpty) {
+      // Preserve as-is: can be a range string "8-16" or bare int "12".
+      // The Go side (SplitHTTPConfig) expects Int32Range – pass as dynamic.
+      xhttpSettings.sessionIDLength =
+          int.tryParse(sessionIDLength) ?? sessionIDLength;
+    }
+
     final xmux = XrayXhttpSettingsXmuxStandard.standard;
     if (maxConcurrency.isNotEmpty) {
       xmux.maxConcurrency = maxConcurrency;

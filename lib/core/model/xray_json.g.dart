@@ -685,6 +685,8 @@ XrayXhttpSettings _$XrayXhttpSettingsFromJson(Map<String, dynamic> json) =>
       json['scMaxBufferedPosts'],
       json['uplinkDataPlacement'] as String?,
       json['scStreamUpServerSecs'],
+      json['sessionIDTable'] as String?,
+      json['sessionIDLength'],
     );
 
 Map<String, dynamic> _$XrayXhttpSettingsToJson(XrayXhttpSettings instance) =>
@@ -716,6 +718,8 @@ Map<String, dynamic> _$XrayXhttpSettingsToJson(XrayXhttpSettings instance) =>
       'scMaxBufferedPosts': ?instance.scMaxBufferedPosts,
       'uplinkDataPlacement': ?instance.uplinkDataPlacement,
       'scStreamUpServerSecs': ?instance.scStreamUpServerSecs,
+      'sessionIDTable': ?instance.sessionIDTable,
+      'sessionIDLength': ?instance.sessionIDLength,
     };
 
 XrayXhttpSettingsXmux _$XrayXhttpSettingsXmuxFromJson(

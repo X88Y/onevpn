@@ -43,6 +43,10 @@ extension XhttpExtraStateValidator on XhttpExtraState {
     uplinkDataPlacement = uplinkDataPlacement.removeWhitespace;
     scStreamUpServerSecs = scStreamUpServerSecs.removeWhitespace;
 
+    // PR #6258
+    sessionIDTable = sessionIDTable.removeWhitespace;
+    sessionIDLength = sessionIDLength.removeWhitespace;
+
     downloadSettings.removeWhitespace();
   }
 
@@ -117,6 +121,10 @@ extension XhttpExtraStateValidator on XhttpExtraState {
     if (EmptyTool.checkString(scMaxBufferedPosts)) return false;
     if (EmptyTool.checkString(uplinkDataPlacement)) return false;
     if (EmptyTool.checkString(scStreamUpServerSecs)) return false;
+
+    // PR #6258
+    if (EmptyTool.checkString(sessionIDTable)) return false;
+    if (EmptyTool.checkString(sessionIDLength)) return false;
 
     if (!downloadSettings.isBlank) {
       return false;

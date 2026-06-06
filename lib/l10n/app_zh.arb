@@ -313,6 +313,8 @@
   "outboundXhttpScreenXmuxHMaxReusableSecs": "hMaxReusableSecs",
   "outboundXhttpScreenXmuxHMaxRequestTimes": "hMaxRequestTimes",
   "outboundXhttpScreenXmuxHKeepAlivePeriod": "hKeepAlivePeriod",
+  "outboundXhttpScreenSessionIDTable": "sessionIDTable",
+  "outboundXhttpScreenSessionIDLength": "sessionIDLength",
   "outboundXhttpScreenDownloadConfigs": "downloadSettings",
   "qrcodeScreenTitle": "扫描二维码",
   "subscriptionAddScreenTitle": "订阅",

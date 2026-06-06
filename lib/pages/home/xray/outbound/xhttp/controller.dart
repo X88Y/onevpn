@@ -59,6 +59,8 @@ class OutboundXhttpController extends Cubit<OutboundXhttpState> {
     hMaxReusableSecsController.dispose();
     hMaxRequestTimesController.dispose();
     hKeepAlivePeriodController.dispose();
+    sessionIDTableController.dispose();
+    sessionIDLengthController.dispose();
 
     for (final controller in state.headers) {
       controller.key.dispose();
@@ -102,6 +104,9 @@ class OutboundXhttpController extends Cubit<OutboundXhttpState> {
     hMaxReusableSecsController.text = extraState.hMaxReusableSecs;
     hMaxRequestTimesController.text = extraState.hMaxRequestTimes;
     hKeepAlivePeriodController.text = extraState.hKeepAlivePeriod;
+
+    sessionIDTableController.text = extraState.sessionIDTable;
+    sessionIDLengthController.text = extraState.sessionIDLength;
   }
 
   void appendHeader() {
@@ -125,6 +130,10 @@ class OutboundXhttpController extends Cubit<OutboundXhttpState> {
   final hMaxReusableSecsController = TextEditingController();
   final hMaxRequestTimesController = TextEditingController();
   final hKeepAlivePeriodController = TextEditingController();
+
+  // PR #6258
+  final sessionIDTableController = TextEditingController();
+  final sessionIDLengthController = TextEditingController();
 
   Future<void> editXhttpDownloadSettings(BuildContext context) async {
     final params = XhttpDownloadSettingsParams(
@@ -181,5 +190,9 @@ class OutboundXhttpController extends Cubit<OutboundXhttpState> {
     extraState.hMaxReusableSecs = hMaxReusableSecsController.text;
     extraState.hMaxRequestTimes = hMaxRequestTimesController.text;
     extraState.hKeepAlivePeriod = hKeepAlivePeriodController.text;
+
+    // PR #6258
+    extraState.sessionIDTable = sessionIDTableController.text;
+    extraState.sessionIDLength = sessionIDLengthController.text;
   }
 }

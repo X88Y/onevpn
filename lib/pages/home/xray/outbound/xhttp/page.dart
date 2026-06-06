@@ -106,6 +106,8 @@ class OutboundXhttpPage extends StatelessWidget {
           _noGRPCHeader(context, controller, state),
           _scMaxEachPostBytes(context, controller),
           _scMinPostsIntervalMs(context, controller),
+          _sessionIDTable(context, controller),
+          _sessionIDLength(context, controller),
         ],
       ),
     );
@@ -150,6 +152,27 @@ class OutboundXhttpPage extends StatelessWidget {
       decoration: InputDecoration(
         label: Text(AppLocalizations.of(context)!.outboundXhttpScreenScMinPostsIntervalMs),
         hintText: AppLocalizations.of(context)!.outboundXhttpScreenScMinPostsIntervalMs,
+      ),
+    );
+  }
+
+  // PR #6258 – custom session-ID fields
+  Widget _sessionIDTable(BuildContext context, OutboundXhttpController controller) {
+    return TextField(
+      controller: controller.sessionIDTableController,
+      decoration: InputDecoration(
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenSessionIDTable),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenSessionIDTable,
+      ),
+    );
+  }
+
+  Widget _sessionIDLength(BuildContext context, OutboundXhttpController controller) {
+    return TextField(
+      controller: controller.sessionIDLengthController,
+      decoration: InputDecoration(
+        label: Text(AppLocalizations.of(context)!.outboundXhttpScreenSessionIDLength),
+        hintText: AppLocalizations.of(context)!.outboundXhttpScreenSessionIDLength,
       ),
     );
   }

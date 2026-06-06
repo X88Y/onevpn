@@ -79,6 +79,18 @@ extension XhttpExtraStateReader on XhttpExtraState {
       scStreamUpServerSecs = settings.scStreamUpServerSecs.toString();
     }
 
+    // PR #6258 – session-ID customisation
+    if (settings.sessionIDTable != null &&
+        settings.sessionIDTable!.isNotEmpty) {
+      sessionIDTable = settings.sessionIDTable!;
+    }
+    if (settings.sessionIDLength != null) {
+      final str = settings.sessionIDLength.toString();
+      if (str.isNotEmpty) {
+        sessionIDLength = str;
+      }
+    }
+
     if (settings.xmux != null) {
       final xmux = settings.xmux!;
       if (xmux.maxConcurrency != null) {
