@@ -68,6 +68,6 @@ extension TunSettingStateValidator on TunSettingState {
 
 extension OnDemandRuleStateValidator on OnDemandRuleState {
   void removeWhitespace() {
-    ssid = ssid.removeWhitespace;
+    ssid = ssid.map((e) => e.trim()).where((e) => e.isNotEmpty).toSet();
   }
 }

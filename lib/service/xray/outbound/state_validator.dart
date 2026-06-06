@@ -31,7 +31,7 @@ extension OutboundStateValidator on OutboundState {
   }
 
   void removeWhitespace() {
-    name = name.removeWhitespace;
+    name = name.trim();
 
     address = address.removeWhitespace;
     port = port.removeWhitespace;

@@ -1,5 +1,4 @@
 import 'package:mvmvpn/core/tools/empty.dart';
-import 'package:mvmvpn/core/tools/extensions.dart';
 import 'package:mvmvpn/service/localizations/service.dart';
 import 'package:mvmvpn/service/xray/json_writer.dart';
 import 'package:mvmvpn/service/xray/setting/state.dart';
@@ -21,7 +20,7 @@ extension XraySettingStateValidator on XraySettingState {
   }
 
   void removeWhitespace() {
-    name = name.removeWhitespace;
+    name = name.trim();
     dns.removeWhitespace();
     routing.removeWhitespace();
     inbounds.removeWhitespace();

@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:duration/duration.dart';
-import 'package:duration/locale.dart';
 import 'package:mvmvpn/core/tools/platform.dart';
 import 'package:mvmvpn/core/constants/preferences.dart';
 import 'package:mvmvpn/core/db/database/constants.dart';
@@ -455,12 +453,10 @@ final class VpnService {
   void _updateDuration() {
     final now = DateTime.now();
     final duration = now.difference(_startTime);
-    final languageCode =
-        AppEventBus.instance.state.languageCode.locale.languageCode;
-    final locale =
-        DurationLocale.fromLanguageCode(languageCode) ??
-        EnglishDurationLocale();
-    final text = duration.pretty(locale: locale);
+    final hours = duration.inHours.toString().padLeft(2, '0');
+    final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    final text = "$hours : $minutes : $seconds";
     final eventBus = AppEventBus.instance;
     eventBus.updateLocationDuration(text);
   }

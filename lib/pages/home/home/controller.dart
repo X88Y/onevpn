@@ -255,6 +255,9 @@ class HomeController extends Cubit<HomeState> {
     await prefs.clear();
     await AuthService().signOut();
     emit(HomeState.initial());
+    if (context.mounted) {
+      context.go(RouterPath.firstRun);
+    }
   }
 
   Future<void> regenerateTokenForce() async {

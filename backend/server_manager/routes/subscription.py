@@ -320,12 +320,12 @@ async def aggregate_subscription(sub_id: str) -> Response:
     if is_expired:
         merged = []
         profile_title = "-> VK: mvmvpn"
-        support_url = "https://m.vk.com/write-199074445"
-        profile_web_page_url = "https://m.vk.com/write-199074445"
+        support_url = "https://m.vk.com/write-130898973"
+        profile_web_page_url = "https://m.vk.com/write-130898973"
         announce = "-> VK: mvmvpn"
     else:
         profile_title = "MVM Vpn"
-        support_url = "https://m.vk.com/write-199074445"
+        support_url = "https://m.vk.com/write-130898973"
         profile_web_page_url = ""
         announce = ""
 

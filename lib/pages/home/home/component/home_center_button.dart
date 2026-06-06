@@ -24,21 +24,24 @@ class HomeCenterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color primaryColor = const Color(0xFF7B61FF);
-    Color secondaryColor = const Color(0xFF2D1B69);
-    Color glowColor = const Color(0xFF9D8CFF);
-    Color accentColor = const Color(0xFF00F0FF);
+    Color primaryColor = const Color(0xFF2D2D30);
+    Color secondaryColor = const Color(0xFF1C1C1E);
+    Color glowColor = Colors.white.withOpacity(0.1);
+    Color accentColor = Colors.white.withOpacity(0.15);
+    Color borderColor = Colors.white.withOpacity(0.15);
 
     if (isLoading) {
       primaryColor = const Color(0xFFFFD700);
       secondaryColor = const Color(0xFFB8860B);
       glowColor = const Color(0xFFFFE066);
       accentColor = const Color(0xFFFF8C00);
+      borderColor = glowColor.withOpacity(0.6);
     } else if (isRunning) {
       primaryColor = const Color(0xFF00E5A0);
       secondaryColor = const Color(0xFF005A3C);
       glowColor = const Color(0xFF66FFC2);
       accentColor = const Color(0xFF00FF88);
+      borderColor = glowColor.withOpacity(0.6);
     }
 
     return GestureDetector(
@@ -47,68 +50,12 @@ class HomeCenterButton extends StatelessWidget {
         animation: Listenable.merge([orbitController, pulseAnim, sonarController]),
         builder: (context, child) {
           return SizedBox(
-            width: 260,
-            height: 260,
+            width: 180,
+            height: 180,
             child: Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.center,
               children: [
-                // Hex sonar waves
-                if (isRunning || isLoading)
-                  CustomPaint(
-                    size: const Size(260, 260),
-                    painter: HexSonarPainter(
-                      progress: sonarController.value,
-                      color: accentColor,
-                    ),
-                  ),
-
-                // Outer gyroscope ring 1 (large, slow, dotted)
-                Transform.rotate(
-                  angle: orbitController.value * 2 * pi * 0.3,
-                  child: CustomPaint(
-                    size: const Size(240, 240),
-                    painter: GyroRingPainter(
-                      color: glowColor.withOpacity(0.25),
-                      radius: 115,
-                      segments: 24,
-                      segmentWidth: 6,
-                      gapWidth: 4,
-                    ),
-                  ),
-                ),
-
-                // Middle gyroscope ring 2 (medium, reverse, dash-dot)
-                Transform.rotate(
-                  angle: -orbitController.value * 2 * pi * 0.5,
-                  child: CustomPaint(
-                    size: const Size(200, 200),
-                    painter: GyroRingPainter(
-                      color: accentColor.withOpacity(0.3),
-                      radius: 90,
-                      segments: 12,
-                      segmentWidth: 12,
-                      gapWidth: 8,
-                    ),
-                  ),
-                ),
-
-                // Inner energy ring (fast, thin with nodes)
-                Transform.rotate(
-                  angle: orbitController.value * 2 * pi * 0.8,
-                  child: CustomPaint(
-                    size: const Size(170, 170),
-                    painter: GyroRingPainter(
-                      color: glowColor.withOpacity(0.4),
-                      radius: 72,
-                      segments: 8,
-                      segmentWidth: 2,
-                      gapWidth: 2,
-                      drawNodes: true,
-                    ),
-                  ),
-                ),
-
                 // Core glow
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 600),
@@ -119,14 +66,9 @@ class HomeCenterButton extends StatelessWidget {
                     boxShadow: [
                       BoxShadow(
                         color: glowColor.withOpacity(
-                            isRunning && !isLoading ? 0.45 : isLoading ? 0.5 : 0.25),
-                        blurRadius: 60,
-                        spreadRadius: 15,
-                      ),
-                      BoxShadow(
-                        color: accentColor.withOpacity(0.15),
-                        blurRadius: 100,
-                        spreadRadius: 30,
+                            isRunning && !isLoading ? 0.35 : isLoading ? 0.4 : 0.15),
+                        blurRadius: 40,
+                        spreadRadius: 10,
                       ),
                     ],
                   ),
@@ -137,8 +79,8 @@ class HomeCenterButton extends StatelessWidget {
                   scale: (isRunning && !isLoading) ? pulseAnim.value : 1.0,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 500),
-                    width: 140,
-                    height: 140,
+                    width: 130,
+                    height: 130,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
@@ -147,18 +89,18 @@ class HomeCenterButton extends StatelessWidget {
                         colors: [primaryColor, secondaryColor],
                       ),
                       border: Border.all(
-                        color: glowColor.withOpacity(0.6),
+                        color: borderColor,
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: glowColor.withOpacity(0.4),
-                          blurRadius: 20,
-                          spreadRadius: 2,
+                          color: glowColor.withOpacity(0.2),
+                          blurRadius: 15,
+                          spreadRadius: 1,
                         ),
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.4),
-                          blurRadius: 10,
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
                       ],
@@ -174,7 +116,7 @@ class HomeCenterButton extends StatelessWidget {
                                 center: const Alignment(-0.2, -0.2),
                                 radius: 0.8,
                                 colors: [
-                                  Colors.white.withOpacity(0.2),
+                                  Colors.white.withOpacity(0.15),
                                   Colors.transparent,
                                 ],
                               ),

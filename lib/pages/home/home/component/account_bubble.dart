@@ -1,9 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 import 'package:mvmvpn/pages/home/home/controller.dart';
-import 'social_bubble.dart';
 
 class AccountBubble extends StatelessWidget {
   final HomeController controller;
@@ -23,7 +21,7 @@ class AccountBubble extends StatelessWidget {
     final iconSize = isSmall ? 16.0 : 20.0;
     
     return GestureDetector(
-      onTap: isLoading ? null : () => _showAccountModal(context, controller, showDelete: !isSmall),
+      onTap: isLoading ? null : () => _showAccountModal(context, controller),
       child: Container(
         width: size,
         height: size,
@@ -42,7 +40,7 @@ class AccountBubble extends StatelessWidget {
     );
   }
 
-  void _showAccountModal(BuildContext context, HomeController controller, {required bool showDelete}) {
+  void _showAccountModal(BuildContext context, HomeController controller) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -52,7 +50,7 @@ class AccountBubble extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF0F1120).withOpacity(0.8),
+              color: const Color(0xFF0F1120).withOpacity(0.85),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               border: Border.all(color: Colors.white.withOpacity(0.1)),
             ),
@@ -72,66 +70,10 @@ class AccountBubble extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                GestureDetector(
-                  onTap: isLoading ? null : () {
-                    Navigator.pop(context);
-                    controller.regenerateTokenForce();
-                  },
-                  behavior: HitTestBehavior.opaque,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SocialBubble(
-                          icon: FontAwesomeIcons.arrowsRotate,
-                          glowColor: const Color(0xFFFFC107),
-                          onTap: () {}, // Already handled by parent GestureDetector
-                          isLoading: isLoading,
-                          isEnabled: true,
-                        ),
-                        const SizedBox(width: 16),
-                        Text(
-                          AppLocalizations.of(context)!.mainFixVpn,
-                          style: const TextStyle(
-                            color: Color(0xFFFFC107),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Divider(color: Colors.white.withOpacity(0.08)),
-
                 ListTile(
-                  leading: Icon(Icons.description_outlined, color: Colors.white.withOpacity(0.7)),
+                  leading: Icon(Icons.shield_outlined, color: Colors.blueAccent.withOpacity(0.8)),
                   title: Text(
-                    AppLocalizations.of(context)!.mainThirdPartyLicense,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    controller.openUrl('https://front-redirect.vercel.app/license');
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.privacy_tip_outlined, color: Colors.white.withOpacity(0.7)),
-                  title: Text(
-                    AppLocalizations.of(context)!.mainTerms,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    controller.openUrl('https://www.aiverge.net/terms');
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.shield_outlined, color: Colors.white.withOpacity(0.7)),
-                  title: Text(
-                    AppLocalizations.of(context)!.mainPrivacy,
+                    AppLocalizations.of(context)!.privacyPolicy,
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                   ),
                   onTap: () {
@@ -139,25 +81,76 @@ class AccountBubble extends StatelessWidget {
                     controller.openUrl('https://www.aiverge.net/privacy');
                   },
                 ),
-                if (showDelete) ...[
-                  Divider(color: Colors.white.withOpacity(0.08)),
-                  ListTile(
-                    leading: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
-                    title: Text(
-                      AppLocalizations.of(context)!.mainDeleteAccount,
-                      style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      controller.clearAllData();
-                    },
+                Divider(color: Colors.white.withOpacity(0.08)),
+                ListTile(
+                  leading: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
+                  title: Text(
+                    AppLocalizations.of(context)!.mainDeleteAccount,
+                    style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600),
                   ),
-                ],
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showDeleteConfirmation(context, controller);
+                  },
+                ),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, HomeController controller) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF0F1120),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: Colors.white.withOpacity(0.1)),
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
+            const SizedBox(width: 8),
+            Text(
+              AppLocalizations.of(context)!.mainDeleteAccount,
+              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Text(
+          AppLocalizations.of(context)!.mainDeleteAccountConfirm,
+          style: TextStyle(color: Colors.white.withOpacity(0.7), height: 1.4),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: Text(
+              AppLocalizations.of(context)!.btnCancel,
+              style: TextStyle(color: Colors.white.withOpacity(0.6)),
+            ),
+            onPressed: () => Navigator.pop(ctx),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: Text(
+              AppLocalizations.of(context)!.navDelete,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              controller.clearAllData();
+            },
+          ),
+        ],
+      ),
     );
   }
 }

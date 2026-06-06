@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mvmvpn/pages/main/url.dart';
 import 'package:mvmvpn/core/db/database/constants.dart';
 import 'package:mvmvpn/core/db/database/database.dart';
 import 'package:mvmvpn/core/db/dao/config_query.dart';
@@ -9,13 +11,11 @@ import 'package:mvmvpn/pages/home/home/controller.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
 import 'package:mvmvpn/service/event_bus/state.dart';
 import 'package:mvmvpn/service/ping/service.dart';
-import 'package:mvmvpn/pages/widget/menu_picker.dart';
-import 'package:mvmvpn/pages/home/component/subscription_row/controller.dart';
-import 'package:mvmvpn/pages/home/component/config_row/controller.dart';
 
 import 'package:mvmvpn/pages/home/home/component/home_painters.dart';
 import 'package:mvmvpn/pages/home/home/component/ambient_orbs.dart';
 import 'package:mvmvpn/pages/home/home/component/home_center_button.dart';
+import 'package:mvmvpn/pages/home/home/component/account_bubble.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,6 +25,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  String _activeTab = 'all';
   late final TabController _tabController = TabController(length: 2, vsync: this);
   late AnimationController _orbitController;
   late AnimationController _pulseController;
@@ -104,6 +105,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     );
                   },
                   child: SafeArea(
+                    bottom: false,
                     child: Stack(
                       children: [
                         // Mesh grid background
@@ -134,32 +136,64 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         // Ambient orbs background
                         AmbientOrbs(floatAnim: _floatAnim, bgAnim: _bgAnim, isRunning: isRunning),
                         // Main content
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                          child: Column(
-                            children: [
-                              _buildTopBar(context, controller, eventState, homeState, isLoading),
-                              const SizedBox(height: 10),
-                              HomeCenterButton(
-                                controller: controller,
-                                isRunning: isRunning,
-                                isLoading: isLoading || homeState.connectingProvider != null,
-                                orbitController: _orbitController,
-                                sonarController: _sonarController,
-                                pulseAnim: _pulseAnim,
+                        Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                              child: _buildTopBar(context, controller, eventState, homeState, isLoading),
+                            ),
+                            const Spacer(flex: 1),
+                            HomeCenterButton(
+                              controller: controller,
+                              isRunning: isRunning,
+                              isLoading: isLoading || homeState.connectingProvider != null,
+                              orbitController: _orbitController,
+                              sonarController: _sonarController,
+                              pulseAnim: _pulseAnim,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              child: _buildStatusText(eventState, isRunning, isLoading),
+                            ),
+                            const Spacer(flex: 1),
+                            Expanded(
+                              flex: 18,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0F0F12),
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(30),
+                                    topRight: Radius.circular(30),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.4),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, -6),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(30),
+                                    topRight: Radius.circular(30),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+                                        child: _buildListHeader(context, controller, eventState, homeState),
+                                      ),
+                                      Divider(color: Colors.white.withOpacity(0.05), height: 1),
+                                      Expanded(
+                                        child: _buildServerList(context, controller, homeState),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              const SizedBox(height: 15),
-                              _buildStatusText(eventState, isRunning, isLoading),
-                              const SizedBox(height: 12),
-                              _buildSelectedServerInfo(context, controller, homeState),
-                              const SizedBox(height: 16),
-                              _buildActionButtonsRow(context, controller, eventState),
-                              const SizedBox(height: 16),
-                              Expanded(
-                                child: _buildServerList(context, controller, homeState),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -175,171 +209,217 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Widget _buildTopBar(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState, bool isLoading) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        IconButton(
-          icon: const Icon(Icons.info_outline_rounded, color: Colors.white70),
-          onPressed: () => controller.gotoNodeInfo(context),
+        const Text(
+          "🇷🇺 Freedom",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+          ),
         ),
-        const Spacer(),
-        IconButton(
-          icon: const Icon(Icons.settings_outlined, color: Colors.white70),
-          onPressed: () => controller.gotoSettings(context),
+        AccountBubble(
+          controller: controller,
+          isLoading: isLoading,
         ),
       ],
     );
   }
 
-  Widget _buildSelectedServerInfo(BuildContext context, HomeController controller, HomeState homeState) {
-    CoreConfigData? selectedConfig;
-    for (final row in homeState.configs) {
-      if (row is ConfigItem && row.config.id == homeState.configId) {
-        selectedConfig = row.config;
-        break;
+  String _getServersTitle(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    if (locale == 'ru') return 'Серверы';
+    if (locale == 'zh') return '服务器';
+    if (locale == 'fa') return 'سرورها';
+    return 'Servers';
+  }
+
+  List<ConfigQueryRow> _getFilteredConfigs(List<ConfigQueryRow> configs) {
+    final results = <ConfigQueryRow>[];
+    final isAllTab = _activeTab == 'all';
+
+    bool matchesTab(String name) {
+      if (isAllTab) return true;
+      final nameLower = name.toLowerCase();
+      final hasLte = nameLower.contains('lte');
+      return hasLte;
+    }
+
+    final subItems = <int, SubscriptionItem>{};
+    final allConfigItems = <int, List<ConfigItem>>{};
+
+    for (final row in configs) {
+      if (row is SubscriptionItem) {
+        subItems[row.subscription.id] = row;
+        allConfigItems[row.subscription.id] = [];
+      } else if (row is ConfigItem) {
+        final subId = row.config.subId;
+        allConfigItems.putIfAbsent(subId, () => []).add(row);
       }
     }
 
-    final name = selectedConfig?.name ?? "No Server Selected";
-    final delay = (selectedConfig?.delay != null && selectedConfig!.delay != PingDelayConstants.unknown)
-        ? PingService().parsePingResponse(selectedConfig.delay)
-        : "";
+    for (final subId in subItems.keys) {
+      final subRow = subItems[subId]!;
+      final configsInSub = allConfigItems[subId] ?? [];
+      final matchingConfigs = configsInSub.where((c) => matchesTab(c.config.name)).toList();
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
-      ),
+      if (matchingConfigs.isEmpty && subId != DBConstants.defaultId) {
+        continue;
+      }
+
+      final newSubItem = SubscriptionItem(
+        subRow.subscription.copyWith(count: matchingConfigs.length),
+        ConfigQueryRowType.subscription,
+      )..count = matchingConfigs.length;
+
+      if (subRow.subscription.name == "Основная подписка") {
+        results.addAll(matchingConfigs);
+      } else {
+        results.add(newSubItem);
+        if (subRow.subscription.expanded) {
+          results.addAll(matchingConfigs);
+        }
+      }
+    }
+    return results;
+  }
+
+  String _getTabAllTitle(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    if (locale == 'ru') return 'Все';
+    if (locale == 'zh') return '全部';
+    if (locale == 'fa') return 'همه';
+    return 'All';
+  }
+
+  Widget _buildListHeader(BuildContext context, HomeController controller, AppEventBusState eventState, HomeState homeState) {
+    final title = _getServersTitle(context);
+    final isAll = _activeTab == 'all';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 0),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.dns_rounded, size: 14, color: Colors.white.withOpacity(0.5)),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
-              name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
             ),
           ),
-          if (delay.isNotEmpty) ...[
-            const SizedBox(width: 8),
-            Container(
-              width: 4,
-              height: 4,
-              decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withOpacity(0.3)),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              delay,
-              style: TextStyle(
-                color: (selectedConfig!.delay > 0 && selectedConfig.delay < 300)
-                    ? const Color(0xFF00E5A0)
-                    : selectedConfig.delay >= 300
-                        ? const Color(0xFFFFD700)
-                        : Colors.redAccent,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
+          const SizedBox(width: 16),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _activeTab = 'all';
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              decoration: BoxDecoration(
+                color: isAll ? const Color(0xFF00B4A2) : Colors.white.withOpacity(0.06),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                _getTabAllTitle(context),
+                style: TextStyle(
+                  color: isAll ? Colors.white : Colors.white.withOpacity(0.4),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ],
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _activeTab = 'lte';
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              decoration: BoxDecoration(
+                color: !isAll ? const Color(0xFF00B4A2) : Colors.white.withOpacity(0.06),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                "LTE",
+                style: TextStyle(
+                  color: !isAll ? Colors.white : Colors.white.withOpacity(0.4),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          const Spacer(),
+          _circularIconButton(
+            icon: Icons.report_problem_rounded,
+            color: Colors.redAccent.withOpacity(0.12),
+            iconColor: Colors.redAccent,
+            onPressed: () {
+              context.push(RouterPath.log);
+            },
+          ),
+          const SizedBox(width: 8),
+          _circularIconButton(
+            icon: Icons.sync_rounded,
+            color: Colors.white.withOpacity(0.06),
+            iconColor: Colors.white.withOpacity(0.6),
+            isLoading: eventState.downloading,
+            onPressed: () => controller.updateSubscription(),
+          ),
+          const SizedBox(width: 8),
+          _circularIconButton(
+            icon: Icons.access_time_rounded,
+            color: Colors.white.withOpacity(0.06),
+            iconColor: Colors.white.withOpacity(0.6),
+            isLoading: eventState.pinging,
+            onPressed: () => controller.pingAll(),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildActionButtonsRow(BuildContext context, HomeController controller, AppEventBusState eventState) {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 46,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFF7B61FF).withOpacity(0.25),
-                  const Color(0xFF00B8D4).withOpacity(0.15),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFF7B61FF).withOpacity(0.35)),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => controller.importFromClipboard(),
-                borderRadius: BorderRadius.circular(14),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.content_paste_rounded, size: 16, color: Color(0xFF9E8CFF)),
-                      const SizedBox(width: 8),
-                      Text(
-                        AppLocalizations.of(context)!.navReadPasteboard,
-                        style: const TextStyle(
-                          color: Color(0xFFD4CCFF),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        _iconActionButton(
-          icon: Icons.speed_rounded,
-          tooltip: "Ping All",
-          isLoading: eventState.pinging,
-          onPressed: () => controller.pingAll(),
-        ),
-        const SizedBox(width: 10),
-        _iconActionButton(
-          icon: Icons.sync_rounded,
-          tooltip: "Update Subscriptions",
-          isLoading: eventState.downloading,
-          onPressed: () => controller.updateSubscription(),
-        ),
-      ],
-    );
-  }
-
-  Widget _iconActionButton({
+  Widget _circularIconButton({
     required IconData icon,
-    required String tooltip,
-    required bool isLoading,
+    required Color color,
+    required Color iconColor,
     required VoidCallback onPressed,
+    bool isLoading = false,
   }) {
-    return Tooltip(
-      message: tooltip,
-      child: Container(
-        width: 46,
-        height: 46,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.04),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.08)),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: isLoading ? null : onPressed,
-            borderRadius: BorderRadius.circular(14),
-            child: Center(
-              child: isLoading
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
-                    )
-                  : Icon(icon, color: Colors.white70, size: 18),
-            ),
+    return Container(
+      width: 38,
+      height: 38,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isLoading ? null : onPressed,
+          borderRadius: BorderRadius.circular(10),
+          child: Center(
+            child: isLoading
+                ? SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(iconColor),
+                    ),
+                  )
+                : Icon(
+                    icon,
+                    color: iconColor,
+                    size: 18,
+                  ),
           ),
         ),
       ),
@@ -364,29 +444,40 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       );
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF0A0C16).withOpacity(0.6),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: ListView.separated(
-          padding: EdgeInsets.zero,
-          itemCount: homeState.configs.length,
-          separatorBuilder: (_, __) => Divider(color: Colors.white.withOpacity(0.03), height: 1),
-          itemBuilder: (ctx, index) {
-            final row = homeState.configs[index];
-            if (row is SubscriptionItem) {
-              return _buildSubscriptionRow(ctx, controller, row);
-            } else if (row is ConfigItem) {
-              return _buildConfigRow(ctx, controller, row, homeState.configId);
-            }
-            return const SizedBox.shrink();
-          },
+    final filteredConfigs = _getFilteredConfigs(homeState.configs);
+
+    if (filteredConfigs.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.dns_outlined, size: 40, color: Colors.white.withOpacity(0.15)),
+            const SizedBox(height: 12),
+            Text(
+              _activeTab == 'all' ? "No servers found." : "No LTE servers found.",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white.withOpacity(0.35), fontSize: 13, height: 1.4),
+            ),
+          ],
         ),
+      );
+    }
+
+    return ListView.separated(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).padding.bottom + 24,
       ),
+      itemCount: filteredConfigs.length,
+      separatorBuilder: (_, __) => Divider(color: Colors.white.withOpacity(0.04), height: 1),
+      itemBuilder: (ctx, index) {
+        final row = filteredConfigs[index];
+        if (row is SubscriptionItem) {
+          return _buildSubscriptionRow(ctx, controller, row);
+        } else if (row is ConfigItem) {
+          return _buildConfigRow(ctx, controller, row, homeState.configId);
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 
@@ -423,30 +514,87 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
               ),
-              if (item.subscription.id > DBConstants.defaultId)
-                IconMenuPicker(
-                  icon: Icons.more_vert_rounded,
-                  menus: const [
-                    IconMenuId.refresh,
-                    IconMenuId.share,
-                    IconMenuId.edit,
-                    IconMenuId.delete,
-                    IconMenuId.clean,
-                  ],
-                  callback: (menuId) => SubscriptionRowController().moreAction(context, item.subscription, menuId),
-                )
-              else
-                IconMenuPicker(
-                  icon: Icons.more_vert_rounded,
-                  menus: const [IconMenuId.clean],
-                  callback: (menuId) => SubscriptionRowController().moreAction(context, item.subscription, menuId),
-                ),
               Icon(expandIcon, color: Colors.white30, size: 18),
             ],
           ),
         ),
       ),
     );
+  }
+
+  _EmojiParseResult _parseConfigEmojiAndName(String name) {
+    if (name.isEmpty) {
+      return _EmojiParseResult(getFlagEmoji(name), name);
+    }
+
+    final runes = name.runes.toList();
+    final firstRune = runes.first;
+
+    // Check if it's a regional indicator (flag)
+    if (firstRune >= 0x1F1E6 && firstRune <= 0x1F1FF) {
+      if (runes.length >= 2 && runes[1] >= 0x1F1E6 && runes[1] <= 0x1F1FF) {
+        final emoji = String.fromCharCodes([firstRune, runes[1]]);
+        final parsedName = String.fromCharCodes(runes.sublist(2)).trim().replaceFirst(RegExp(r'^[-_\s]+'), '');
+        return _EmojiParseResult(emoji, parsedName);
+      }
+    }
+
+    // Check if it's a standard emoji
+    if ((firstRune >= 0x1F300 && firstRune <= 0x1F9FF) ||
+        (firstRune >= 0x1F600 && firstRune <= 0x1F64F) ||
+        (firstRune >= 0x1F680 && firstRune <= 0x1F6FF) ||
+        (firstRune >= 0x2600 && firstRune <= 0x27BF) ||
+        (firstRune >= 0x1F900 && firstRune <= 0x1F9FF) ||
+        (firstRune >= 0x1FA70 && firstRune <= 0x1FAFF)) {
+      int endIdx = 1;
+      while (endIdx < runes.length) {
+        final nextRune = runes[endIdx];
+        if (nextRune == 0xFE0F || nextRune == 0x200D || (nextRune >= 0x1F3FB && nextRune <= 0x1F3FF)) {
+          endIdx++;
+          if (nextRune == 0x200D && endIdx < runes.length) {
+            endIdx++;
+          }
+        } else {
+          break;
+        }
+      }
+      final emoji = String.fromCharCodes(runes.sublist(0, endIdx));
+      final parsedName = String.fromCharCodes(runes.sublist(endIdx)).trim().replaceFirst(RegExp(r'^[-_\s]+'), '');
+      return _EmojiParseResult(emoji, parsedName);
+    }
+
+    return _EmojiParseResult(getFlagEmoji(name), name);
+  }
+
+  String getFlagEmoji(String name) {
+    final nameLower = name.toLowerCase();
+    if (nameLower.contains('германия') || nameLower.contains('germany')) {
+      return '🇩🇪';
+    }
+    if (nameLower.contains('швеция') || nameLower.contains('sweden')) {
+      return '🇸🇪';
+    }
+    if (nameLower.contains('финляндия') || nameLower.contains('finland') || nameLower.contains('lte авто') || nameLower.contains('lte auto')) {
+      return '🇫🇮';
+    }
+    if (nameLower.contains('эстония') || nameLower.contains('estonia')) {
+      return '🇪🇪';
+    }
+    if (nameLower.contains('польша') || nameLower.contains('poland')) {
+      return '🇵🇱';
+    }
+    return '🌐';
+  }
+
+  String getProtocolAndNetworkText(String tags, String defaultType) {
+    if (tags.isEmpty) {
+      return "${defaultType.toUpperCase()} | TCP";
+    }
+    final parts = tags.split(',');
+    if (parts.length >= 2) {
+      return "${parts[0].toUpperCase()} | ${parts[1].toUpperCase()}";
+    }
+    return "${parts[0].toUpperCase()} | TCP";
   }
 
   Widget _buildConfigRow(
@@ -461,48 +609,56 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     final isRunning = data.id == runningId;
 
     Color statusBg = Colors.transparent;
-    Color nameColor = Colors.white70;
     if (isRunning) {
-      statusBg = const Color(0xFF00E5A0).withOpacity(0.12);
-      nameColor = const Color(0xFF00E5A0);
+      statusBg = const Color(0xFF00E5A0).withOpacity(0.08);
     } else if (isSelected) {
-      statusBg = const Color(0xFF7B61FF).withOpacity(0.08);
-      nameColor = const Color(0xFF9E8CFF);
+      statusBg = Colors.white.withOpacity(0.04);
     }
 
     final delayText = (data.delay != PingDelayConstants.unknown) ? PingService().parsePingResponse(data.delay) : "";
+    final parsed = _parseConfigEmojiAndName(data.name);
 
     return Material(
       color: statusBg,
       child: InkWell(
         onTap: () => controller.updateConfigId(context, data.id),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Row(
             children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isRunning
-                      ? const Color(0xFF00E5A0)
-                      : isSelected
-                          ? const Color(0xFF7B61FF)
-                          : Colors.transparent,
-                ),
+              Text(
+                parsed.emoji,
+                style: const TextStyle(fontSize: 24),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 16),
               Expanded(
-                child: Text(
-                  data.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: nameColor,
-                    fontSize: 12.5,
-                    fontWeight: isSelected || isRunning ? FontWeight.w600 : FontWeight.normal,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      parsed.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: isRunning
+                            ? const Color(0xFF00E5A0)
+                            : isSelected
+                                ? Colors.white
+                                : Colors.white.withOpacity(0.85),
+                        fontSize: 14,
+                        fontWeight: isSelected || isRunning ? FontWeight.w600 : FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      getProtocolAndNetworkText(data.tags, data.type),
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.4),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               if (delayText.isNotEmpty) ...[
@@ -520,17 +676,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                 ),
               ],
-              const SizedBox(width: 8),
-              IconMenuPicker(
-                icon: Icons.more_vert_rounded,
-                menus: const [
-                  IconMenuId.edit,
-                  IconMenuId.share,
-                  IconMenuId.copy,
-                  IconMenuId.delete,
-                ],
-                callback: (menuId) => ConfigRowController().moreAction(context, data, menuId),
-              ),
             ],
           ),
         ),
@@ -594,4 +739,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       ],
     );
   }
+}
+
+class _EmojiParseResult {
+  final String emoji;
+  final String name;
+
+  _EmojiParseResult(this.emoji, this.name);
 }

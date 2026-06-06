@@ -53,7 +53,7 @@ class PreferencesKey {
     await _prefs.setBool(_privacyAccepted, value);
   }
 
-  static const _firstRun = "firstRun01";
+  static const _firstRun = "firstRun03";
 
   Future<bool> readFirstRun() async {
     final value = await _prefs.getBool(_firstRun);
@@ -273,5 +273,19 @@ class PreferencesKey {
       final text = JsonTool.encodeJsonToBase64(value);
       await _prefs.setString(_userProfile, text);
     }
+  }
+
+  static const _accessKey = "accessKey";
+
+  Future<String?> readAccessKey() async {
+    return _prefs.getString(_accessKey);
+  }
+
+  Future<void> saveAccessKey(String value) async {
+    await _prefs.setString(_accessKey, value);
+  }
+
+  Future<void> removeAccessKey() async {
+    await _prefs.remove(_accessKey);
   }
 }

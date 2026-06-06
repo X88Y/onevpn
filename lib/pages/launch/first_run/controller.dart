@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
 import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/service/subscription/service.dart';
 import 'package:mvmvpn/service/tun_setting/interface.dart';
 import 'package:mvmvpn/service/tun_setting/state.dart';
 import 'package:mvmvpn/service/xray/setting/enum.dart';
@@ -60,13 +63,51 @@ class FirstRunController extends Cubit<FirstRunState> {
     }
   }
 
-  Future<void> nextStep(BuildContext context) async {
-    await _initSimpleSetting();
-    await _initTunSetting();
-    await PreferencesKey().saveFirstRun(false);
-    if (context.mounted) {
-      context.go(RouterPath.home);
+  Future<bool> submitAccessKey(BuildContext context, String key) async {
+    final trimmedKey = key.trim();
+    if (trimmedKey.isEmpty) {
+      return false;
     }
+
+    final url = "https://jl1x2z77a9.cdn.twcstorage.ru/$trimmedKey";
+
+    try {
+      final db = AppDatabase();
+      
+      // 1. Clear database completely to enforce single subscription
+      await db.subscriptionDao.clear();
+      await db.coreConfigDao.clear();
+
+      // 2. Reset last config selection
+      await PreferencesKey().saveLastConfigId(DBConstants.defaultId);
+      await PreferencesKey().saveRunningConfigId(DBConstants.defaultId);
+
+      // 3. Try inserting new subscription
+      final count = await SubscriptionService().insertSubscription(
+        "Основная подписка",
+        url,
+        false,
+      );
+
+      if (count > 0) {
+        // 4. Initialize basic routing settings
+        await _initSimpleSetting();
+        await _initTunSetting();
+
+        // 5. Save accessKey and mark firstRun as false
+        await PreferencesKey().saveAccessKey(trimmedKey);
+        await PreferencesKey().saveFirstRun(false);
+
+        // 6. Go to home page
+        if (context.mounted) {
+          context.go(RouterPath.home);
+        }
+        return true;
+      }
+    } catch (e) {
+      // Handled by returning false
+    }
+    return false;
   }
 
   Future<void> _initSimpleSetting() async {
