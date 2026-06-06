@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:mvmvpn/pages/main/url.dart';
 import 'package:mvmvpn/core/db/database/constants.dart';
 import 'package:mvmvpn/core/db/database/database.dart';
 import 'package:mvmvpn/core/db/dao/config_query.dart';
@@ -359,15 +357,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ),
           ),
           const Spacer(),
-          _circularIconButton(
-            icon: Icons.report_problem_rounded,
-            color: Colors.redAccent.withOpacity(0.12),
-            iconColor: Colors.redAccent,
-            onPressed: () {
-              context.push(RouterPath.log);
-            },
-          ),
-          const SizedBox(width: 8),
           _circularIconButton(
             icon: Icons.sync_rounded,
             color: Colors.white.withOpacity(0.06),
