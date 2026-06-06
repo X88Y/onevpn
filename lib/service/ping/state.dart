@@ -27,9 +27,9 @@ enum PingUrl {
 
 class PingTimeout {
   static const min = 3.0;
-  static const max = 8.0;
-  static const divisions = 5;
-  static const defaultValue = 5.0;
+  static const max = 20.0;
+  static const divisions = 17;
+  static const defaultValue = 20.0;
 }
 
 class PingConcurrency {

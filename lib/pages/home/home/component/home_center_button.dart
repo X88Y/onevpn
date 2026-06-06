@@ -115,8 +115,7 @@ class HomeCenterButton extends StatelessWidget {
                   width: 150,
                   height: 150,
                   decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.circular(40),
+                    shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
                         color: glowColor.withOpacity(
@@ -133,7 +132,7 @@ class HomeCenterButton extends StatelessWidget {
                   ),
                 ),
 
-                // Main squircle button
+                // Main circular button
                 Transform.scale(
                   scale: (isRunning && !isLoading) ? pulseAnim.value : 1.0,
                   child: AnimatedContainer(
@@ -141,7 +140,7 @@ class HomeCenterButton extends StatelessWidget {
                     width: 140,
                     height: 140,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(36),
+                      shape: BoxShape.circle,
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -164,8 +163,7 @@ class HomeCenterButton extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(36),
+                    child: ClipOval(
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
@@ -218,44 +216,10 @@ class HomeCenterButton extends StatelessWidget {
                   ),
                 ),
 
-                // Corner accents
-                ..._buildCornerAccents(glowColor, accentColor),
               ],
             ),
           );
         },
-      ),
-    );
-  }
-
-  List<Widget> _buildCornerAccents(Color glowColor, Color accentColor) {
-    const offset = 55.0;
-    return [
-      _cornerAccent(const Offset(-offset, -offset), glowColor),
-      _cornerAccent(const Offset(offset, -offset), glowColor),
-      _cornerAccent(const Offset(-offset, offset), glowColor),
-      _cornerAccent(const Offset(offset, offset), glowColor),
-    ];
-  }
-
-  Widget _cornerAccent(Offset position, Color color) {
-    return Positioned(
-      left: 130 + position.dx - 4,
-      top: 130 + position.dy - 4,
-      child: Container(
-        width: 8,
-        height: 8,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: color.withOpacity(0.6),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.8),
-              blurRadius: 8,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
       ),
     );
   }
