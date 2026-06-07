@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,26 +15,19 @@ class FirstRunPage extends StatefulWidget {
   State<FirstRunPage> createState() => _FirstRunPageState();
 }
 
-class _FirstRunPageState extends State<FirstRunPage> with TickerProviderStateMixin {
+class _FirstRunPageState extends State<FirstRunPage> {
   final TextEditingController _keyController = TextEditingController();
-  late AnimationController _animationController;
-  final List<_LoginParticle> _particles = List.generate(25, (_) => _LoginParticle());
   bool _isLoading = false;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 15),
-    )..repeat();
   }
 
   @override
   void dispose() {
     _keyController.dispose();
-    _animationController.dispose();
     super.dispose();
   }
 
@@ -74,59 +66,11 @@ class _FirstRunPageState extends State<FirstRunPage> with TickerProviderStateMix
     }
   }
 
-  Widget _buildAmbientOrbs(Size size) {
-    return AnimatedBuilder(
-      animation: _animationController,
-      builder: (context, _) {
-        final floatValue = math.sin(_animationController.value * 2 * math.pi) * 12.0;
-        return Stack(
-          children: [
-            // Brand Purple Glow (Top Right)
-            Positioned(
-              top: size.height * 0.05 + floatValue,
-              right: -100,
-              child: _orb(240, const Color(0xFF7B61FF).withValues(alpha: 0.14)),
-            ),
-            // Brand Cyan Glow (Center Left)
-            Positioned(
-              top: size.height * 0.35 - floatValue * 0.8,
-              left: -120,
-              child: _orb(220, const Color(0xFF00B8D4).withValues(alpha: 0.12)),
-            ),
-            // Brand Purple Glow (Bottom Right)
-            Positioned(
-              bottom: size.height * 0.08 + floatValue * 1.2,
-              right: -80,
-              child: _orb(180, const Color(0xFF7B61FF).withValues(alpha: 0.09)),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
-  Widget _orb(double size, Color color) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
-        boxShadow: [
-          BoxShadow(
-            color: color,
-            blurRadius: size * 0.8,
-            spreadRadius: size * 0.1,
-          )
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final size = MediaQuery.of(context).size;
     
     return BlocProvider(
       create: (_) => FirstRunController(),
@@ -136,42 +80,14 @@ class _FirstRunPageState extends State<FirstRunPage> with TickerProviderStateMix
           return Scaffold(
             backgroundColor: const Color(0xFF050814),
             resizeToAvoidBottomInset: true,
-            body: Stack(
-              children: [
-                // 1. Ambient Glow Orbs
-                Positioned.fill(child: _buildAmbientOrbs(size)),
-                
-                // 2. Custom Mesh Grid background
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: _LoginMeshGridPainter(
-                      color: const Color(0xFF7B61FF),
-                    ),
-                  ),
-                ),
-
-                // 3. Floating constellation particles
-                Positioned.fill(
-                  child: AnimatedBuilder(
-                    animation: _animationController,
-                    builder: (context, _) {
-                      return CustomPaint(
-                        painter: _LoginParticlePainter(
-                          _particles,
-                          _animationController.value,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                // 4. Main content scrollable view
-                SafeArea(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
+            body: Container(
+              color: const Color(0xFF050814),
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                         const SizedBox(height: 50),
                         // Brand Logo Container with Ambient Glow
                         Center(
@@ -214,13 +130,13 @@ class _FirstRunPageState extends State<FirstRunPage> with TickerProviderStateMix
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16),
                               borderSide: BorderSide(
-                                color: const Color(0xFF7B61FF).withValues(alpha: 0.25),
+                                color: Colors.blue.withValues(alpha: 0.25),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16),
                               borderSide: const BorderSide(
-                                color: Color(0xFF00F0FF),
+                                color: Colors.blue,
                                 width: 1.5,
                               ),
                             ),
@@ -245,24 +161,11 @@ class _FirstRunPageState extends State<FirstRunPage> with TickerProviderStateMix
                           ),
                         ],
                         const SizedBox(height: 24),
-                        // Continue Button (Premium Brand Gradient)
                         Container(
                           height: 56,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFF7B61FF), // Purple
-                                Color(0xFF00B8D4), // Cyan
-                              ],
-                            ),
+                            color: Colors.blue,
                             borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF7B61FF).withValues(alpha: 0.35),
-                                blurRadius: 20,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
                           ),
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : () => _handleContinue(context, controller),
@@ -295,19 +198,11 @@ class _FirstRunPageState extends State<FirstRunPage> with TickerProviderStateMix
                           ),
                         ),
                         const SizedBox(height: 28),
-                        // Telegram Button (Official Telegram Blue)
                         Container(
                           height: 56,
                           decoration: BoxDecoration(
                             color: const Color(0xFF24A1DE),
                             borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF24A1DE).withValues(alpha: 0.2),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
                           ),
                           child: ElevatedButton.icon(
                             onPressed: _isLoading ? null : () => _openUrl("https://t.me/mvmvpnbot"),
@@ -333,19 +228,11 @@ class _FirstRunPageState extends State<FirstRunPage> with TickerProviderStateMix
                         ),
                         const SizedBox(height: 8),
                         const SizedBox(height: 16),
-                        // VK Button (Official VK Blue)
                         Container(
                           height: 56,
                           decoration: BoxDecoration(
                             color: const Color(0xFF0077FF),
                             borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF0077FF).withValues(alpha: 0.2),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
                           ),
                           child: ElevatedButton.icon(
                             onPressed: _isLoading ? null : () => _openUrl("https://m.vk.com/write-130898973"),
@@ -370,11 +257,10 @@ class _FirstRunPageState extends State<FirstRunPage> with TickerProviderStateMix
                           ),
                         ),
                         const SizedBox(height: 24),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           );
         },
@@ -383,71 +269,4 @@ class _FirstRunPageState extends State<FirstRunPage> with TickerProviderStateMix
   }
 }
 
-// ── Background Particle System ────────────────────────────────────────────────
-class _LoginParticle {
-  final double x;
-  final double y;
-  final double speed;
-  final double size;
-  final double opacity;
-  final double drift;
 
-  _LoginParticle()
-      : x = math.Random().nextDouble(),
-        y = math.Random().nextDouble(),
-        speed = 0.002 + math.Random().nextDouble() * 0.005,
-        size = 1.0 + math.Random().nextDouble() * 1.8,
-        opacity = 0.12 + math.Random().nextDouble() * 0.3,
-        drift = math.Random().nextDouble() * 2 * math.pi;
-}
-
-class _LoginParticlePainter extends CustomPainter {
-  final List<_LoginParticle> particles;
-  final double tick;
-
-  _LoginParticlePainter(this.particles, this.tick);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (final p in particles) {
-      final y = (p.y - tick * p.speed) % 1.0; // Float upwards
-      final x = p.x * size.width + math.sin(tick * 2 * math.pi + p.drift) * 8;
-      canvas.drawCircle(
-        Offset(x, y * size.height),
-        p.size,
-        Paint()
-          ..color = Colors.white.withValues(
-            alpha: p.opacity * (0.6 + 0.4 * math.sin(tick * 2 * math.pi + p.x * 10)),
-          ),
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_LoginParticlePainter old) => old.tick != tick;
-}
-
-// ── Background Mesh Grid ─────────────────────────────────────────────────────
-class _LoginMeshGridPainter extends CustomPainter {
-  final Color color;
-
-  _LoginMeshGridPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.02)
-      ..strokeWidth = 0.5;
-
-    const spacing = 48.0;
-    for (var x = 0.0; x < size.width; x += spacing) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (var y = 0.0; y < size.height; y += spacing) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}

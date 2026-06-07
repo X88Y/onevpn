@@ -75,8 +75,8 @@ class ColorManager {
     }
   }
 
-  static const _runningLight = Color(0xFFC8E6C9);
-  static const _runningDark = Color(0xFF1b5e20);
+  static const _runningLight = Color(0xFFBBDEFB);
+  static const _runningDark = Color(0xFF1565C0);
 
   static Color running(BuildContext context) {
     if (Theme.of(context).brightness == Brightness.light) {

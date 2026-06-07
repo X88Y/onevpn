@@ -9,9 +9,9 @@ import 'package:mvmvpn/pages/home/home/controller.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
 import 'package:mvmvpn/service/event_bus/state.dart';
 import 'package:mvmvpn/service/ping/service.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-import 'package:mvmvpn/pages/home/home/component/home_painters.dart';
-import 'package:mvmvpn/pages/home/home/component/ambient_orbs.dart';
 import 'package:mvmvpn/pages/home/home/component/home_center_button.dart';
 import 'package:mvmvpn/pages/home/home/component/account_bubble.dart';
 
@@ -27,28 +27,50 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late final TabController _tabController = TabController(length: 2, vsync: this);
   late AnimationController _orbitController;
   late AnimationController _pulseController;
-  late AnimationController _bgController;
-  late AnimationController _floatController;
   late AnimationController _sonarController;
-  late AnimationController _particleController;
   late Animation<double> _pulseAnim;
-  late Animation<double> _bgAnim;
-  late Animation<double> _floatAnim;
 
-  final List<HomeParticle> _particles = List.generate(40, (_) => HomeParticle());
+  Future<void> _openUrl(String urlString) async {
+    final uri = Uri.parse(urlString);
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  Widget _socialIconButton({
+    required Widget icon,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      width: 38,
+      height: 38,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(10),
+          child: Center(
+            child: icon,
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
     _orbitController = AnimationController(vsync: this, duration: const Duration(seconds: 8))..repeat();
     _pulseController = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
-    _bgController = AnimationController(vsync: this, duration: const Duration(seconds: 6))..repeat(reverse: true);
-    _floatController = AnimationController(vsync: this, duration: const Duration(seconds: 4))..repeat(reverse: true);
     _sonarController = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat();
-    _particleController = AnimationController(vsync: this, duration: const Duration(seconds: 20))..repeat();
     _pulseAnim = Tween<double>(begin: 0.92, end: 1.08).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
-    _bgAnim = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _bgController, curve: Curves.easeInOut));
-    _floatAnim = Tween<double>(begin: -8.0, end: 8.0).animate(CurvedAnimation(parent: _floatController, curve: Curves.easeInOut));
   }
 
   @override
@@ -56,10 +78,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _tabController.dispose();
     _orbitController.dispose();
     _pulseController.dispose();
-    _bgController.dispose();
-    _floatController.dispose();
     _sonarController.dispose();
-    _particleController.dispose();
     super.dispose();
   }
 
@@ -74,124 +93,66 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             builder: (context, eventState) {
               final isRunning = eventState.runningId != DBConstants.defaultId;
               final isLoading = eventState.vpnLoading || eventState.isUpdatingSubscription || eventState.downloading;
-              final accentColor = isLoading
-                  ? const Color(0xFFFFD700)
-                  : isRunning
-                      ? const Color(0xFF00E5A0)
-                      : const Color(0xFF7B61FF);
+
               return Scaffold(
                 backgroundColor: const Color(0xFF050814),
-                body: AnimatedBuilder(
-                  animation: _bgAnim,
-                  builder: (context, child) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        gradient: RadialGradient(
-                          center: Alignment(
-                            -0.3 + _bgAnim.value * 0.6,
-                            -0.5 + _bgAnim.value * 0.3,
-                          ),
-                          radius: 1.4,
-                          colors: isLoading
-                              ? [const Color(0xFF1A1200), const Color(0xFF050814)]
-                              : isRunning && !eventState.isUpdatingSubscription
-                                  ? [const Color(0xFF002211), const Color(0xFF050814)]
-                                  : [const Color(0xFF0D0A2E), const Color(0xFF050814)],
-                        ),
-                      ),
-                      child: child,
-                    );
-                  },
+                body: Container(
+                  color: const Color(0xFF050814),
                   child: SafeArea(
                     bottom: false,
-                    child: Stack(
+                    child: Column(
                       children: [
-                        // Mesh grid background
-                        Positioned.fill(
-                          child: AnimatedBuilder(
-                            animation: _particleController,
-                            builder: (_, __) => CustomPaint(
-                              painter: MeshGridPainter(
-                                tick: _particleController.value * 100,
-                                color: accentColor,
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                          child: _buildTopBar(context, controller, eventState, homeState, isLoading),
+                        ),
+                        const Spacer(flex: 1),
+                        HomeCenterButton(
+                          controller: controller,
+                          isRunning: isRunning,
+                          isLoading: isLoading || homeState.connectingProvider != null,
+                          orbitController: _orbitController,
+                          sonarController: _sonarController,
+                          pulseAnim: _pulseAnim,
+                        ),
+                        _buildStatusText(eventState, isRunning, isLoading),
+                        const Spacer(flex: 1),
+                        Expanded(
+                          flex: 18,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0F0F12),
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(30),
+                                topRight: Radius.circular(30),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.4),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, -6),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(30),
+                                  topRight: Radius.circular(30),
+                              ),
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+                                    child: _buildListHeader(context, controller, eventState, homeState),
+                                  ),
+                                  Divider(color: Colors.white.withOpacity(0.05), height: 1),
+                                  Expanded(
+                                    child: _buildServerList(context, controller, homeState),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        ),
-                        // Particle starfield with constellation
-                        Positioned.fill(
-                          child: AnimatedBuilder(
-                            animation: _particleController,
-                            builder: (_, __) => CustomPaint(
-                              painter: HomeParticlePainter(
-                                _particles,
-                                _particleController.value,
-                                isRunning: isRunning,
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Ambient orbs background
-                        AmbientOrbs(floatAnim: _floatAnim, bgAnim: _bgAnim, isRunning: isRunning),
-                        // Main content
-                        Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-                              child: _buildTopBar(context, controller, eventState, homeState, isLoading),
-                            ),
-                            const Spacer(flex: 1),
-                            HomeCenterButton(
-                              controller: controller,
-                              isRunning: isRunning,
-                              isLoading: isLoading || homeState.connectingProvider != null,
-                              orbitController: _orbitController,
-                              sonarController: _sonarController,
-                              pulseAnim: _pulseAnim,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 24),
-                              child: _buildStatusText(eventState, isRunning, isLoading),
-                            ),
-                            const Spacer(flex: 1),
-                            Expanded(
-                              flex: 18,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF0F0F12),
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(30),
-                                    topRight: Radius.circular(30),
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.4),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, -6),
-                                    ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(30),
-                                    topRight: Radius.circular(30),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
-                                        child: _buildListHeader(context, controller, eventState, homeState),
-                                      ),
-                                      Divider(color: Colors.white.withOpacity(0.05), height: 1),
-                                      Expanded(
-                                        child: _buildServerList(context, controller, homeState),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
                       ],
                     ),
@@ -209,14 +170,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          "🇷🇺 Freedom",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _socialIconButton(
+              icon: const FaIcon(FontAwesomeIcons.telegram, size: 18, color: Color(0xFF24A1DE)),
+              color: const Color(0xFF24A1DE).withValues(alpha: 0.12),
+              onPressed: () => _openUrl("https://t.me/mvmvpnbot"),
+            ),
+            const SizedBox(width: 10),
+            _socialIconButton(
+              icon: const FaIcon(FontAwesomeIcons.vk, size: 18, color: Color(0xFF0077FF)),
+              color: const Color(0xFF0077FF).withValues(alpha: 0.12),
+              onPressed: () => _openUrl("https://m.vk.com/write-130898973"),
+            ),
+          ],
         ),
         AccountBubble(
           controller: controller,
@@ -320,7 +288,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: isWifi ? const Color(0xFF00B4A2) : Colors.white.withOpacity(0.06),
+                color: isWifi ? const Color(0xFF2196F3) : Colors.white.withOpacity(0.06),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -343,7 +311,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: !isWifi ? const Color(0xFF00B4A2) : Colors.white.withOpacity(0.06),
+                color: !isWifi ? const Color(0xFF2196F3) : Colors.white.withOpacity(0.06),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -601,7 +569,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     Color statusBg = Colors.transparent;
     if (isRunning) {
-      statusBg = const Color(0xFF00E5A0).withOpacity(0.08);
+      statusBg = const Color(0xFF2196F3).withOpacity(0.08);
     } else if (isSelected) {
       statusBg = Colors.white.withOpacity(0.04);
     }
@@ -633,7 +601,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: isRunning
-                            ? const Color(0xFF00E5A0)
+                            ? const Color(0xFF2196F3)
                             : isSelected
                                 ? Colors.white
                                 : Colors.white.withOpacity(0.85),
@@ -658,10 +626,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   delayText,
                   style: TextStyle(
                     color: (data.delay > 0 && data.delay < 300)
-                        ? const Color(0xFF00E5A0)
+                        ? const Color(0xFF2196F3)
                         : data.delay >= 300
-                            ? const Color(0xFFFFD700)
-                            : Colors.redAccent,
+                            ? Colors.white.withOpacity(0.5)
+                            : Colors.white.withOpacity(0.2),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -682,35 +650,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     if (isUpdatingSubscription) {
       text = AppLocalizations.of(context)!.mainConnecting;
-      textColor = const Color(0xFFFFD700);
+      textColor = Colors.white.withOpacity(0.6);
     } else if (eventState.vpnLoading && isRunning) {
       text = AppLocalizations.of(context)!.mainCheckingGoogleConnectivity;
-      textColor = const Color(0xFFFFD700);
+      textColor = Colors.white.withOpacity(0.6);
     } else {
       text = isRunning ? AppLocalizations.of(context)!.mainConnected : AppLocalizations.of(context)!.mainTapToConnect;
       if (isLoading) {
         text = isRunning ? AppLocalizations.of(context)!.mainDisconnecting : AppLocalizations.of(context)!.mainConnecting;
       }
 
-      textColor = Colors.white.withOpacity(0.7);
-      if (isRunning) textColor = const Color(0xFF00E5A0);
-      if (isLoading) textColor = const Color(0xFFFFD700);
+      textColor = Colors.white.withOpacity(0.5);
+      if (isRunning) textColor = const Color(0xFF2196F3);
+      if (isLoading) textColor = Colors.white.withOpacity(0.6);
     }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 40,
-          height: 2,
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.transparent, textColor.withOpacity(0.5), Colors.transparent],
-            ),
-            borderRadius: BorderRadius.circular(1),
-          ),
-        ),
+        const SizedBox(height: 8),
         AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 400),
           style: TextStyle(

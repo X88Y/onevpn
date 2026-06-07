@@ -31,17 +31,17 @@ class HomeCenterButton extends StatelessWidget {
     Color borderColor = Colors.white.withOpacity(0.15);
 
     if (isLoading) {
-      primaryColor = const Color(0xFFFFD700);
-      secondaryColor = const Color(0xFFB8860B);
-      glowColor = const Color(0xFFFFE066);
-      accentColor = const Color(0xFFFF8C00);
-      borderColor = glowColor.withOpacity(0.6);
+      primaryColor = const Color(0xFF1C1C1E);
+      secondaryColor = const Color(0xFF0D0D0E);
+      glowColor = Colors.blue.withOpacity(0.15);
+      accentColor = Colors.blue.withOpacity(0.3);
+      borderColor = Colors.blue.withOpacity(0.3);
     } else if (isRunning) {
-      primaryColor = const Color(0xFF00E5A0);
-      secondaryColor = const Color(0xFF005A3C);
-      glowColor = const Color(0xFF66FFC2);
-      accentColor = const Color(0xFF00FF88);
-      borderColor = glowColor.withOpacity(0.6);
+      primaryColor = const Color(0xFF1976D2);
+      secondaryColor = const Color(0xFF0D47A1);
+      glowColor = Colors.blue.withOpacity(0.3);
+      accentColor = Colors.blue;
+      borderColor = Colors.blue.withOpacity(0.5);
     }
 
     return GestureDetector(
@@ -76,7 +76,7 @@ class HomeCenterButton extends StatelessWidget {
 
                 // Main circular button
                 Transform.scale(
-                  scale: (isRunning && !isLoading) ? pulseAnim.value : 1.0,
+                  scale: 1.0,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 500),
                     width: 130,
@@ -132,26 +132,7 @@ class HomeCenterButton extends StatelessWidget {
                                   const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                             ),
                           ),
-                          // Scan line effect
-                          if (isRunning)
-                            Positioned(
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              child: AnimatedContainer(
-                                duration: const Duration(seconds: 2),
-                                height: 2,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.transparent,
-                                      accentColor.withOpacity(0.8),
-                                      Colors.transparent,
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
+
                         ],
                       ),
                     ),
