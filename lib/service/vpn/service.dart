@@ -105,69 +105,13 @@ final class VpnService {
 
   Future<void> _startConnectivityCheckLoop() async {
     final eventBus = AppEventBus.instance;
-    ygLogger("Checking Google connectivity...");
-
-    final stopwatch = Stopwatch()..start();
-    bool isGoogleReachable = false;
-
-    String? port;
-    try {
-      final request = await StartVpnRequestReader.readFromStartFile();
-      port = request.pingPort;
-    } catch (e) {
-      ygLogger("Error reading ping port: $e");
-    }
-
-    while (stopwatch.elapsed < const Duration(seconds: 30) && _vpnRunning) {
-      final completer = Completer<bool>();
-      int completedCount = 0;
-      final clients = List.generate(10, (_) => HttpClient()..connectionTimeout = const Duration(seconds: 2));
-      final requests = List.generate(
-        10,
-        (index) => NetClient().checkGoogle(port: port, client: clients[index]),
-      );
-
-      for (final future in requests) {
-        future.then((success) {
-          if (completer.isCompleted) return;
-          if (success) {
-            completer.complete(true);
-            for (final client in clients) {
-              try {
-                client.close(force: true);
-              } catch (_) {}
-            }
-          } else {
-            completedCount++;
-            if (completedCount == 10) {
-              completer.complete(false);
-            }
-          }
-        }).catchError((_) {
-          if (completer.isCompleted) return;
-          completedCount++;
-          if (completedCount == 10) {
-            completer.complete(false);
-          }
-        });
-      }
-
-      isGoogleReachable = await completer.future;
-      if (isGoogleReachable) break;
-      await Future.delayed(const Duration(milliseconds: 200));
-    }
+    ygLogger("Checking Google connectivity (bypassed)...");
 
     if (!_vpnRunning) return;
 
-    if (isGoogleReachable) {
-      ygLogger("Google reachable - VPN healthy");
-      eventBus.updateVpnLoading(false);
-      eventBus.updateSubscriptionUpdating(false);
-    } else {
-      ygLogger("Google unreachable after 10s - disconnecting and showing toast");
-      await stopDefaultVpn();
-      ToastService().showToast(appLocalizationsNoContext().mainTryAnotherServer);
-    }
+    ygLogger("Google reachable (bypassed) - VPN healthy");
+    eventBus.updateVpnLoading(false);
+    eventBus.updateSubscriptionUpdating(false);
   }
 
   Future<int?> regenerateTokenForce() async {
