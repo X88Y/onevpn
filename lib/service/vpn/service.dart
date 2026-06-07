@@ -394,21 +394,8 @@ final class VpnService {
   }
 
   Future<void> _connectivityTest() async {
-    final request = await StartVpnRequestReader.readFromStartFile();
-    if (request.pingPort == null) {
-      return;
-    }
-    // delay three seconds
-    await Future.delayed(Duration(seconds: 3));
-
-    final pingState = PingState();
-    await pingState.readFromPreferences();
-    final location = await NetClient().connectivityTest(
-      request.pingPort!,
-      pingState.realUrl,
-    );
-    final eventBus = AppEventBus.instance;
-    eventBus.updateLocation(location);
+    // Temporary removed connectivityTest
+    return;
   }
 
   Timer? _timer;
