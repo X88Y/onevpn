@@ -193,8 +193,39 @@ class HomeController extends Cubit<HomeState> {
     await ShareService().readPasteboard();
   }
 
-  Future<void> pingAll() async {
-    await PingService().pingAllConfigs();
+  Future<void> pingAll(String activeTab) async {
+    final db = AppDatabase();
+    final subscriptions = await db.subscriptionDao.allRows;
+    final allSubIds = [DBConstants.defaultId, ...subscriptions.map((s) => s.id)];
+    
+    final allRowsWithData = <CoreConfigData>[];
+    for (final subId in allSubIds) {
+      final outboundRows = await db.coreConfigDao.allOutboundRowsWithDataBySubId(subId);
+      final rawRows = await db.coreConfigDao.allRawRowsWithDataBySubId(subId);
+      allRowsWithData.addAll(outboundRows);
+      allRowsWithData.addAll(rawRows);
+    }
+
+    final isWifiTab = activeTab == 'wifi';
+    bool matchesTab(String name) {
+      final nameLower = name.toLowerCase();
+      final hasLte = nameLower.contains('lte');
+      if (isWifiTab) {
+        return !hasLte;
+      }
+      return hasLte;
+    }
+
+    final configsToPing = allRowsWithData
+        .where((config) => matchesTab(config.name))
+        .toList();
+
+    if (configsToPing.isNotEmpty) {
+      await PingService().pingConfigs(
+        configsToPing,
+        pingCount: activeTab == 'lte' ? 10 : 1,
+      );
+    }
   }
 
   Future<void> updateSubscription() async {

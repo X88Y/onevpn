@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:mvmvpn/core/tools/platform.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
@@ -53,6 +52,16 @@ class PingService {
     eventBus.updatePinging(false);
   }
 
+  Future<void> pingConfigs(List<CoreConfigData> rows, {int pingCount = 1}) async {
+    final eventBus = AppEventBus.instance;
+    eventBus.updatePinging(true);
+    final db = AppDatabase();
+    if (rows.isNotEmpty) {
+      await _pingConfigs(db, rows, pingCount: pingCount);
+    }
+    eventBus.updatePinging(false);
+  }
+
   Future<int> _pingOutbound(CoreConfigData row, PingState pingState) async {
     if (EmptyTool.checkString(row.data)) {
       final outbound = OutboundState();
@@ -80,7 +89,7 @@ class PingService {
     return PingDelayConstants.unknown;
   }
 
-  Future<void> _pingConfigs(AppDatabase db, List<CoreConfigData> rows) async {
+  Future<void> _pingConfigs(AppDatabase db, List<CoreConfigData> rows, {int pingCount = 1}) async {
     final pingState = PingState();
     await pingState.readFromPreferences();
     var concurrency = pingState.concurrency.toInt();
@@ -89,38 +98,67 @@ class PingService {
     }
     final slices = rows.slices(concurrency);
     for (final slice in slices) {
-      final tempRows = <CoreConfigData>[];
-      final group = FutureGroup<int>();
+      final futures = <Future<void>>[];
       for (final row in slice) {
-        tempRows.add(row);
-        _addTaskToGroup(group, row, pingState);
+        futures.add(_pingAndSaveConfig(db, row, pingState, pingCount));
       }
-      group.close();
-      final res = await group.future;
-      for (int i = 0; i < tempRows.length; i++) {
-        await _updateRow(db, tempRows[i], res[i]);
-      }
+      await Future.wait(futures);
     }
   }
 
-  void _addTaskToGroup(
-    FutureGroup group,
+  Future<void> _pingAndSaveConfig(
+    AppDatabase db,
     CoreConfigData row,
     PingState pingState,
-  ) {
+    int pingCount,
+  ) async {
     final type = CoreConfigType.fromString(row.type);
-    if (type != null) {
-      switch (type) {
-        case CoreConfigType.outbound:
-          group.add(_pingOutbound(row, pingState));
-          break;
-        case CoreConfigType.raw:
-          group.add(_pingRawConfig(row, pingState));
-          break;
-        default:
-          break;
+    if (type == null) return;
+
+    Future<int> runSinglePing() {
+      if (type == CoreConfigType.outbound) {
+        return _pingOutbound(row, pingState);
+      } else if (type == CoreConfigType.raw) {
+        return _pingRawConfig(row, pingState);
       }
+      return Future.value(PingDelayConstants.unknown);
     }
+
+    if (pingCount <= 1) {
+      final res = await runSinglePing();
+      await _updateRow(db, row, res);
+      return;
+    }
+
+    int? bestDelay;
+    int completedCount = 0;
+    bool hasSuccess = false;
+
+    final List<Future<void>> pingFutures = List.generate(pingCount, (_) async {
+      try {
+        final delay = await runSinglePing();
+        completedCount++;
+
+        if (delay < 9000) {
+          if (!hasSuccess || delay < bestDelay!) {
+            bestDelay = delay;
+            hasSuccess = true;
+            await _updateRow(db, row, delay);
+          }
+        } else {
+          if (!hasSuccess && completedCount == pingCount) {
+            await _updateRow(db, row, delay);
+          }
+        }
+      } catch (e) {
+        completedCount++;
+        if (!hasSuccess && completedCount == pingCount) {
+          await _updateRow(db, row, PingDelayConstants.error);
+        }
+      }
+    });
+
+    await Future.wait(pingFutures);
   }
 
   Future<void> _updateRow(AppDatabase db, CoreConfigData row, int delay) async {

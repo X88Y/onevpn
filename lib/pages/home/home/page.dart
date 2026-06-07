@@ -338,7 +338,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             color: Colors.white.withOpacity(0.06),
             iconColor: Colors.white.withOpacity(0.6),
             isLoading: eventState.pinging,
-            onPressed: () => controller.pingAll(),
+            onPressed: () => controller.pingAll(_activeTab),
           ),
         ],
       ),
@@ -457,7 +457,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             final row = item.subscription.copyWith(expanded: !item.subscription.expanded);
             await db.subscriptionDao.updateRow(row);
           }
-          await controller.pingAll(); // Keep state refreshed
+          await controller.pingAll(_activeTab); // Keep state refreshed
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
