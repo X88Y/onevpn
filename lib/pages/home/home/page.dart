@@ -30,6 +30,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late AnimationController _sonarController;
   late Animation<double> _pulseAnim;
 
+  bool _isServersListExpanded = false;
+
   Future<void> _openUrl(String urlString) async {
     final uri = Uri.parse(urlString);
     try {
@@ -70,7 +72,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _orbitController = AnimationController(vsync: this, duration: const Duration(seconds: 8))..repeat();
     _pulseController = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
     _sonarController = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat();
-    _pulseAnim = Tween<double>(begin: 0.92, end: 1.08).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+    _pulseAnim = Tween<double>(begin: 0.99, end: 1.01).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
   }
 
   @override
@@ -118,43 +120,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                         _buildStatusText(eventState, isRunning, isLoading),
                         const Spacer(flex: 1),
-                        Expanded(
-                          flex: 18,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF0F0F12),
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(30),
-                                topRight: Radius.circular(30),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.4),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, -6),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(30),
-                                  topRight: Radius.circular(30),
-                              ),
-                              child: Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
-                                    child: _buildListHeader(context, controller, eventState, homeState),
-                                  ),
-                                  Divider(color: Colors.white.withOpacity(0.05), height: 1),
-                                  Expanded(
-                                    child: _buildServerList(context, controller, homeState),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        _buildServersBlock(context, controller, eventState, homeState),
                       ],
                     ),
                   ),
@@ -163,6 +129,85 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             },
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildServersBlock(
+    BuildContext context,
+    HomeController controller,
+    AppEventBusState eventState,
+    HomeState homeState,
+  ) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final collapsedHeight = 78.0 + bottomPadding;
+    final expandedHeight = MediaQuery.of(context).size.height * 0.45;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      height: _isServersListExpanded ? expandedHeight : collapsedHeight,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F0F12),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.4),
+            blurRadius: 20,
+            offset: const Offset(0, -6),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                setState(() {
+                  _isServersListExpanded = !_isServersListExpanded;
+                });
+              },
+              child: AnimatedPadding(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                padding: EdgeInsets.fromLTRB(
+                  24,
+                  20,
+                  24,
+                  _isServersListExpanded ? 12 : 20 + bottomPadding,
+                ),
+                child: _buildListHeader(context, controller, eventState, homeState),
+              ),
+            ),
+            Expanded(
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                opacity: _isServersListExpanded ? 1.0 : 0.0,
+                child: IgnorePointer(
+                  ignoring: !_isServersListExpanded,
+                  child: Column(
+                    children: [
+                      Divider(color: Colors.white.withOpacity(0.05), height: 1),
+                      Expanded(
+                        child: _buildServerList(context, controller, homeState),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -305,7 +350,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ConfigQueryRowType.subscription,
       )..count = matchingConfigs.length;
 
-      if (subRow.subscription.name == "Основная подписка") {
+      if (subRow.subscription.name == "Основная подписка" || subRow.subscription.name.isEmpty) {
         results.addAll(matchingConfigs);
       } else {
         results.add(newSubItem);
@@ -341,7 +386,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 4),
+          AnimatedRotation(
+            turns: _isServersListExpanded ? 0.5 : 0.0,
+            duration: const Duration(milliseconds: 250),
+            child: Icon(
+              Icons.keyboard_arrow_up_rounded,
+              color: Colors.white.withOpacity(0.4),
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
           GestureDetector(
             onTap: () {
               setState(() {

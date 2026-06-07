@@ -83,18 +83,6 @@ class AccountBubble extends StatelessWidget {
                 ),
                 Divider(color: Colors.white.withOpacity(0.08)),
                 ListTile(
-                  leading: Icon(Icons.cleaning_services_rounded, color: Colors.orangeAccent.withOpacity(0.8)),
-                  title: Text(
-                    AppLocalizations.of(sheetContext)!.profileClearAllData,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-                  ),
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    _showClearDataConfirmation(context, controller);
-                  },
-                ),
-                Divider(color: Colors.white.withOpacity(0.08)),
-                ListTile(
                   leading: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
                   title: Text(
                     AppLocalizations.of(sheetContext)!.mainDeleteAccount,

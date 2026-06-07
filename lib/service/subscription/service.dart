@@ -73,7 +73,7 @@ class SubscriptionService {
         url: url,
         timestamp: DateTime.now(),
         count: rows.length,
-        expanded: true,
+        expanded: false,
       );
       final subId = await db.subscriptionDao.insertRow(row);
       if (subId > DBConstants.defaultId) {

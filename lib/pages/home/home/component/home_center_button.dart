@@ -51,8 +51,8 @@ class HomeCenterButton extends StatelessWidget {
         animation: Listenable.merge([orbitController, pulseAnim, sonarController]),
         builder: (context, child) {
           return SizedBox(
-            width: 180,
-            height: 180,
+            width: 220,
+            height: 220,
             child: Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.center,
@@ -60,8 +60,8 @@ class HomeCenterButton extends StatelessWidget {
                 // Core glow
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 600),
-                  width: 150,
-                  height: 150,
+                  width: 190,
+                  height: 190,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     boxShadow: [
@@ -86,8 +86,8 @@ class HomeCenterButton extends StatelessWidget {
                         Tween<double>(begin: 0.0, end: 4.0),
                       ),
                       child: Container(
-                        width: 140,
-                        height: 140,
+                        width: 180,
+                        height: 180,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: SweepGradient(
@@ -108,8 +108,8 @@ class HomeCenterButton extends StatelessWidget {
                   scale: (isRunning && !isLoading) ? pulseAnim.value : 1.0,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 500),
-                    width: 130,
-                    height: 130,
+                    width: 170,
+                    height: 170,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
@@ -153,7 +153,7 @@ class HomeCenterButton extends StatelessWidget {
                           ),
                           // SVG Icon
                           Padding(
-                            padding: const EdgeInsets.all(32),
+                            padding: const EdgeInsets.all(42),
                             child: SvgPicture.asset(
                               'assets/app_icon/app_icon.svg',
                               fit: BoxFit.contain,

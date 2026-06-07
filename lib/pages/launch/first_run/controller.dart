@@ -110,7 +110,7 @@ class FirstRunController extends Cubit<FirstRunState> {
 
       // 3. Try inserting new subscription
       final count = await SubscriptionService().insertSubscription(
-        "Основная подписка",
+        "",
         url,
         false,
       );

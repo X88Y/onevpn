@@ -72,7 +72,7 @@ class PreferencesKey {
   Future<bool> readLocalSubscriptionExpanded() async {
     final value = await _prefs.getBool(_localSubscriptionExpanded);
     if (value == null) {
-      return true;
+      return false;
     }
     return value;
   }
