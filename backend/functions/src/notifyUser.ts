@@ -243,8 +243,16 @@ async function notifyAdminsPurchase(
 ): Promise<void> {
   const amountStr = amount ? `${amount}` : "неизвестно";
   const gatewayStr = gateway ?? "неизвестно";
+  let emoji = "";
+  if (planLabel.includes("💎")) {
+    emoji = " 💎";
+  } else if (planLabel.includes("🤩")) {
+    emoji = " 🤩";
+  } else {
+    emoji = " ⭐️";
+  }
   const text =
-    "💰 Новая покупка!\n\n" +
+    `💰${emoji} Новая покупка!\n\n` +
     `Мессенджер: ${provider}\n` +
     `User ID: ${userId}\n` +
     `Тариф: ${planLabel}\n` +
@@ -340,7 +348,7 @@ async function sendVkMessageWithToken(
   return true;
 }
 // eslint-disable-next-line max-len
-const VK_BOT_TOKENS = "vk1.a.yCG8RlbvAvh9p8fRZxiWb8PIsw3fI3P5KQlHEA7jCMxKZPRYJBVdNdehSZMXwW83tz6uPy9Cvkkcyr-Z88it9J1OnhpIPa6YORUO-nnp__xLPKfdXtzymOkxBYwD9r_uX_QDwZaeto8aY93GQecShAjHjmANvelDDKrKWB7T-z9d1LmcNK_2r4TCP1dTNagi7ekfyxrui3u0kYgFp-WV8A,vk1.a.J-qP_B4VFuvCb63pN3WsbtLHeQuMwULBtE1jjIYcSPCUbzPxTK40f4w0hRoQAz5Fde1suVTaxlJeif0Ik5tuqvLfrqIuNN9gzMVwbvePxL2qM7az43Q-K43jOjnFzPvxslhoQFEJd_TujzvKDG9CZMrdL6iWV-pTj5QseHIkS5DRIIJg1oSuK-bO6K1kEa-2QuNdiLTEuahjay5C7Oiuzg,vk1.a.Qb3E7UwlrezOaQ_2AWjTwReYFhFKIbgTRXv-jaamJB7gAFr0jpiVzGGFq-ovrlF-z2GrnAg8Z9-jWZ3kzTXjja4Ua0BhP0WdY-uCiGcMFXJwJcT9R1SaMWLM4Ypl6yLTYAnb92n5yyYHbH05C47vLx-TRSdv6IQ8-SoEINdt2qi9WjowkQwInJP7rmUd33iIWlmhMo3Dc6dXP4AHUCZi9w,vk1.a.7vXl0_XMqSO5K3gtgHdRPfyef9CKhpxGM5smZnMUJ9lk47i1ekyeAQDaVUX3cmsk13alGGdER3qNd8Sodq4JwbFw7mr17cv47MG5zvB2mpxTUuDL0ZWMbw6QgUfM-I4uz2OhbectnzaRybxg5PS583skDvUrfIPbjWd8UKZZjpGmNMeLv5H9YXpZzXcuApnuqm2c3eSg7fL8NQU1phem-g,vk1.a.iDPTGrW2wgpg6qsm-82dRYiBpX5S_7m4Z1qIxjPhK5GC4uKJnfe7beksq3m4LhNgYdflm1ex-C-r4qaajzq6LVStu8QURL_rryOLot7qWgnkSgnGM3L9CS5EnenpN0jvIvGnPMcb1hJSuPrBARF1nvshjplSQd-t6kwmKhUcm1d7mUzc-0t95rieuqoKn1tKPpF5n3CC-3HnDzLyQ8gl8A,vk1.a.xiQBLVtxpiDUJ7YpezJ_dmdv3cK1DjKGDqWTfabHUBsLKFWPr_6u-9Jeow1Hp289GOcejd53dMxgk98DgpdZJFbxX6i5BeeHyyEso-PwTDAYZf9s1F06j3EC8YWbrKE3-BkB6BkZ-6ne5ONmiFsFl02ds0iRrGGZZzP5lDomkic9aqvrBZTnuzXhwAujKKSsNr6SoZTPj7fMh4vq5ocDqg";
+const VK_BOT_TOKENS = "vk1.a.yCG8RlbvAvh9p8fRZxiWb8PIsw3fI3P5KQlHEA7jCMxKZPRYJBVdNdehSZMXwW83tz6uPy9Cvkkcyr-Z88it9J1OnhpIPa6YORUO-nnp__xLPKfdXtzymOkxBYwD9r_uX_QDwZaeto8aY93GQecShAjHjmANvelDDKrKWB7T-z9d1LmcNK_2r4TCP1dTNagi7ekfyxrui3u0kYgFp-WV8A,vk1.a.J-qP_B4VFuvCb63pN3WsbtLHeQuMwULBtE1jjIYcSPCUbzPxTK40f4w0hRoQAz5Fde1suVTaxlJeif0Ik5tuqvLfrqIuNN9gzMVwbvePxL2qM7az43Q-K43jOjnFzPvxslhoQFEJd_TujzvKDG9CZMrdL6iWV-pTj5QseHIkS5DRIIJg1oSuK-bO6K1kEa-2QuNdiLTEuahjay5C7Oiuzg,vk1.a.Qb3E7UwlrezOaQ_2AWjTwReYFhFKIbgTRXv-jaamJB7gAFr0jpiVzGGFq-ovrlF-z2GrnAg8Z9-jWZ3kzTXjja4Ua0BhP0WdY-uCiGcMFXJwJcT9R1SaMWLM4Ypl6yLTYAnb92n5yyYHbH05C47vLx-TRSdv6IQ8-SoEINdt2qi9WjowkQwInJP7rmUd33iIWlmhMo3Dc6dXP4AHUCZi9w,vk1.a.7vXl0_XMqSO5K3gtgHdRPfyef9CKhpxGM5smZnMUJ9lk47i1ekyeAQDaVUX3cmsk13alGGdER3qNd8Sodq4JwbFw7mr17cv47MG5zvB2mpxTUuDL0ZWMbw6QgUfM-I4uz2OhbectnzaRybxg5PS583skDvUrfIPbjWd8UKZZjpGmNMeLv5H9YXpZzXcuApnuqm2c3eSg7fL8NQU1phem-g,vk1.a.iDPTGrW2wgpg6qsm-82dRYiBpX5S_7m4Z1qIxjPhK5GC4uKJnfe7beksq3m4LhNgYdflm1ex-C-r4qaajzq6LVStu8QURL_rryOLot7qWgnkSgnGM3L9CS5EnenpN0jvIvGnPMcb1hJSuPrBARF1nvshjplSQd-t6kwmKhUcm1d7mUzc-0t95rieuqoKn1tKPpF5n3CC-3HnDzLyQ8gl8A,vk1.a.xiQBLVtxpiDUJ7YpezJ_dmdv3cK1DjKGDqWTfabHUBsLKFWPr_6u-9Jeow1Hp289GOcejd53dMxgk98DgpdZJFbxX6i5BeeHyyEso-PwTDAYZf9s1F06j3EC8YWbrKE3-BkB6BkZ-6ne5ONmiFsFl02ds0iRrGGZZzP5lDomkic9aqvrBZTnuzXhwAujKKSsNr6SoZTPj7fMh4vq5ocDqg,vk1.a.fZTplLMkpa_ntcMOsYogZA4f5UL2ogBtk_AqYnOeYvrf6vIvg39u800wgb3wwsGPdAlX76V7NIwSijxJtfJwTSg2lW4U7La0YUU8y-6J9fIP_D32yBeJpNYONVsfa2H_RK8Bn8Y646gJsakVSaXjAmzV32R-_Umx1OZ2O1NzIkSvXGUHx_n-xgDawwKcI20SqJguZYK3IuJ3IkjJzCEg2g";
 /**
  * Sends a plain-text VK message to a single user id.
  * Tries all configured VK bot tokens (multi-bot support) and stops at the

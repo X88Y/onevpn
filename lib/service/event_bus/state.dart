@@ -19,6 +19,10 @@ class AppEventBusState {
   /// True while a subscription update / regeneration is in progress.
   /// The UI should show only a loading status during this phase.
   final bool isUpdatingSubscription;
+  final String? infoMessage;
+  final String? infoSubMessage;
+  final String tgUrl;
+  final String vkUrl;
 
   const AppEventBusState({
     required this.xraySettingId,
@@ -33,6 +37,10 @@ class AppEventBusState {
     required this.languageCode,
     this.userData,
     this.isUpdatingSubscription = false,
+    this.infoMessage,
+    this.infoSubMessage,
+    required this.tgUrl,
+    required this.vkUrl,
   });
 
   factory AppEventBusState.initial() => AppEventBusState(
@@ -47,6 +55,10 @@ class AppEventBusState {
         languageCode: LanguageCode.en,
         userData: null,
         isUpdatingSubscription: false,
+        infoMessage: null,
+        infoSubMessage: null,
+        tgUrl: "https://t.me/mvmvpnbot",
+        vkUrl: "https://m.vk.com/write-130898973",
       );
 
   AppEventBusState copyWith({
@@ -63,6 +75,10 @@ class AppEventBusState {
     UserModel? userData,
     bool clearUserData = false,
     bool? isUpdatingSubscription,
+    String? infoMessage,
+    String? infoSubMessage,
+    String? tgUrl,
+    String? vkUrl,
   }) {
     return AppEventBusState(
       xraySettingId: xraySettingId ?? this.xraySettingId,
@@ -77,6 +93,10 @@ class AppEventBusState {
       languageCode: languageCode ?? this.languageCode,
       userData: clearUserData ? null : (userData ?? this.userData),
       isUpdatingSubscription: isUpdatingSubscription ?? this.isUpdatingSubscription,
+      infoMessage: infoMessage ?? this.infoMessage,
+      infoSubMessage: infoSubMessage ?? this.infoSubMessage,
+      tgUrl: tgUrl ?? this.tgUrl,
+      vkUrl: vkUrl ?? this.vkUrl,
     );
   }
 }

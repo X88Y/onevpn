@@ -27,16 +27,16 @@ enum PingUrl {
 
 class PingTimeout {
   static const min = 3.0;
-  static const max = 10.0;
+  static const max = 6.0;
   static const divisions = 17;
-  static const defaultValue = 10.0;
+  static const defaultValue = 6.0;
 }
 
 class PingConcurrency {
   static const min = 1.0;
-  static const max = 4.0;
+  static const max = 8.0;
   static const divisions = 2;
-  static const defaultValue = 4.0;
+  static const defaultValue = 8.0;
 }
 
 class PingState {

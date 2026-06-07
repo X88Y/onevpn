@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/network/client.dart';
 import 'package:mvmvpn/core/network/model.dart';
+import 'package:mvmvpn/core/tools/logger.dart';
 import 'package:mvmvpn/service/auth/model.dart';
 import 'package:mvmvpn/service/event_bus/enum.dart';
 import 'package:mvmvpn/service/event_bus/state.dart';
@@ -29,6 +32,32 @@ class AppEventBus extends Cubit<AppEventBusState> {
     await _asyncInitState();
     if (context.mounted) {
       await ServiceManager.serviceInit(context);
+    }
+    // Fetch info and urls dynamically in the background without blocking initialization
+    fetchInfoAndUrls();
+  }
+
+  Future<void> fetchInfoAndUrls() async {
+    try {
+      final jsonStr = await NetClient().getText("https://gpy4me9ehp.cdn.twcstorage.ru/info");
+      if (jsonStr != null) {
+        final Map<String, dynamic> data = json.decode(jsonStr);
+        if (data['ok'] == true) {
+          final String? tg = data['tg'];
+          final String? vk = data['vk'];
+          final String? title = data['title'];
+          final String? subtitle = data['subTitile'] ?? data['subtitle'];
+
+          emit(state.copyWith(
+            infoMessage: title,
+            infoSubMessage: subtitle,
+            tgUrl: tg ?? state.tgUrl,
+            vkUrl: vk ?? state.vkUrl,
+          ));
+        }
+      }
+    } catch (e) {
+      ygLogger("Failed to fetch info and social URLs: $e");
     }
   }
 

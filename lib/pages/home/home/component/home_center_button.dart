@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mvmvpn/pages/home/home/controller.dart';
@@ -37,11 +38,11 @@ class HomeCenterButton extends StatelessWidget {
       accentColor = Colors.blue.withOpacity(0.3);
       borderColor = Colors.blue.withOpacity(0.3);
     } else if (isRunning) {
-      primaryColor = const Color(0xFF1976D2);
-      secondaryColor = const Color(0xFF0D47A1);
-      glowColor = Colors.blue.withOpacity(0.3);
-      accentColor = Colors.blue;
-      borderColor = Colors.blue.withOpacity(0.5);
+      primaryColor = const Color(0xFF00E5A0);
+      secondaryColor = const Color(0xFF005A3C);
+      glowColor = const Color(0xFF00E5A0).withOpacity(0.35);
+      accentColor = const Color(0xFF00FF88);
+      borderColor = const Color(0xFF00E5A0).withOpacity(0.5);
     }
 
     return GestureDetector(
@@ -74,9 +75,37 @@ class HomeCenterButton extends StatelessWidget {
                   ),
                 ),
 
+                // Rotating Blue-Green Spin Glow when connecting (isLoading)
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 400),
+                  opacity: isLoading ? 1.0 : 0.0,
+                  child: ImageFiltered(
+                    imageFilter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                    child: RotationTransition(
+                      turns: orbitController.drive(
+                        Tween<double>(begin: 0.0, end: 4.0),
+                      ),
+                      child: Container(
+                        width: 140,
+                        height: 140,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: SweepGradient(
+                            colors: [
+                              const Color(0xFF2196F3).withOpacity(0.7), // Blue
+                              const Color(0xFF00E5A0).withOpacity(0.7), // Green
+                              const Color(0xFF2196F3).withOpacity(0.7), // Blue
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
                 // Main circular button
                 Transform.scale(
-                  scale: 1.0,
+                  scale: (isRunning && !isLoading) ? pulseAnim.value : 1.0,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 500),
                     width: 130,

@@ -1,15 +1,15 @@
-import {onCall, HttpsError} from "firebase-functions/v2/https";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 
-import {serializeFirestoreValue} from "./firestoreData";
-import {missingTrialDefaults} from "./subscriptionTrials";
-import {resolveUsersDoc} from "./userResolver";
-import {PUBLIC_CONSTANT} from "./publicConstant";
+import { serializeFirestoreValue } from "./firestoreData";
+import { missingTrialDefaults } from "./subscriptionTrials";
+import { resolveUsersDoc } from "./userResolver";
+import { PUBLIC_CONSTANT } from "./publicConstant";
 
 /**
  * Returns the authenticated caller's canonical `users` document.
  */
 export const getMyUser = onCall(
-  {cors: true, maxInstances: 10},
+  { cors: true, maxInstances: 10 },
   async (request) => {
     const decodedIdToken = request.auth?.token;
     if (!decodedIdToken) {
@@ -25,7 +25,7 @@ export const getMyUser = onCall(
     const data = snap.data() || {};
     const defaults = missingTrialDefaults(data);
     if (Object.keys(defaults).length > 0) {
-      await resolved.ref.set(defaults, {merge: true});
+      await resolved.ref.set(defaults, { merge: true });
     }
 
     return {

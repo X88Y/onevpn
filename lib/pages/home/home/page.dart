@@ -106,6 +106,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                           child: _buildTopBar(context, controller, eventState, homeState, isLoading),
                         ),
+                        _buildInfoBanner(eventState),
                         const Spacer(flex: 1),
                         HomeCenterButton(
                           controller: controller,
@@ -176,13 +177,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             _socialIconButton(
               icon: const FaIcon(FontAwesomeIcons.telegram, size: 18, color: Color(0xFF24A1DE)),
               color: const Color(0xFF24A1DE).withValues(alpha: 0.12),
-              onPressed: () => _openUrl("https://t.me/mvmvpnbot"),
+              onPressed: () => _openUrl(eventState.tgUrl),
             ),
             const SizedBox(width: 10),
             _socialIconButton(
               icon: const FaIcon(FontAwesomeIcons.vk, size: 18, color: Color(0xFF0077FF)),
               color: const Color(0xFF0077FF).withValues(alpha: 0.12),
-              onPressed: () => _openUrl("https://m.vk.com/write-130898973"),
+              onPressed: () => _openUrl(eventState.vkUrl),
             ),
           ],
         ),
@@ -191,6 +192,68 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           isLoading: isLoading,
         ),
       ],
+    );
+  }
+
+  Widget _buildInfoBanner(AppEventBusState eventState) {
+    if (eventState.infoMessage == null || eventState.infoMessage!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF2196F3).withValues(alpha: 0.15),
+            Colors.white.withValues(alpha: 0.02),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF2196F3).withValues(alpha: 0.3),
+          width: 1.0,
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.info_outline_rounded,
+            color: Color(0xFF2196F3),
+            size: 22,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  eventState.infoMessage!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (eventState.infoSubMessage != null && eventState.infoSubMessage!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    eventState.infoSubMessage!,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.6),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -569,7 +632,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     Color statusBg = Colors.transparent;
     if (isRunning) {
-      statusBg = const Color(0xFF2196F3).withOpacity(0.08);
+      statusBg = const Color(0xFF00E5A0).withOpacity(0.08);
     } else if (isSelected) {
       statusBg = Colors.white.withOpacity(0.04);
     }
@@ -601,7 +664,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: isRunning
-                            ? const Color(0xFF2196F3)
+                            ? const Color(0xFF00E5A0)
                             : isSelected
                                 ? Colors.white
                                 : Colors.white.withOpacity(0.85),
@@ -626,7 +689,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   delayText,
                   style: TextStyle(
                     color: (data.delay > 0 && data.delay < 300)
-                        ? const Color(0xFF2196F3)
+                        ? const Color(0xFF00E5A0)
                         : data.delay >= 300
                             ? Colors.white.withOpacity(0.5)
                             : Colors.white.withOpacity(0.2),
@@ -650,10 +713,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     if (isUpdatingSubscription) {
       text = AppLocalizations.of(context)!.mainConnecting;
-      textColor = Colors.white.withOpacity(0.6);
+      textColor = const Color(0xFF2196F3);
     } else if (eventState.vpnLoading && isRunning) {
       text = AppLocalizations.of(context)!.mainCheckingGoogleConnectivity;
-      textColor = Colors.white.withOpacity(0.6);
+      textColor = const Color(0xFF2196F3);
     } else {
       text = isRunning ? AppLocalizations.of(context)!.mainConnected : AppLocalizations.of(context)!.mainTapToConnect;
       if (isLoading) {
@@ -661,8 +724,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       }
 
       textColor = Colors.white.withOpacity(0.5);
-      if (isRunning) textColor = const Color(0xFF2196F3);
-      if (isLoading) textColor = Colors.white.withOpacity(0.6);
+      if (isRunning) textColor = const Color(0xFF00E5A0);
+      if (isLoading) textColor = const Color(0xFF2196F3);
     }
 
     return Column(

@@ -5,6 +5,8 @@ export const PUBLIC_CONSTANT = {
   ok: true,
   vk: "https://m.vk.com/write-130898973",
   tg: "https://t.me/mvmvpnbot",
+  title: 'Новая подписка доступна',
+  subTitile: 'Переходите в телеграм'
 } as const;
 
 /** HTTP GET handler that returns a static JSON body. */

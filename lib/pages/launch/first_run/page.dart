@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 import 'package:mvmvpn/gen/assets.gen.dart';
 import 'package:mvmvpn/pages/launch/first_run/controller.dart';
+import 'package:mvmvpn/service/event_bus/service.dart';
 
 class FirstRunPage extends StatefulWidget {
   const FirstRunPage({super.key});
@@ -205,7 +206,7 @@ class _FirstRunPageState extends State<FirstRunPage> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: ElevatedButton.icon(
-                            onPressed: _isLoading ? null : () => _openUrl("https://t.me/mvmvpnbot"),
+                            onPressed: _isLoading ? null : () => _openUrl(context.read<AppEventBus>().state.tgUrl),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
                               foregroundColor: Colors.white,
@@ -235,7 +236,7 @@ class _FirstRunPageState extends State<FirstRunPage> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: ElevatedButton.icon(
-                            onPressed: _isLoading ? null : () => _openUrl("https://m.vk.com/write-130898973"),
+                            onPressed: _isLoading ? null : () => _openUrl(context.read<AppEventBus>().state.vkUrl),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
                               foregroundColor: Colors.white,

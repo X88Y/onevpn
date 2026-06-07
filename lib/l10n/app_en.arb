@@ -471,7 +471,7 @@
   "mainRegeneratingKey": "Regenerating subscription key...",
   "mainSignInSuccess": "Signed in done.",
   "mainSignInFailed": "Sign in did not work.",
-  "mainCheckingGoogleConnectivity": "Checking Google connectivity...",
+  "mainCheckingGoogleConnectivity": "Connecting",
   "mainFixVpn": "Fix broken VPN.",
   "welcomeTitle": "Welcome to MVM",
   "welcomeSubtitle": "A reliable and fast proxy client to protect your internet connection.",
