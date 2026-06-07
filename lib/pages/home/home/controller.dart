@@ -365,7 +365,7 @@ class HomeController extends Cubit<HomeState> {
     }
   }
 
-  Future<void> clearAllData() async {
+  Future<void> clearAllData({String redirectTo = RouterPath.privacy}) async {
     final prefs = SharedPreferencesAsync();
     await prefs.clear();
     await AuthService().signOut();
@@ -384,7 +384,7 @@ class HomeController extends Cubit<HomeState> {
 
     emit(HomeState.initial());
     if (context.mounted) {
-      context.go(RouterPath.privacy);
+      context.go(redirectTo);
     }
   }
 

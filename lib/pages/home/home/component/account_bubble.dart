@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 import 'package:mvmvpn/pages/home/home/controller.dart';
+import 'package:mvmvpn/pages/main/url.dart';
 
 class AccountBubble extends StatelessWidget {
   final HomeController controller;
@@ -199,7 +200,7 @@ class AccountBubble extends StatelessWidget {
             ),
             onPressed: () {
               Navigator.pop(ctx);
-              controller.clearAllData();
+              controller.clearAllData(redirectTo: RouterPath.welcome);
             },
           ),
         ],
