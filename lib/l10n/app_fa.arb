@@ -490,5 +490,6 @@
   "privacyPolicy": "سیاست حفظ حریم خصوصی",
   "loginErrorEmptyKey": "لطفاً کلید دسترسی را وارد کنید",
   "loginErrorInvalidKey": "کلید دسترسی نامعتبر یا خطای شبکه",
-  "loginLoading": "در حال بررسی کلید دسترسی..."
+  "loginLoading": "در حال بررسی کلید دسترسی...",
+  "mainTryAnotherServer": "لطفاً سرور دیگری را امتحان کنید"
 }

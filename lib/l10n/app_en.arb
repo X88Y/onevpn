@@ -450,7 +450,7 @@
   "mainConnectTelegram": "Connect Telegram.",
   "mainConnectVK": "Connect VK.",
   "mainConnected": "Connected",
-  "mainTapToConnect": "Tap to connect.",
+  "mainTapToConnect": "Tap to connect",
   "mainDisconnecting": "Wait...",
   "mainConnecting": "Connecting...",
   "mainSubscriptionActiveUntil": "Subscription active until {date}.",
@@ -490,5 +490,6 @@
   "privacyPolicy": "Privacy Policy",
   "loginErrorEmptyKey": "Please enter access key",
   "loginErrorInvalidKey": "Invalid access key or network error",
-  "loginLoading": "Checking access key..."
+  "loginLoading": "Checking access key...",
+  "mainTryAnotherServer": "Please try another server"
 }

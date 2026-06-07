@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mvmvpn/core/constants/preferences.dart';
 import 'package:mvmvpn/core/db/database/constants.dart';
 import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/network/client.dart';
 import 'package:mvmvpn/pages/main/url.dart';
 import 'package:mvmvpn/service/subscription/service.dart';
 import 'package:mvmvpn/service/tun_setting/interface.dart';
@@ -69,7 +70,32 @@ class FirstRunController extends Cubit<FirstRunState> {
       return false;
     }
 
-    final url = "https://jl1x2z77a9.cdn.twcstorage.ru/$trimmedKey";
+    final uri = Uri.tryParse(trimmedKey);
+    final isUrl = uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
+
+    String url;
+    if (isUrl) {
+      final checkUri = Uri(
+        scheme: uri.scheme,
+        host: uri.host,
+        port: uri.port != 0 && uri.port != 80 && uri.port != 443 ? uri.port : null,
+        path: '/config',
+      );
+      // log checkUri
+      debugPrint(checkUri.toString());
+      final checkUrl = checkUri.toString();
+      try {
+        final responseText = await NetClient().getText(checkUrl);
+        if (responseText == null || responseText.trim() != 'REMNAWAVE') {
+          return false;
+        }
+      } catch (e) {
+        return false;
+      }
+      url = trimmedKey;
+    } else {
+      url = "https://jl1x2z77a9.cdn.twcstorage.ru/$trimmedKey";
+    }
 
     try {
       final db = AppDatabase();

@@ -12,6 +12,9 @@ import 'package:tuple/tuple.dart';
 
 extension OutboundStateValidator on OutboundState {
   Future<Tuple2<bool, String>> validate() async {
+    if (address.trim() == '1.1.1.1') {
+      return const Tuple2(false, "Skipping server with address 1.1.1.1");
+    }
     if (!EmptyTool.checkString(name)) {
       return Tuple2(false, appLocalizationsNoContext().appValidationNameRequired);
     }

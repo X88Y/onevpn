@@ -489,5 +489,6 @@
   "privacyPolicy": "隐私政策",
   "loginErrorEmptyKey": "请输入访问密钥",
   "loginErrorInvalidKey": "无效的访问密钥或网络错误",
-  "loginLoading": "正在检查访问密钥..."
+  "loginLoading": "正在检查访问密钥...",
+  "mainTryAnotherServer": "请尝试其他服务器"
 }

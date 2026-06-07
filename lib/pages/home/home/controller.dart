@@ -203,9 +203,10 @@ class HomeController extends Cubit<HomeState> {
 
   Future<void> startVpn(BuildContext context) async {
     final eventBus = AppEventBus.instance;
-    if (eventBus.state.vpnLoading || eventBus.state.isUpdatingSubscription) return;
-
     final isRunning = eventBus.state.runningId != DBConstants.defaultId;
+    if (eventBus.state.isUpdatingSubscription) return;
+    if (eventBus.state.vpnLoading && !isRunning) return;
+
     eventBus.updateVpnLoading(true);
 
     try {

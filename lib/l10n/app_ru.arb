@@ -490,5 +490,6 @@
   "privacyPolicy": "Политика конфиденциальности",
   "loginErrorEmptyKey": "Введите ключ доступа",
   "loginErrorInvalidKey": "Неверный ключ доступа или ошибка сети",
-  "loginLoading": "Проверка ключа доступа..."
+  "loginLoading": "Проверка ключа доступа...",
+  "mainTryAnotherServer": "попробуйте другой сервер"
 }

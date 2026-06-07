@@ -45,7 +45,7 @@ class AccountBubble extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) {
+      builder: (sheetContext) {
         return BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
@@ -55,7 +55,7 @@ class AccountBubble extends StatelessWidget {
               border: Border.all(color: Colors.white.withOpacity(0.1)),
             ),
             padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).padding.bottom + 20,
+              bottom: MediaQuery.of(sheetContext).padding.bottom + 20,
               top: 20,
             ),
             child: Column(
@@ -73,11 +73,11 @@ class AccountBubble extends StatelessWidget {
                 ListTile(
                   leading: Icon(Icons.shield_outlined, color: Colors.blueAccent.withOpacity(0.8)),
                   title: Text(
-                    AppLocalizations.of(context)!.privacyPolicy,
+                    AppLocalizations.of(sheetContext)!.privacyPolicy,
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                   ),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(sheetContext);
                     controller.openUrl('https://www.aiverge.net/privacy');
                   },
                 ),
@@ -85,11 +85,11 @@ class AccountBubble extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
                   title: Text(
-                    AppLocalizations.of(context)!.mainDeleteAccount,
+                    AppLocalizations.of(sheetContext)!.mainDeleteAccount,
                     style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600),
                   ),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(sheetContext);
                     _showDeleteConfirmation(context, controller);
                   },
                 ),
@@ -115,19 +115,19 @@ class AccountBubble extends StatelessWidget {
             const Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
             const SizedBox(width: 8),
             Text(
-              AppLocalizations.of(context)!.mainDeleteAccount,
+              AppLocalizations.of(ctx)!.mainDeleteAccount,
               style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
         ),
         content: Text(
-          AppLocalizations.of(context)!.mainDeleteAccountConfirm,
+          AppLocalizations.of(ctx)!.mainDeleteAccountConfirm,
           style: TextStyle(color: Colors.white.withOpacity(0.7), height: 1.4),
         ),
         actions: <Widget>[
           TextButton(
             child: Text(
-              AppLocalizations.of(context)!.btnCancel,
+              AppLocalizations.of(ctx)!.btnCancel,
               style: TextStyle(color: Colors.white.withOpacity(0.6)),
             ),
             onPressed: () => Navigator.pop(ctx),
@@ -141,7 +141,7 @@ class AccountBubble extends StatelessWidget {
               ),
             ),
             child: Text(
-              AppLocalizations.of(context)!.navDelete,
+              AppLocalizations.of(ctx)!.navDelete,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             onPressed: () {

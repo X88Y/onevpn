@@ -45,7 +45,7 @@ class HomeCenterButton extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: isLoading ? null : () => controller.startVpn(context),
+      onTap: (isLoading && !isRunning) ? null : () => controller.startVpn(context),
       child: AnimatedBuilder(
         animation: Listenable.merge([orbitController, pulseAnim, sonarController]),
         builder: (context, child) {

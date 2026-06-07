@@ -34,9 +34,9 @@ class PingTimeout {
 
 class PingConcurrency {
   static const min = 1.0;
-  static const max = 5.0;
-  static const divisions = 4;
-  static const defaultValue = 3.0;
+  static const max = 4.0;
+  static const divisions = 2;
+  static const defaultValue = 4.0;
 }
 
 class PingState {
