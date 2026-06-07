@@ -254,9 +254,17 @@ class HomeController extends Cubit<HomeState> {
       }
 
       int targetConfigId = state.configId;
+      final db = AppDatabase();
+
+      if (targetConfigId != DBConstants.defaultId) {
+        final configExists = await db.coreConfigDao.searchRow(targetConfigId);
+        if (configExists == null) {
+          targetConfigId = DBConstants.defaultId;
+          _updateConfigIdOnly(DBConstants.defaultId);
+        }
+      }
 
       if (targetConfigId == DBConstants.defaultId) {
-        final db = AppDatabase();
         final configs = await db.select(db.coreConfig).get();
         final serverConfigs = configs.where((c) => c.type == CoreConfigType.outbound.name || c.type == CoreConfigType.raw.name).toList();
 
@@ -265,7 +273,7 @@ class HomeController extends Cubit<HomeState> {
           if (context.mounted) {
             ContextAlert.showToast(
               context,
-              AppLocalizations.of(context)!.appVpnNoConfig,
+              AppLocalizations.of(context)!.appVpnSelectOneConfig,
             );
           }
           return;
@@ -334,7 +342,7 @@ class HomeController extends Cubit<HomeState> {
             if (context.mounted) {
               ContextAlert.showToast(
                 context,
-                AppLocalizations.of(context)!.appVpnNoConfig,
+                AppLocalizations.of(context)!.appVpnSelectOneConfig,
               );
             }
             return;
