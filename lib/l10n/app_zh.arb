@@ -472,12 +472,14 @@
   "mainSignInSuccess": "登录完成",
   "mainSignInFailed": "登录未成功",
   "mainCheckingGoogleConnectivity": "正在检查 Google 连接...",
-  "welcomeTitle": "欢迎使用 MVM",
+  "welcomeTitle": "欢迎使用 VPSUS",
   "welcomeSubtitle": "可靠且快速的代理客户端，保护您的互联网连接。",
   "welcomePrivacyTitle": "您的数据仅属于您",
   "welcomePrivacySubtitle": "我们不存储活动日志，也不与第三方共享信息。默认完全隐私。",
   "welcomeConnectionTitle": "一键连接",
   "welcomeConnectionSubtitle": "添加配置即可连接。无需复杂设置——应用程序将为您处理一切。",
+  "welcomeSecurityTitle": "安全连接",
+  "welcomeSecuritySubtitle": "流量加密可保护您的数据免受在公共和未受保护的网络中被拦截。",
   "btnOnboardingNext": "下一步",
   "btnOnboardingStart": "开始",
   "loginTitle": "登录以连接",
@@ -490,5 +492,7 @@
   "loginErrorEmptyKey": "请输入访问密钥",
   "loginErrorInvalidKey": "无效的访问密钥或网络错误",
   "loginLoading": "正在检查访问密钥...",
-  "mainTryAnotherServer": "请尝试其他服务器"
+  "mainTryAnotherServer": "请尝试其他服务器",
+  "profileClearAllData": "清除所有数据",
+  "profileClearAllDataConfirm": "您确定要清除所有数据吗？这将使应用恢复到初始状态。"
 }

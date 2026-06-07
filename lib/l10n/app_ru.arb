@@ -473,12 +473,14 @@
   "mainSignInFailed": "Проблема входа",
   "mainCheckingGoogleConnectivity": "Проверяем что все работает...",
   "mainFixVpn": "Починить неработающий VPN",
-  "welcomeTitle": "Добро пожаловать в MVM",
+  "welcomeTitle": "Добро пожаловать в VPSUS",
   "welcomeSubtitle": "Надёжный и быстрый прокси-клиент для защиты вашего интернет-соединения.",
   "welcomePrivacyTitle": "Ваши данные — только ваши",
   "welcomePrivacySubtitle": "Мы не храним логи активности и не передаём информацию третьим лицам. Полная конфиденциальность по умолчанию.",
   "welcomeConnectionTitle": "Подключение в одно нажатие",
   "welcomeConnectionSubtitle": "Добавьте конфигурацию и подключайтесь. Никаких сложных настроек — приложение сделает всё за вас.",
+  "welcomeSecurityTitle": "Безопасное соединение",
+  "welcomeSecuritySubtitle": "Шифрование трафика защищает ваши данные от перехвата в публичных и незащищённых сетях.",
   "btnOnboardingNext": "ДАЛЕЕ",
   "btnOnboardingStart": "НАЧАТЬ",
   "loginTitle": "Войдите для подключения",
@@ -491,5 +493,7 @@
   "loginErrorEmptyKey": "Введите ключ доступа",
   "loginErrorInvalidKey": "Неверный ключ доступа или ошибка сети",
   "loginLoading": "Проверка ключа доступа...",
-  "mainTryAnotherServer": "попробуйте другой сервер"
+  "mainTryAnotherServer": "попробуйте другой сервер",
+  "profileClearAllData": "Очистить все данные",
+  "profileClearAllDataConfirm": "Вы уверены, что хотите очистить все данные? Это вернет приложение в исходное состояние."
 }

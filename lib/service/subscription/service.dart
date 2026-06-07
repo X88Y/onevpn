@@ -5,10 +5,12 @@ import 'package:mvmvpn/core/db/database/database.dart';
 import 'package:mvmvpn/core/network/client.dart';
 import 'package:mvmvpn/service/db/config_writer.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
+import 'package:mvmvpn/service/localizations/service.dart';
 import 'package:mvmvpn/service/ping/service.dart';
 import 'package:mvmvpn/service/share/protocol.dart';
 import 'package:mvmvpn/service/share/xray_share_reader.dart';
 import 'package:mvmvpn/service/sub_update/state.dart';
+import 'package:mvmvpn/service/toast/service.dart';
 
 class SubscriptionService {
   static final SubscriptionService _singleton = SubscriptionService._internal();
@@ -45,8 +47,25 @@ class SubscriptionService {
       return count;
     }
 
-    final text = await NetClient().getText(url);
+    final headers = await NetClient().getSubscriptionHeaders();
+    final text = await NetClient().getText(url, headers: headers);
+    print('SubscriptionService().refreshSubscription text: $text');
+
+    if (text == null) {
+      if (showLoading) {
+        ToastService().showToast(appLocalizationsNoContext().loginErrorInvalidKey);
+        eventBus.updateDownloading(false);
+      }
+      return 0;
+    }
     final rows = await _readConfigs(text);
+    if (rows.isEmpty) {
+      if (showLoading) {
+        ToastService().showToast(appLocalizationsNoContext().subscriptionAddScreenNoConfigs);
+        eventBus.updateDownloading(false);
+      }
+      return 0;
+    }
     var count = 0;
     if (rows.isNotEmpty) {
       final row = SubscriptionCompanion.insert(
@@ -84,8 +103,25 @@ class SubscriptionService {
     if (showLoading) {
       eventBus.updateDownloading(true);
     }
-    final text = await NetClient().getText(subscription.url);
+    final headers = await NetClient().getSubscriptionHeaders();
+    final text = await NetClient().getText(subscription.url, headers: headers);
+    // log text
+    print('SubscriptionService().refreshSubscription text: $text');
+    if (text == null) {
+      if (showLoading) {
+        ToastService().showToast(appLocalizationsNoContext().loginErrorInvalidKey);
+        eventBus.updateDownloading(false);
+      }
+      return 0;
+    }
     final rows = await _readConfigs(text);
+    if (rows.isEmpty) {
+      if (showLoading) {
+        ToastService().showToast(appLocalizationsNoContext().subscriptionAddScreenNoConfigs);
+        eventBus.updateDownloading(false);
+      }
+      return 0;
+    }
     var count = 0;
     if (rows.isNotEmpty) {
       final db = AppDatabase();

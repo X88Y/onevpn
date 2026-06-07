@@ -83,6 +83,18 @@ class AccountBubble extends StatelessWidget {
                 ),
                 Divider(color: Colors.white.withOpacity(0.08)),
                 ListTile(
+                  leading: Icon(Icons.cleaning_services_rounded, color: Colors.orangeAccent.withOpacity(0.8)),
+                  title: Text(
+                    AppLocalizations.of(sheetContext)!.profileClearAllData,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _showClearDataConfirmation(context, controller);
+                  },
+                ),
+                Divider(color: Colors.white.withOpacity(0.08)),
+                ListTile(
                   leading: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
                   title: Text(
                     AppLocalizations.of(sheetContext)!.mainDeleteAccount,
@@ -98,6 +110,59 @@ class AccountBubble extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  void _showClearDataConfirmation(BuildContext context, HomeController controller) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF0F1120),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: Colors.white.withOpacity(0.1)),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.cleaning_services_rounded, color: Colors.orangeAccent.withOpacity(0.8)),
+            const SizedBox(width: 8),
+            Text(
+              AppLocalizations.of(ctx)!.profileClearAllData,
+              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Text(
+          AppLocalizations.of(ctx)!.profileClearAllDataConfirm,
+          style: TextStyle(color: Colors.white.withOpacity(0.7), height: 1.4),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: Text(
+              AppLocalizations.of(ctx)!.btnCancel,
+              style: TextStyle(color: Colors.white.withOpacity(0.6)),
+            ),
+            onPressed: () => Navigator.pop(ctx),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orangeAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: Text(
+              AppLocalizations.of(ctx)!.navClean,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              controller.clearAllData();
+            },
+          ),
+        ],
+      ),
     );
   }
 

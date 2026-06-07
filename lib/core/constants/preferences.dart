@@ -39,7 +39,7 @@ class PreferencesKey {
     await _prefs.setString(_lastSyncedUserId, value);
   }
 
-  static const _privacyAccepted = "privacyAccepted02";
+  static const _privacyAccepted = "privacyAccepted03";
 
   Future<bool> readPrivacyAccepted() async {
     final value = await _prefs.getBool(_privacyAccepted);
@@ -53,7 +53,7 @@ class PreferencesKey {
     await _prefs.setBool(_privacyAccepted, value);
   }
 
-  static const _firstRun = "firstRun03";
+  static const _firstRun = "firstRun04";
 
   Future<bool> readFirstRun() async {
     final value = await _prefs.getBool(_firstRun);

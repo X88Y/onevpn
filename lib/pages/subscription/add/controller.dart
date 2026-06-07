@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mvmvpn/core/tools/extensions.dart';
-import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 import 'package:mvmvpn/pages/mixin/alert.dart';
 import 'package:mvmvpn/service/subscription/service.dart';
 import 'package:mvmvpn/service/subscription/validator.dart';
@@ -28,11 +27,6 @@ class SubscriptionAddController {
       if (context.mounted) {
         if (count > 0) {
           context.pop();
-        } else {
-          ContextAlert.showToast(
-            context,
-            AppLocalizations.of(context)!.btnAddFailed,
-          );
         }
       }
     } else {

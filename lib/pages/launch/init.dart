@@ -29,7 +29,9 @@ Future<void> checkFirstRun(BuildContext context) async {
   final firstRun = await PreferencesKey().readFirstRun();
   final accessKey = await PreferencesKey().readAccessKey();
   if (context.mounted) {
-    if (firstRun || accessKey == null || accessKey.trim().isEmpty) {
+    if (firstRun) {
+      context.go(RouterPath.welcome);
+    } else if (accessKey == null || accessKey.trim().isEmpty) {
       context.go(RouterPath.firstRun);
     } else {
       context.go(RouterPath.home);

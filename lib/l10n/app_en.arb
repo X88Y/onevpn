@@ -479,6 +479,8 @@
   "welcomePrivacySubtitle": "We do not store activity logs and do not share information with third parties. Full privacy by default.",
   "welcomeConnectionTitle": "One-click connection",
   "welcomeConnectionSubtitle": "Add configuration and connect. No complex settings — the app will do everything for you.",
+  "welcomeSecurityTitle": "Secure connection",
+  "welcomeSecuritySubtitle": "Traffic encryption protects your data from interception in public and unprotected networks.",
   "btnOnboardingNext": "NEXT",
   "btnOnboardingStart": "START",
   "loginTitle": "Log in to connect",
@@ -491,5 +493,7 @@
   "loginErrorEmptyKey": "Please enter access key",
   "loginErrorInvalidKey": "Invalid access key or network error",
   "loginLoading": "Checking access key...",
-  "mainTryAnotherServer": "Please try another server"
+  "mainTryAnotherServer": "Please try another server",
+  "profileClearAllData": "Clear all data",
+  "profileClearAllDataConfirm": "Are you sure you want to clear all data? This will restore the app to its initial state."
 }

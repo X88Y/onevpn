@@ -473,12 +473,14 @@
   "mainSignInFailed": "ورود ناموفق بود",
   "mainCheckingGoogleConnectivity": "در حال بررسی اتصال به گوگل...",
   "mainFixVpn": "عیب‌یابی VPN",
-  "welcomeTitle": "به MVM خوش آمدید",
+  "welcomeTitle": "به VPSUS خوش آمدید",
   "welcomeSubtitle": "یک سرویس‌گیرنده پروکسی قابل اعتماد و سریع برای محافظت از اتصال اینترنت شما.",
   "welcomePrivacyTitle": "داده‌های شما فقط متعلق به خودتان است",
   "welcomePrivacySubtitle": "ما گزارش‌های فعالیت را ذخیره نمی‌کنیم و اطلاعات را با اشخاص ثالث به اشتراک نمی‌گذاریم. حریم خصوصی کامل به‌طور پیش‌فرض.",
   "welcomeConnectionTitle": "اتصال با یک کلیک",
   "welcomeConnectionSubtitle": "پیکربندی را اضافه کرده و متصل شوید. بدون تنظیمات پیچیده — برنامه همه کارها را برای شما انجام می‌دهد.",
+  "welcomeSecurityTitle": "اتصال امن",
+  "welcomeSecuritySubtitle": "رمزگذاری ترافیک از داده‌های شما در برابر رهگیری در شبکه‌های عمومی و ناامن محافظت می‌کند.",
   "btnOnboardingNext": "بعدی",
   "btnOnboardingStart": "شروع",
   "loginTitle": "برای اتصال وارد شوید",
@@ -491,5 +493,7 @@
   "loginErrorEmptyKey": "لطفاً کلید دسترسی را وارد کنید",
   "loginErrorInvalidKey": "کلید دسترسی نامعتبر یا خطای شبکه",
   "loginLoading": "در حال بررسی کلید دسترسی...",
-  "mainTryAnotherServer": "لطفاً سرور دیگری را امتحان کنید"
+  "mainTryAnotherServer": "لطفاً سرور دیگری را امتحان کنید",
+  "profileClearAllData": "پاک کردن تمام داده‌ها",
+  "profileClearAllDataConfirm": "آیا مطمئن هستید که می‌خواهید تمام داده‌ها را پاک کنید؟ این کار برنامه را به حالت اولیه بازنشانی می‌کند."
 }

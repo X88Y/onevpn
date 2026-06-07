@@ -9,8 +9,9 @@ import 'package:mvmvpn/service/auth/model.dart';
 import 'package:mvmvpn/service/event_bus/enum.dart';
 import 'package:mvmvpn/service/event_bus/state.dart';
 import 'package:mvmvpn/service/manager.dart';
+import 'package:mvmvpn/service/subscription/service.dart';
 
-class AppEventBus extends Cubit<AppEventBusState> {
+class AppEventBus extends Cubit<AppEventBusState> with WidgetsBindingObserver {
   static late AppEventBus instance;
 
   AppEventBus() : super(AppEventBusState.initial()) {
@@ -28,13 +29,41 @@ class AppEventBus extends Cubit<AppEventBusState> {
     );
   }
 
+  DateTime? _lastUpdateTime;
+
   Future<void> asyncInitService(BuildContext context) async {
     await _asyncInitState();
     if (context.mounted) {
       await ServiceManager.serviceInit(context);
     }
-    // Fetch info and urls dynamically in the background without blocking initialization
+    WidgetsBinding.instance.addObserver(this);
+    // Fetch info, urls, and subscriptions on app open
+    _onAppOpen();
+  }
+
+  void _onAppOpen() {
+    final now = DateTime.now();
+    if (_lastUpdateTime != null && now.difference(_lastUpdateTime!).inSeconds < 10) {
+      return;
+    }
+    _lastUpdateTime = now;
     fetchInfoAndUrls();
+    _updateSubscriptions();
+  }
+
+  Future<void> _updateSubscriptions() async {
+    try {
+      await SubscriptionService().refreshAllSubscription();
+    } catch (e) {
+      ygLogger("Failed to refresh subscriptions on app open: $e");
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _onAppOpen();
+    }
   }
 
   Future<void> fetchInfoAndUrls() async {
@@ -137,6 +166,7 @@ class AppEventBus extends Cubit<AppEventBusState> {
 
   @override
   Future<void> close() {
+    WidgetsBinding.instance.removeObserver(this);
     ServiceManager.serviceDispose();
     return super.close();
   }

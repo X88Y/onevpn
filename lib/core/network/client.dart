@@ -1,12 +1,15 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
 import 'package:mvmvpn/core/network/constants.dart';
 import 'package:mvmvpn/core/network/model.dart';
 import 'package:mvmvpn/core/network/standard.dart';
 import 'package:mvmvpn/core/tools/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:uuid/uuid.dart';
 
 class NetClient {
   static final NetClient _singleton = NetClient._internal();
@@ -94,11 +97,138 @@ class NetClient {
     return location;
   }
 
-  Future<String?> getText(String url) async {
+  Future<Map<String, String>> getSubscriptionHeaders() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final key = PreferencesKey();
+
+    // 1. x-device-os
+    String deviceOs = '';
+    if (Platform.isAndroid) {
+      deviceOs = 'Android';
+    } else if (Platform.isIOS) {
+      deviceOs = 'iOS';
+    } else if (Platform.isMacOS) {
+      deviceOs = 'macOS';
+    } else if (Platform.isWindows) {
+      deviceOs = 'Windows';
+    } else if (Platform.isLinux) {
+      deviceOs = 'Linux';
+    } else {
+      deviceOs = Platform.operatingSystem;
+    }
+
+    // 2. x-hwid
+    var hwid = await key.readDeviceUuid();
+    if (hwid == null || hwid.isEmpty) {
+      try {
+        final deviceInfo = DeviceInfoPlugin();
+        if (Platform.isAndroid) {
+          final androidInfo = await deviceInfo.androidInfo;
+          hwid = androidInfo.id;
+        } else if (Platform.isIOS) {
+          final iosInfo = await deviceInfo.iosInfo;
+          hwid = iosInfo.identifierForVendor;
+        } else if (Platform.isMacOS) {
+          final macosInfo = await deviceInfo.macOsInfo;
+          hwid = macosInfo.systemGUID;
+        } else if (Platform.isWindows) {
+          final windowsInfo = await deviceInfo.windowsInfo;
+          hwid = windowsInfo.deviceId;
+        } else if (Platform.isLinux) {
+          final linuxInfo = await deviceInfo.linuxInfo;
+          hwid = linuxInfo.machineId;
+        }
+      } catch (e) {
+        ygLogger("Failed to get native device id: $e");
+      }
+      if (hwid == null || hwid.isEmpty) {
+        hwid = const Uuid().v4();
+      }
+      await key.saveDeviceUuid(hwid);
+    }
+
+    // 3. x-device-locale
+    String deviceLocale = 'en';
+    try {
+      deviceLocale = Platform.localeName.split(RegExp(r'[_]')).first.toLowerCase();
+    } catch (_) {}
+
+    // 4. x-ver-os (OS version)
+    String verOs = 'unknown';
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      if (Platform.isAndroid) {
+        final info = await deviceInfo.androidInfo;
+        verOs = info.version.release;
+      } else if (Platform.isIOS) {
+        final info = await deviceInfo.iosInfo;
+        verOs = info.systemVersion;
+      } else if (Platform.isMacOS) {
+        final info = await deviceInfo.macOsInfo;
+        verOs = info.osRelease;
+      } else if (Platform.isWindows) {
+        final info = await deviceInfo.windowsInfo;
+        verOs = info.deviceId; // fallback or releaseId
+      } else if (Platform.isLinux) {
+        final info = await deviceInfo.linuxInfo;
+        verOs = info.versionId ?? 'unknown';
+      }
+    } catch (_) {}
+
+    // 5. x-app-version
+    final appVersion = packageInfo.version;
+
+    // 6. x-device-model
+    String deviceModel = 'unknown';
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      if (Platform.isAndroid) {
+        final info = await deviceInfo.androidInfo;
+        deviceModel = info.model;
+      } else if (Platform.isIOS) {
+        final info = await deviceInfo.iosInfo;
+        deviceModel = info.model;
+      } else if (Platform.isMacOS) {
+        final info = await deviceInfo.macOsInfo;
+        deviceModel = info.model;
+      } else if (Platform.isWindows) {
+        final info = await deviceInfo.windowsInfo;
+        deviceModel = info.productName;
+      } else if (Platform.isLinux) {
+        final info = await deviceInfo.linuxInfo;
+        deviceModel = info.name;
+      }
+    } catch (_) {}
+
+    // 7. user-agent: e.g. Happ/4.10.2/macos
+    final userAgent = 'MVMVpn/$appVersion/${deviceOs.toLowerCase()}';
+
+    // 8. accept-language
+    final sysLocale = Platform.localeName.replaceAll('_', '-');
+    final acceptLanguage = '$sysLocale,${sysLocale.split('-').first};q=0.9';
+
+    return {
+      'x-device-os': deviceOs,
+      'x-hwid': hwid,
+      'x-device-locale': deviceLocale,
+      'priority': 'u=3',
+      'accept-encoding': 'gzip, deflate, br',
+      'accept-language': acceptLanguage,
+      'user-agent': userAgent,
+      'x-ver-os': verOs,
+      'x-app-version': appVersion,
+      'x-device-model': deviceModel,
+    };
+  }
+
+  Future<String?> getText(String url, {Map<String, String>? headers}) async {
     try {
       final res = await _downloadClient.get<String>(
         url,
-        options: Options(responseType: ResponseType.plain),
+        options: Options(
+          responseType: ResponseType.plain,
+          headers: headers,
+        ),
       );
       return res.data;
     } catch (e) {
@@ -106,6 +236,7 @@ class NetClient {
       return null;
     }
   }
+
 
   Future<bool> downloadFile(String url, String savePath) async {
     try {

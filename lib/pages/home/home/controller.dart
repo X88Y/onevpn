@@ -24,6 +24,9 @@ import 'package:mvmvpn/service/xray/outbound/state.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
 import 'package:mvmvpn/service/ping/service.dart';
 import 'package:mvmvpn/service/subscription/service.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
+import 'package:mvmvpn/core/tools/file.dart';
+import 'package:mvmvpn/gen/assets.gen.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -185,6 +188,10 @@ class HomeController extends Cubit<HomeState> {
   }
 
   void updateConfigId(BuildContext context, int value) {
+    _updateConfigIdOnly(value);
+  }
+
+  void _updateConfigIdOnly(int value) {
     PreferencesKey().saveLastConfigId(value);
     emit(state.copyWith(configId: value));
   }
@@ -249,21 +256,89 @@ class HomeController extends Cubit<HomeState> {
       int targetConfigId = state.configId;
 
       if (targetConfigId == DBConstants.defaultId) {
-        // Fallback to first available config in list if none is selected
-        final configs = await AppDatabase().select(AppDatabase().coreConfig).get();
+        final db = AppDatabase();
+        final configs = await db.select(db.coreConfig).get();
         final serverConfigs = configs.where((c) => c.type == CoreConfigType.outbound.name || c.type == CoreConfigType.raw.name).toList();
-        if (serverConfigs.isNotEmpty) {
-          targetConfigId = serverConfigs.first.id;
-          updateConfigId(context, targetConfigId);
-        } else {
+
+        if (serverConfigs.isEmpty) {
           eventBus.updateVpnLoading(false);
           if (context.mounted) {
             ContextAlert.showToast(
               context,
-              AppLocalizations.of(context)!.appVpnSelectOneConfig,
+              AppLocalizations.of(context)!.appVpnNoConfig,
             );
           }
           return;
+        }
+
+        // 1. Wifi servers (name does not contain 'lte' case-insensitively)
+        final wifiServers = serverConfigs
+            .where((c) => !c.name.toLowerCase().contains('lte'))
+            .toList();
+
+        CoreConfigData? bestWifiServer;
+        if (wifiServers.isNotEmpty) {
+          await PingService().pingConfigs(wifiServers);
+
+          final updatedConfigs = await db.select(db.coreConfig).get();
+          final updatedWifiServers = updatedConfigs
+              .where((c) => (c.type == CoreConfigType.outbound.name || c.type == CoreConfigType.raw.name) &&
+                            !c.name.toLowerCase().contains('lte'))
+              .toList();
+
+          final availableWifi = updatedWifiServers
+              .where((c) => c.delay < PingDelayConstants.unknown)
+              .toList()
+            ..sort((a, b) => a.delay.compareTo(b.delay));
+
+          if (availableWifi.isNotEmpty) {
+            bestWifiServer = availableWifi.first;
+          }
+        }
+
+        if (bestWifiServer != null) {
+          targetConfigId = bestWifiServer.id;
+          _updateConfigIdOnly(targetConfigId);
+        } else {
+          // 2. LTE servers (name contains 'lte' case-insensitively)
+          final lteServers = serverConfigs
+              .where((c) => c.name.toLowerCase().contains('lte'))
+              .toList();
+
+          CoreConfigData? bestLteServer;
+          if (lteServers.isNotEmpty) {
+            await PingService().pingConfigs(lteServers);
+
+            final updatedConfigs = await db.select(db.coreConfig).get();
+            final updatedLteServers = updatedConfigs
+                .where((c) => (c.type == CoreConfigType.outbound.name || c.type == CoreConfigType.raw.name) &&
+                              c.name.toLowerCase().contains('lte'))
+                .toList();
+
+            final availableLte = updatedLteServers
+                .where((c) => c.delay < PingDelayConstants.unknown)
+                .toList()
+              ..sort((a, b) => a.delay.compareTo(b.delay));
+
+            if (availableLte.isNotEmpty) {
+              bestLteServer = availableLte.first;
+            }
+          }
+
+          if (bestLteServer != null) {
+            targetConfigId = bestLteServer.id;
+            _updateConfigIdOnly(targetConfigId);
+          } else {
+            // 3. If no match server show error
+            eventBus.updateVpnLoading(false);
+            if (context.mounted) {
+              ContextAlert.showToast(
+                context,
+                AppLocalizations.of(context)!.appVpnNoConfig,
+              );
+            }
+            return;
+          }
         }
       }
 
@@ -286,16 +361,29 @@ class HomeController extends Cubit<HomeState> {
     final prefs = SharedPreferencesAsync();
     await prefs.clear();
     await AuthService().signOut();
+
+    // Clear databases
+    final db = AppDatabase();
+    await db.geoDataDao.clear();
+    await db.coreConfigDao.clear();
+    await db.subscriptionDao.clear();
+
+    // Re-copy default assets
+    final datPath = VpnConstants.datDir;
+    await FileTool.deleteDirIfExists(datPath);
+    await FileTool.checkDir(datPath);
+    await FileTool.copyAssets(Assets.dat.values, datPath);
+
     emit(HomeState.initial());
     if (context.mounted) {
-      context.go(RouterPath.firstRun);
+      context.go(RouterPath.privacy);
     }
   }
 
   Future<void> regenerateTokenForce() async {
     final newId = await VpnService().regenerateTokenForce();
     if (newId != null) {
-      updateConfigId(context, newId);
+      _updateConfigIdOnly(newId);
     }
   }
 

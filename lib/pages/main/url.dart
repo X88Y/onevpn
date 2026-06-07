@@ -64,6 +64,7 @@ import 'package:mvmvpn/pages/home/xray/setting/ui/params.dart';
 import 'package:mvmvpn/pages/launch/first_run/page.dart';
 import 'package:mvmvpn/pages/launch/privacy/page.dart';
 import 'package:mvmvpn/pages/launch/splash/page.dart';
+import 'package:mvmvpn/pages/launch/welcome/page.dart';
 import 'package:mvmvpn/pages/main/menu/page.dart';
 import 'package:mvmvpn/pages/setting/app_icon/page.dart';
 import 'package:mvmvpn/pages/setting/backup/page.dart';
@@ -97,6 +98,7 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(
 abstract final class RouterPath {
   static const splash = "/splash";
   static const privacy = "/privacy";
+  static const welcome = "/welcome";
   static const firstRun = "/firstRun";
   static const home = "/home";
   static const xraySettingList = "/xraySettingList";
@@ -159,6 +161,10 @@ abstract final class RouterPath {
     routes: [
       GoRoute(path: RouterPath.splash, builder: (_, _) => const SplashPage()),
       GoRoute(path: RouterPath.privacy, builder: (_, _) => const PrivacyPage()),
+      GoRoute(
+        path: RouterPath.welcome,
+        builder: (_, _) => const WelcomePage(),
+      ),
       GoRoute(
         path: RouterPath.firstRun,
         builder: (_, _) => const FirstRunPage(),
