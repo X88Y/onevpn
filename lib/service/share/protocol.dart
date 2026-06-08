@@ -1,11 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:go_router/go_router.dart';
+
 import 'package:collection/collection.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
+import 'package:mvmvpn/core/db/database/constants.dart';
 import 'package:mvmvpn/core/db/database/database.dart';
 import 'package:mvmvpn/core/db/database/enum.dart';
+import 'package:mvmvpn/core/pigeon/constants.dart';
 import 'package:mvmvpn/core/pigeon/host_api.dart';
 import 'package:mvmvpn/core/pigeon/model.dart';
+import 'package:mvmvpn/core/tools/file.dart';
+import 'package:mvmvpn/gen/assets.gen.dart';
+import 'package:mvmvpn/pages/main/url.dart';
 import 'package:mvmvpn/service/auth/service.dart';
 import 'package:mvmvpn/service/geo_data/enum.dart';
 import 'package:mvmvpn/service/geo_data/service.dart';
@@ -13,12 +21,17 @@ import 'package:mvmvpn/service/geo_data/system_state.dart';
 import 'package:mvmvpn/service/geo_data/validator.dart';
 import 'package:mvmvpn/service/subscription/service.dart';
 import 'package:mvmvpn/service/subscription/validator.dart';
+import 'package:mvmvpn/service/tun_setting/interface.dart';
+import 'package:mvmvpn/service/tun_setting/state.dart';
+import 'package:mvmvpn/service/vpn/service.dart';
 import 'package:mvmvpn/service/xray/outbound/state.dart';
 import 'package:mvmvpn/service/xray/outbound/state_db.dart';
 import 'package:mvmvpn/service/xray/outbound/state_reader.dart';
 import 'package:mvmvpn/service/xray/outbound/state_validator.dart';
 import 'package:mvmvpn/service/xray/raw/db.dart';
 import 'package:mvmvpn/service/xray/raw/validator.dart';
+import 'package:mvmvpn/service/xray/setting/enum.dart';
+import 'package:mvmvpn/service/xray/setting/simple_state.dart';
 import 'package:mvmvpn/service/xray/setting/state.dart';
 import 'package:mvmvpn/service/xray/setting/state_db.dart';
 import 'package:mvmvpn/service/xray/setting/state_reader.dart';
@@ -176,7 +189,66 @@ class AppShareService {
     if (url == null) {
       return false;
     }
-    return addSubscription(url, uri.fragment, false);
+
+    final db = AppDatabase();
+    final existingSubs = await db.subscriptionDao.allRows;
+    if (existingSubs.isNotEmpty) {
+      await VpnService().stopDefaultVpn();
+      await _clearAllLocalData();
+    }
+
+    final firstRun = await PreferencesKey().readFirstRun();
+    if (firstRun) {
+      await _initFirstRunSettings(url);
+    }
+
+    final success = await addSubscription(url, uri.fragment, false);
+
+    if (success && firstRun) {
+      final context = rootNavigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        context.go(RouterPath.home);
+      }
+    }
+
+    return success;
+  }
+
+  Future<void> _clearAllLocalData() async {
+    await PreferencesKey().saveRunningConfigId(DBConstants.defaultId);
+    await PreferencesKey().saveLastConfigId(DBConstants.defaultId);
+    await PreferencesKey().saveXraySettingId(DBConstants.defaultId);
+
+    final db = AppDatabase();
+    await db.geoDataDao.clear();
+    await db.coreConfigDao.clear();
+    await db.subscriptionDao.clear();
+
+    final datPath = VpnConstants.datDir;
+    await FileTool.deleteDirIfExists(datPath);
+    await FileTool.checkDir(datPath);
+    await FileTool.copyAssets(Assets.dat.values, datPath);
+  }
+
+  Future<void> _initFirstRunSettings(String url) async {
+    var key = url;
+    if (url.startsWith("https://jl1x2z77a9.cdn.twcstorage.ru/")) {
+      key = url.replaceAll("https://jl1x2z77a9.cdn.twcstorage.ru/", "");
+    }
+    await PreferencesKey().saveAccessKey(key);
+    await PreferencesKey().saveFirstRun(false);
+
+    await PreferencesKey().saveXraySettingId(XraySettingSimple.simpleId);
+    final simple = XraySettingSimple();
+    simple.routing.directSet = SimpleCountry.ru;
+    await simple.saveToPreferences();
+
+    final interfaces = await queryInterfaceList();
+    if (interfaces.isNotEmpty) {
+      final tunSetting = TunSettingState();
+      tunSetting.bindInterface = interfaces.first.name;
+      await tunSetting.saveToPreferences();
+    }
   }
 
   Future<bool> _readAuth(Uri uri) async {

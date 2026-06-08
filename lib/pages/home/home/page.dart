@@ -337,27 +337,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
 
     for (final subId in subItems.keys) {
-      final subRow = subItems[subId]!;
       final configsInSub = allConfigItems[subId] ?? [];
       final matchingConfigs = configsInSub.where((c) => matchesTab(c.config.name)).toList();
-
-      if (matchingConfigs.isEmpty && subId != DBConstants.defaultId) {
-        continue;
-      }
-
-      final newSubItem = SubscriptionItem(
-        subRow.subscription.copyWith(count: matchingConfigs.length),
-        ConfigQueryRowType.subscription,
-      )..count = matchingConfigs.length;
-
-      if (subRow.subscription.name == "Основная подписка" || subRow.subscription.name.isEmpty) {
-        results.addAll(matchingConfigs);
-      } else {
-        results.add(newSubItem);
-        if (subRow.subscription.expanded) {
-          results.addAll(matchingConfigs);
-        }
-      }
+      results.addAll(matchingConfigs);
     }
     return results;
   }
