@@ -452,7 +452,7 @@
   "mainConnected": "Connected",
   "mainTapToConnect": "Tap to connect",
   "mainDisconnecting": "Wait...",
-  "mainConnecting": "Connecting...",
+  "mainConnecting": "Wait...",
   "mainSubscriptionActiveUntil": "Subscription active until {date}.",
   "@mainSubscriptionActiveUntil": {
     "placeholders": {

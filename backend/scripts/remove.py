@@ -11,7 +11,7 @@ from firebase_admin import credentials, firestore
 
 def _find_service_account() -> Path | None:
     """Look for a Firebase service-account JSON in the backend root."""
-    backend_root = Path(__file__).resolve().parent
+    backend_root = Path(__file__).resolve().parent.parent
     for pattern in ("*-firebase-adminsdk-*.json", "serviceAccount.json", "firebase-adminsdk.json"):
         matches = list(backend_root.glob(pattern))
         if matches:

@@ -452,7 +452,7 @@
   "mainConnected": "Подключено",
   "mainTapToConnect": "Нажмите для подключения",
   "mainDisconnecting": "Ждите...",
-  "mainConnecting": "Подключение...",
+  "mainConnecting": "Секундочку...",
   "mainSubscriptionActiveUntil": "Подписка активна до {date}",
   "@mainSubscriptionActiveUntil": {
     "placeholders": {

@@ -52,14 +52,16 @@ class PingService {
     eventBus.updatePinging(false);
   }
 
-  Future<void> pingConfigs(List<CoreConfigData> rows, {int pingCount = 1}) async {
+  Future<CoreConfigData?> pingConfigs(List<CoreConfigData> rows, {int pingCount = 1, bool stopOnFirstSuccess = false}) async {
     final eventBus = AppEventBus.instance;
     eventBus.updatePinging(true);
     final db = AppDatabase();
+    CoreConfigData? result;
     if (rows.isNotEmpty) {
-      await _pingConfigs(db, rows, pingCount: pingCount);
+      result = await _pingConfigs(db, rows, pingCount: pingCount, stopOnFirstSuccess: stopOnFirstSuccess);
     }
     eventBus.updatePinging(false);
+    return result;
   }
 
   Future<int> _pingOutbound(CoreConfigData row, PingState pingState) async {
@@ -89,31 +91,81 @@ class PingService {
     return PingDelayConstants.unknown;
   }
 
-  Future<void> _pingConfigs(AppDatabase db, List<CoreConfigData> rows, {int pingCount = 1}) async {
+  Future<CoreConfigData?> _pingConfigs(
+    AppDatabase db,
+    List<CoreConfigData> rows, {
+    int pingCount = 1,
+    bool stopOnFirstSuccess = false,
+  }) async {
     final pingState = PingState();
     await pingState.readFromPreferences();
     var concurrency = pingState.concurrency.toInt();
     if (AppPlatform.isLinux || AppPlatform.isWindows) {
       concurrency = 1;
     }
-    final slices = rows.slices(concurrency);
-    for (final slice in slices) {
-      final futures = <Future<void>>[];
-      for (final row in slice) {
-        futures.add(_pingAndSaveConfig(db, row, pingState, pingCount));
+
+    if (stopOnFirstSuccess) {
+      final completer = Completer<CoreConfigData?>();
+      var index = 0;
+      var activeCount = 0;
+      var hasFinished = false;
+
+      Future<void> runNext() async {
+        if (hasFinished || index >= rows.length) return;
+        final currentIdx = index++;
+        final row = rows[currentIdx];
+        activeCount++;
+
+        try {
+          final delay = await _pingAndSaveConfig(db, row, pingState, pingCount);
+          if (delay < PingDelayConstants.unknown && !hasFinished) {
+            hasFinished = true;
+            final updatedRow = row.copyWith(delay: delay);
+            completer.complete(updatedRow);
+            return;
+          }
+        } catch (_) {
+          // Ignore
+        } finally {
+          activeCount--;
+        }
+
+        if (!hasFinished) {
+          if (index < rows.length) {
+            await runNext();
+          } else if (activeCount == 0 && !completer.isCompleted) {
+            completer.complete(null);
+          }
+        }
       }
-      await Future.wait(futures);
+
+      final initialWorkers = concurrency < rows.length ? concurrency : rows.length;
+      for (var i = 0; i < initialWorkers; i++) {
+        runNext();
+      }
+
+      return completer.future;
+    } else {
+      final slices = rows.slices(concurrency);
+      for (final slice in slices) {
+        final futures = <Future<void>>[];
+        for (final row in slice) {
+          futures.add(_pingAndSaveConfig(db, row, pingState, pingCount));
+        }
+        await Future.wait(futures);
+      }
+      return null;
     }
   }
 
-  Future<void> _pingAndSaveConfig(
+  Future<int> _pingAndSaveConfig(
     AppDatabase db,
     CoreConfigData row,
     PingState pingState,
     int pingCount,
   ) async {
     final type = CoreConfigType.fromString(row.type);
-    if (type == null) return;
+    if (type == null) return PingDelayConstants.unknown;
 
     Future<int> runSinglePing() {
       if (type == CoreConfigType.outbound) {
@@ -127,7 +179,7 @@ class PingService {
     if (pingCount <= 1) {
       final res = await runSinglePing();
       await _updateRow(db, row, res);
-      return;
+      return res;
     }
 
     int? bestDelay;
@@ -159,6 +211,7 @@ class PingService {
     });
 
     await Future.wait(pingFutures);
+    return bestDelay ?? PingDelayConstants.unknown;
   }
 
   Future<void> _updateRow(AppDatabase db, CoreConfigData row, int delay) async {

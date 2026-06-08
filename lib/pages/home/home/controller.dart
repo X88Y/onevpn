@@ -286,22 +286,7 @@ class HomeController extends Cubit<HomeState> {
 
         CoreConfigData? bestWifiServer;
         if (wifiServers.isNotEmpty) {
-          await PingService().pingConfigs(wifiServers);
-
-          final updatedConfigs = await db.select(db.coreConfig).get();
-          final updatedWifiServers = updatedConfigs
-              .where((c) => (c.type == CoreConfigType.outbound.name || c.type == CoreConfigType.raw.name) &&
-                            !c.name.toLowerCase().contains('lte'))
-              .toList();
-
-          final availableWifi = updatedWifiServers
-              .where((c) => c.delay < PingDelayConstants.unknown)
-              .toList()
-            ..sort((a, b) => a.delay.compareTo(b.delay));
-
-          if (availableWifi.isNotEmpty) {
-            bestWifiServer = availableWifi.first;
-          }
+          bestWifiServer = await PingService().pingConfigs(wifiServers, stopOnFirstSuccess: true);
         }
 
         if (bestWifiServer != null) {
@@ -315,22 +300,7 @@ class HomeController extends Cubit<HomeState> {
 
           CoreConfigData? bestLteServer;
           if (lteServers.isNotEmpty) {
-            await PingService().pingConfigs(lteServers);
-
-            final updatedConfigs = await db.select(db.coreConfig).get();
-            final updatedLteServers = updatedConfigs
-                .where((c) => (c.type == CoreConfigType.outbound.name || c.type == CoreConfigType.raw.name) &&
-                              c.name.toLowerCase().contains('lte'))
-                .toList();
-
-            final availableLte = updatedLteServers
-                .where((c) => c.delay < PingDelayConstants.unknown)
-                .toList()
-              ..sort((a, b) => a.delay.compareTo(b.delay));
-
-            if (availableLte.isNotEmpty) {
-              bestLteServer = availableLte.first;
-            }
+            bestLteServer = await PingService().pingConfigs(lteServers, stopOnFirstSuccess: true);
           }
 
           if (bestLteServer != null) {
