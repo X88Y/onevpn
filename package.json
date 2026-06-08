@@ -10,6 +10,7 @@
     "build:apk:debug": "fvm flutter build apk --debug",
     "build:appbundle": "fvm flutter build appbundle --release --obfuscate --split-debug-info=symbols/",
     "clean": "fvm flutter clean",
-    "get": "fvm flutter pub get"
+    "get": "fvm flutter pub get",
+    "upload:apk": "python3 scripts/upload.py build/app/outputs/flutter-apk/app-release.apk /opt/remnawave/files/"
   }
 }
