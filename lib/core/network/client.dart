@@ -237,6 +237,22 @@ class NetClient {
     }
   }
 
+  Future<Response<String>?> getTextResponse(String url, {Map<String, String>? headers}) async {
+    try {
+      final res = await _downloadClient.get<String>(
+        url,
+        options: Options(
+          responseType: ResponseType.plain,
+          headers: headers,
+        ),
+      );
+      return res;
+    } catch (e) {
+      ygLogger("$e");
+      return null;
+    }
+  }
+
 
   Future<bool> downloadFile(String url, String savePath) async {
     try {

@@ -108,6 +108,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                           child: _buildTopBar(context, controller, eventState, homeState, isLoading),
                         ),
+                        _buildSubscriptionExpiredBanner(eventState),
                         _buildInfoBanner(eventState),
                         const Spacer(flex: 1),
                         HomeCenterButton(
@@ -237,6 +238,52 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           isLoading: isLoading,
         ),
       ],
+    );
+  }
+
+  Widget _buildSubscriptionExpiredBanner(AppEventBusState eventState) {
+    if (!eventState.subscriptionExpired) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFFE53935).withValues(alpha: 0.15),
+            Colors.white.withValues(alpha: 0.02),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFE53935).withValues(alpha: 0.3),
+          width: 1.0,
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.warning_amber_rounded,
+            color: Color(0xFFE53935),
+            size: 22,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              AppLocalizations.of(context)!.subscriptionExpiredNeedUpdate,
+              style: const TextStyle(
+                color: Color(0xFFE53935),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

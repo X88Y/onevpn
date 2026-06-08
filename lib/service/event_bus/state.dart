@@ -19,6 +19,7 @@ class AppEventBusState {
   /// True while a subscription update / regeneration is in progress.
   /// The UI should show only a loading status during this phase.
   final bool isUpdatingSubscription;
+  final bool subscriptionExpired;
   final String? infoMessage;
   final String? infoSubMessage;
   final String tgUrl;
@@ -37,6 +38,7 @@ class AppEventBusState {
     required this.languageCode,
     this.userData,
     this.isUpdatingSubscription = false,
+    this.subscriptionExpired = false,
     this.infoMessage,
     this.infoSubMessage,
     required this.tgUrl,
@@ -55,6 +57,7 @@ class AppEventBusState {
         languageCode: LanguageCode.en,
         userData: null,
         isUpdatingSubscription: false,
+        subscriptionExpired: false,
         infoMessage: null,
         infoSubMessage: null,
         tgUrl: "https://t.me/mvmvpnbot",
@@ -75,6 +78,7 @@ class AppEventBusState {
     UserModel? userData,
     bool clearUserData = false,
     bool? isUpdatingSubscription,
+    bool? subscriptionExpired,
     String? infoMessage,
     String? infoSubMessage,
     String? tgUrl,
@@ -93,6 +97,7 @@ class AppEventBusState {
       languageCode: languageCode ?? this.languageCode,
       userData: clearUserData ? null : (userData ?? this.userData),
       isUpdatingSubscription: isUpdatingSubscription ?? this.isUpdatingSubscription,
+      subscriptionExpired: subscriptionExpired ?? this.subscriptionExpired,
       infoMessage: infoMessage ?? this.infoMessage,
       infoSubMessage: infoSubMessage ?? this.infoSubMessage,
       tgUrl: tgUrl ?? this.tgUrl,

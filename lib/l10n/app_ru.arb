@@ -496,5 +496,6 @@
   "loginLoading": "Проверка ключа доступа...",
   "mainTryAnotherServer": "попробуйте другой сервер",
   "profileClearAllData": "Очистить все данные",
-  "profileClearAllDataConfirm": "Вы уверены, что хотите очистить все данные? Это вернет приложение в исходное состояние."
+  "profileClearAllDataConfirm": "Вы уверены, что хотите очистить все данные? Это вернет приложение в исходное состояние.",
+  "subscriptionExpiredNeedUpdate": "Вам необходимо обновить подписку."
 }

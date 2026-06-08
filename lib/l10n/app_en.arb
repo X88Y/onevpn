@@ -496,5 +496,6 @@
   "loginLoading": "Checking access key...",
   "mainTryAnotherServer": "Please try another server",
   "profileClearAllData": "Clear all data",
-  "profileClearAllDataConfirm": "Are you sure you want to clear all data? This will restore the app to its initial state."
+  "profileClearAllDataConfirm": "Are you sure you want to clear all data? This will restore the app to its initial state.",
+  "subscriptionExpiredNeedUpdate": "You need to update your subscription."
 }

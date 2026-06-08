@@ -495,5 +495,6 @@
   "loginLoading": "正在检查访问密钥...",
   "mainTryAnotherServer": "请尝试其他服务器",
   "profileClearAllData": "清除所有数据",
-  "profileClearAllDataConfirm": "您确定要清除所有数据吗？这将使应用恢复到初始状态。"
+  "profileClearAllDataConfirm": "您确定要清除所有数据吗？这将使应用恢复到初始状态。",
+  "subscriptionExpiredNeedUpdate": "您需要更新您的订阅。"
 }

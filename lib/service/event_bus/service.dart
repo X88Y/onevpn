@@ -94,6 +94,7 @@ class AppEventBus extends Cubit<AppEventBusState> with WidgetsBindingObserver {
     final xraySettingId = await PreferencesKey().readXraySettingId();
     final runningId = await PreferencesKey().readRunningConfigId();
     final userProfile = await PreferencesKey().readUserProfile();
+    final subscriptionExpired = await PreferencesKey().readSubscriptionExpired();
     UserModel? userData;
     if (userProfile != null) {
       userData = UserModel.fromJson(userProfile);
@@ -102,6 +103,7 @@ class AppEventBus extends Cubit<AppEventBusState> with WidgetsBindingObserver {
       xraySettingId: xraySettingId,
       runningId: runningId,
       userData: userData,
+      subscriptionExpired: subscriptionExpired,
     ));
   }
 
@@ -162,6 +164,11 @@ class AppEventBus extends Cubit<AppEventBusState> with WidgetsBindingObserver {
   /// UI can suppress the connected/disconnected statuses and show only loading.
   void updateSubscriptionUpdating(bool value) {
     emit(state.copyWith(isUpdatingSubscription: value));
+  }
+
+  void updateSubscriptionExpired(bool value) {
+    PreferencesKey().saveSubscriptionExpired(value);
+    emit(state.copyWith(subscriptionExpired: value));
   }
 
   @override

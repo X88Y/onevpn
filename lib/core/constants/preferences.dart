@@ -288,4 +288,15 @@ class PreferencesKey {
   Future<void> removeAccessKey() async {
     await _prefs.remove(_accessKey);
   }
+
+  static const _subscriptionExpired = "subscriptionExpired";
+
+  Future<bool> readSubscriptionExpired() async {
+    final value = await _prefs.getBool(_subscriptionExpired);
+    return value ?? false;
+  }
+
+  Future<void> saveSubscriptionExpired(bool value) async {
+    await _prefs.setBool(_subscriptionExpired, value);
+  }
 }

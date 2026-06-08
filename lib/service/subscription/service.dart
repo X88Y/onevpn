@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:mvmvpn/core/db/database/constants.dart';
 import 'package:mvmvpn/core/db/database/database.dart';
 import 'package:mvmvpn/core/network/client.dart';
@@ -48,7 +49,11 @@ class SubscriptionService {
     }
 
     final headers = await NetClient().getSubscriptionHeaders();
-    final text = await NetClient().getText(url, headers: headers);
+    final response = await NetClient().getTextResponse(url, headers: headers);
+    final text = response?.data;
+    if (response != null) {
+      _checkSubscriptionExpiry(response.headers);
+    }
     print('SubscriptionService().refreshSubscription text: $text');
 
     if (text == null) {
@@ -104,7 +109,11 @@ class SubscriptionService {
       eventBus.updateDownloading(true);
     }
     final headers = await NetClient().getSubscriptionHeaders();
-    final text = await NetClient().getText(subscription.url, headers: headers);
+    final response = await NetClient().getTextResponse(subscription.url, headers: headers);
+    final text = response?.data;
+    if (response != null) {
+      _checkSubscriptionExpiry(response.headers);
+    }
     // log text
     print('SubscriptionService().refreshSubscription text: $text');
     if (text == null) {
@@ -195,6 +204,32 @@ class SubscriptionService {
     await subUpdateState.readFromPreferences();
     if (subUpdateState.autoPing) {
       await PingService().pingOutboundConfigs(subId);
+    }
+  }
+
+  void _checkSubscriptionExpiry(Headers headers) {
+    final userInfo = headers.value('subscription-userinfo');
+    if (userInfo != null) {
+      final parts = userInfo.split(';');
+      bool isExpired = false;
+      for (var part in parts) {
+        part = part.trim();
+        if (part.startsWith('expire=')) {
+          final valStr = part.substring('expire='.length).trim();
+          final expireSeconds = int.tryParse(valStr);
+          if (expireSeconds != null) {
+            final expireDateTime = DateTime.fromMillisecondsSinceEpoch(expireSeconds * 1000, isUtc: true);
+            final nowUtc = DateTime.now().toUtc();
+            if (nowUtc.isAfter(expireDateTime)) {
+              isExpired = true;
+            }
+          }
+        }
+      }
+      AppEventBus.instance.updateSubscriptionExpired(isExpired);
+      if (isExpired) {
+        ToastService().showToast(appLocalizationsNoContext().subscriptionExpiredNeedUpdate);
+      }
     }
   }
 }
