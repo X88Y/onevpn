@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mvmvpn/pages/widget/success_dialog.dart';
 
 
 import 'package:mvmvpn/core/tools/logger.dart';
@@ -112,9 +113,7 @@ final class ShareService {
     }
 
     if (success) {
-      await _showImportResultDialog(
-        appLocalizationsNoContext().mainOutboundViewImportSuccess,
-      );
+      await showAnimatedSuccessDialog();
     } else {
       await _showImportResultDialog(
         appLocalizationsNoContext().mainOutboundViewNoValidConfig,

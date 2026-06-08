@@ -84,6 +84,7 @@
   "mainOutboundViewNoOutbound": "暂无配置",
   "mainOutboundViewNoValidConfig": "未读取到有效配置",
   "mainOutboundViewImportSuccess": "导入配置完成",
+  "importSuccessDesc": "已添加到您的服务器列表。",
   "xrayConfigListScreenTitle": "Xray 配置",
   "xrayConfigListScreenSimple": "简易配置",
   "xrayConfigListScreenCustom": "自定义",

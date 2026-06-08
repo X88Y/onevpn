@@ -84,6 +84,7 @@
   "mainOutboundViewNoOutbound": "بدون پیکربندی",
   "mainOutboundViewNoValidConfig": "پیکربندی معتبری یافت نشد",
   "mainOutboundViewImportSuccess": "وارد کردن پیکربندی موفق بود",
+  "importSuccessDesc": "به لیست سرورهای شما اضافه شد.",
   "xrayConfigListScreenTitle": "گزینه‌ها Xray",
   "xrayConfigListScreenSimple": "ساده",
   "xrayConfigListScreenCustom": "سفارشی",

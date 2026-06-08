@@ -84,6 +84,7 @@
   "mainOutboundViewNoOutbound": "No setups.",
   "mainOutboundViewNoValidConfig": "Can not read valid setup.",
   "mainOutboundViewImportSuccess": "Import setup success.",
+  "importSuccessDesc": "Added to your servers list.",
   "xrayConfigListScreenTitle": "Xray Setting.",
   "xrayConfigListScreenSimple": "Simple",
   "xrayConfigListScreenCustom": "Custom",

@@ -83,6 +83,7 @@
   "mainOutboundViewNoOutbound": "Нет",
   "mainOutboundViewNoValidConfig": "Попробуйте еще раз :(",
   "mainOutboundViewImportSuccess": "Успешно подключенно",
+  "importSuccessDesc": "Приятного использования",
   "xrayConfigListScreenTitle": "Xray",
   "xrayConfigListScreenSimple": "Просто",
   "xrayConfigListScreenCustom": "Custom",
