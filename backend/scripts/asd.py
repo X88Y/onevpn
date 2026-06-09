@@ -1,7 +1,7 @@
 import socket
 import ssl
 
-host = '544bd56c-3680-4dfc-a769-b1229e2ab989.selcdn.net'
+host = '0830lsh5ew.cdn.twcstorage.ru'
 port = 443
 
 # Construct the raw HTTP request, ensuring standard CRLF (\r\n) line endings.
@@ -9,8 +9,7 @@ port = 443
 # the response so we don't have to wait for a socket timeout.
 request = \
 '''GET /mirror/ HTTP/1.1
-Host: 544bd56c-3680-4dfc-a769-b1229e2ab989.selcdn.net
-
+Host: 0830lsh5ew.cdn.twcstorage.ru
 
 
 '''.replace('\n', '\r\n')
