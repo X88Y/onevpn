@@ -164,4 +164,12 @@ class SettingController extends Cubit<SettingState> {
       ygLogger("openPrivacy error: $e");
     }
   }
+
+  Future<void> openTerms(BuildContext context) async {
+    try {
+      await launchUrl(DocURLHelper.termsUri());
+    } catch (e) {
+      ygLogger("openTerms error: $e");
+    }
+  }
 }

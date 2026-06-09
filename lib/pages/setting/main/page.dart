@@ -214,6 +214,12 @@ class SettingPage extends StatelessWidget {
           ),
           Divider(),
           TextActionRow(
+            title: AppLocalizations.of(context)!.mainTerms,
+            detail: "",
+            onTap: () => controller.openTerms(context),
+          ),
+          Divider(),
+          TextActionRow(
             title: AppLocalizations.of(context)!.configScreenPrivacy,
             detail: "",
             onTap: () => controller.openPrivacy(context),

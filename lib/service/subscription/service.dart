@@ -13,6 +13,21 @@ import 'package:mvmvpn/service/share/xray_share_reader.dart';
 import 'package:mvmvpn/service/sub_update/state.dart';
 import 'package:mvmvpn/service/toast/service.dart';
 
+String? extractSubscriptionKey(String url) {
+  try {
+    final uri = Uri.tryParse(url.trim());
+    if (uri == null) return null;
+    final segments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
+    if (segments.isNotEmpty) {
+      return segments.last;
+    }
+    if (!url.contains('/')) {
+      return url.trim();
+    }
+  } catch (_) {}
+  return null;
+}
+
 class SubscriptionService {
   static final SubscriptionService _singleton = SubscriptionService._internal();
 
@@ -30,11 +45,61 @@ class SubscriptionService {
       eventBus.updateDownloading(true);
     }
 
+    final headers = await NetClient().getSubscriptionHeaders();
+    final candidates = [url];
+    final key = extractSubscriptionKey(url);
+    if (key != null && key.isNotEmpty) {
+      final fallbackDomains = [
+        'https://xn--80ac0c.xn----ctbzfboapgel4j.xn--p1ai',
+        'https://jl1x2z77a9.cdn.twcstorage.ru',
+        'https://hd6458sp7z.cdn.twcstorage.ru',
+        'https://gpy4me9ehp.cdn.twcstorage.ru',
+      ];
+      for (final domain in fallbackDomains) {
+        final fallbackUrl = '$domain/$key';
+        if (!candidates.contains(fallbackUrl)) {
+          candidates.add(fallbackUrl);
+        }
+      }
+    }
+
+    Response<String>? response;
+    String? workingUrl;
+    List<CoreConfigCompanion> rows = [];
+
+    for (final candidateUrl in candidates) {
+      try {
+        final res = await NetClient().getTextResponse(candidateUrl, headers: headers);
+        if (res != null && res.data != null) {
+          final text = res.data;
+          final parsed = await _readConfigs(text);
+          if (parsed.isNotEmpty) {
+            response = res;
+            workingUrl = candidateUrl;
+            rows = parsed;
+            break;
+          }
+        }
+      } catch (e) {
+        print('Error trying candidate URL $candidateUrl: $e');
+      }
+    }
+
+    if (workingUrl == null || response == null) {
+      if (showLoading) {
+        ToastService().showToast(appLocalizationsNoContext().loginErrorInvalidKey);
+        eventBus.updateDownloading(false);
+      }
+      return 0;
+    }
+
+    _checkSubscriptionExpiry(response.headers);
+
     final db = AppDatabase();
     final existingSubs = await db.subscriptionDao.allRows;
     SubscriptionData? existing;
     for (var sub in existingSubs) {
-      if (sub.url == url) {
+      if (sub.url == url || sub.url == workingUrl) {
         existing = sub;
         break;
       }
@@ -48,34 +113,11 @@ class SubscriptionService {
       return count;
     }
 
-    final headers = await NetClient().getSubscriptionHeaders();
-    final response = await NetClient().getTextResponse(url, headers: headers);
-    final text = response?.data;
-    if (response != null) {
-      _checkSubscriptionExpiry(response.headers);
-    }
-    print('SubscriptionService().refreshSubscription text: $text');
-
-    if (text == null) {
-      if (showLoading) {
-        ToastService().showToast(appLocalizationsNoContext().loginErrorInvalidKey);
-        eventBus.updateDownloading(false);
-      }
-      return 0;
-    }
-    final rows = await _readConfigs(text);
-    if (rows.isEmpty) {
-      if (showLoading) {
-        ToastService().showToast(appLocalizationsNoContext().subscriptionAddScreenNoConfigs);
-        eventBus.updateDownloading(false);
-      }
-      return 0;
-    }
     var count = 0;
     if (rows.isNotEmpty) {
       final row = SubscriptionCompanion.insert(
         name: name,
-        url: url,
+        url: workingUrl,
         timestamp: DateTime.now(),
         count: rows.length,
         expanded: true,
@@ -109,34 +151,63 @@ class SubscriptionService {
       eventBus.updateDownloading(true);
     }
     final headers = await NetClient().getSubscriptionHeaders();
-    final response = await NetClient().getTextResponse(subscription.url, headers: headers);
-    final text = response?.data;
-    if (response != null) {
-      _checkSubscriptionExpiry(response.headers);
+
+    final candidates = [subscription.url];
+    final key = extractSubscriptionKey(subscription.url);
+    if (key != null && key.isNotEmpty) {
+      final fallbackDomains = [
+        'https://xn--80ac0c.xn----ctbzfboapgel4j.xn--p1ai',
+        'https://jl1x2z77a9.cdn.twcstorage.ru',
+        'https://hd6458sp7z.cdn.twcstorage.ru',
+        'https://gpy4me9ehp.cdn.twcstorage.ru',
+      ];
+      for (final domain in fallbackDomains) {
+        final fallbackUrl = '$domain/$key';
+        if (!candidates.contains(fallbackUrl)) {
+          candidates.add(fallbackUrl);
+        }
+      }
     }
-    // log text
-    print('SubscriptionService().refreshSubscription text: $text');
-    if (text == null) {
+
+    Response<String>? response;
+    String? workingUrl;
+    List<CoreConfigCompanion> rows = [];
+
+    for (final candidateUrl in candidates) {
+      try {
+        final res = await NetClient().getTextResponse(candidateUrl, headers: headers);
+        if (res != null && res.data != null) {
+          final text = res.data;
+          final parsed = await _readConfigs(text);
+          if (parsed.isNotEmpty) {
+            response = res;
+            workingUrl = candidateUrl;
+            rows = parsed;
+            break;
+          }
+        }
+      } catch (e) {
+        print('Error trying candidate URL $candidateUrl: $e');
+      }
+    }
+
+    if (workingUrl == null || response == null) {
       if (showLoading) {
         ToastService().showToast(appLocalizationsNoContext().loginErrorInvalidKey);
         eventBus.updateDownloading(false);
       }
       return 0;
     }
-    final rows = await _readConfigs(text);
-    if (rows.isEmpty) {
-      if (showLoading) {
-        ToastService().showToast(appLocalizationsNoContext().subscriptionAddScreenNoConfigs);
-        eventBus.updateDownloading(false);
-      }
-      return 0;
-    }
+
+    _checkSubscriptionExpiry(response.headers);
+
     var count = 0;
     if (rows.isNotEmpty) {
       final db = AppDatabase();
       await db.subscriptionDao.deleteConfigs(subscription.id);
       count = await ConfigWriter.writeRows(rows, subscription.id);
       final newRow = subscription.copyWith(
+        url: workingUrl,
         timestamp: DateTime.now(),
         count: count,
       );

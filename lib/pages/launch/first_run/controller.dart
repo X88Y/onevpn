@@ -75,21 +75,34 @@ class FirstRunController extends Cubit<FirstRunState> {
 
     String url;
     if (isUrl) {
-      final checkUri = Uri(
-        scheme: uri.scheme,
-        host: uri.host,
-        port: uri.port != 0 && uri.port != 80 && uri.port != 443 ? uri.port : null,
-        path: '/config',
-      );
-      // log checkUri
-      debugPrint(checkUri.toString());
-      final checkUrl = checkUri.toString();
-      try {
-        final responseText = await NetClient().getText(checkUrl);
-        if (responseText == null || responseText.trim() != 'REMNAWAVE') {
-          return false;
+      final host = uri.host.toLowerCase();
+      final isCdnDomain = host == 'xn--80ac0c.xn----ctbzfboapgel4j.xn--p1ai' ||
+          host == 'jl1x2z77a9.cdn.twcstorage.ru' ||
+          host == 'hd6458sp7z.cdn.twcstorage.ru' ||
+          host == 'gpy4me9ehp.cdn.twcstorage.ru';
+
+      bool isRemnawave = false;
+      if (!isCdnDomain) {
+        final checkUri = Uri(
+          scheme: uri.scheme,
+          host: uri.host,
+          port: uri.port != 0 && uri.port != 80 && uri.port != 443 ? uri.port : null,
+          path: '/config',
+        );
+        // log checkUri
+        debugPrint(checkUri.toString());
+        final checkUrl = checkUri.toString();
+        try {
+          final responseText = await NetClient().getText(checkUrl);
+          if (responseText != null && responseText.trim() == 'REMNAWAVE') {
+            isRemnawave = true;
+          }
+        } catch (e) {
+          // Ignore and let isRemnawave stay false
         }
-      } catch (e) {
+      }
+
+      if (!isCdnDomain && !isRemnawave) {
         return false;
       }
       url = trimmedKey;

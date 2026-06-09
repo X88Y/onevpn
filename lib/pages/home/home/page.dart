@@ -94,7 +94,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           return BlocBuilder<AppEventBus, AppEventBusState>(
             builder: (context, eventState) {
               final isRunning = eventState.runningId != DBConstants.defaultId;
-              final isLoading = eventState.vpnLoading || eventState.isUpdatingSubscription || eventState.downloading;
+              final isLoading = eventState.vpnLoading || eventState.isUpdatingSubscription;
 
               return Scaffold(
                 backgroundColor: const Color(0xFF050814),

@@ -231,10 +231,7 @@ class AppShareService {
   }
 
   Future<void> _initFirstRunSettings(String url) async {
-    var key = url;
-    if (url.startsWith("https://jl1x2z77a9.cdn.twcstorage.ru/")) {
-      key = url.replaceAll("https://jl1x2z77a9.cdn.twcstorage.ru/", "");
-    }
+    final key = extractSubscriptionKey(url) ?? url;
     await PreferencesKey().saveAccessKey(key);
     await PreferencesKey().saveFirstRun(false);
 

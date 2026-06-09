@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 import 'package:mvmvpn/pages/home/home/controller.dart';
 import 'package:mvmvpn/pages/main/url.dart';
+import 'package:mvmvpn/service/doc/helper.dart';
 
 class AccountBubble extends StatelessWidget {
   final HomeController controller;
@@ -79,7 +80,19 @@ class AccountBubble extends StatelessWidget {
                   ),
                   onTap: () {
                     Navigator.pop(sheetContext);
-                    controller.openUrl('https://www.aiverge.net/privacy');
+                    controller.openUrl(DocURLHelper.privacyUri().toString());
+                  },
+                ),
+                Divider(color: Colors.white.withOpacity(0.08)),
+                ListTile(
+                  leading: Icon(Icons.description_outlined, color: Colors.blueAccent.withOpacity(0.8)),
+                  title: Text(
+                    AppLocalizations.of(sheetContext)!.mainTerms,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    controller.openUrl(DocURLHelper.termsUri().toString());
                   },
                 ),
                 Divider(color: Colors.white.withOpacity(0.08)),
@@ -181,7 +194,7 @@ class AccountBubble extends StatelessWidget {
         actions: <Widget>[
           TextButton(
             child: Text(
-              AppLocalizations.of(ctx)!.btnCancel,
+              AppLocalizations.of(ctx)!.btnCancelAction,
               style: TextStyle(color: Colors.white.withOpacity(0.6)),
             ),
             onPressed: () => Navigator.pop(ctx),
@@ -195,7 +208,7 @@ class AccountBubble extends StatelessWidget {
               ),
             ),
             child: Text(
-              AppLocalizations.of(ctx)!.navDelete,
+              AppLocalizations.of(ctx)!.btnConfirm,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             onPressed: () {
