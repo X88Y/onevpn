@@ -371,7 +371,7 @@ async def run_sync(*, token: str, apply: bool, env_path: Optional[str] = None, l
             
             # Expected CDN resource name and Host remark
             cdn_name = f"mvm-cdn-{node.name}-{suffix.lower()}"
-            remark = f"🇪🇺Моб Инет обход {node.country_code.upper()}|TW|{suffix}"
+            remark = f"🇪🇺LTE {node.country_code.upper()}|TW|{suffix}"
 
             # Create GoDaddy DNS record
             dns_safe_name = make_dns_safe(node.name)
