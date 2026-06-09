@@ -7,7 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:mvmvpn/pages/widget/success_dialog.dart';
 
 
-import 'package:mvmvpn/core/tools/logger.dart';
+import 'package:mvmvpn/core/db/database/database.dart';
+
 import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 import 'package:mvmvpn/pages/main/url.dart';
 import 'package:mvmvpn/service/localizations/service.dart';
@@ -15,6 +16,7 @@ import 'package:mvmvpn/service/db/config_writer.dart';
 import 'package:mvmvpn/service/event_bus/service.dart';
 import 'package:mvmvpn/service/share/protocol.dart';
 import 'package:mvmvpn/service/share/xray_share_reader.dart';
+import 'package:mvmvpn/service/subscription/service.dart';
 import 'package:mvmvpn/service/toast/service.dart';
 
 
@@ -92,14 +94,20 @@ final class ShareService {
         }
         success = result.item2;
       } else if (url.startsWith("https://")) {
-        final uri = Uri.tryParse(url);
-        if (uri != null) {
-          success = await AppShareService().addSubscription(
-            url,
-            uri.fragment,
-            false,
-          );
+        // Use same logic as the "continue button" (submitAccessKey):
+        // clear existing data first, then call insertSubscription directly.
+        final db = AppDatabase();
+        final existingSubs = await db.subscriptionDao.allRows;
+        if (existingSubs.isNotEmpty) {
+          await db.subscriptionDao.clear();
+          await db.coreConfigDao.clear();
         }
+        final count = await SubscriptionService().insertSubscription(
+          "",
+          url,
+          false,
+        );
+        success = count > 0;
       } else {
         final rows = await XrayShareReader().parseShareText(url);
         if (rows.isNotEmpty) {
