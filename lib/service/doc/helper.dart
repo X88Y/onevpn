@@ -36,9 +36,8 @@ class DocURLHelper {
   }
 
   static Uri privacyUri() {
-    if (_isRussian()) {
-      return Uri.parse("https://telegra.ph/Politika-konfidencialnosti-04-01-26");
-    }
+    return Uri.parse("https://vk.com/@mvmvpn-politika-konfidencialnosti");
+
     var path = "/docs/privacy/";
     if (AppEventBus.instance.state.languageCode == LanguageCode.zh) {
       path = "/zh/docs/privacy/";
@@ -50,9 +49,8 @@ class DocURLHelper {
   }
 
   static Uri termsUri() {
-    if (_isRussian()) {
-      return Uri.parse("https://telegra.ph/Polzovatelskoe-soglashenie-04-01-19");
-    }
+    return Uri.parse("https://vk.com/@mvmvpn-polzovatelskoe-soglashenie");
+
     var path = "/docs/terms/";
     if (AppEventBus.instance.state.languageCode == LanguageCode.zh) {
       path = "/zh/docs/terms/";
