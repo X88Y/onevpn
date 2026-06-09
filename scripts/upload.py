@@ -26,13 +26,13 @@ def main():
     )
     parser.add_argument("local_path", help="Path to the local file to upload")
     parser.add_argument("remote_path", nargs="?", help="Target path on the remote server. Defaults to /root/<filename>")
-    
+
     # Connection details default to the most recent server credentials
     parser.add_argument("--host", default="217.18.60.123", help="Remote SSH server host")
     parser.add_argument("--user", "-u", default="root", help="SSH username")
     parser.add_argument("--password", "-p", default="w1LENdygKqX9.7", help="SSH password")
     parser.add_argument("--port", "-P", type=int, default=22, help="SSH port")
-    
+
     args = parser.parse_args()
 
     # Verify local file exists
@@ -56,7 +56,7 @@ def main():
 
     print(f"Connecting to {args.host}:{args.port} as '{args.user}'...")
     ssh = SSHConnector(host=args.host, username=args.user, password=args.password, port=args.port)
-    
+
     if not ssh.connect():
         print("Failed to establish SSH connection.")
         sys.exit(1)
@@ -69,18 +69,34 @@ def main():
             if code != 0:
                 print(f"Warning: failed to run 'mkdir -p {remote_dir}': {stderr}")
 
-        # 2. Start SFTP and put file
+        # 2. Start SFTP and upload to a temp path first
         print(f"Starting SFTP session...")
         sftp = ssh.client.open_sftp()
-        
-        print(f"Uploading '{local_path}' to '{remote_path}'...")
+
+        temp_path = f"/tmp/{filename}.upload_tmp"
+        print(f"Uploading '{local_path}' to temp path '{temp_path}'...")
         start_time = time.time()
-        sftp.put(local_path, remote_path, callback=progress_callback)
+        sftp.put(local_path, temp_path, callback=progress_callback)
         duration = time.time() - start_time
-        
-        print(f"\nUpload completed successfully in {duration:.1f} seconds.")
+        print(f"\nUpload to temp completed in {duration:.1f} seconds.")
+
+        # 3. Atomically move from temp to final destination
+        print(f"Moving '{temp_path}' -> '{remote_path}'...")
+        stdout, stderr, code = ssh.execute(f"mv {temp_path} {remote_path}")
+        if code != 0:
+            print(f"Error: failed to move file to '{remote_path}': {stderr}")
+            ssh.execute(f"rm -f {temp_path}")
+            sys.exit(1)
+
+        print(f"File moved successfully. Upload completed in {duration:.1f} seconds total.")
+
     except Exception as e:
         print(f"\nAn error occurred during upload: {e}")
+        # Attempt to clean up temp file if it was created
+        try:
+            ssh.execute(f"rm -f /tmp/{filename}.upload_tmp")
+        except Exception:
+            pass
         sys.exit(1)
     finally:
         if 'sftp' in locals():
