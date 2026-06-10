@@ -7,7 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:mvmvpn/pages/widget/success_dialog.dart';
 
 
+import 'package:go_router/go_router.dart';
 import 'package:mvmvpn/core/db/database/database.dart';
+import 'package:mvmvpn/core/constants/preferences.dart';
 
 import 'package:mvmvpn/l10n/localizations/app_localizations.dart';
 import 'package:mvmvpn/pages/main/url.dart';
@@ -102,12 +104,27 @@ final class ShareService {
           await db.subscriptionDao.clear();
           await db.coreConfigDao.clear();
         }
+
+        final accessKey = await PreferencesKey().readAccessKey();
+        final isKeyEmpty = accessKey == null || accessKey.trim().isEmpty;
+
+        if (isKeyEmpty) {
+          await AppShareService().initFirstRunSettings(url);
+        }
+
         final count = await SubscriptionService().insertSubscription(
           "",
           url,
           false,
         );
         success = count > 0;
+
+        if (success && isKeyEmpty) {
+          final context = rootNavigatorKey.currentContext;
+          if (context != null && context.mounted) {
+            context.go(RouterPath.home);
+          }
+        }
       } else {
         final rows = await XrayShareReader().parseShareText(url);
         if (rows.isNotEmpty) {

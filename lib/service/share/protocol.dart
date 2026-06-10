@@ -197,14 +197,16 @@ class AppShareService {
       await _clearAllLocalData();
     }
 
-    final firstRun = await PreferencesKey().readFirstRun();
-    if (firstRun) {
-      await _initFirstRunSettings(url);
+    final accessKey = await PreferencesKey().readAccessKey();
+    final isKeyEmpty = accessKey == null || accessKey.trim().isEmpty;
+
+    if (isKeyEmpty) {
+      await initFirstRunSettings(url);
     }
 
     final success = await addSubscription(url, uri.fragment, false);
 
-    if (success && firstRun) {
+    if (success && isKeyEmpty) {
       final context = rootNavigatorKey.currentContext;
       if (context != null && context.mounted) {
         context.go(RouterPath.home);
@@ -230,7 +232,7 @@ class AppShareService {
     await FileTool.copyAssets(Assets.dat.values, datPath);
   }
 
-  Future<void> _initFirstRunSettings(String url) async {
+  Future<void> initFirstRunSettings(String url) async {
     final key = extractSubscriptionKey(url) ?? url;
     await PreferencesKey().saveAccessKey(key);
     await PreferencesKey().saveFirstRun(false);
