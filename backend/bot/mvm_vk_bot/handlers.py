@@ -21,7 +21,7 @@ from mvm_bot.config import (
     yoomoney_receiver,
     yoomoney_return_url,
 )
-from mvm_bot.constants import CONNECT_REDIRECT_ORIGIN, REFERRAL_BONUS_DAYS, REFERRAL_PURCHASE_BONUS_DAYS, SUBSCRIPTION_PLANS, TRIAL_DAYS
+from mvm_bot.constants import CONNECT_REDIRECT_ORIGIN, REFERRAL_BONUS_DAYS, REFERRAL_PURCHASE_BONUS_DAYS, SUBSCRIPTION_PLANS, TRIAL_DAYS, MANUAL_DIR
 from mvm_bot.jwt_auth import sign_vk_auth_jwt
 from mvm_bot.main_menu import format_subscription_end
 from mvm_bot.freekassa import PAYMENT_CARD_RU, PAYMENT_SBERPAY, PAYMENT_SBP
@@ -38,6 +38,8 @@ from mvm_bot.user_service import (
     save_vk_user,
     start_vk_trial,
 )
+from mvm_bot.firebase_client import get_vk_cached_attachment, set_vk_cached_attachment
+from vkbottle.tools import PhotoMessageUploader
 from mvm_bot.remnawave_client import get_user_hwid_devices, delete_user_hwid_device
 from mvm_vk_bot.menu import (
     has_active_subscription,
@@ -48,6 +50,8 @@ from mvm_vk_bot.menu import (
     send_main_menu,
     send_main_menu_from_event,
     devices_keyboard_json,
+    support_keyboard_json,
+    support_answer_keyboard_json,
 )
 from mvm_vk_bot.profile import fetch_vk_profile
 
@@ -104,6 +108,34 @@ def register_handlers(bot: Bot) -> None:
                 await event.send_empty_answer()
         except Exception:
             logging.debug("VK event answer failed (token expired or already used)")
+
+    async def _send_vk_support_answer(
+        event: VkMessageEvent,
+        text: str,
+        photos: list[str]
+    ) -> None:
+        token = getattr(getattr(event.ctx_api, "token_generator", None), "token", None)
+        attachments = []
+        if token:
+            for photo_filename in photos:
+                cached = await get_vk_cached_attachment(token, [photo_filename])
+                if cached:
+                    attachments.append(cached)
+                else:
+                    try:
+                        uploader = PhotoMessageUploader(event.ctx_api)
+                        attachment = await uploader.upload(
+                            file_source=str(MANUAL_DIR / photo_filename),
+                            peer_id=event.peer_id,
+                        )
+                        attachments.append(attachment)
+                        await set_vk_cached_attachment(token, [photo_filename], attachment)
+                    except Exception:
+                        logging.exception(f"Failed to upload photo {photo_filename} to VK")
+        
+        attachment_str = ",".join(attachments) if attachments else None
+        kb = support_answer_keyboard_json()
+        await event.send_message(message=text, attachment=attachment_str, keyboard=kb, dont_parse_links=True)
 
     @bot.on.raw_event(GroupEventType.MESSAGE_EVENT, dataclass=VkMessageEvent)
     async def on_callback(event: VkMessageEvent) -> None:
@@ -590,6 +622,89 @@ def register_handlers(bot: Bot) -> None:
                 "https://vk.ru/clip-223445666_456239018"
             )
             await event.send_message(message=text)
+            return
+
+        if cmd == "support":
+            text = (
+                "Прежде чем обращаться к нашим агентам поддержки, для вашего удобства собрали список самых актуальных вопросов и проблем❗️\n\n"
+                "Пожалуйста ознакомьтесь, если не нашли решения своего вопроса, напишите агенту поддержки👇"
+            )
+            await event.send_message(message=text, keyboard=support_keyboard_json())
+            return
+
+        if cmd == "sup_key":
+            text = (
+                "🔑 Где найти свой ключ подключения?\n\n"
+                "— Ключ подключения расположен на самом видном месте в вашем личном кабинете.\n"
+                "Вставьте его в наше приложение MVM VPN либо в любой другой клиент🙌\n\n"
+                "— Также для подключения можете использовать QR код или кнопку «Добавить подписку»"
+            )
+            await _send_vk_support_answer(
+                event,
+                text,
+                ["connect_key_1.jpg", "connect_key_2.jpg", "connect_key_3.jpg"]
+            )
+            return
+
+        if cmd == "sup_add":
+            text = (
+                "📱 Как добавить еще устройство?\n\n"
+                "Что бы добавить новое устройство помимо вашего, вам необходимо приобрести подписку 💎Premium оно разрешает добавлять до 7 устройств. Подписка 🤩Standart рассчитано на 1 устройство❗️\n\n"
+                "Для подключения нового устройства воспользуйтесь ключом подключения.\n\n"
+                "1) Нажмите на ключ подключения на новом устройстве, выберите тип устройства на которое подключаете ВПН.\n"
+                "Скачайте наше приложение MVM VPN либо любой другой клиент и добавьте подписку.\n\n"
+                "2) Просто скопируйте ключ подключения, скачайте любой клиент на новом устройстве и вставьте ключ🙌"
+            )
+            await _send_vk_support_answer(
+                event,
+                text,
+                ["add_device_1.jpg", "add_device_2.jpg"]
+            )
+            return
+
+        if cmd == "sup_del":
+            text = (
+                "❌ Как удалить лишнее устройство?\n\n"
+                "Для удаления лишнего устройства необходимо написать боту новое сообщение и нажать на кнопку «Мои устройства» далее нажать на устройство, которое хотите удалить."
+            )
+            await _send_vk_support_answer(
+                event,
+                text,
+                ["delete_device_1.jpg", "delete_device_2.jpg"]
+            )
+            return
+
+        if cmd == "sup_pc_tv":
+            text = (
+                "💻 Как подключить VPN на ПК/ТВ?\n\n"
+                "Для подключения на ПК нажмите на ключ подключения — выберите для подключения «Windows» — скачайте любой клиент из предложенных на ПК — Добавьте подписку.\n\n"
+                "Видео инструкция подключения на ПК👇\n"
+                "https://vk.ru/clip-223445666_456239018\n\n"
+                "Для подключения на Андройд ТВ — скачайте приложение Happ plus или любой другой клиент в Google play — отсканируйте QR код с помощью своего телефона, где добавлена ваша подписка."
+            )
+            await _send_vk_support_answer(
+                event,
+                text,
+                ["vpn_pc_1.jpg"]
+            )
+            return
+
+        if cmd == "sup_not_work":
+            text = (
+                "⚠️ Не работает VPN❗️\n\n"
+                "Если у вас возникли проблемы с работой VPN, пожалуйста, попробуйте следующие шаги:\n\n"
+                "1️⃣ Проверьте статус подписки: Убедитесь в личном кабинете бота, что ваша подписка активна.\n"
+                "2️⃣ Смените сервер/локацию: В приложении попробуйте подключиться к другой локации или другому серверу.\n"
+                "3️⃣ Обновите ключ подключения: Скопируйте актуальный ключ из личного кабинета бота и заново добавьте его в приложение.\n"
+                "4️⃣ Перезагрузите сеть и устройство: Попробуйте включить и выключить «Авиарежим» на телефоне, или перезагрузить Wi-Fi роутер и само устройство.\n"
+                "5️⃣ Проверьте работу без VPN: Убедитесь, что ваш базовый интернет работает исправно.\n\n"
+                "Если ни один из шагов не помог решить проблему, пожалуйста, напишите нашему агенту поддержки 👇"
+            )
+            await _send_vk_support_answer(
+                event,
+                text,
+                []
+            )
             return
 
         if cmd == "survey":

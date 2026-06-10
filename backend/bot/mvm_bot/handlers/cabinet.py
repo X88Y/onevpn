@@ -15,6 +15,8 @@ from aiogram.types import (  # type: ignore[import-not-found]
     Message,
     PreCheckoutQuery,
     ReplyKeyboardMarkup,
+    InputMediaPhoto,
+    FSInputFile,
 )
 
 from mvm_bot.config import (
@@ -32,7 +34,8 @@ from mvm_bot.config import (
     yoomoney_receiver,
     yoomoney_return_url,
 )
-from mvm_bot.constants import CONNECT_REDIRECT_ORIGIN, REFERRAL_BONUS_DAYS, REFERRAL_PURCHASE_BONUS_DAYS, SUBSCRIPTION_PLANS, TRIAL_DAYS
+from mvm_bot.constants import CONNECT_REDIRECT_ORIGIN, REFERRAL_BONUS_DAYS, REFERRAL_PURCHASE_BONUS_DAYS, SUBSCRIPTION_PLANS, TRIAL_DAYS, MANUAL_DIR, SUPPORT_URL
+from mvm_bot.firebase_client import get_tg_cached_attachment, set_tg_cached_attachment
 from mvm_bot.main_menu import (
     format_subscription_end,
     has_active_subscription,
@@ -953,12 +956,208 @@ async def delete_device_callback(callback: CallbackQuery) -> None:
             pass
 
 
+def _support_keyboard() -> InlineKeyboardMarkup:
+    rows = [
+        [InlineKeyboardButton(text="🔑 Где найти свой ключ подключения?", callback_data="support:key")],
+        [InlineKeyboardButton(text="📱 Как добавить еще устройство?", callback_data="support:add_dev")],
+        [InlineKeyboardButton(text="❌ Как удалить лишнее устройство?", callback_data="support:del_dev")],
+        [InlineKeyboardButton(text="💻 Как подключить VPN на ПК/ТВ?", callback_data="support:pc_tv")],
+        [InlineKeyboardButton(text="⚠️ Не работает VPN❗️", callback_data="support:not_working")],
+        [InlineKeyboardButton(text="💬 Написать агенту поддержки", url=SUPPORT_URL)],
+        [InlineKeyboardButton(text="« Назад", callback_data="menu:main")],
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+async def _cleanup_support_media(callback: CallbackQuery, state: FSMContext) -> None:
+    data = await state.get_data()
+    media_ids = data.get("support_media_ids")
+    if media_ids:
+        for mid in media_ids:
+            try:
+                await callback.bot.delete_message(chat_id=callback.message.chat.id, message_id=mid)
+            except Exception:
+                pass
+        await state.update_data(support_media_ids=None)
+
+
+async def _send_support_answer(
+    callback: CallbackQuery,
+    state: FSMContext,
+    text: str,
+    photos: list[str]
+) -> None:
+    await _cleanup_support_media(callback, state)
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
+
+    bot = callback.bot
+    chat_id = callback.message.chat.id
+    token = bot.token
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="« К списку вопросов", callback_data="menu:support")],
+            [InlineKeyboardButton(text="« В главное меню", callback_data="menu:main")],
+            [InlineKeyboardButton(text="💬 Написать агенту поддержки", url=SUPPORT_URL)],
+        ]
+    )
+
+    media_ids = []
+
+    if not photos:
+        sent_msg = await bot.send_message(
+            chat_id=chat_id,
+            text=text,
+            reply_markup=keyboard,
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True
+        )
+        media_ids.append(sent_msg.message_id)
+    elif len(photos) == 1:
+        photo_filename = photos[0]
+        cached_file_id = await get_tg_cached_attachment(token, [photo_filename])
+        if cached_file_id:
+            photo_input = cached_file_id
+        else:
+            photo_input = FSInputFile(MANUAL_DIR / photo_filename)
+
+        sent_msg = await bot.send_photo(
+            chat_id=chat_id,
+            photo=photo_input,
+            caption=text,
+            reply_markup=keyboard,
+            parse_mode=ParseMode.HTML
+        )
+        if not cached_file_id and sent_msg.photo:
+            file_id = sent_msg.photo[-1].file_id
+            await set_tg_cached_attachment(token, [photo_filename], file_id)
+        media_ids.append(sent_msg.message_id)
+    else:
+        media_group = []
+        for photo_filename in photos:
+            cached_file_id = await get_tg_cached_attachment(token, [photo_filename])
+            if cached_file_id:
+                media_group.append(InputMediaPhoto(media=cached_file_id))
+            else:
+                media_group.append(InputMediaPhoto(media=FSInputFile(MANUAL_DIR / photo_filename)))
+
+        sent_media_msgs = await bot.send_media_group(chat_id=chat_id, media=media_group)
+
+        for photo_filename, msg in zip(photos, sent_media_msgs):
+            cached_file_id = await get_tg_cached_attachment(token, [photo_filename])
+            if not cached_file_id and msg.photo:
+                file_id = msg.photo[-1].file_id
+                await set_tg_cached_attachment(token, [photo_filename], file_id)
+            media_ids.append(msg.message_id)
+
+        sent_text_msg = await bot.send_message(
+            chat_id=chat_id,
+            text=text,
+            reply_markup=keyboard,
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True
+        )
+        media_ids.append(sent_text_msg.message_id)
+
+    await state.update_data(support_media_ids=media_ids)
+
+
+@router.callback_query(F.data == "menu:support")
+async def support_menu_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    await callback.answer()
+    await _cleanup_support_media(callback, state)
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
+    
+    text = (
+        "Прежде чем обращаться к нашим агентам поддержки, для вашего удобства собрали список самых актуальных вопросов и проблем❗️\n\n"
+        "Пожалуйста ознакомьтесь, если не нашли решения своего вопроса, напишите агенту поддержки👇"
+    )
+    await callback.message.answer(text, reply_markup=_support_keyboard(), parse_mode=ParseMode.HTML)
+
+
+@router.callback_query(F.data == "support:key")
+async def support_key_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    await callback.answer()
+    text = (
+        "🔑 <b>Где найти свой ключ подключения?</b>\n\n"
+        "— Ключ подключения расположен на самом видном месте в вашем личном кабинете.\n"
+        "Вставьте его в наше приложение <b>MVM VPN</b> либо в любой другой клиент 🙌\n\n"
+        "— Также для подключения можете использовать QR-код или кнопку <b>«Добавить подписку»</b>."
+    )
+    photos = ["connect_key_1.jpg", "connect_key_2.jpg", "connect_key_3.jpg"]
+    await _send_support_answer(callback, state, text, photos)
+
+
+@router.callback_query(F.data == "support:add_dev")
+async def support_add_dev_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    await callback.answer()
+    text = (
+        "📱 <b>Как добавить еще устройство?</b>\n\n"
+        "Чтобы добавить новое устройство помимо вашего, вам необходимо приобрести подписку 💎 <b>Premium</b> — она разрешает добавлять до <b>7 устройств</b>. Подписка 🤩 <b>Standart</b> рассчитана на <b>1 устройство</b>❗️\n\n"
+        "Для подключения нового устройства воспользуйтесь ключом подключения:\n\n"
+        "1️⃣ Нажмите на ключ подключения на новом устройстве, выберите тип устройства, на которое подключаете VPN.\n"
+        "Скачайте наше приложение <b>MVM VPN</b> либо любой другой клиент и добавьте подписку.\n\n"
+        "2️⃣ Просто скопируйте ключ подключения, скачайте любой клиент на новом устройстве и вставьте ключ 🙌"
+    )
+    photos = ["add_device_1.jpg", "add_device_2.jpg"]
+    await _send_support_answer(callback, state, text, photos)
+
+
+@router.callback_query(F.data == "support:del_dev")
+async def support_del_dev_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    await callback.answer()
+    text = (
+        "❌ <b>Как удалить лишнее устройство?</b>\n\n"
+        "Для удаления лишнего устройства необходимо написать боту новое сообщение, нажать на кнопку 📱 <b>«Мои устройства»</b> в главном меню, далее нажать на устройство, которое хотите удалить."
+    )
+    photos = ["delete_device_1.jpg", "delete_device_2.jpg"]
+    await _send_support_answer(callback, state, text, photos)
+
+
+@router.callback_query(F.data == "support:pc_tv")
+async def support_pc_tv_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    await callback.answer()
+    text = (
+        "💻 <b>Как подключить VPN на ПК/ТВ?</b>\n\n"
+        "🖥 <b>Для подключения на ПК:</b>\n"
+        "Нажмите на ключ подключения ➡️ выберите для подключения <b>«Windows»</b> ➡️ скачайте любой клиент из предложенных на ПК ➡️ Добавьте подписку.\n\n"
+        "🎥 <a href=\"https://vk.ru/clip-223445666_456239018\">Видео-инструкция подключения на ПК 👇</a>\n\n"
+        "📺 <b>Для подключения на Android TV:</b>\n"
+        "Скачайте приложение <b>Happ plus</b> или любой другой клиент в Google Play ➡️ отсканируйте QR-код с помощью своего телефона, на котором уже добавлена ваша подписка."
+    )
+    photos = ["vpn_pc_1.jpg"]
+    await _send_support_answer(callback, state, text, photos)
+
+
+@router.callback_query(F.data == "support:not_working")
+async def support_not_working_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    await callback.answer()
+    text = (
+        "⚠️ <b>Не работает VPN❗️</b>\n\n"
+        "Если у вас возникли проблемы с работой VPN, пожалуйста, попробуйте следующие шаги:\n\n"
+        "1️⃣ <b>Проверьте статус подписки</b>: Убедитесь в личном кабинете бота, что ваша подписка активна.\n"
+        "2️⃣ <b>Смените сервер/локацию</b>: В приложении попробуйте подключиться к другой локации или другому серверу.\n"
+        "3️⃣ <b>Обновите ключ подключения</b>: Скопируйте актуальный ключ из личного кабинета бота и заново добавьте его в приложение.\n"
+        "4️⃣ <b>Перезагрузите сеть и устройство</b>: Попробуйте включить и выключить «Авиарежим» на телефоне, или перезагрузить Wi-Fi роутер и само устройство.\n"
+        "5️⃣ <b>Проверьте работу без VPN</b>: Убедитесь, что ваш базовый интернет работает исправно.\n\n"
+        "Если ни один из шагов не помог решить проблему, пожалуйста, напишите нашему агенту поддержки 👇"
+    )
+    await _send_support_answer(callback, state, text, [])
+
+
 @router.callback_query(F.data == "menu:main")
-async def back_to_main_callback(callback: CallbackQuery) -> None:
+async def back_to_main_callback(callback: CallbackQuery, state: FSMContext) -> None:
     if callback.from_user is None:
         await callback.answer("Cannot identify Telegram user.")
         return
     await callback.answer()
+    await _cleanup_support_media(callback, state)
     _, data = await save_telegram_user(callback.from_user)
     if callback.message and isinstance(callback.message, Message):
         try:

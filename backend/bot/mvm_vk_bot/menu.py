@@ -106,7 +106,7 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
     kb.add(Callback(label="👥 Пригласить друзей", payload={"c": "invite"}))
     kb.row()
     kb.add(Callback(label="❓ Как подключить", payload={"c": "how_to_connect"}))
-    kb.add(OpenLink(label="💬 Поддержка", link=VK_SUPPORT_URL))
+    kb.add(Callback(label="💬 Поддержка", payload={"c": "support"}))
     return kb.get_json()
 
 
@@ -326,4 +326,31 @@ def devices_keyboard_json(devices: list) -> str:
             payload={"c": "main"}
         )
     )
+    return kb.get_json()
+
+
+def support_keyboard_json() -> str:
+    kb = Keyboard(inline=True)
+    kb.add(Callback(label="🔑 Где найти ключ?", payload={"c": "sup_key"}))
+    kb.row()
+    kb.add(Callback(label="📱 Как добавить устройство?", payload={"c": "sup_add"}))
+    kb.row()
+    kb.add(Callback(label="❌ Как удалить устройство?", payload={"c": "sup_del"}))
+    kb.row()
+    kb.add(Callback(label="💻 VPN на ПК/ТВ", payload={"c": "sup_pc_tv"}))
+    kb.row()
+    kb.add(Callback(label="⚠️ Не работает VPN❗️", payload={"c": "sup_not_work"}))
+    kb.row()
+    kb.add(OpenLink(label="💬 Написать агенту", link=VK_SUPPORT_URL))
+    kb.row()
+    kb.add(Callback(label="« Назад", payload={"c": "main"}))
+    return kb.get_json()
+
+
+def support_answer_keyboard_json() -> str:
+    kb = Keyboard(inline=True)
+    kb.add(Callback(label="« К вопросам", payload={"c": "support"}))
+    kb.add(Callback(label="« В меню", payload={"c": "main"}))
+    kb.row()
+    kb.add(OpenLink(label="💬 Написать агенту", link=VK_SUPPORT_URL))
     return kb.get_json()
