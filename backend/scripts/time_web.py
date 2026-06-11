@@ -161,16 +161,31 @@ class TimeWebClient:
                 logger.error(f"Failed to create CDN resource: {resp.status_code} {resp.text}")
                 resp.raise_for_status()
 
-    async def disable_cache(self, resource_id: int) -> None:
+    async def update_cdn_config(self, resource_id: int) -> None:
         payload = {
             "config": {
                 "cache": {
-                    "cdn": None,
-                    "browser": None,
+                    "cdn": {
+                        "ttl": {
+                            "2xx": 1
+                        }
+                    },
+                    "browser": {
+                        "ttl": 1
+                    },
                     "always_online": None,
                     "query_args": {
                         "mode": "all"
                     }
+                },
+                "delivery": {
+                    "http3": True,
+                    "gzip": True,
+                    "large_files": True,
+                    "slice_size": 100
+                },
+                "robots": {
+                    "type": "deny"
                 }
             }
         }
@@ -181,7 +196,7 @@ class TimeWebClient:
                 json=payload
             )
             if resp.status_code not in (200, 204):
-                logger.error(f"Failed to disable CDN cache: {resp.status_code} {resp.text}")
+                logger.error(f"Failed to update CDN config: {resp.status_code} {resp.text}")
                 resp.raise_for_status()
 
 
@@ -401,10 +416,10 @@ async def run_sync(*, token: str, apply: bool, env_path: Optional[str] = None, l
             if existing_res:
                 resource_id, cdn_domain = extract_cdn_info(existing_res)
                 logger.info(f"  CDN resource already exists in TimeWeb: ID={resource_id}, Domain={cdn_domain}")
-                # Ensure cache is disabled even if it exists
+                # Ensure CDN configuration is up to date even if it exists
                 if apply:
-                    logger.info(f"  Ensuring CDN cache is disabled for resource {resource_id}...")
-                    await tw_client.disable_cache(resource_id)
+                    logger.info(f"  Ensuring CDN config is up to date for resource {resource_id}...")
+                    await tw_client.update_cdn_config(resource_id)
             else:
                 if apply:
                     logger.info(f"  Creating new CDN resource '{cdn_name}' in TimeWeb for origin '{origin_domain}'...")
@@ -417,11 +432,11 @@ async def run_sync(*, token: str, apply: bool, env_path: Optional[str] = None, l
                     resource_id, cdn_domain = extract_cdn_info(res_data)
                     logger.info(f"  CDN created successfully: ID={resource_id}, Domain={cdn_domain}")
                     
-                    logger.info(f"  Disabling cache on CDN resource {resource_id}...")
-                    await tw_client.disable_cache(resource_id)
+                    logger.info(f"  Updating config on CDN resource {resource_id}...")
+                    await tw_client.update_cdn_config(resource_id)
                 else:
                     logger.info(f"  [DRY-RUN] Would create CDN resource '{cdn_name}' in TimeWeb for origin '{origin_domain}'")
-                    logger.info(f"  [DRY-RUN] Would disable cache on the new CDN resource")
+                    logger.info(f"  [DRY-RUN] Would update config on the new CDN resource")
                     resource_id = 99999
                     cdn_domain = f"placeholder-{node.name}.cdn.twcstorage.ru"
 
