@@ -7,7 +7,12 @@ from vkbottle.bot import Message, MessageEvent
 from vkbottle.tools import PhotoMessageUploader
 
 from mvm_bot.config import vk_menu_banner_path
-from mvm_bot.constants import SUBSCRIPTION_PLANS, SUPPORT_URL, TRIAL_FIELDS, VK_SUPPORT_URL
+from mvm_bot.constants import SUBSCRIPTION_PLANS, TRIAL_FIELDS, VK_SUPPORT_URL
+from mvm_bot.support_content import (
+    SUPPORT_ROOT_BUTTONS,
+    SUPPORT_ROOT_TEXT,
+    VPN_ERROR_BUTTONS,
+)
 from mvm_bot.datetime_utils import as_utc_datetime
 from mvm_bot.main_menu import main_menu_caption
 
@@ -323,46 +328,45 @@ def devices_keyboard_json(devices: list) -> str:
     return kb.get_json()
 
 
-def support_keyboards_json() -> list[str]:
-    kb_questions = Keyboard(inline=True)
-    kb_questions.add(Callback(label="🔑 Где найти ключ?", payload={"c": "sup_key"}))
-    kb_questions.row()
-    kb_questions.add(Callback(label="📱 Как добавить?", payload={"c": "sup_add"}))
-    kb_questions.row()
-    kb_questions.add(Callback(label="❌ Как удалить?", payload={"c": "sup_del"}))
-    kb_questions.row()
-    kb_questions.add(Callback(label="💻 VPN на ПК/ТВ", payload={"c": "sup_pc_tv"}))
-    kb_questions.row()
-    kb_questions.add(Callback(label="⚠️ Не работает ВПН", payload={"c": "sup_not_work"}))
+def support_keyboard_json() -> str:
+    kb = Keyboard(inline=True)
+    for i, topic in enumerate(SUPPORT_ROOT_BUTTONS):
+        if i > 0:
+            kb.row()
+        kb.add(Callback(label=topic.label, payload={"c": topic.vk_cmd}))
+    kb.row()
+    kb.add(OpenLink(label="Написать агенту поддержки", link=VK_SUPPORT_URL))
+    kb.row()
+    kb.add(Callback(label="« Назад", payload={"c": "main"}))
+    return kb.get_json()
 
-    kb_actions = Keyboard(inline=True)
-    kb_actions.add(OpenLink(label="💬 Написать агенту", link=VK_SUPPORT_URL))
-    kb_actions.row()
-    kb_actions.add(Callback(label="« Назад", payload={"c": "main"}))
 
-    return [kb_questions.get_json(), kb_actions.get_json()]
+def support_vpn_errors_keyboard_json() -> str:
+    kb = Keyboard(inline=True)
+    for i, topic in enumerate(VPN_ERROR_BUTTONS):
+        if i > 0:
+            kb.row()
+        kb.add(Callback(label=topic.label, payload={"c": topic.vk_cmd}))
+    kb.row()
+    kb.add(Callback(label="« Назад", payload={"c": "support"}))
+    return kb.get_json()
 
 
 async def send_support_menu(event: MessageEvent) -> None:
-    keyboards = support_keyboards_json()
     await event.send_message(
-        message=(
-            "Прежде чем обращаться к нашим агентам поддержки, для вашего удобства собрали список самых актуальных вопросов и проблем❗️"
-        ),
-        keyboard=keyboards[0],
-    )
-    await event.send_message(
-        message=(
-            "Пожалуйста ознакомьтесь, если не нашли решения своего вопроса, напишите агенту поддержки👇"
-        ),
-        keyboard=keyboards[1],
+        message=SUPPORT_ROOT_TEXT,
+        keyboard=support_keyboard_json(),
     )
 
 
-def support_answer_keyboard_json() -> str:
+def support_answer_keyboard_json(back_cmd: str = "support") -> str:
     kb = Keyboard(inline=True)
-    kb.add(Callback(label="« К вопросам", payload={"c": "support"}))
+    if back_cmd == "sup_not_work":
+        back_label = "« К списку ошибок"
+    else:
+        back_label = "« К вопросам"
+    kb.add(Callback(label=back_label, payload={"c": back_cmd}))
     kb.add(Callback(label="« В меню", payload={"c": "main"}))
     kb.row()
-    kb.add(OpenLink(label="💬 Написать агенту", link=VK_SUPPORT_URL))
+    kb.add(OpenLink(label="Написать агенту поддержки", link=VK_SUPPORT_URL))
     return kb.get_json()

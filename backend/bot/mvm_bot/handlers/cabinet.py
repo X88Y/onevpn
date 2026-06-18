@@ -35,6 +35,14 @@ from mvm_bot.config import (
     yoomoney_return_url,
 )
 from mvm_bot.constants import CONNECT_REDIRECT_ORIGIN, REFERRAL_BONUS_DAYS, REFERRAL_PURCHASE_BONUS_DAYS, SUBSCRIPTION_PLANS, TRIAL_DAYS, MANUAL_DIR, SUPPORT_URL
+from mvm_bot.support_content import (
+    SUPPORT_ROOT_BUTTONS,
+    SUPPORT_ROOT_TEXT,
+    SUPPORT_TOPICS,
+    SUPPORT_VPN_DOWN_TEXT,
+    VPN_ERROR_BUTTONS,
+    VPN_ERROR_TOPICS,
+)
 from mvm_bot.firebase_client import get_tg_cached_attachment, set_tg_cached_attachment
 from mvm_bot.main_menu import (
     format_subscription_end,
@@ -958,14 +966,20 @@ async def delete_device_callback(callback: CallbackQuery) -> None:
 
 def _support_keyboard() -> InlineKeyboardMarkup:
     rows = [
-        [InlineKeyboardButton(text="🔑 Где найти свой ключ подключения?", callback_data="support:key")],
-        [InlineKeyboardButton(text="📱 Как добавить еще устройство?", callback_data="support:add_dev")],
-        [InlineKeyboardButton(text="❌ Как удалить лишнее устройство?", callback_data="support:del_dev")],
-        [InlineKeyboardButton(text="💻 Как подключить VPN на ПК/ТВ?", callback_data="support:pc_tv")],
-        [InlineKeyboardButton(text="⚠️ Не работает VPN❗️", callback_data="support:not_working")],
-        [InlineKeyboardButton(text="💬 Написать агенту поддержки", url=SUPPORT_URL)],
-        [InlineKeyboardButton(text="« Назад", callback_data="menu:main")],
+        [InlineKeyboardButton(text=topic.label, callback_data=topic.tg_callback)]
+        for topic in SUPPORT_ROOT_BUTTONS
     ]
+    rows.append([InlineKeyboardButton(text="Написать агенту поддержки", url=SUPPORT_URL)])
+    rows.append([InlineKeyboardButton(text="« Назад", callback_data="menu:main")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def _support_vpn_errors_keyboard() -> InlineKeyboardMarkup:
+    rows = [
+        [InlineKeyboardButton(text=topic.label, callback_data=topic.tg_callback)]
+        for topic in VPN_ERROR_BUTTONS
+    ]
+    rows.append([InlineKeyboardButton(text="« Назад", callback_data="menu:support")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
@@ -985,7 +999,9 @@ async def _send_support_answer(
     callback: CallbackQuery,
     state: FSMContext,
     text: str,
-    photos: list[str]
+    photos: list[str],
+    back_callback: str = "menu:support",
+    back_label: str = "« К списку вопросов",
 ) -> None:
     await _cleanup_support_media(callback, state)
     try:
@@ -999,9 +1015,9 @@ async def _send_support_answer(
 
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="« К списку вопросов", callback_data="menu:support")],
+            [InlineKeyboardButton(text=back_label, callback_data=back_callback)],
             [InlineKeyboardButton(text="« В главное меню", callback_data="menu:main")],
-            [InlineKeyboardButton(text="💬 Написать агенту поддержки", url=SUPPORT_URL)],
+            [InlineKeyboardButton(text="Написать агенту поддержки", url=SUPPORT_URL)],
         ]
     )
 
@@ -1073,82 +1089,75 @@ async def support_menu_callback(callback: CallbackQuery, state: FSMContext) -> N
         await callback.message.delete()
     except Exception:
         pass
-    
-    text = (
-        "Прежде чем обращаться к нашим агентам поддержки, для вашего удобства собрали список самых актуальных вопросов и проблем❗️\n\n"
-        "Пожалуйста ознакомьтесь, если не нашли решения своего вопроса, напишите агенту поддержки👇"
+
+    await callback.message.answer(
+        SUPPORT_ROOT_TEXT,
+        reply_markup=_support_keyboard(),
+        parse_mode=ParseMode.HTML,
     )
-    await callback.message.answer(text, reply_markup=_support_keyboard(), parse_mode=ParseMode.HTML)
 
 
-@router.callback_query(F.data == "support:key")
-async def support_key_callback(callback: CallbackQuery, state: FSMContext) -> None:
-    await callback.answer()
-    text = (
-        "🔑 <b>Где найти свой ключ подключения?</b>\n\n"
-        "— Ключ подключения расположен на самом видном месте в вашем личном кабинете.\n"
-        "Вставьте его в наше приложение <b>MVM VPN</b> либо в любой другой клиент 🙌\n\n"
-        "— Также для подключения можете использовать QR-код или кнопку <b>«Добавить подписку»</b>."
-    )
-    photos = ["connect_key_1.jpg", "connect_key_2.jpg", "connect_key_3.jpg"]
-    await _send_support_answer(callback, state, text, photos)
-
-
-@router.callback_query(F.data == "support:add_dev")
-async def support_add_dev_callback(callback: CallbackQuery, state: FSMContext) -> None:
-    await callback.answer()
-    text = (
-        "📱 <b>Как добавить еще устройство?</b>\n\n"
-        "Чтобы добавить новое устройство помимо вашего, вам необходимо приобрести подписку 💎 <b>Premium</b> — она разрешает добавлять до <b>7 устройств</b>. Подписка 🤩 <b>Standart</b> рассчитана на <b>1 устройство</b>❗️\n\n"
-        "Для подключения нового устройства воспользуйтесь ключом подключения:\n\n"
-        "1️⃣ Нажмите на ключ подключения на новом устройстве, выберите тип устройства, на которое подключаете VPN.\n"
-        "Скачайте наше приложение <b>MVM VPN</b> либо любой другой клиент и добавьте подписку.\n\n"
-        "2️⃣ Просто скопируйте ключ подключения, скачайте любой клиент на новом устройстве и вставьте ключ 🙌"
-    )
-    photos = ["add_device_1.jpg", "add_device_2.jpg"]
-    await _send_support_answer(callback, state, text, photos)
-
-
-@router.callback_query(F.data == "support:del_dev")
-async def support_del_dev_callback(callback: CallbackQuery, state: FSMContext) -> None:
-    await callback.answer()
-    text = (
-        "❌ <b>Как удалить лишнее устройство?</b>\n\n"
-        "Для удаления лишнего устройства необходимо написать боту новое сообщение, нажать на кнопку 📱 <b>«Мои устройства»</b> в главном меню, далее нажать на устройство, которое хотите удалить."
-    )
-    photos = ["delete_device_1.jpg", "delete_device_2.jpg"]
-    await _send_support_answer(callback, state, text, photos)
-
-
-@router.callback_query(F.data == "support:pc_tv")
-async def support_pc_tv_callback(callback: CallbackQuery, state: FSMContext) -> None:
-    await callback.answer()
-    text = (
-        "💻 <b>Как подключить VPN на ПК/ТВ?</b>\n\n"
-        "🖥 <b>Для подключения на ПК:</b>\n"
-        "Нажмите на ключ подключения ➡️ выберите для подключения <b>«Windows»</b> ➡️ скачайте любой клиент из предложенных на ПК ➡️ Добавьте подписку.\n\n"
-        "🎥 <a href=\"https://vk.ru/clip-223445666_456239018\">Видео-инструкция подключения на ПК 👇</a>\n\n"
-        "📺 <b>Для подключения на Android TV:</b>\n"
-        "Скачайте приложение <b>Happ plus</b> или любой другой клиент в Google Play ➡️ отсканируйте QR-код с помощью своего телефона, на котором уже добавлена ваша подписка."
-    )
-    photos = ["vpn_pc_1.jpg"]
-    await _send_support_answer(callback, state, text, photos)
+async def _send_support_submenu(
+    callback: CallbackQuery,
+    state: FSMContext,
+    text: str,
+    keyboard: InlineKeyboardMarkup,
+) -> None:
+    await _cleanup_support_media(callback, state)
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
+    await callback.message.answer(text, reply_markup=keyboard, parse_mode=ParseMode.HTML)
 
 
 @router.callback_query(F.data == "support:not_working")
 async def support_not_working_callback(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
-    text = (
-        "⚠️ <b>Не работает VPN❗️</b>\n\n"
-        "Если у вас возникли проблемы с работой VPN, пожалуйста, попробуйте следующие шаги:\n\n"
-        "1️⃣ <b>Проверьте статус подписки</b>: Убедитесь в личном кабинете бота, что ваша подписка активна.\n"
-        "2️⃣ <b>Смените сервер/локацию</b>: В приложении попробуйте подключиться к другой локации или другому серверу.\n"
-        "3️⃣ <b>Обновите ключ подключения</b>: Скопируйте актуальный ключ из личного кабинета бота и заново добавьте его в приложение.\n"
-        "4️⃣ <b>Перезагрузите сеть и устройство</b>: Попробуйте включить и выключить «Авиарежим» на телефоне, или перезагрузить Wi-Fi роутер и само устройство.\n"
-        "5️⃣ <b>Проверьте работу без VPN</b>: Убедитесь, что ваш базовый интернет работает исправно.\n\n"
-        "Если ни один из шагов не помог решить проблему, пожалуйста, напишите нашему агенту поддержки 👇"
+    await _send_support_submenu(
+        callback,
+        state,
+        SUPPORT_VPN_DOWN_TEXT,
+        _support_vpn_errors_keyboard(),
     )
-    await _send_support_answer(callback, state, text, [])
+
+
+def _register_support_topic_handlers() -> None:
+    for topic_key in ("key", "add_device", "remove_device", "pc_tv"):
+        topic = SUPPORT_TOPICS[topic_key]
+
+        async def handler(
+            callback: CallbackQuery,
+            state: FSMContext,
+            *,
+            _topic=topic,
+        ) -> None:
+            await callback.answer()
+            await _send_support_answer(callback, state, _topic.text, _topic.photos)
+
+        router.callback_query.register(handler, F.data == topic.tg_callback)
+
+    for topic in VPN_ERROR_TOPICS.values():
+        async def handler(
+            callback: CallbackQuery,
+            state: FSMContext,
+            *,
+            _topic=topic,
+        ) -> None:
+            await callback.answer()
+            await _send_support_answer(
+                callback,
+                state,
+                _topic.text,
+                _topic.photos,
+                back_callback="support:not_working",
+                back_label="« К списку ошибок",
+            )
+
+        router.callback_query.register(handler, F.data == topic.tg_callback)
+
+
+_register_support_topic_handlers()
 
 
 @router.callback_query(F.data == "menu:main")
