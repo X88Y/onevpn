@@ -29,7 +29,7 @@ from mvm_bot.constants import (
     SUBSCRIPTION_PLANS,
     TRIAL_DAYS,
 )
-from mvm_bot.support_content import SUPPORT_TOPICS, SUPPORT_VPN_DOWN_TEXT, VPN_ERROR_TOPICS
+from mvm_bot.support_content import SUPPORT_TOPICS, VPN_ERROR_TOPICS
 from mvm_bot.jwt_auth import sign_vk_auth_jwt
 from mvm_bot.main_menu import format_subscription_end
 from mvm_bot.freekassa import PAYMENT_CARD_RU, PAYMENT_SBERPAY, PAYMENT_SBP
@@ -59,8 +59,8 @@ from mvm_vk_bot.menu import (
     send_main_menu_from_event,
     devices_keyboard_json,
     send_support_menu,
+    send_support_vpn_errors_menu,
     support_answer_keyboard_json,
-    support_vpn_errors_keyboard_json,
 )
 from mvm_vk_bot.profile import fetch_vk_profile
 
@@ -656,10 +656,7 @@ def register_handlers(bot: Bot) -> None:
             return
 
         if cmd == "sup_not_work":
-            await event.send_message(
-                message=SUPPORT_VPN_DOWN_TEXT,
-                keyboard=support_vpn_errors_keyboard_json(),
-            )
+            await send_support_vpn_errors_menu(event)
             return
 
         if cmd == "survey":

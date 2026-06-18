@@ -11,6 +11,7 @@ from mvm_bot.constants import SUBSCRIPTION_PLANS, TRIAL_FIELDS, VK_SUPPORT_URL
 from mvm_bot.support_content import (
     SUPPORT_ROOT_BUTTONS,
     SUPPORT_ROOT_TEXT,
+    SUPPORT_VPN_DOWN_TEXT,
     VPN_ERROR_BUTTONS,
 )
 from mvm_bot.datetime_utils import as_utc_datetime
@@ -328,34 +329,84 @@ def devices_keyboard_json(devices: list) -> str:
     return kb.get_json()
 
 
-def support_keyboard_json() -> str:
-    kb = Keyboard(inline=True)
-    for i, topic in enumerate(SUPPORT_ROOT_BUTTONS):
-        if i > 0:
-            kb.row()
-        kb.add(Callback(label=topic.label, payload={"c": topic.vk_cmd}))
-    kb.row()
-    kb.add(OpenLink(label="Написать агенту поддержки", link=VK_SUPPORT_URL))
-    kb.row()
-    kb.add(Callback(label="« Назад", payload={"c": "main"}))
-    return kb.get_json()
+VK_MAX_INLINE_BUTTONS = 5
+
+SUPPORT_ROOT_FOLLOWUP_TEXT = (
+    "Напишите агенту поддержки, если не нашли ответ 👇"
+)
+SUPPORT_VPN_ERRORS_FOLLOWUP_TEXT = "👇"
 
 
-def support_vpn_errors_keyboard_json() -> str:
-    kb = Keyboard(inline=True)
-    for i, topic in enumerate(VPN_ERROR_BUTTONS):
-        if i > 0:
-            kb.row()
-        kb.add(Callback(label=topic.label, payload={"c": topic.vk_cmd}))
-    kb.row()
-    kb.add(Callback(label="« Назад", payload={"c": "support"}))
-    return kb.get_json()
+def _chunked_inline_keyboards(
+    buttons: list[tuple],
+) -> list[str]:
+    """Build one or more inline keyboards, each with at most VK_MAX_INLINE_BUTTONS."""
+    keyboards: list[str] = []
+    for start in range(0, len(buttons), VK_MAX_INLINE_BUTTONS):
+        chunk = buttons[start : start + VK_MAX_INLINE_BUTTONS]
+        kb = Keyboard(inline=True)
+        for i, btn in enumerate(chunk):
+            if i > 0:
+                kb.row()
+            if len(btn) == 3 and btn[1] == "openlink":
+                kb.add(OpenLink(label=btn[0], link=btn[2]))
+            else:
+                label, payload = btn[0], btn[1]
+                kb.add(Callback(label=label, payload=payload))
+        keyboards.append(kb.get_json())
+    return keyboards
+
+
+def support_keyboards_json() -> list[str]:
+    buttons: list[tuple] = [
+        (topic.label, {"c": topic.vk_cmd})
+        for topic in SUPPORT_ROOT_BUTTONS
+    ]
+    buttons.extend([
+        ("Написать агенту поддержки", "openlink", VK_SUPPORT_URL),
+        ("« Назад", {"c": "main"}),
+    ])
+    return _chunked_inline_keyboards(buttons)
+
+
+def support_vpn_errors_keyboards_json() -> list[str]:
+    buttons: list[tuple] = [
+        (topic.label, {"c": topic.vk_cmd})
+        for topic in VPN_ERROR_BUTTONS
+    ]
+    buttons.append(("« Назад", {"c": "support"}))
+    return _chunked_inline_keyboards(buttons)
+
+
+async def _send_chunked_menu(
+    event: MessageEvent,
+    *,
+    first_message: str,
+    keyboards: list[str],
+    followup_message: str,
+) -> None:
+    if not keyboards:
+        return
+    await event.send_message(message=first_message, keyboard=keyboards[0])
+    for keyboard in keyboards[1:]:
+        await event.send_message(message=followup_message, keyboard=keyboard)
 
 
 async def send_support_menu(event: MessageEvent) -> None:
-    await event.send_message(
-        message=SUPPORT_ROOT_TEXT,
-        keyboard=support_keyboard_json(),
+    await _send_chunked_menu(
+        event,
+        first_message=SUPPORT_ROOT_TEXT,
+        keyboards=support_keyboards_json(),
+        followup_message=SUPPORT_ROOT_FOLLOWUP_TEXT,
+    )
+
+
+async def send_support_vpn_errors_menu(event: MessageEvent) -> None:
+    await _send_chunked_menu(
+        event,
+        first_message=SUPPORT_VPN_DOWN_TEXT,
+        keyboards=support_vpn_errors_keyboards_json(),
+        followup_message=SUPPORT_VPN_ERRORS_FOLLOWUP_TEXT,
     )
 
 
