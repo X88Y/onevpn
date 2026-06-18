@@ -13,6 +13,9 @@ Usage:
     python time_web.py                  # dry-run, prints actions
     python time_web.py --apply          # actually applies changes to Timeweb and Remnawave
     python time_web.py --env /path/.env # load a specific .env file
+    python time_web.py --origin-ip      # use node IP as CDN origin (skip GoDaddy DNS)
+    python time_web.py --no-config      # skip CDN config customization after creation
+    python time_web.py --from-tokens    # create on every token from rotate_ip.timeweb_tokens (unique suffix per host)
 """
 
 from __future__ import annotations
@@ -258,6 +261,64 @@ class GoDaddyClient:
                 resp.raise_for_status()
 
 
+def _generate_suffix() -> str:
+    import random
+    import string
+
+    return "".join(random.choices(string.ascii_uppercase + string.digits, k=2))
+
+
+def _load_timeweb_tokens() -> List[str]:
+    from rotate_ip import timeweb_tokens
+
+    return [t.strip() for t in timeweb_tokens.strip().split("\n") if t.strip()]
+
+
+async def _resolve_timeweb_account(
+    token: str,
+    token_idx: int,
+    *,
+    cache: Dict[str, dict],
+) -> dict:
+    if token in cache:
+        return cache[token]
+
+    client = TimeWebClient(token=token)
+    prefix = f"Token {token_idx}"
+
+    project_id_env = os.getenv("TIMEWEB_PROJECT_ID")
+    if project_id_env:
+        project_id = int(project_id_env)
+    else:
+        logger.info(f"{prefix}: Auto-detecting Timeweb Project ID...")
+        try:
+            project_id = await client.get_default_project_id()
+            logger.info(f"{prefix}: Auto-detected Project ID: {project_id}")
+        except Exception as e:
+            logger.warning(f"{prefix}: Could not auto-detect Project ID: {e}. Using fallback 2573125.")
+            project_id = 2573125
+
+    preset_id_env = os.getenv("TIMEWEB_PRESET_ID")
+    if preset_id_env:
+        preset_id = int(preset_id_env)
+    else:
+        logger.info(f"{prefix}: Auto-detecting Timeweb CDN Preset ID...")
+        try:
+            preset_id = await client.get_cdn_preset_id()
+            logger.info(f"{prefix}: Auto-detected Preset ID: {preset_id}")
+        except Exception as e:
+            logger.warning(f"{prefix}: Could not auto-detect Preset ID: {e}. Using fallback 3807.")
+            preset_id = 3807
+
+    cache[token] = {
+        "client": client,
+        "project_id": project_id,
+        "preset_id": preset_id,
+        "resources": None,
+    }
+    return cache[token]
+
+
 # ---------------------------------------------------------------------------
 # Core Logic
 # ---------------------------------------------------------------------------
@@ -274,10 +335,16 @@ class CallbackLogHandler(logging.Handler):
             self.handleError(record)
 
 
-# ---------------------------------------------------------------------------
-# Core Logic
-# ---------------------------------------------------------------------------
-async def run_sync(*, token: str, apply: bool, env_path: Optional[str] = None, log_callback: Optional[Callable[[str], None]] = None) -> None:
+async def run_sync(
+    *,
+    token: Optional[str] = None,
+    apply: bool,
+    env_path: Optional[str] = None,
+    log_callback: Optional[Callable[[str], None]] = None,
+    origin_ip: bool = False,
+    customize_config: bool = True,
+    from_tokens: bool = False,
+) -> None:
     handler = None
     if log_callback:
         handler = CallbackLogHandler(log_callback)
@@ -287,15 +354,19 @@ async def run_sync(*, token: str, apply: bool, env_path: Optional[str] = None, l
     try:
         _load_env(env_path)
 
-        # Handle if token was passed as token=...
-        if token.startswith("token="):
-            token = token.split("token=", 1)[1]
-
-        # Generate a single 2-character suffix once on start for all resources created in this run
-        import random
-        import string
-        suffix = "".join(random.choices(string.ascii_uppercase + string.digits, k=2))
-        logger.info(f"Generated suffix for this execution run: {suffix}")
+        if from_tokens:
+            tokens = _load_timeweb_tokens()
+            if not tokens:
+                logger.error("No tokens found in rotate_ip.timeweb_tokens")
+                sys.exit(1)
+            logger.info(f"Loaded {len(tokens)} Timeweb tokens from rotate_ip.py")
+        elif not token:
+            logger.error("Timeweb token is required unless from_tokens=True")
+            sys.exit(1)
+        else:
+            if token.startswith("token="):
+                token = token.split("token=", 1)[1]
+            tokens = [token]
 
         # Remnawave Config
         remnawave_base = os.getenv("REMNAWAVE_BASE_URL") or os.getenv("REMNAWAVE_URL")
@@ -317,34 +388,8 @@ async def run_sync(*, token: str, apply: bool, env_path: Optional[str] = None, l
 
         # Initialize clients
         sdk = RemnawaveSDK(base_url=remnawave_base, token=remnawave_token)
-        tw_client = TimeWebClient(token=token)
         gd_client = GoDaddyClient(key=godaddy_key, secret=godaddy_secret)
-
-        # Auto-detect Project ID if not configured
-        project_id_env = os.getenv("TIMEWEB_PROJECT_ID")
-        if project_id_env:
-            timeweb_project_id = int(project_id_env)
-        else:
-            logger.info("Auto-detecting Timeweb Project ID...")
-            try:
-                timeweb_project_id = await tw_client.get_default_project_id()
-                logger.info(f"Auto-detected Project ID: {timeweb_project_id}")
-            except Exception as e:
-                logger.warning(f"Could not auto-detect Project ID: {e}. Using fallback 2573125.")
-                timeweb_project_id = 2573125
-
-        # Auto-detect Preset ID if not configured
-        preset_id_env = os.getenv("TIMEWEB_PRESET_ID")
-        if preset_id_env:
-            timeweb_preset_id = int(preset_id_env)
-        else:
-            logger.info("Auto-detecting Timeweb CDN Preset ID...")
-            try:
-                timeweb_preset_id = await tw_client.get_cdn_preset_id()
-                logger.info(f"Auto-detected Preset ID: {timeweb_preset_id}")
-            except Exception as e:
-                logger.warning(f"Could not auto-detect Preset ID: {e}. Using fallback 3807.")
-                timeweb_preset_id = 3807
+        account_cache: Dict[str, dict] = {}
 
         # Fetch nodes from Remnawave
         logger.info("Fetching nodes from Remnawave...")
@@ -370,42 +415,77 @@ async def run_sync(*, token: str, apply: bool, env_path: Optional[str] = None, l
             logger.error(f"Failed to fetch hosts from Remnawave: {e}")
             sys.exit(1)
 
-        # Fetch existing CDN resources from TimeWeb
-        tw_resources = []
-        logger.info("Fetching existing CDN resources from TimeWeb...")
-        try:
-            tw_resources = await tw_client.list_cdn_resources()
-            logger.info(f"Found {len(tw_resources)} existing CDN resources on TimeWeb.")
-        except Exception as e:
-            logger.error(f"Failed to list TimeWeb CDN resources: {e}")
-            if apply:
-                sys.exit(1)
+        work_items: List[tuple] = []
+        if from_tokens:
+            for token_idx, node_token in enumerate(tokens, 1):
+                for node in tw_cdn_nodes:
+                    suffix = _generate_suffix()
+                    work_items.append((node, node_token, token_idx, suffix))
+            logger.info(
+                f"Prepared {len(work_items)} jobs "
+                f"({len(tokens)} tokens x {len(tw_cdn_nodes)} nodes), unique suffix per host"
+            )
+        else:
+            suffix = _generate_suffix()
+            logger.info(f"Generated suffix for this execution run: {suffix}")
+            for node in tw_cdn_nodes:
+                work_items.append((node, tokens[0], 1, suffix))
 
-        for node in tw_cdn_nodes:
-            logger.info(f"\nProcessing node: {node.name} (IP: {node.address}, Country: {node.country_code})")
+        for node, node_token, token_idx, suffix in work_items:
+            account = await _resolve_timeweb_account(node_token, token_idx, cache=account_cache)
+            tw_client = account["client"]
+            timeweb_project_id = account["project_id"]
+            timeweb_preset_id = account["preset_id"]
+
+            if from_tokens:
+                logger.info(
+                    f"\nProcessing node: {node.name} (IP: {node.address}, Country: {node.country_code}) "
+                    f"on Timeweb token {token_idx}/{len(tokens)}, suffix={suffix}"
+                )
+            else:
+                logger.info(f"\nProcessing node: {node.name} (IP: {node.address}, Country: {node.country_code})")
+
+            if account["resources"] is None:
+                logger.info(f"Token {token_idx}: Fetching existing CDN resources from TimeWeb...")
+                try:
+                    account["resources"] = await tw_client.list_cdn_resources()
+                    logger.info(
+                        f"Token {token_idx}: Found {len(account['resources'])} existing CDN resources on TimeWeb."
+                    )
+                except Exception as e:
+                    logger.error(f"Token {token_idx}: Failed to list TimeWeb CDN resources: {e}")
+                    if apply:
+                        sys.exit(1)
+                    account["resources"] = []
+
+            tw_resources = account["resources"]
             
             # Expected CDN resource name and Host remark
             cdn_name = f"mvm-cdn-{node.name}-{suffix.lower()}"
-            remark = f"🌈LTE Только в MVM приложении {node.country_code.upper()}|TW|{suffix}"
+            remark = f"🌈LTE MVM приложение {node.country_code.upper()}|TW|{suffix}"
 
-            # Create GoDaddy DNS record
-            dns_safe_name = make_dns_safe(node.name)
-            subdomain_record_name = f"{dns_safe_name}-{suffix.lower()}.sub"
-            origin_domain = f"{subdomain_record_name}.{godaddy_domain}"
-
-            if apply:
-                logger.info(f"  Ensuring GoDaddy A record: {origin_domain} -> {node.address}...")
-                try:
-                    await gd_client.create_or_update_a_record(
-                        domain=godaddy_domain,
-                        name=subdomain_record_name,
-                        ip=node.address
-                    )
-                except Exception as e:
-                    logger.error(f"  Failed to create/update GoDaddy A record: {e}")
-                    raise e
+            if origin_ip:
+                cdn_origin = node.address
+                logger.info(f"  Using node IP as CDN origin: {cdn_origin}")
             else:
-                logger.info(f"  [DRY-RUN] Would ensure GoDaddy A record: {origin_domain} -> {node.address}")
+                dns_safe_name = make_dns_safe(node.name)
+                subdomain_record_name = f"{dns_safe_name}-{suffix.lower()}.sub"
+                origin_domain = f"{subdomain_record_name}.{godaddy_domain}"
+                cdn_origin = origin_domain
+
+                if apply:
+                    logger.info(f"  Ensuring GoDaddy A record: {origin_domain} -> {node.address}...")
+                    try:
+                        await gd_client.create_or_update_a_record(
+                            domain=godaddy_domain,
+                            name=subdomain_record_name,
+                            ip=node.address
+                        )
+                    except Exception as e:
+                        logger.error(f"  Failed to create/update GoDaddy A record: {e}")
+                        raise e
+                else:
+                    logger.info(f"  [DRY-RUN] Would ensure GoDaddy A record: {origin_domain} -> {node.address}")
 
             # Check if CDN resource already exists
             existing_res = next((r for r in tw_resources if r.get("name") == cdn_name), None)
@@ -416,27 +496,31 @@ async def run_sync(*, token: str, apply: bool, env_path: Optional[str] = None, l
             if existing_res:
                 resource_id, cdn_domain = extract_cdn_info(existing_res)
                 logger.info(f"  CDN resource already exists in TimeWeb: ID={resource_id}, Domain={cdn_domain}")
-                # Ensure CDN configuration is up to date even if it exists
-                if apply:
-                    logger.info(f"  Ensuring CDN config is up to date for resource {resource_id}...")
-                    await tw_client.update_cdn_config(resource_id)
+                if customize_config:
+                    if apply:
+                        logger.info(f"  Ensuring CDN config is up to date for resource {resource_id}...")
+                        await tw_client.update_cdn_config(resource_id)
+                    else:
+                        logger.info(f"  [DRY-RUN] Would update CDN config for resource {resource_id}")
             else:
                 if apply:
-                    logger.info(f"  Creating new CDN resource '{cdn_name}' in TimeWeb for origin '{origin_domain}'...")
+                    logger.info(f"  Creating new CDN resource '{cdn_name}' in TimeWeb for origin '{cdn_origin}'...")
                     res_data = await tw_client.create_cdn_resource(
                         name=cdn_name,
-                        host_ip=origin_domain,
+                        host_ip=cdn_origin,
                         project_id=timeweb_project_id,
                         preset_id=timeweb_preset_id
                     )
                     resource_id, cdn_domain = extract_cdn_info(res_data)
                     logger.info(f"  CDN created successfully: ID={resource_id}, Domain={cdn_domain}")
-                    
-                    logger.info(f"  Updating config on CDN resource {resource_id}...")
-                    await tw_client.update_cdn_config(resource_id)
+
+                    if customize_config:
+                        logger.info(f"  Updating config on CDN resource {resource_id}...")
+                        await tw_client.update_cdn_config(resource_id)
                 else:
-                    logger.info(f"  [DRY-RUN] Would create CDN resource '{cdn_name}' in TimeWeb for origin '{origin_domain}'")
-                    logger.info(f"  [DRY-RUN] Would update config on the new CDN resource")
+                    logger.info(f"  [DRY-RUN] Would create CDN resource '{cdn_name}' in TimeWeb for origin '{cdn_origin}'")
+                    if customize_config:
+                        logger.info(f"  [DRY-RUN] Would update config on the new CDN resource")
                     resource_id = 99999
                     cdn_domain = f"placeholder-{node.name}.cdn.twcstorage.ru"
 
@@ -550,7 +634,9 @@ def main() -> None:
     )
     parser.add_argument(
         "token",
-        help="Timeweb API access token",
+        nargs="?",
+        default=None,
+        help="Timeweb API access token (not required with --from-tokens)",
     )
     parser.add_argument(
         "--apply",
@@ -563,9 +649,38 @@ def main() -> None:
         default=None,
         help="Path to a .env file to load (default: auto-detect)",
     )
+    parser.add_argument(
+        "--origin-ip",
+        action="store_true",
+        help="Use node IP as CDN origin instead of creating a GoDaddy subdomain",
+    )
+    parser.add_argument(
+        "--no-config",
+        action="store_true",
+        help="Skip CDN config customization (cache TTL, delivery, robots) after creation",
+    )
+    parser.add_argument(
+        "--from-tokens",
+        action="store_true",
+        help="Use Timeweb API tokens from rotate_ip.timeweb_tokens (every token x every node, unique suffix per host)",
+    )
     args = parser.parse_args()
-    
-    asyncio.run(run_sync(token=args.token, apply=args.apply, env_path=args.env))
+
+    if not args.from_tokens and not args.token:
+        parser.error("token is required unless --from-tokens is used")
+    if args.from_tokens and args.token:
+        parser.error("pass either token or --from-tokens, not both")
+
+    asyncio.run(
+        run_sync(
+            token=args.token,
+            apply=args.apply,
+            env_path=args.env,
+            origin_ip=args.origin_ip,
+            customize_config=not args.no_config,
+            from_tokens=args.from_tokens,
+        )
+    )
 
 
 if __name__ == "__main__":
