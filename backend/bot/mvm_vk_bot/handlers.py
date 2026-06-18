@@ -50,7 +50,7 @@ from mvm_vk_bot.menu import (
     send_main_menu,
     send_main_menu_from_event,
     devices_keyboard_json,
-    support_keyboard_json,
+    send_support_menu,
     support_answer_keyboard_json,
 )
 from mvm_vk_bot.profile import fetch_vk_profile
@@ -625,11 +625,7 @@ def register_handlers(bot: Bot) -> None:
             return
 
         if cmd == "support":
-            text = (
-                "Прежде чем обращаться к нашим агентам поддержки, для вашего удобства собрали список самых актуальных вопросов и проблем❗️\n\n"
-                "Пожалуйста ознакомьтесь, если не нашли решения своего вопроса, напишите агенту поддержки👇"
-            )
-            await event.send_message(message=text, keyboard=support_keyboard_json())
+            await send_support_menu(event)
             return
 
         if cmd == "sup_key":

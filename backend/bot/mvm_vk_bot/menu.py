@@ -94,6 +94,8 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
 
     if is_active:
         kb.add(Callback(label="📱 Мои устройства", payload={"c": "devices"}))
+        kb.row()
+
     kb.add(Callback(label="👥 Пригласить друзей", payload={"c": "invite"}))
     kb.row()
 
@@ -321,20 +323,40 @@ def devices_keyboard_json(devices: list) -> str:
     return kb.get_json()
 
 
-def support_keyboard_json() -> str:
-    kb = Keyboard(inline=True)
-    kb.add(Callback(label="🔑 Где найти ключ?", payload={"c": "sup_key"}))
-    kb.row()
-    kb.add(Callback(label="📱 Как добавить?", payload={"c": "sup_add"}))
-    kb.add(Callback(label="❌ Как удалить?", payload={"c": "sup_del"}))
-    kb.row()
-    kb.add(Callback(label="💻 VPN на ПК/ТВ", payload={"c": "sup_pc_tv"}))
-    kb.add(Callback(label="⚠️ Не работает ВПН", payload={"c": "sup_not_work"}))
-    kb.row()
-    kb.add(OpenLink(label="💬 Написать агенту", link=VK_SUPPORT_URL))
-    kb.row()
-    kb.add(Callback(label="« Назад", payload={"c": "main"}))
-    return kb.get_json()
+def support_keyboards_json() -> list[str]:
+    kb_questions = Keyboard(inline=True)
+    kb_questions.add(Callback(label="🔑 Где найти ключ?", payload={"c": "sup_key"}))
+    kb_questions.row()
+    kb_questions.add(Callback(label="📱 Как добавить?", payload={"c": "sup_add"}))
+    kb_questions.row()
+    kb_questions.add(Callback(label="❌ Как удалить?", payload={"c": "sup_del"}))
+    kb_questions.row()
+    kb_questions.add(Callback(label="💻 VPN на ПК/ТВ", payload={"c": "sup_pc_tv"}))
+    kb_questions.row()
+    kb_questions.add(Callback(label="⚠️ Не работает ВПН", payload={"c": "sup_not_work"}))
+
+    kb_actions = Keyboard(inline=True)
+    kb_actions.add(OpenLink(label="💬 Написать агенту", link=VK_SUPPORT_URL))
+    kb_actions.row()
+    kb_actions.add(Callback(label="« Назад", payload={"c": "main"}))
+
+    return [kb_questions.get_json(), kb_actions.get_json()]
+
+
+async def send_support_menu(event: MessageEvent) -> None:
+    keyboards = support_keyboards_json()
+    await event.send_message(
+        message=(
+            "Прежде чем обращаться к нашим агентам поддержки, для вашего удобства собрали список самых актуальных вопросов и проблем❗️"
+        ),
+        keyboard=keyboards[0],
+    )
+    await event.send_message(
+        message=(
+            "Пожалуйста ознакомьтесь, если не нашли решения своего вопроса, напишите агенту поддержки👇"
+        ),
+        keyboard=keyboards[1],
+    )
 
 
 def support_answer_keyboard_json() -> str:
