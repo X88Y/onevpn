@@ -11,6 +11,13 @@ def check_balance_for_token(token, token_idx):
     base_url = "https://timeweb.cloud"
     
     try:
+        info_resp = httpx.get(f"{base_url}/api/v2/accounts/info", headers=headers, timeout=30.0)
+        email = None
+        if info_resp.status_code == 200:
+            email = info_resp.json().get("account", {}).get("email")
+        else:
+            print(f"Token {token_idx}: Account info failed (status {info_resp.status_code}): {info_resp.text}")
+
         resp = httpx.get(f"{base_url}/api/v1/account/finances", headers=headers, timeout=30.0)
         if resp.status_code == 200:
             data = resp.json()
@@ -18,8 +25,10 @@ def check_balance_for_token(token, token_idx):
             balance = finances.get("balance")
             currency = finances.get("currency", "RUB")
             hourly_cost = finances.get("hourly_cost")
-            
+
             print(f"Token {token_idx}: Connected successfully.")
+            if email:
+                print(f"  Email: {email}")
             print(f"  Balance: {balance} {currency}")
             print(f"  Hourly Cost: {hourly_cost} {currency}")
         else:
