@@ -16,6 +16,7 @@ from mvm_bot.support_content import (
 )
 from mvm_bot.datetime_utils import as_utc_datetime
 from mvm_bot.main_menu import main_menu_caption
+from mvm_bot.promo_utils import promo_multiplier
 
 _banner_attachments_cache = {}
 
@@ -73,20 +74,6 @@ def has_active_subscription(data: dict) -> bool:
     return end > datetime.now(timezone.utc)
 
 
-def _promo_multiplier(promo_activated: bool, promo_discount: object | None = None) -> float:
-    if not promo_activated:
-        return 1.0
-    try:
-        discount = float(promo_discount)
-    except (TypeError, ValueError):
-        discount = 0.4
-    if 1 < discount <= 100:
-        discount /= 100.0
-    if not (0 < discount < 1):
-        discount = 0.4
-    return 1.0 - discount
-
-
 async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
     is_active = has_active_subscription(data)
     kb = Keyboard(inline=True)
@@ -128,7 +115,11 @@ def plan_selection_keyboard_json(
     promo_activated: bool = False,
     promo_discount: object | None = None,
 ) -> str:
-    promo_multiplier = _promo_multiplier(promo_activated, promo_discount)
+    promo_factor = promo_multiplier(
+        promo_activated,
+        promo_discount,
+        default_discount=0.4,
+    )
     kb = Keyboard(inline=True)
     plan_keys = ["std_30", "std_90", "prem_30", "prem_90"]
     for i, plan_key in enumerate(plan_keys):
@@ -138,7 +129,7 @@ def plan_selection_keyboard_json(
         
         if promo_activated:
             original_rub = plan['rub']
-            discounted_rub = int(original_rub * promo_multiplier)
+            discounted_rub = int(original_rub * promo_factor)
             struck_rub = "".join(char + "\u0336" for char in str(original_rub))
             label = f"{plan['emoji']} {plan['label']} — {struck_rub}₽/{discounted_rub}₽ — {plan['tier_label']}"
         else:
@@ -177,9 +168,13 @@ def rub_checkout_keyboard_json(
 ) -> str:
     plan = SUBSCRIPTION_PLANS[plan_key]
     rub = plan['rub']
-    promo_multiplier = _promo_multiplier(promo_activated, promo_discount)
+    promo_factor = promo_multiplier(
+        promo_activated,
+        promo_discount,
+        default_discount=0.4,
+    )
     if promo_activated:
-        rub = int(rub * promo_multiplier)
+        rub = int(rub * promo_factor)
     kb = Keyboard(inline=True)
     kb.add(
         Callback(
@@ -219,9 +214,13 @@ def other_checkout_keyboard_json(
 ) -> str:
     plan = SUBSCRIPTION_PLANS[plan_key]
     rub = plan['rub']
-    promo_multiplier = _promo_multiplier(promo_activated, promo_discount)
+    promo_factor = promo_multiplier(
+        promo_activated,
+        promo_discount,
+        default_discount=0.4,
+    )
     if promo_activated:
-        rub = int(rub * promo_multiplier)
+        rub = int(rub * promo_factor)
     kb = Keyboard(inline=True)
     kb.add(
         Callback(

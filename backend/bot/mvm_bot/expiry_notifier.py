@@ -6,13 +6,19 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, List, Optional
 
 import aiohttp
-import httpx
 from firebase_admin import firestore
 
-from mvm_bot.config import bot_token, vk_bot_tokens, yoomoney_receiver, yoomoney_secret, yoomoney_recurring_enabled
+from mvm_bot.config import bot_token
+from mvm_bot.expiry_autocharge import maybe_handle_autocharge
+from mvm_bot.expiry_outbound import (
+    build_vk_survey_keyboard as _build_vk_survey_keyboard,
+    notify_telegram,
+    notify_telegram_photo,
+    notify_vk,
+    notify_vk_photo,
+)
 from mvm_bot.firebase_client import init_firebase
-from mvm_bot.yoomoney import build_label
-from mvm_bot.constants import SUBSCRIPTION_PLANS, BOT_DIR
+from mvm_bot.constants import BOT_DIR
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -43,69 +49,11 @@ def _timestamp_ms(value: Any) -> Optional[int]:
 
 
 async def _notify_telegram(user_id: str, text: str) -> None:
-    token = bot_token()
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
-    payload = {
-        "chat_id": user_id,
-        "text": text,
-        "parse_mode": "HTML",
-    }
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, json=payload) as resp:
-                if resp.status != 200:
-                    body = await resp.text()
-                    logger.warning("telegram notify failed: %s %s", resp.status, body)
-    except Exception:
-        logger.exception("telegram notify error for user %s", user_id)
-
-
-async def _notify_vk_with_token(user_id: str, text: str, token: str) -> bool:
-    params = {
-        "user_id": user_id,
-        "message": text,
-        "random_id": str(int(datetime.now(timezone.utc).timestamp() * 1000)),
-        "access_token": token,
-        "v": "5.231",
-    }
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                "https://api.vk.com/method/messages.send", params=params
-            ) as resp:
-                if resp.status != 200:
-                    body = await resp.text()
-                    logger.warning(
-                        "vk notify failed (token=%s...): %s %s",
-                        token[:8],
-                        resp.status,
-                        body,
-                    )
-                    return False
-                data = await resp.json()
-                if data.get("error"):
-                    logger.warning(
-                        "vk api error (token=%s...): %s",
-                        token[:8],
-                        data["error"],
-                    )
-                    return False
-                return True
-    except Exception:
-        logger.exception("vk notify error for user %s (token=%s...)", user_id, token[:8])
-        return False
+    await notify_telegram(user_id, text, logger=logger)
 
 
 async def _notify_vk(user_id: str, text: str) -> None:
-    tokens = vk_bot_tokens()
-    if not tokens:
-        logger.warning("vk notify: no tokens configured")
-        return
-    for token in tokens:
-        ok = await _notify_vk_with_token(user_id, text, token)
-        if ok:
-            return
-    logger.warning("vk notify: all tokens failed for user %s", user_id)
+    await notify_vk(user_id, text, logger=logger)
 
 
 def _fetch_expired_users(db: firestore.Client) -> List[firestore.DocumentSnapshot]:
@@ -126,71 +74,6 @@ def _fetch_expiring_soon_users(db: firestore.Client) -> List[firestore.DocumentS
         .where("subscriptionEndsAt", "<=", soon)
         .stream()
     )
-
-
-async def attempt_autocharge(
-    user_id: str,
-    plan_key: str,
-    payment_method_id: str,
-    provider: str,
-) -> bool:
-    """Attempt to charge a saved payment method using YooKassa REST API."""
-    receiver = yoomoney_receiver()
-    secret = yoomoney_secret()
-    if not receiver or not secret:
-        logger.error("Autocharge failed: receiver or secret not configured")
-        return False
-
-    plan = SUBSCRIPTION_PLANS.get(plan_key)
-    if not plan:
-        logger.error(f"Autocharge failed: plan {plan_key} not found")
-        return False
-
-    amount = plan["rub"]
-    label = build_label(provider, user_id, plan_key)
-
-    payload = {
-        "amount": {
-            "value": f"{amount:.2f}",
-            "currency": "RUB"
-        },
-        "capture": True,
-        "payment_method_id": payment_method_id,
-        "description": f"Автопродление подписки MVMVpn ({plan['label']})",
-        "metadata": {
-            "label": label
-        }
-    }
-
-    headers = {
-        "Idempotence-Key": label,
-        "Content-Type": "application/json"
-    }
-
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                "https://api.yookassa.ru/v3/payments",
-                json=payload,
-                headers=headers,
-                auth=(receiver, secret),
-                timeout=15.0
-            )
-            if response.status_code in (200, 201):
-                data = response.json()
-                status = data.get("status")
-                if status == "succeeded":
-                    logger.info(f"Autocharge succeeded for user {user_id} via label {label}")
-                    return True
-                else:
-                    logger.warning(f"Autocharge returned status {status} for user {user_id}")
-                    return False
-            else:
-                logger.error(f"Autocharge API request failed: {response.status_code} {response.text}")
-                return False
-    except Exception:
-        logger.exception(f"Autocharge error for user {user_id}")
-        return False
 
 
 async def check_and_notify_expired_subscriptions() -> None:
@@ -223,56 +106,16 @@ async def check_and_notify_expired_subscriptions() -> None:
             if not tg_id and not vk_id:
                 continue
 
-            payment_method_id = user_data.get("yookassaPaymentMethodId")
-            if payment_method_id and yoomoney_recurring_enabled():
-                # Try auto-charging
-                last_attempt = user_data.get("yookassaLastChargeAttemptAt")
-                should_charge = True
-                if last_attempt:
-                    if hasattr(last_attempt, "timestamp"):
-                        last_attempt_dt = last_attempt
-                    else:
-                        try:
-                            last_attempt_dt = datetime.fromisoformat(str(last_attempt))
-                        except Exception:
-                            last_attempt_dt = None
-                    if last_attempt_dt and (datetime.now(timezone.utc) - last_attempt_dt < timedelta(hours=24)):
-                        should_charge = False
-
-                if should_charge:
-                    provider = "tg" if tg_id else "vk"
-                    uid = tg_id if tg_id else vk_id
-                    plan_key = user_data.get("yookassaPlanKey") or "plan_30"
-
-                    # Update last attempt time in Firestore
-                    ref = snap.reference
-                    await asyncio.to_thread(
-                        lambda r=ref, ts=datetime.now(timezone.utc): r.update({"yookassaLastChargeAttemptAt": ts})
-                    )
-
-                    success = await attempt_autocharge(
-                        user_id=uid,
-                        plan_key=plan_key,
-                        payment_method_id=payment_method_id,
-                        provider=provider,
-                    )
-                    if success:
-                        # Auto-charge succeeded. The webhook will handle extending subscription.
-                        continue
-                    else:
-                        # Auto-charge failed. Notify user.
-                        fail_text = (
-                            "⚠️ Автоматическое продление вашей подписки не удалось (например, недостаточно средств на карте).\n\n"
-                            "Пожалуйста, продлите подписку вручную в личном кабинете."
-                        )
-                        if tg_id:
-                            await _notify_telegram(tg_id, fail_text)
-                        if vk_id:
-                            await _notify_vk(vk_id, fail_text)
-                        continue
-                else:
-                    # Already tried recently, skip
-                    continue
+            if await maybe_handle_autocharge(
+                snap=snap,
+                user_data=user_data,
+                tg_id=tg_id,
+                vk_id=vk_id,
+                notify_telegram=_notify_telegram,
+                notify_vk=_notify_vk,
+                logger=logger,
+            ):
+                continue
 
             text = (
                 "Ваша подписка закончилась❗️\n\n"
@@ -324,56 +167,16 @@ async def check_and_notify_expiring_soon_subscriptions() -> None:
             if not tg_id and not vk_id:
                 continue
 
-            payment_method_id = user_data.get("yookassaPaymentMethodId")
-            if payment_method_id and yoomoney_recurring_enabled():
-                # Try auto-charging
-                last_attempt = user_data.get("yookassaLastChargeAttemptAt")
-                should_charge = True
-                if last_attempt:
-                    if hasattr(last_attempt, "timestamp"):
-                        last_attempt_dt = last_attempt
-                    else:
-                        try:
-                            last_attempt_dt = datetime.fromisoformat(str(last_attempt))
-                        except Exception:
-                            last_attempt_dt = None
-                    if last_attempt_dt and (datetime.now(timezone.utc) - last_attempt_dt < timedelta(hours=24)):
-                        should_charge = False
-
-                if should_charge:
-                    provider = "tg" if tg_id else "vk"
-                    uid = tg_id if tg_id else vk_id
-                    plan_key = user_data.get("yookassaPlanKey") or "plan_30"
-
-                    # Update last attempt time in Firestore
-                    ref = snap.reference
-                    await asyncio.to_thread(
-                        lambda r=ref, ts=datetime.now(timezone.utc): r.update({"yookassaLastChargeAttemptAt": ts})
-                    )
-
-                    success = await attempt_autocharge(
-                        user_id=uid,
-                        plan_key=plan_key,
-                        payment_method_id=payment_method_id,
-                        provider=provider,
-                    )
-                    if success:
-                        # Auto-charge succeeded. Webhook will extend subscription.
-                        continue
-                    else:
-                        # Auto-charge failed. Notify user.
-                        fail_text = (
-                            "⚠️ Автоматическое продление вашей подписки не удалось (например, недостаточно средств на карте).\n\n"
-                            "Пожалуйста, продлите подписку вручную в личном кабинете."
-                        )
-                        if tg_id:
-                            await _notify_telegram(tg_id, fail_text)
-                        if vk_id:
-                            await _notify_vk(vk_id, fail_text)
-                        continue
-                else:
-                    # Already tried recently, skip
-                    continue
+            if await maybe_handle_autocharge(
+                snap=snap,
+                user_data=user_data,
+                tg_id=tg_id,
+                vk_id=vk_id,
+                notify_telegram=_notify_telegram,
+                notify_vk=_notify_vk,
+                logger=logger,
+            ):
+                continue
 
             end_str = ""
             if hasattr(current_end, "strftime"):
@@ -404,122 +207,34 @@ async def check_and_notify_expiring_soon_subscriptions() -> None:
         logger.info("sent pre-expiry notifications to %s users", notified_count)
 
 
-async def _notify_telegram_photo(user_id: str, photo_path: Path, caption: str, reply_markup: dict = None) -> bool:
-    from mvm_bot.firebase_client import get_tg_cached_attachment, set_tg_cached_attachment
-    token = bot_token()
-    
-    cached_file_id = await get_tg_cached_attachment(token, [photo_path.name])
-    
-    url = f"https://api.telegram.org/bot{token}/sendPhoto"
-    try:
-        if cached_file_id:
-            data = aiohttp.FormData()
-            data.add_field('chat_id', str(user_id))
-            data.add_field('caption', caption)
-            data.add_field('parse_mode', 'HTML')
-            data.add_field('photo', cached_file_id)
-            if reply_markup:
-                import json
-                data.add_field('reply_markup', json.dumps(reply_markup))
-                
-            async with aiohttp.ClientSession() as session:
-                async with session.post(url, data=data) as resp:
-                    if resp.status == 200:
-                        return True
-                    else:
-                        body = await resp.text()
-                        logger.warning("telegram notify photo with cached file_id failed, will try re-upload: %s %s", resp.status, body)
-        
-        data = aiohttp.FormData()
-        data.add_field('chat_id', str(user_id))
-        data.add_field('caption', caption)
-        data.add_field('parse_mode', 'HTML')
-        if reply_markup:
-            import json
-            data.add_field('reply_markup', json.dumps(reply_markup))
-            
-        with open(photo_path, 'rb') as f:
-            data.add_field('photo', f, filename=photo_path.name)
-            async with aiohttp.ClientSession() as session:
-                async with session.post(url, data=data) as resp:
-                    if resp.status != 200:
-                        body = await resp.text()
-                        logger.warning("telegram notify photo upload failed: %s %s", resp.status, body)
-                        return False
-                    res_json = await resp.json()
-                    file_id = res_json.get("result", {}).get("photo", [{}])[-1].get("file_id")
-                    if file_id:
-                        await set_tg_cached_attachment(token, [photo_path.name], file_id)
-                    return True
-    except Exception:
-        logger.exception("telegram notify photo error for user %s", user_id)
-        return False
+async def _notify_telegram_photo(
+    user_id: str,
+    photo_path: Path,
+    caption: str,
+    reply_markup: dict | None = None,
+) -> bool:
+    return await notify_telegram_photo(
+        user_id,
+        photo_path,
+        caption,
+        logger=logger,
+        reply_markup=reply_markup,
+    )
 
 
-async def _notify_vk_photo(user_id: str, photo_path: Path, caption: str, keyboard: str = None) -> bool:
-    from mvm_bot.firebase_client import get_vk_cached_attachment, set_vk_cached_attachment
-    tokens = vk_bot_tokens()
-    if not tokens:
-        logger.warning("vk notify photo: no tokens configured")
-        return False
-        
-    for token in tokens:
-        cached_attachment = await get_vk_cached_attachment(token, [photo_path.name])
-        
-        try:
-            if cached_attachment:
-                params = {
-                    "user_id": user_id,
-                    "message": caption,
-                    "attachment": cached_attachment,
-                    "random_id": str(int(datetime.now(timezone.utc).timestamp() * 1000)),
-                    "access_token": token,
-                    "v": "5.231",
-                }
-                if keyboard:
-                    params["keyboard"] = keyboard
-                async with aiohttp.ClientSession() as session:
-                    async with session.post(
-                        "https://api.vk.com/method/messages.send", params=params
-                    ) as resp:
-                        if resp.status == 200:
-                            data = await resp.json()
-                            if not data.get("error"):
-                                return True
-                            else:
-                                logger.warning("vk notify photo with cached attachment failed: %s", data["error"])
-            
-            from vkbottle import API
-            from vkbottle.tools import PhotoMessageUploader
-            api = API(token)
-            uploader = PhotoMessageUploader(api)
-            attachment = await uploader.upload(file_source=str(photo_path))
-            
-            await set_vk_cached_attachment(token, [photo_path.name], attachment)
-            
-            params = {
-                "user_id": user_id,
-                "message": caption,
-                "attachment": attachment,
-                "random_id": str(int(datetime.now(timezone.utc).timestamp() * 1000)),
-                "access_token": token,
-                "v": "5.231",
-            }
-            if keyboard:
-                params["keyboard"] = keyboard
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    "https://api.vk.com/method/messages.send", params=params
-                ) as resp:
-                    if resp.status == 200:
-                        data = await resp.json()
-                        if not data.get("error"):
-                            return True
-        except Exception:
-            logger.exception("vk notify photo error for user %s (token=%s...)", user_id, token[:8])
-            
-    logger.warning("vk notify photo: all tokens failed for user %s", user_id)
-    return False
+async def _notify_vk_photo(
+    user_id: str,
+    photo_path: Path,
+    caption: str,
+    keyboard: str | None = None,
+) -> bool:
+    return await notify_vk_photo(
+        user_id,
+        photo_path,
+        caption,
+        logger=logger,
+        keyboard=keyboard,
+    )
 
 
 async def check_and_send_trial_retention_messages() -> None:
@@ -642,17 +357,7 @@ async def check_and_send_trial_retention_messages() -> None:
 
 
 def build_vk_survey_keyboard() -> str:
-    import json
-    return json.dumps({
-        "inline": True,
-        "buttons": [
-            [{"action": {"type": "callback", "label": "Плохо работало", "payload": json.dumps({"c": "survey", "r": "bad"})}}],
-            [{"action": {"type": "callback", "label": "Дорого", "payload": json.dumps({"c": "survey", "r": "expensive"})}}],
-            [{"action": {"type": "callback", "label": "Пользуюсь другим VPN", "payload": json.dumps({"c": "survey", "r": "other_vpn"})}}],
-            [{"action": {"type": "callback", "label": "Другое", "payload": json.dumps({"c": "survey", "r": "other"})}}],
-            [{"action": {"type": "callback", "label": "Оформлю подписку чуть позже🫶", "payload": json.dumps({"c": "survey", "r": "later"})}}],
-        ]
-    })
+    return _build_vk_survey_keyboard()
 
 
 async def check_and_send_retention_surveys() -> None:

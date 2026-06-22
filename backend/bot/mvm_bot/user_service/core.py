@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import uuid
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Optional
 
 from aiogram.types import User  # type: ignore[import-not-found]
@@ -13,147 +13,25 @@ from mvm_bot.firebase_client import init_firebase
 from mvm_bot.user_service.helpers import (
     VkProfile,
     _is_uuid,
-    generate_referral_code,
     telegram_uid,
     vk_uid,
 )
 from mvm_bot.user_service.auth import ensure_auth_user, ensure_vk_auth_user
+from mvm_bot.user_service.payloads import (
+    telegram_payload as _telegram_payload,
+    users_payload as _users_payload,
+    vk_users_document_payload as _vk_users_document_payload,
+    vk_users_mirror_payload as _vk_users_mirror_payload,
+)
 from mvm_bot.user_service.remnawave import _ensure_remnawave_user, _update_remnawave_subscription
 from mvm_bot.user_service.referrals import _apply_referral_join_bonus
-from mvm_bot.user_service.trial import _initial_trial_fields, _missing_trial_defaults
+from mvm_bot.user_service.subscription_extend import (
+    extend_subscription_days as _extend_subscription_days_tx,
+    extend_subscription_with_tier as _extend_subscription_with_tier_tx,
+)
+from mvm_bot.user_service.subscription_tx import extend_doc_subscription as _extend_doc_subscription
 
 logger = logging.getLogger(__name__)
-
-
-def _telegram_payload(
-    uid: str,
-    tg_user: User,
-    auth_user: auth.UserRecord,
-    exists: bool,
-) -> dict:
-    payload = {
-        "uid": uid,
-        "authUid": auth_user.uid,
-        "tgId": str(tg_user.id),
-        "username": tg_user.username,
-        "firstName": tg_user.first_name,
-        "lastName": tg_user.last_name,
-        "languageCode": tg_user.language_code,
-        "isBot": tg_user.is_bot,
-        "updatedAt": firestore.SERVER_TIMESTAMP,
-    }
-    if not exists:
-        payload["createdAt"] = firestore.SERVER_TIMESTAMP
-
-    return payload
-
-
-def _vk_users_mirror_payload(
-    uid: str,
-    profile: VkProfile,
-    auth_user: auth.UserRecord,
-    exists: bool,
-    group_id: Optional[int] = None,
-) -> dict:
-    payload = {
-        "uid": uid,
-        "authUid": auth_user.uid,
-        "vkId": str(profile.id),
-        "screenName": profile.screen_name,
-        "firstName": profile.first_name,
-        "lastName": profile.last_name,
-        "updatedAt": firestore.SERVER_TIMESTAMP,
-    }
-    if group_id is not None:
-        payload["vkGroupId"] = str(group_id)
-        payload["vkGroupIds"] = firestore.ArrayUnion([str(group_id)])
-    if not exists:
-        payload["createdAt"] = firestore.SERVER_TIMESTAMP
-
-    return payload
-
-
-def _users_payload(
-    uid: str,
-    tg_user: User,
-    auth_user: auth.UserRecord,
-    exists: bool,
-    current_data: Optional[dict] = None,
-    referral_code: Optional[str] = None,
-) -> dict:
-    current_data = current_data or {}
-    payload = {
-        "externalTg": telegram_uid(tg_user.id),
-        "updatedAt": firestore.SERVER_TIMESTAMP,
-        **_missing_trial_defaults(current_data),
-    }
-    if not current_data.get("referralCode"):
-        payload["referralCode"] = generate_referral_code()
-    if not exists:
-        payload.update(
-            {
-                **_initial_trial_fields(),
-                "externalAppleId": None,
-                "externalVk": None,
-                "referredByCode": referral_code,
-                "createdAt": firestore.SERVER_TIMESTAMP,
-            }
-        )
-
-    return payload
-
-
-def _vk_users_document_payload(
-    uid: str,
-    profile: VkProfile,
-    auth_user: auth.UserRecord,
-    exists: bool,
-    current_data: Optional[dict] = None,
-    referral_code: Optional[str] = None,
-    group_id: Optional[int] = None,
-) -> dict:
-    current_data = current_data or {}
-    payload = {
-        "externalVk": vk_uid(profile.id),
-        "updatedAt": firestore.SERVER_TIMESTAMP,
-        **_missing_trial_defaults(current_data),
-    }
-    if group_id is not None:
-        payload["vkGroupId"] = str(group_id)
-        payload["vkGroupIds"] = firestore.ArrayUnion([str(group_id)])
-    if not current_data.get("referralCode"):
-        payload["referralCode"] = generate_referral_code()
-    if not exists:
-        payload.update(
-            {
-                **_initial_trial_fields(),
-                "externalAppleId": None,
-                "externalTg": None,
-                "referredByCode": referral_code,
-                "createdAt": firestore.SERVER_TIMESTAMP,
-            }
-        )
-
-    return payload
-
-
-async def _extend_doc_subscription(db: firestore.Client, doc_ref: firestore.DocumentReference, days: int) -> None:
-    transaction = db.transaction()
-
-    @firestore.transactional
-    def _run(transaction: firestore.Transaction) -> None:
-        snapshot = doc_ref.get(transaction=transaction)
-        data = snapshot.to_dict() or {}
-        now = datetime.now(timezone.utc)
-        current_end = as_utc_datetime(data.get("subscriptionEndsAt"))
-        base = current_end if current_end and current_end > now else now
-        transaction.set(
-            doc_ref,
-            {"subscriptionEndsAt": base + timedelta(days=days), "updatedAt": firestore.SERVER_TIMESTAMP},
-            merge=True,
-        )
-
-    await asyncio.to_thread(_run, transaction)
 
 
 async def save_vk_user(
@@ -309,25 +187,7 @@ async def extend_subscription(tg_user: User, days: int) -> tuple[str, dict]:
         )
         if not docs:
             raise RuntimeError("Telegram user was not found")
-
-        doc_ref = docs[0].reference
-        transaction = db.transaction()
-
-        @firestore.transactional
-        def _run(transaction: firestore.Transaction) -> dict:
-            snapshot = doc_ref.get(transaction=transaction)
-            data = snapshot.to_dict() or {}
-            now = datetime.now(timezone.utc)
-            current_end = as_utc_datetime(data.get("subscriptionEndsAt"))
-            base = current_end if current_end and current_end > now else now
-            payload = {
-                "subscriptionEndsAt": base + timedelta(days=days),
-                "updatedAt": firestore.SERVER_TIMESTAMP,
-            }
-            transaction.set(doc_ref, payload, merge=True)
-            return {**data, **payload}
-
-        return _run(transaction)
+        return _extend_subscription_days_tx(db=db, doc_ref=docs[0].reference, days=days)
 
     data = await asyncio.to_thread(extend)
     end = as_utc_datetime(data.get("subscriptionEndsAt"))
@@ -353,25 +213,7 @@ async def extend_subscription_vk(
         )
         if not docs:
             raise RuntimeError("VK user was not found")
-
-        doc_ref = docs[0].reference
-        transaction = db.transaction()
-
-        @firestore.transactional
-        def _run(transaction: firestore.Transaction) -> dict:
-            snapshot = doc_ref.get(transaction=transaction)
-            data = snapshot.to_dict() or {}
-            now = datetime.now(timezone.utc)
-            current_end = as_utc_datetime(data.get("subscriptionEndsAt"))
-            base = current_end if current_end and current_end > now else now
-            payload = {
-                "subscriptionEndsAt": base + timedelta(days=days),
-                "updatedAt": firestore.SERVER_TIMESTAMP,
-            }
-            transaction.set(doc_ref, payload, merge=True)
-            return {**data, **payload}
-
-        return _run(transaction)
+        return _extend_subscription_days_tx(db=db, doc_ref=docs[0].reference, days=days)
 
     data = await asyncio.to_thread(extend)
     end = as_utc_datetime(data.get("subscriptionEndsAt"))
@@ -406,33 +248,12 @@ async def extend_subscription_with_tier(
         )
         if not docs:
             raise RuntimeError("Telegram user was not found")
-
-        doc_ref = docs[0].reference
-        transaction = db.transaction()
-
-        @firestore.transactional
-        def _run(transaction: firestore.Transaction) -> dict:
-            snapshot = doc_ref.get(transaction=transaction)
-            data = snapshot.to_dict() or {}
-            now = datetime.now(timezone.utc)
-            current_end = as_utc_datetime(data.get("subscriptionEndsAt"))
-            current_tier = data.get("subscriptionTier")
-
-            # If upgrading from standart to premium, reset from now
-            if tier == "premium" and current_tier == "standart":
-                base = now
-            else:
-                base = current_end if current_end and current_end > now else now
-
-            payload = {
-                "subscriptionEndsAt": base + timedelta(days=days),
-                "subscriptionTier": tier,
-                "updatedAt": firestore.SERVER_TIMESTAMP,
-            }
-            transaction.set(doc_ref, payload, merge=True)
-            return {**data, **payload}
-
-        return _run(transaction)
+        return _extend_subscription_with_tier_tx(
+            db=db,
+            doc_ref=docs[0].reference,
+            days=days,
+            tier=tier,
+        )
 
     data = await asyncio.to_thread(extend)
     end = as_utc_datetime(data.get("subscriptionEndsAt"))
@@ -465,33 +286,12 @@ async def extend_subscription_vk_with_tier(
         )
         if not docs:
             raise RuntimeError("VK user was not found")
-
-        doc_ref = docs[0].reference
-        transaction = db.transaction()
-
-        @firestore.transactional
-        def _run(transaction: firestore.Transaction) -> dict:
-            snapshot = doc_ref.get(transaction=transaction)
-            data = snapshot.to_dict() or {}
-            now = datetime.now(timezone.utc)
-            current_end = as_utc_datetime(data.get("subscriptionEndsAt"))
-            current_tier = data.get("subscriptionTier")
-
-            # If upgrading from standart to premium, reset from now
-            if tier == "premium" and current_tier == "standart":
-                base = now
-            else:
-                base = current_end if current_end and current_end > now else now
-
-            payload = {
-                "subscriptionEndsAt": base + timedelta(days=days),
-                "subscriptionTier": tier,
-                "updatedAt": firestore.SERVER_TIMESTAMP,
-            }
-            transaction.set(doc_ref, payload, merge=True)
-            return {**data, **payload}
-
-        return _run(transaction)
+        return _extend_subscription_with_tier_tx(
+            db=db,
+            doc_ref=docs[0].reference,
+            days=days,
+            tier=tier,
+        )
 
     data = await asyncio.to_thread(extend)
     end = as_utc_datetime(data.get("subscriptionEndsAt"))

@@ -2,28 +2,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import re
 from typing import TYPE_CHECKING
 
 from vkbottle import Keyboard, OpenLink, Text
 from vkbottle_types.events import GroupEventType
 
-from mvm_bot.config import (
-    freekassa_api_key,
-    freekassa_ip,
-    freekassa_shop_id,
-    heleket_callback_url,
-    heleket_merchant_uuid,
-    heleket_payment_api_key,
-    platega_failed_url,
-    platega_merchant_id,
-    platega_return_url,
-    platega_secret,
-    yoomoney_receiver,
-    yoomoney_return_url,
-)
 from mvm_bot.constants import (
-    CONNECT_REDIRECT_ORIGIN,
     MANUAL_DIR,
     REFERRAL_BONUS_DAYS,
     REFERRAL_PURCHASE_BONUS_DAYS,
@@ -33,25 +17,21 @@ from mvm_bot.constants import (
 from mvm_bot.support_content import SUPPORT_TOPICS, VPN_ERROR_TOPICS
 from mvm_bot.jwt_auth import sign_vk_auth_jwt
 from mvm_bot.main_menu import format_subscription_end
-from mvm_bot.freekassa import PAYMENT_CARD_RU, PAYMENT_SBERPAY, PAYMENT_SBP
-from mvm_bot.freekassa import checkout_url as freekassa_checkout_url
-from mvm_bot.heleket import invoice_checkout_url
-from mvm_bot.platega import transaction_checkout_url as platega_checkout_url
-from mvm_bot.yoomoney import PAYMENT_TYPE_CARD as YM_CARD
-from mvm_bot.yoomoney import PAYMENT_TYPE_SBP as YM_SBP
-from mvm_bot.yoomoney import checkout_url as yoomoney_checkout_url
 from mvm_bot.user_service import (
     apply_referral_code_vk,
     apply_promo_code_vk,
     count_referrals,
-    record_payment_checkout_click,
     save_vk_user,
     start_vk_trial,
 )
 from mvm_bot.user_service.promo import check_promo_code_validity
 from mvm_bot.firebase_client import get_vk_cached_attachment, set_vk_cached_attachment
 from vkbottle.tools import PhotoMessageUploader
+from mvm_bot.devices_ui import device_display_name, device_limit_for_tier
+from mvm_bot.promo_utils import extract_promo_candidate
 from mvm_bot.remnawave_client import get_user_hwid_devices, delete_user_hwid_device
+from mvm_vk_bot.handlers_payments import handle_pay_command
+from mvm_vk_bot.handlers_start import handle_private_message
 from mvm_vk_bot.menu import (
     has_active_subscription,
     main_menu_keyboard_json,
@@ -77,100 +57,13 @@ if TYPE_CHECKING:
     from vkbottle.bot import Bot, Message, MessageEvent
 
 
-def _promo_multiplier(promo_activated: bool, promo_discount: object | None = None) -> float:
-    if not promo_activated:
-        return 1.0
-    try:
-        discount = float(promo_discount)
-    except (TypeError, ValueError):
-        discount = 0.4
-    if 1 < discount <= 100:
-        discount /= 100.0
-    if not (0 < discount < 1):
-        discount = 0.4
-    return 1.0 - discount
-
-
-_PROMO_CANDIDATE_RE = re.compile(r"^[A-Z0-9_-]{4,32}$")
-
-
-def _extract_promo_candidate(raw_text: str) -> tuple[str | None, bool]:
-    text = raw_text.strip()
-    if not text:
-        return None, False
-
-    lowered = text.lower()
-    explicit_prefix = lowered.startswith("promo_") or lowered.startswith("promo ")
-    if explicit_prefix:
-        candidate = text[6:].strip().upper()
-    else:
-        candidate = text.upper()
-
-    if not _PROMO_CANDIDATE_RE.fullmatch(candidate):
-        return None, explicit_prefix
-    return candidate, explicit_prefix
-
-
 def register_handlers(bot: Bot) -> None:
     from vkbottle.bot import Message as VkMessage
     from vkbottle.bot import MessageEvent as VkMessageEvent
 
     @bot.on.private_message()
     async def start(message: VkMessage) -> None:
-        text = (message.text or "").strip()
-        profile = await fetch_vk_profile(message.ctx_api, message.from_id)
-
-        if text == "Профиль":
-            _, data = await save_vk_user(profile, group_id=message.group_id)
-            await send_main_menu(message, data)
-            return
-
-        if text.startswith("ref_"):
-            code = text[4:]
-            _, data = await save_vk_user(profile, group_id=message.group_id)
-            success, msg = await apply_referral_code_vk(profile, code)
-            await message.answer(message=f"{'✅' if success else '❌'} {msg}")
-
-            kb = Keyboard(one_time=False, inline=False)
-            kb.add(Text("Профиль"))
-            await message.answer(
-                message="Добро пожаловать в MVM VPN! 🚀\n\nНажмите кнопку «Профиль» ниже для перехода в личный кабинет 👇",
-                keyboard=kb.get_json(),
-            )
-            await send_main_menu(message, data)
-            return
-
-        candidate, explicit_prefix = _extract_promo_candidate(text)
-        if candidate is not None:
-            is_valid, _ = await check_promo_code_validity(candidate)
-            if is_valid:
-                await save_vk_user(profile, group_id=message.group_id)
-                success, msg = await apply_promo_code_vk(profile, candidate)
-                if success:
-                    _, updated_data = await save_vk_user(profile, group_id=message.group_id)
-                    await message.answer(
-                        message=msg,
-                        keyboard=plan_selection_keyboard_json(
-                            promo_activated=True,
-                            promo_discount=updated_data.get("promoDiscount"),
-                        ),
-                    )
-                else:
-                    await message.answer(message=f"❌ {msg}")
-                return
-            if explicit_prefix:
-                await message.answer(message="❌ Неверный или неактивный промокод.")
-                return
-
-        _, data = await save_vk_user(profile, group_id=message.group_id)
-
-        kb = Keyboard(one_time=False, inline=False)
-        kb.add(Text("Профиль"))
-        await message.answer(
-            message="Добро пожаловать в MVM VPN! 🚀\n\nНажмите кнопку «Профиль» ниже для перехода в личный кабинет 👇",
-            keyboard=kb.get_json(),
-        )
-        await send_main_menu(message, data)
+        await handle_private_message(message)
 
     async def _ack(event: VkMessageEvent, snackbar_text: str | None = None) -> None:
         """Acknowledge a VK button event. Errors are swallowed — the token
@@ -322,283 +215,7 @@ def register_handlers(bot: Bot) -> None:
             return
 
         if cmd == "pay":
-            method = payload.get("m")
-            plan_key_raw = payload.get("p")
-            if not isinstance(plan_key_raw, str):
-                return
-            plan = SUBSCRIPTION_PLANS.get(plan_key_raw)
-            if plan is None:
-                return
-
-            uid = event.user_id
-            _, data = await save_vk_user(profile, group_id=event.group_id)
-            promo_activated = data.get("promoActivated", False)
-            promo_discount = data.get("promoDiscount")
-            promo_multiplier = _promo_multiplier(promo_activated, promo_discount)
-
-            rub = plan.get("rub")
-            if rub is None:
-                await event.send_message(message="Для этого плана оплата не настроена.")
-                return
-            if promo_activated:
-                rub = int(rub * promo_multiplier)
-
-            if method in ("ym_card", "ym_sbp"):
-                receiver = yoomoney_receiver()
-                if not receiver:
-                    await event.send_message(
-                        message="Оплата через ЮMoney сейчас недоступна. Напишите в поддержку."
-                    )
-                    return
-                if method == "ym_sbp":
-                    payment_type = YM_SBP
-                    method_label = "📲 СБП (QR)"
-                else:
-                    payment_type = YM_CARD
-                    method_label = "💳 ЮMoney карта"
-                try:
-                    ym = await yoomoney_checkout_url(
-                        receiver=receiver,
-                        provider="vk",
-                        user_id=uid,
-                        plan_key=plan_key_raw,
-                        amount=float(rub),
-                        payment_type=payment_type,
-                        success_url=yoomoney_return_url(),
-                    )
-                    checkout = ym.url
-                except Exception:
-                    logging.exception("YooMoney URL build failed (VK)")
-                    await event.send_message(
-                        message=(
-                            "Не удалось создать ссылку на оплату. "
-                            "Попробуйте позже или напишите в поддержку."
-                        ),
-                    )
-                    return
-
-                try:
-                    await asyncio.to_thread(
-                        record_payment_checkout_click,
-                        service="yoomoney",
-                        provider="vk",
-                        external_user_id=str(uid),
-                        plan_key=plan_key_raw,
-                        amount=float(rub),
-                        currency="RUB",
-                        pay_url=checkout,
-                        channel="vk",
-                        correlation_id=ym.label,
-                        payment_method=method,
-                    )
-                except Exception:
-                    logging.exception("Failed to log YooMoney checkout click (VK)")
-                pay_kb = Keyboard(inline=True)
-                pay_kb.add(OpenLink(label="Оплатить", link=checkout))
-                await event.send_message(
-                    message=(
-                        f"{method_label} — {plan['label']} ({float(rub):.0f} ₽)\n\n"
-                        "После оплаты подписка продлится автоматически "
-                        "(обычно несколько минут).\n\n"
-                        f"Ссылка: {checkout}"
-                    ),
-                    keyboard=pay_kb.get_json(),
-                    dont_parse_links=True,
-                )
-                return
-
-            if method == "platega":
-                merchant_id = platega_merchant_id()
-                secret = platega_secret()
-                if not merchant_id or not secret:
-                    await event.send_message(
-                        message=(
-                            "Оплата картой сейчас недоступна. Напишите в поддержку."
-                        ),
-                    )
-                    return
-                try:
-                    pg = await platega_checkout_url(
-                        merchant_id=merchant_id,
-                        secret=secret,
-                        provider="vk",
-                        user_id=uid,
-                        plan_key=plan_key_raw,
-                        amount=float(rub),
-                        currency="RUB",
-                        description=f"VPN {plan['label']}",
-                        return_url=platega_return_url(),
-                        failed_url=platega_failed_url(),
-                    )
-                    checkout = pg.url
-                except Exception:
-                    logging.exception("Platega transaction failed (VK)")
-                    await event.send_message(
-                        message=(
-                            "Не удалось создать ссылку на оплату. "
-                            "Попробуйте позже или напишите в поддержку."
-                        ),
-                    )
-                    return
-
-                try:
-                    await asyncio.to_thread(
-                        record_payment_checkout_click,
-                        service="platega",
-                        provider="vk",
-                        external_user_id=str(uid),
-                        plan_key=plan_key_raw,
-                        amount=float(rub),
-                        currency="RUB",
-                        pay_url=checkout,
-                        channel="vk",
-                        correlation_id=pg.payload,
-                        payment_method="platega",
-                    )
-                except Exception:
-                    logging.exception("Failed to log Platega checkout click (VK)")
-                pay_kb = Keyboard(inline=True)
-                pay_kb.add(OpenLink(label="Оплатить", link=checkout))
-                await event.send_message(
-                    message=(
-                        f"🏦 Оплата картой — {plan['label']} ({float(rub):.0f} ₽)\n\n"
-                        "После оплаты подписка продлится автоматически "
-                        "(обычно несколько минут).\n\n"
-                        f"Ссылка: {checkout}"
-                    ),
-                    keyboard=pay_kb.get_json(),
-                    dont_parse_links=True,
-                )
-                return
-
-            if method == "rub":
-                merchant_uuid = heleket_merchant_uuid()
-                api_key = heleket_payment_api_key()
-                ipn_url = heleket_callback_url()
-                if not merchant_uuid or not api_key or not ipn_url:
-                    await event.send_message(
-                        message=(
-                            "Оплата сейчас недоступна. Напишите в поддержку: "
-                            "ссылка на оплату не сформировалась."
-                        ),
-                    )
-                    return
-                try:
-                    inv = await invoice_checkout_url(
-                        merchant_uuid=merchant_uuid,
-                        api_key=api_key,
-                        ipn_callback_url=ipn_url,
-                        payer_user_id=uid,
-                        payer_provider="vk",
-                        plan_key=plan_key_raw,
-                        price_amount=float(rub),
-                        price_currency="rub",
-                        success_url=CONNECT_REDIRECT_ORIGIN,
-                    )
-                    checkout = inv.url
-                except Exception:
-                    logging.exception("Heleket invoice failed (VK)")
-                    await event.send_message(
-                        message=(
-                            "Не удалось создать ссылку на оплату. "
-                            "Попробуйте позже или напишите в поддержку."
-                        ),
-                    )
-                    return
-
-                try:
-                    await asyncio.to_thread(
-                        record_payment_checkout_click,
-                        service="heleket",
-                        provider="vk",
-                        external_user_id=str(uid),
-                        plan_key=plan_key_raw,
-                        amount=float(rub),
-                        currency="RUB",
-                        pay_url=checkout,
-                        channel="vk",
-                        correlation_id=inv.order_id,
-                        payment_method="rub",
-                    )
-                except Exception:
-                    logging.exception("Failed to log Heleket checkout click (VK)")
-                pay_kb = Keyboard(inline=True)
-                pay_kb.add(OpenLink(label="Оплатить", link=checkout))
-                await event.send_message(
-                    message=(
-                        f"🔐 Crypto — {plan['label']} ({float(rub):.0f} ₽)\n\n"
-                        "После оплаты подписка продлится автоматически "
-                        "(обычно несколько минут).\n\n"
-                        f"Ссылка: {checkout}"
-                    ),
-                    keyboard=pay_kb.get_json(),
-                    dont_parse_links=True,
-                )
-                return
-
-            _FK_METHODS = {
-                "fk_sbp": (PAYMENT_SBP, "📲 СБП (FK)"),
-                "fk_card": (PAYMENT_CARD_RU, "💳 Банк. карта РФ"),
-                "fk_sberpay": (PAYMENT_SBERPAY, "💚 СберПэй"),
-            }
-            if method in _FK_METHODS:
-                shop_id = freekassa_shop_id()
-                api_key = freekassa_api_key()
-                if not shop_id or not api_key:
-                    await event.send_message(
-                        message="Оплата через FreeKassa сейчас недоступна. Напишите в поддержку."
-                    )
-                    return
-                payment_system, method_label = _FK_METHODS[method]
-                try:
-                    fk = await freekassa_checkout_url(
-                        shop_id=shop_id,
-                        api_key=api_key,
-                        provider="vk",
-                        user_id=uid,
-                        plan_key=plan_key_raw,
-                        payment_system=payment_system,
-                        email=f"{uid}@vk.com",
-                        ip=freekassa_ip(),
-                        amount=float(rub),
-                    )
-                    checkout = fk.url
-                except Exception:
-                    logging.exception("FreeKassa order creation failed (VK)")
-                    await event.send_message(
-                        message="Не удалось создать ссылку на оплату. Попробуйте позже или напишите в поддержку."
-                    )
-                    return
-
-                try:
-                    await asyncio.to_thread(
-                        record_payment_checkout_click,
-                        service="freekassa",
-                        provider="vk",
-                        external_user_id=str(uid),
-                        plan_key=plan_key_raw,
-                        amount=float(rub),
-                        currency="RUB",
-                        pay_url=checkout,
-                        channel="vk",
-                        correlation_id=fk.payment_id,
-                        payment_method=method,
-                        payment_system=payment_system,
-                    )
-                except Exception:
-                    logging.exception("Failed to log FreeKassa checkout click (VK)")
-
-                pay_kb = Keyboard(inline=True)
-                pay_kb.add(OpenLink(label="Оплатить", link=checkout))
-                await event.send_message(
-                    message=(
-                        f"{method_label} — {plan['label']} ({float(rub):.0f} ₽)\n\n"
-                        "После оплаты подписка продлится автоматически (обычно несколько минут).\n\n"
-                        f"Ссылка: {checkout}"
-                    ),
-                    keyboard=pay_kb.get_json(),
-                    dont_parse_links=True,
-                )
+            if await handle_pay_command(event, profile, payload):
                 return
 
         if cmd == "invite":
@@ -638,7 +255,7 @@ def register_handlers(bot: Bot) -> None:
                     logging.exception("Failed to fetch Remnawave devices for VK")
 
             devices_count = len(devices)
-            limit = 7 if tier == "premium" else 1
+            limit = device_limit_for_tier(tier)
 
             text = f"📱 Мои устройства\n\n"
             text += f"⚙️ Лимит: {devices_count} / {limit}\n\n"
@@ -649,18 +266,7 @@ def register_handlers(bot: Bot) -> None:
                 text += "Список ваших устройств:\n"
                 for i, dev in enumerate(devices, 1):
                     if isinstance(dev, dict):
-                        model = dev.get("deviceModel") or dev.get("device_model")
-                        plat = dev.get("platform")
-                        os_v = dev.get("osVersion") or dev.get("os_version")
-                        parts = []
-                        if model:
-                            parts.append(model)
-                        if plat:
-                            parts.append(plat)
-                        if os_v:
-                            parts.append(os_v)
-
-                        name = " ".join(parts) if parts else (dev.get("hwid") or "Unknown Device")
+                        name = device_display_name(dev)
                         text += f"{i}. {name}\n"
                 text += "\nВыберите устройство для удаления 👇"
 
@@ -688,7 +294,7 @@ def register_handlers(bot: Bot) -> None:
 
             tier = data.get("subscriptionTier")
             devices_count = len(devices)
-            limit = 7 if tier == "premium" else 1
+            limit = device_limit_for_tier(tier)
 
             text = f"✅ Устройство успешно удалено\n\n"
             text += f"📱 Мои устройства\n"
@@ -700,18 +306,7 @@ def register_handlers(bot: Bot) -> None:
                 text += "Список ваших устройств:\n"
                 for i, dev in enumerate(devices, 1):
                     if isinstance(dev, dict):
-                        model = dev.get("deviceModel") or dev.get("device_model")
-                        plat = dev.get("platform")
-                        os_v = dev.get("osVersion") or dev.get("os_version")
-                        parts = []
-                        if model:
-                            parts.append(model)
-                        if plat:
-                            parts.append(plat)
-                        if os_v:
-                            parts.append(os_v)
-
-                        name = " ".join(parts) if parts else (dev.get("hwid") or "Unknown Device")
+                        name = device_display_name(dev)
                         text += f"{i}. {name}\n"
                 text += "\nВыберите устройство для удаления 👇"
 

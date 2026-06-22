@@ -17,7 +17,7 @@ async def _apply_referral_join_bonus(
     referral_code: str,
     new_user_ref: firestore.DocumentReference,
 ) -> None:
-    from mvm_bot.user_service.core import _extend_doc_subscription
+    from mvm_bot.user_service.subscription_tx import extend_doc_subscription as _extend_doc_subscription
 
     users_ref = db.collection("users")
     referrer_docs = await asyncio.to_thread(
@@ -46,7 +46,7 @@ async def _apply_referral_join_bonus(
 
 async def grant_purchase_referral_bonus_tg(tg_user: User) -> bool:
     """Grant +REFERRAL_PURCHASE_BONUS_DAYS to the referrer when a referred Telegram user makes a purchase."""
-    from mvm_bot.user_service.core import _extend_doc_subscription
+    from mvm_bot.user_service.subscription_tx import extend_doc_subscription as _extend_doc_subscription
 
     db = init_firebase()
     auth_uid = telegram_uid(tg_user.id)
@@ -96,7 +96,7 @@ async def count_referrals(referral_code: str) -> int:
 
 async def apply_referral_code_tg(tg_user: User, referral_code: str) -> tuple[bool, str]:
     """Apply a referral code manually for an existing Telegram user."""
-    from mvm_bot.user_service.core import _extend_doc_subscription
+    from mvm_bot.user_service.subscription_tx import extend_doc_subscription as _extend_doc_subscription
 
     db = init_firebase()
     auth_uid = telegram_uid(tg_user.id)
@@ -147,7 +147,7 @@ async def apply_referral_code_tg(tg_user: User, referral_code: str) -> tuple[boo
 
 async def apply_referral_code_vk(profile: VkProfile, referral_code: str) -> tuple[bool, str]:
     """Apply a referral code manually for an existing VK user."""
-    from mvm_bot.user_service.core import _extend_doc_subscription
+    from mvm_bot.user_service.subscription_tx import extend_doc_subscription as _extend_doc_subscription
 
     db = init_firebase()
     auth_uid = vk_uid(profile.id)
