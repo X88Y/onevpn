@@ -217,6 +217,47 @@ VPN_ERROR_TOPICS: dict[str, SupportTopic] = {
         tg_callback="support:err_connect",
         vk_cmd="sup_err_connect",
     ),
+    "err_max_devices": SupportTopic(
+        label="«Максимальное число устройств»",
+        text=(
+            "Это сообщение означает, что количество разрешенных подключенных устройств на вашу подписку превышено.\n\n"
+            "Система учитывает добавленную подписку в разные клиенты (Happ, v2raytun и тд) как отдельное устройство.\n\n"
+            "✅Варианты решения:\n"
+            "— Удалите подписку из ненужных клиентов\n"
+            "— Удалите лишние устройства в боте, для этого необходимо написать боту новое сообщение и нажать "
+            "на кнопку «Мои устройства» далее нажать на устройство, которое хотите удалить."
+        ),
+        photos=["max_devices_reached.jpg"],
+        tg_callback="support:err_max_devices",
+        vk_cmd="sup_err_max_devices",
+    ),
+    "err_no_rights": SupportTopic(
+        label="Ошибка «Нет прав. Открыть?»",
+        text=(
+            "Эта ошибка означает, что на вашем устройстве не выдано разрешения для работы приложения.\n\n"
+            "✅Вариант решения:\n"
+            "— Выдайте разрешение в настройках телефона для приложения MVMVpn."
+        ),
+        photos=["no_rights.jpg"],
+        tg_callback="support:err_no_rights",
+        vk_cmd="sup_err_no_rights",
+    ),
+    "err_xray_core": SupportTopic(
+        label="Ошибка Хray ядра / Xraycore",
+        text=(
+            "Ошибка Хray ядра / Xraycore означает, что ваше устройство по какой-то причине не может загрузить файлы "
+            "с приложения.\n\n"
+            "Либо загруженные файлы некорректно работают.\n\n"
+            "Либо конфликтуют с другими файлами другого VPN сервиса.\n\n"
+            "✅Варианты решения:\n"
+            "— Зайдите в настройки клиента -> Маршрутизация -> Выключите роутинг.\n"
+            "— Удалите все настройки роутинга.\n"
+            "— Если не помогло, переустановите клиент, либо замените на другой."
+        ),
+        photos=["xray_core_err_1.jpg", "xray_core_err_2.jpg"],
+        tg_callback="support:err_xray_core",
+        vk_cmd="sup_err_xray_core",
+    ),
 }
 
 VPN_ERROR_BUTTONS: list[SupportTopic] = list(VPN_ERROR_TOPICS.values())
