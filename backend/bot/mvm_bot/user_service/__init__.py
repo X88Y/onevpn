@@ -42,6 +42,10 @@ from mvm_bot.user_service.referrals import (
     count_referrals,
     grant_purchase_referral_bonus_tg,
 )
+from mvm_bot.user_service.promo import (
+    apply_promo_code_tg,
+    apply_promo_code_vk,
+)
 from mvm_bot.user_service.core import (
     _extend_doc_subscription,
     _telegram_payload,
@@ -88,6 +92,8 @@ __all__ = [
     "count_referrals",
     "apply_referral_code_tg",
     "apply_referral_code_vk",
+    "apply_promo_code_tg",
+    "apply_promo_code_vk",
     "save_vk_user",
     "save_telegram_user",
     "extend_subscription",
@@ -103,3 +109,4 @@ __all__ = [
     "grant_lifetime_subscription_vk",
     "record_payment_checkout_click",
 ]
+

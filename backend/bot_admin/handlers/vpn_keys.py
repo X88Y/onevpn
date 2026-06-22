@@ -43,6 +43,8 @@ async def cmd_start(message: Message) -> None:
         "  /disable_server <id>, /enable_server <id>\n\n"
         "Notifications:\n"
         "  /send_message — broadcast push notification to all mobile users\n\n"
+        "Promocodes:\n"
+        "  /create_promocode — create or update a promo code in Firestore\n\n"
         f"Legacy: /add_vpn_key still appends to `{VPN_KEYS_COLLECTION}` but is "
         "no longer read by Cloud Functions."
     )

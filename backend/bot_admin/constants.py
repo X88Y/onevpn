@@ -4,6 +4,7 @@ from typing import List, TypedDict
 BOT_ADMIN_DIR = Path(__file__).resolve().parent
 VPN_KEYS_COLLECTION = "vpn_keys"
 USERS_COLLECTION = "users"
+PROMOCODES_COLLECTION = "promocodes"
 
 
 class VpnPlan(TypedDict):

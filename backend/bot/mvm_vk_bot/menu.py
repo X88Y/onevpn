@@ -73,6 +73,20 @@ def has_active_subscription(data: dict) -> bool:
     return end > datetime.now(timezone.utc)
 
 
+def _promo_multiplier(promo_activated: bool, promo_discount: object | None = None) -> float:
+    if not promo_activated:
+        return 1.0
+    try:
+        discount = float(promo_discount)
+    except (TypeError, ValueError):
+        discount = 0.4
+    if 1 < discount <= 100:
+        discount /= 100.0
+    if not (0 < discount < 1):
+        discount = 0.4
+    return 1.0 - discount
+
+
 async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
     is_active = has_active_subscription(data)
     kb = Keyboard(inline=True)
@@ -110,35 +124,73 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
     return kb.get_json()
 
 
-def plan_selection_keyboard_json() -> str:
+def plan_selection_keyboard_json(
+    promo_activated: bool = False,
+    promo_discount: object | None = None,
+) -> str:
+    promo_multiplier = _promo_multiplier(promo_activated, promo_discount)
     kb = Keyboard(inline=True)
     plan_keys = ["std_30", "std_90", "prem_30", "prem_90"]
     for i, plan_key in enumerate(plan_keys):
         plan = SUBSCRIPTION_PLANS[plan_key]
         if i > 0:
             kb.row()
+        
+        if promo_activated:
+            original_rub = plan['rub']
+            discounted_rub = int(original_rub * promo_multiplier)
+            struck_rub = "".join(char + "\u0336" for char in str(original_rub))
+            label = f"{plan['emoji']} {plan['label']} — {struck_rub}₽/{discounted_rub}₽ — {plan['tier_label']}"
+        else:
+            label = f"{plan['emoji']} {plan['label']} — {plan['rub']} ₽ — {plan['tier_label']}"
+            
         kb.add(
             Callback(
-                label=f"{plan['emoji']} {plan['label']} — {plan['rub']} ₽ — {plan['tier_label']}",
+                label=label,
                 payload={"c": "plan", "p": plan_key},
             )
         )
+    
+    if not promo_activated:
+        kb.row()
+        kb.add(
+            Callback(
+                label="🎟️ Ввести промокод",
+                payload={"c": "promo_enter"},
+            )
+        )
+        
+    kb.row()
+    kb.add(
+        Callback(
+            label="« Назад",
+            payload={"c": "main"},
+        )
+    )
     return kb.get_json()
 
 
-def rub_checkout_keyboard_json(plan_key: str) -> str:
+def rub_checkout_keyboard_json(
+    plan_key: str,
+    promo_activated: bool = False,
+    promo_discount: object | None = None,
+) -> str:
     plan = SUBSCRIPTION_PLANS[plan_key]
+    rub = plan['rub']
+    promo_multiplier = _promo_multiplier(promo_activated, promo_discount)
+    if promo_activated:
+        rub = int(rub * promo_multiplier)
     kb = Keyboard(inline=True)
     kb.add(
         Callback(
-            label=f"💳 ЮMoney карта — {plan['rub']} ₽",
+            label=f"💳 ЮMoney карта — {rub} ₽",
             payload={"c": "pay", "p": plan_key, "m": "ym_card"},
         )
     )
     kb.row()
     kb.add(
         Callback(
-            label=f"📲 СБП (QR) — {plan['rub']} ₽",
+            label=f"📲 СБП (QR) — {rub} ₽",
             payload={"c": "pay", "p": plan_key, "m": "ym_sbp"},
         ),
         color=KeyboardButtonColor.POSITIVE,
@@ -146,7 +198,7 @@ def rub_checkout_keyboard_json(plan_key: str) -> str:
     kb.row()
     kb.add(
         Callback(
-            label=f"🔐 Crypto — {plan['rub']} ₽",
+            label=f"🔐 Crypto — {rub} ₽",
             payload={"c": "pay", "p": plan_key, "m": "rub"},
         )
     )
@@ -160,33 +212,41 @@ def rub_checkout_keyboard_json(plan_key: str) -> str:
     return kb.get_json()
 
 
-def other_checkout_keyboard_json(plan_key: str) -> str:
+def other_checkout_keyboard_json(
+    plan_key: str,
+    promo_activated: bool = False,
+    promo_discount: object | None = None,
+) -> str:
     plan = SUBSCRIPTION_PLANS[plan_key]
+    rub = plan['rub']
+    promo_multiplier = _promo_multiplier(promo_activated, promo_discount)
+    if promo_activated:
+        rub = int(rub * promo_multiplier)
     kb = Keyboard(inline=True)
     kb.add(
         Callback(
-            label=f"📲 СБП (QR) — {plan['rub']} ₽",
+            label=f"📲 СБП (FK) — {rub} ₽",
             payload={"c": "pay", "p": plan_key, "m": "fk_sbp"},
         )
     )
     kb.row()
     kb.add(
         Callback(
-            label=f"💳 Карта РФ — {plan['rub']} ₽",
+            label=f"💳 Карта РФ — {rub} ₽",
             payload={"c": "pay", "p": plan_key, "m": "fk_card"},
         )
     )
     kb.row()
     kb.add(
         Callback(
-            label=f"💚 СберПэй — {plan['rub']} ₽",
+            label=f"💚 СберПэй — {rub} ₽",
             payload={"c": "pay", "p": plan_key, "m": "fk_sberpay"},
         )
     )
     kb.row()
     kb.add(
         Callback(
-            label=f"🏦 СБП (Platega) — {plan['rub']} ₽",
+            label=f"🏦 СБП (Platega) — {rub} ₽",
             payload={"c": "pay", "p": plan_key, "m": "platega"},
         ),
         color=KeyboardButtonColor.POSITIVE,

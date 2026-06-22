@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import re
 
 from aiogram import Bot, F, Router  # type: ignore[import-not-found]
 from aiogram.enums import ParseMode  # type: ignore[import-not-found]
@@ -57,8 +58,10 @@ from mvm_bot.platega import transaction_checkout_url as platega_checkout_url
 from mvm_bot.yoomoney import PAYMENT_TYPE_CARD as YM_CARD
 from mvm_bot.yoomoney import PAYMENT_TYPE_SBP as YM_SBP
 from mvm_bot.yoomoney import checkout_url as yoomoney_checkout_url
+from mvm_bot.datetime_utils import as_utc_datetime
 from mvm_bot.user_service import (
     apply_referral_code_tg,
+    apply_promo_code_tg,
     count_referrals,
     extend_subscription_with_tier,
     grant_purchase_referral_bonus_tg,
@@ -66,6 +69,7 @@ from mvm_bot.user_service import (
     save_telegram_user,
     start_telegram_trial,
 )
+from mvm_bot.user_service.promo import check_promo_code_validity
 from mvm_bot.remnawave_client import get_user_hwid_devices, delete_user_hwid_device
 
 
@@ -77,45 +81,119 @@ class ReferralStates(StatesGroup):
     waiting_for_code = State()
 
 
-def _plan_selection_keyboard() -> InlineKeyboardMarkup:
+class PromoStates(StatesGroup):
+    waiting_for_promo = State()
+
+
+_PROMO_CANDIDATE_RE = re.compile(r"^[A-Z0-9_-]{4,32}$")
+
+
+def _extract_promo_candidate(raw_text: str) -> tuple[str | None, bool]:
+    text = raw_text.strip()
+    if not text:
+        return None, False
+
+    lowered = text.lower()
+    explicit_prefix = lowered.startswith("promo_") or lowered.startswith("promo ")
+    if explicit_prefix:
+        candidate = text[6:].strip().upper()
+    else:
+        candidate = text.upper()
+
+    if not _PROMO_CANDIDATE_RE.fullmatch(candidate):
+        return None, explicit_prefix
+    return candidate, explicit_prefix
+
+
+def _promo_multiplier(promo_activated: bool, promo_discount: object | None = None) -> float:
+    if not promo_activated:
+        return 1.0
+    try:
+        discount = float(promo_discount)
+    except (TypeError, ValueError):
+        discount = 0
+    if 1 < discount <= 100:
+        discount /= 100.0
+    if not (0 < discount < 1):
+        discount = 0
+    return 1.0 - discount
+
+
+def _plan_selection_keyboard(
+    promo_activated: bool = False,
+    promo_discount: object | None = None,
+) -> InlineKeyboardMarkup:
+    promo_multiplier = _promo_multiplier(promo_activated, promo_discount)
     rows: list[list[InlineKeyboardButton]] = []
     for plan_key in ["std_30", "std_90", "prem_30", "prem_90"]:
         plan = SUBSCRIPTION_PLANS[plan_key]
+        if promo_activated:
+            original_rub = plan['rub']
+            discounted_rub = int(original_rub * promo_multiplier)
+            struck_rub = "".join(char + "\u0336" for char in str(original_rub))
+            text = f"{plan['emoji']} {plan['label']} — {struck_rub}₽/{discounted_rub}₽ — {plan['tier_label']}"
+        else:
+            text = f"{plan['emoji']} {plan['label']} — {plan['rub']} ₽ — {plan['tier_label']}"
         rows.append([
             InlineKeyboardButton(
-                text=f"{plan['emoji']} {plan['label']} — {plan['rub']} ₽ — {plan['tier_label']}",
+                text=text,
                 callback_data=f"buy:{plan_key}",
             ),
         ])
+
+    if not promo_activated:
+        rows.append([
+            InlineKeyboardButton(
+                text="🎟️ Ввести промокод",
+                callback_data="promo:enter_code",
+            )
+        ])
+
+    rows.append([
+        InlineKeyboardButton(
+            text="« Назад",
+            callback_data="menu:main",
+        )
+    ])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def _payment_method_keyboard(plan_key: str) -> InlineKeyboardMarkup:
+def _payment_method_keyboard(
+    plan_key: str,
+    promo_activated: bool = False,
+    promo_discount: object | None = None,
+) -> InlineKeyboardMarkup:
     plan = SUBSCRIPTION_PLANS[plan_key]
+    rub = plan['rub']
+    stars = plan['stars']
+    promo_multiplier = _promo_multiplier(promo_activated, promo_discount)
+    if promo_activated:
+        rub = int(rub * promo_multiplier)
+        stars = int(stars * promo_multiplier)
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=f"⭐ Telegram Stars — {plan['stars']} ⭐",
+                    text=f"⭐ Telegram Stars — {stars} ⭐",
                     callback_data=f"buy:{plan_key}:stars",
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=f"💳 ЮMoney карта — {plan['rub']} ₽",
+                    text=f"💳 ЮMoney карта — {rub} ₽",
                     callback_data=f"buy:{plan_key}:ym_card",
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=f"📲 СБП (QR) — {plan['rub']} ₽",
+                    text=f"📲 СБП (QR) — {rub} ₽",
                     callback_data=f"buy:{plan_key}:ym_sbp",
                     **{"style": "success"},
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=f"🔐 Crypto — {plan['rub']} ₽",
+                    text=f"🔐 Crypto — {rub} ₽",
                     callback_data=f"buy:{plan_key}:rub",
                 ),
             ],
@@ -129,31 +207,39 @@ def _payment_method_keyboard(plan_key: str) -> InlineKeyboardMarkup:
     )
 
 
-def _other_payment_method_keyboard(plan_key: str) -> InlineKeyboardMarkup:
+def _other_payment_method_keyboard(
+    plan_key: str,
+    promo_activated: bool = False,
+    promo_discount: object | None = None,
+) -> InlineKeyboardMarkup:
     plan = SUBSCRIPTION_PLANS[plan_key]
+    rub = plan['rub']
+    promo_multiplier = _promo_multiplier(promo_activated, promo_discount)
+    if promo_activated:
+        rub = int(rub * promo_multiplier)
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=f"📲 СБП (QR) — {plan['rub']} ₽",
+                    text=f"📲 СБП (FK) — {rub} ₽",
                     callback_data=f"buy:{plan_key}:fk_sbp",
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=f"💳 Карта РФ — {plan['rub']} ₽",
+                    text=f"💳 Карта РФ — {rub} ₽",
                     callback_data=f"buy:{plan_key}:fk_card",
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=f"💚 СберПэй — {plan['rub']} ₽",
+                    text=f"💚 СберПэй — {rub} ₽",
                     callback_data=f"buy:{plan_key}:fk_sberpay",
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=f"🏦 СБП (Platega) — {plan['rub']} ₽",
+                    text=f"🏦 СБП (Platega) — {rub} ₽",
                     callback_data=f"buy:{plan_key}:platega",
                     **{"style": "success"},
                 ),
@@ -166,6 +252,7 @@ def _other_payment_method_keyboard(plan_key: str) -> InlineKeyboardMarkup:
             ],
         ]
     )
+
 
 
 @router.message(CommandStart())
@@ -246,6 +333,9 @@ async def start_trial_callback(callback: CallbackQuery) -> None:
 async def buy_subscription_callback(callback: CallbackQuery) -> None:
     await callback.answer()
     if callback.message and isinstance(callback.message, Message):
+        _, data = await save_telegram_user(callback.from_user)
+        promo_activated = data.get("promoActivated", False)
+        promo_discount = data.get("promoDiscount")
         await callback.message.answer(
             "Доступные варианты:\n\n"
             "🤩 <b>Standart</b>:\n"
@@ -256,7 +346,10 @@ async def buy_subscription_callback(callback: CallbackQuery) -> None:
             "— 7 устройств;\n"
             "— дополнительные ускорители при ограничениях;\n"
             "— 22 сервера;",
-            reply_markup=_plan_selection_keyboard(),
+            reply_markup=_plan_selection_keyboard(
+                promo_activated=promo_activated,
+                promo_discount=promo_discount,
+            ),
             parse_mode=ParseMode.HTML,
         )
 
@@ -267,6 +360,11 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
         await callback.answer("Ошибка.", show_alert=True)
         return
 
+    _, data = await save_telegram_user(callback.from_user)
+    promo_activated = data.get("promoActivated", False)
+    promo_discount = data.get("promoDiscount")
+    promo_multiplier = _promo_multiplier(promo_activated, promo_discount)
+
     parts = callback.data.split(":")
     if len(parts) == 2:
         _, plan_key = parts
@@ -276,7 +374,11 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
             return
         await callback.answer()
         text = f"{plan['label']} — выберите способ оплаты:"
-        kb = _payment_method_keyboard(plan_key)
+        kb = _payment_method_keyboard(
+            plan_key,
+            promo_activated=promo_activated,
+            promo_discount=promo_discount,
+        )
         if callback.message and isinstance(callback.message, Message):
             try:
                 await callback.message.edit_text(text, reply_markup=kb)
@@ -299,13 +401,16 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
     await callback.answer()
 
     if method == "stars":
+        stars = plan["stars"]
+        if promo_activated:
+            stars = int(stars * promo_multiplier)
         await bot.send_invoice(
             chat_id=callback.from_user.id,
             title=f"VPN подписка — {plan['label']}",
             description=f"Доступ к VPN на {plan['days']} дней.",
             payload=plan_key,
             currency="XTR",
-            prices=[LabeledPrice(label=plan["label"], amount=plan["stars"])],
+            prices=[LabeledPrice(label=plan["label"], amount=stars)],
         )
         return
 
@@ -325,6 +430,8 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
                 text="Для этого плана оплата не настроена.",
             )
             return
+        if promo_activated:
+            rub = int(rub * promo_multiplier)
         if method == "ym_sbp":
             payment_type = YM_SBP
             method_label = "📲 СБП (QR)"
@@ -402,6 +509,8 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
                 text="Для этого плана оплата не настроена.",
             )
             return
+        if promo_activated:
+            rub = int(rub * promo_multiplier)
         try:
             inv = await invoice_checkout_url(
                 merchant_uuid=merchant_uuid,
@@ -473,6 +582,8 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
                 text="Для этого плана оплата не настроена.",
             )
             return
+        if promo_activated:
+            rub = int(rub * promo_multiplier)
         try:
             pg = await platega_checkout_url(
                 merchant_id=merchant_id,
@@ -547,6 +658,8 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
                 text="Для этого плана крипто-оплата не настроена.",
             )
             return
+        if promo_activated:
+            crypto_usd = float(crypto_usd * promo_multiplier)
         try:
             inv = await invoice_checkout_url(
                 merchant_uuid=merchant_uuid,
@@ -596,7 +709,7 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
         return
 
     _FK_METHODS = {
-        "fk_sbp": (PAYMENT_SBP, "📲 СБП (QR)"),
+        "fk_sbp": (PAYMENT_SBP, "📲 СБП (FK)"),
         "fk_card": (PAYMENT_CARD_RU, "💳 Банк. карта РФ"),
         "fk_sberpay": (PAYMENT_SBERPAY, "💚 СберПэй"),
     }
@@ -617,6 +730,8 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
                 text="Для этого плана оплата не настроена.",
             )
             return
+        if promo_activated:
+            rub = int(rub * promo_multiplier)
         payment_system, method_label = _FK_METHODS[method]
         try:
             fk = await freekassa_checkout_url(
@@ -685,6 +800,10 @@ async def select_other_payment_callback(callback: CallbackQuery, bot: Bot) -> No
         await callback.answer("Ошибка.", show_alert=True)
         return
 
+    _, data = await save_telegram_user(callback.from_user)
+    promo_activated = data.get("promoActivated", False)
+    promo_discount = data.get("promoDiscount")
+
     parts = callback.data.split(":")
     if len(parts) == 2:
         _, plan_key = parts
@@ -694,7 +813,11 @@ async def select_other_payment_callback(callback: CallbackQuery, bot: Bot) -> No
             return
         await callback.answer()
         text = f"{plan['label']} — другие способы оплаты:"
-        kb = _other_payment_method_keyboard(plan_key)
+        kb = _other_payment_method_keyboard(
+            plan_key,
+            promo_activated=promo_activated,
+            promo_discount=promo_discount,
+        )
         if callback.message and isinstance(callback.message, Message):
             try:
                 await callback.message.edit_text(text, reply_markup=kb)
@@ -823,6 +946,76 @@ async def process_referral_code_input(message: Message, state: FSMContext) -> No
 
     success, text = await apply_referral_code_tg(message.from_user, code)
     await message.answer(f"{'✅' if success else '❌'} {text}")
+
+
+@router.callback_query(F.data == "promo:enter_code")
+async def enter_promo_code_prompt(callback: CallbackQuery, state: FSMContext) -> None:
+    await callback.answer()
+    await state.set_state(PromoStates.waiting_for_promo)
+    if callback.message and isinstance(callback.message, Message):
+        await callback.message.answer(
+            "🎟️ <b>Введите промокод:</b>",
+            parse_mode=ParseMode.HTML,
+        )
+
+
+@router.message(PromoStates.waiting_for_promo)
+async def process_promo_code_input(message: Message, state: FSMContext) -> None:
+    await state.clear()
+    if message.from_user is None or not message.text:
+        return
+
+    raw = message.text.strip()
+    code = raw.upper()
+
+    success, text = await apply_promo_code_tg(message.from_user, code)
+    if success:
+        _, data = await save_telegram_user(message.from_user)
+        await message.answer(
+            text,
+            reply_markup=_plan_selection_keyboard(
+                promo_activated=True,
+                promo_discount=data.get("promoDiscount"),
+            ),
+            parse_mode=ParseMode.HTML,
+        )
+    else:
+        await message.answer(f"❌ {text}")
+
+
+
+@router.message(F.text)
+async def auto_detect_promo_from_message(message: Message, state: FSMContext) -> None:
+    if message.from_user is None or not message.text:
+        return
+
+    if await state.get_state() is not None:
+        return
+
+    candidate, explicit_prefix = _extract_promo_candidate(message.text)
+    if candidate is None:
+        return
+
+    is_valid, _ = await check_promo_code_validity(candidate)
+    if not is_valid:
+        if explicit_prefix:
+            await message.answer("❌ Неверный или неактивный промокод.")
+        return
+
+    await save_telegram_user(message.from_user)
+    success, text = await apply_promo_code_tg(message.from_user, candidate)
+    if success:
+        _, data = await save_telegram_user(message.from_user)
+        await message.answer(
+            text,
+            reply_markup=_plan_selection_keyboard(
+                promo_activated=True,
+                promo_discount=data.get("promoDiscount"),
+            ),
+            parse_mode=ParseMode.HTML,
+        )
+    else:
+        await message.answer(f"❌ {text}")
 
 
 def _devices_keyboard(devices: list) -> InlineKeyboardMarkup:

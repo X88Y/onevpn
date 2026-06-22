@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 from typing import TYPE_CHECKING
 
 from vkbottle import Keyboard, OpenLink, Text
@@ -41,11 +42,13 @@ from mvm_bot.yoomoney import PAYMENT_TYPE_SBP as YM_SBP
 from mvm_bot.yoomoney import checkout_url as yoomoney_checkout_url
 from mvm_bot.user_service import (
     apply_referral_code_vk,
+    apply_promo_code_vk,
     count_referrals,
     record_payment_checkout_click,
     save_vk_user,
     start_vk_trial,
 )
+from mvm_bot.user_service.promo import check_promo_code_validity
 from mvm_bot.firebase_client import get_vk_cached_attachment, set_vk_cached_attachment
 from vkbottle.tools import PhotoMessageUploader
 from mvm_bot.remnawave_client import get_user_hwid_devices, delete_user_hwid_device
@@ -72,6 +75,40 @@ _VK_SUPPORT_TOPIC_BY_CMD = {
 
 if TYPE_CHECKING:
     from vkbottle.bot import Bot, Message, MessageEvent
+
+
+def _promo_multiplier(promo_activated: bool, promo_discount: object | None = None) -> float:
+    if not promo_activated:
+        return 1.0
+    try:
+        discount = float(promo_discount)
+    except (TypeError, ValueError):
+        discount = 0.4
+    if 1 < discount <= 100:
+        discount /= 100.0
+    if not (0 < discount < 1):
+        discount = 0.4
+    return 1.0 - discount
+
+
+_PROMO_CANDIDATE_RE = re.compile(r"^[A-Z0-9_-]{4,32}$")
+
+
+def _extract_promo_candidate(raw_text: str) -> tuple[str | None, bool]:
+    text = raw_text.strip()
+    if not text:
+        return None, False
+
+    lowered = text.lower()
+    explicit_prefix = lowered.startswith("promo_") or lowered.startswith("promo ")
+    if explicit_prefix:
+        candidate = text[6:].strip().upper()
+    else:
+        candidate = text.upper()
+
+    if not _PROMO_CANDIDATE_RE.fullmatch(candidate):
+        return None, explicit_prefix
+    return candidate, explicit_prefix
 
 
 def register_handlers(bot: Bot) -> None:
@@ -102,6 +139,28 @@ def register_handlers(bot: Bot) -> None:
             )
             await send_main_menu(message, data)
             return
+
+        candidate, explicit_prefix = _extract_promo_candidate(text)
+        if candidate is not None:
+            is_valid, _ = await check_promo_code_validity(candidate)
+            if is_valid:
+                await save_vk_user(profile, group_id=message.group_id)
+                success, msg = await apply_promo_code_vk(profile, candidate)
+                if success:
+                    _, updated_data = await save_vk_user(profile, group_id=message.group_id)
+                    await message.answer(
+                        message=msg,
+                        keyboard=plan_selection_keyboard_json(
+                            promo_activated=True,
+                            promo_discount=updated_data.get("promoDiscount"),
+                        ),
+                    )
+                else:
+                    await message.answer(message=f"❌ {msg}")
+                return
+            if explicit_prefix:
+                await message.answer(message="❌ Неверный или неактивный промокод.")
+                return
 
         _, data = await save_vk_user(profile, group_id=message.group_id)
 
@@ -194,6 +253,9 @@ def register_handlers(bot: Bot) -> None:
             return
 
         if cmd == "buy":
+            _, data = await save_vk_user(profile, group_id=event.group_id)
+            promo_activated = data.get("promoActivated", False)
+            promo_discount = data.get("promoDiscount")
             await event.send_message(
                 message=(
                     "Доступные варианты:\n\n"
@@ -206,7 +268,10 @@ def register_handlers(bot: Bot) -> None:
                     "— дополнительные ускорители при ограничениях;\n"
                     "— 22 сервера;"
                 ),
-                keyboard=plan_selection_keyboard_json(),
+                keyboard=plan_selection_keyboard_json(
+                    promo_activated=promo_activated,
+                    promo_discount=promo_discount,
+                ),
             )
             return
 
@@ -217,9 +282,16 @@ def register_handlers(bot: Bot) -> None:
             plan = SUBSCRIPTION_PLANS.get(plan_key_raw)
             if plan is None:
                 return
+            _, data = await save_vk_user(profile, group_id=event.group_id)
+            promo_activated = data.get("promoActivated", False)
+            promo_discount = data.get("promoDiscount")
             await event.send_message(
                 message=f"{plan['label']} — выберите способ оплаты:",
-                keyboard=rub_checkout_keyboard_json(plan_key_raw),
+                keyboard=rub_checkout_keyboard_json(
+                    plan_key_raw,
+                    promo_activated=promo_activated,
+                    promo_discount=promo_discount,
+                ),
             )
             return
 
@@ -230,9 +302,22 @@ def register_handlers(bot: Bot) -> None:
             plan = SUBSCRIPTION_PLANS.get(plan_key_raw)
             if plan is None:
                 return
+            _, data = await save_vk_user(profile, group_id=event.group_id)
+            promo_activated = data.get("promoActivated", False)
+            promo_discount = data.get("promoDiscount")
             await event.send_message(
                 message=f"{plan['label']} — другие способы оплаты:",
-                keyboard=other_checkout_keyboard_json(plan_key_raw),
+                keyboard=other_checkout_keyboard_json(
+                    plan_key_raw,
+                    promo_activated=promo_activated,
+                    promo_discount=promo_discount,
+                ),
+            )
+            return
+
+        if cmd == "promo_enter":
+            await event.send_message(
+                message="🎟️ Чтобы активировать промокод, отправьте его в чат с приставкой promo_, например: promo_MVM40"
             )
             return
 
@@ -246,10 +331,17 @@ def register_handlers(bot: Bot) -> None:
                 return
 
             uid = event.user_id
+            _, data = await save_vk_user(profile, group_id=event.group_id)
+            promo_activated = data.get("promoActivated", False)
+            promo_discount = data.get("promoDiscount")
+            promo_multiplier = _promo_multiplier(promo_activated, promo_discount)
+
             rub = plan.get("rub")
             if rub is None:
                 await event.send_message(message="Для этого плана оплата не настроена.")
                 return
+            if promo_activated:
+                rub = int(rub * promo_multiplier)
 
             if method in ("ym_card", "ym_sbp"):
                 receiver = yoomoney_receiver()
@@ -445,7 +537,7 @@ def register_handlers(bot: Bot) -> None:
                 return
 
             _FK_METHODS = {
-                "fk_sbp": (PAYMENT_SBP, "📲 СБП (QR)"),
+                "fk_sbp": (PAYMENT_SBP, "📲 СБП (FK)"),
                 "fk_card": (PAYMENT_CARD_RU, "💳 Банк. карта РФ"),
                 "fk_sberpay": (PAYMENT_SBERPAY, "💚 СберПэй"),
             }
