@@ -64,11 +64,25 @@ async def _apply_remnawave_status(
     if target == "ACTIVE" and current != "ACTIVE":
         from mvm_bot.remnawave_client import _sdk_instance
         if _sdk_instance is not None:
-            await _sdk_instance.users.enable_user(uuid=rw_uuid)
+            try:
+                await _sdk_instance.users.enable_user(uuid=rw_uuid)
+            except Exception as exc:
+                exc_str = str(exc).lower()
+                if "already enabled" in exc_str or "a030" in exc_str:
+                    logger.debug("enable_user ignored (already active) uuid=%s", rw_uuid)
+                else:
+                    raise
     elif target == "DISABLED" and current == "ACTIVE":
         from mvm_bot.remnawave_client import _sdk_instance
         if _sdk_instance is not None:
-            await _sdk_instance.users.disable_user(uuid=rw_uuid)
+            try:
+                await _sdk_instance.users.disable_user(uuid=rw_uuid)
+            except Exception as exc:
+                exc_str = str(exc).lower()
+                if "already disabled" in exc_str:
+                    logger.debug("disable_user ignored (already disabled) uuid=%s", rw_uuid)
+                else:
+                    raise
 
 
 async def build_user_description(user_uid: str, user_data: dict) -> str:
