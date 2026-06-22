@@ -8,6 +8,7 @@ from mvm_bot.constants import REFERRAL_BONUS_DAYS, REFERRAL_PURCHASE_BONUS_DAYS
 from mvm_bot.firebase_client import init_firebase
 from mvm_bot.user_service.helpers import VkProfile, telegram_uid, vk_uid
 from mvm_bot.user_service.notifications import notify_referrer
+from mvm_bot.user_service.subscription_tx import extend_doc_subscription as _extend_doc_subscription
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +18,6 @@ async def _apply_referral_join_bonus(
     referral_code: str,
     new_user_ref: firestore.DocumentReference,
 ) -> None:
-    from mvm_bot.user_service.subscription_tx import extend_doc_subscription as _extend_doc_subscription
-
     users_ref = db.collection("users")
     referrer_docs = await asyncio.to_thread(
         lambda: users_ref.where("referralCode", "==", referral_code).limit(1).get()
@@ -46,8 +45,6 @@ async def _apply_referral_join_bonus(
 
 async def grant_purchase_referral_bonus_tg(tg_user: User) -> bool:
     """Grant +REFERRAL_PURCHASE_BONUS_DAYS to the referrer when a referred Telegram user makes a purchase."""
-    from mvm_bot.user_service.subscription_tx import extend_doc_subscription as _extend_doc_subscription
-
     db = init_firebase()
     auth_uid = telegram_uid(tg_user.id)
     users_ref = db.collection("users")
@@ -96,8 +93,6 @@ async def count_referrals(referral_code: str) -> int:
 
 async def apply_referral_code_tg(tg_user: User, referral_code: str) -> tuple[bool, str]:
     """Apply a referral code manually for an existing Telegram user."""
-    from mvm_bot.user_service.subscription_tx import extend_doc_subscription as _extend_doc_subscription
-
     db = init_firebase()
     auth_uid = telegram_uid(tg_user.id)
     users_ref = db.collection("users")
@@ -147,8 +142,6 @@ async def apply_referral_code_tg(tg_user: User, referral_code: str) -> tuple[boo
 
 async def apply_referral_code_vk(profile: VkProfile, referral_code: str) -> tuple[bool, str]:
     """Apply a referral code manually for an existing VK user."""
-    from mvm_bot.user_service.subscription_tx import extend_doc_subscription as _extend_doc_subscription
-
     db = init_firebase()
     auth_uid = vk_uid(profile.id)
     users_ref = db.collection("users")

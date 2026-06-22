@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 from html import escape
 
@@ -22,6 +23,8 @@ from mvm_bot.constants import (
     VK_TERMS_URL,
 )
 from mvm_bot.datetime_utils import as_utc_datetime
+from mvm_bot.firebase_client import get_tg_cached_attachment, set_tg_cached_attachment
+from mvm_bot.remnawave_client import get_user_hwid_devices
 
 _tg_banner_cache: dict[str, str] = {}
 
@@ -39,8 +42,6 @@ async def preload_menu_banner(bot: Bot) -> None:
     if not banner:
         return
 
-    import logging
-    from mvm_bot.firebase_client import get_tg_cached_attachment
     token = bot.token
     try:
         cached = await get_tg_cached_attachment(token, [banner.name])
@@ -225,10 +226,8 @@ async def send_main_menu(message: Message, data: dict, user: User | None = None)
     devices = []
     if rw_uuid:
         try:
-            from mvm_bot.remnawave_client import get_user_hwid_devices
             devices = await get_user_hwid_devices(rw_uuid)
         except Exception:
-            import logging
             logging.exception("Failed to fetch Remnawave devices for main menu")
 
     caption = main_menu_caption(data, platform="tg", remnawave_devices=devices)
@@ -240,7 +239,6 @@ async def send_main_menu(message: Message, data: dict, user: User | None = None)
 
         # Check Firestore cache if not in memory
         if not cached_photo and token:
-            from mvm_bot.firebase_client import get_tg_cached_attachment
             cached_photo = await get_tg_cached_attachment(token, [banner.name])
             if cached_photo:
                 set_cached_banner(token, cached_photo)
@@ -255,7 +253,6 @@ async def send_main_menu(message: Message, data: dict, user: User | None = None)
                 )
                 return
             except Exception:
-                import logging
                 logging.exception("Failed to send main menu with cached Telegram banner")
 
         # Fallback to uploading
@@ -269,11 +266,9 @@ async def send_main_menu(message: Message, data: dict, user: User | None = None)
             if token and sent_message.photo:
                 file_id = sent_message.photo[-1].file_id
                 set_cached_banner(token, file_id)
-                from mvm_bot.firebase_client import set_tg_cached_attachment
                 await set_tg_cached_attachment(token, [banner.name], file_id)
             return
         except Exception:
-            import logging
             logging.exception("Telegram banner upload failed, falling back to text-only menu")
 
     await message.answer(caption, reply_markup=keyboard, parse_mode=ParseMode.HTML)

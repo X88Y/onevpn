@@ -3,10 +3,14 @@
 import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+from uuid import UUID
 
 from mvm_bot.config import remnawave_api_token, remnawave_base_url
 
 from remnawave import RemnawaveSDK
+from remnawave.enums import TrafficLimitStrategy, UserStatus
+from remnawave.models import CreateUserRequestDto, UpdateUserRequestDto
+from remnawave.models.hwid import DeleteUserHwidDeviceRequestDto
 
 
 logger = logging.getLogger(__name__)
@@ -63,13 +67,8 @@ async def create_user(
         raise RemnawaveError(
             "Remnawave not configured: set REMNAWAVE_BASE_URL and REMNAWAVE_API_TOKEN"
         )
-    from remnawave.enums import TrafficLimitStrategy, UserStatus
-    from remnawave.models import CreateUserRequestDto
-
     squads = None
     if active_internal_squads:
-        from uuid import UUID
-
         squads = [UUID(s) for s in active_internal_squads]
 
     body = CreateUserRequestDto(
@@ -100,10 +99,6 @@ async def update_user(
         raise RemnawaveError(
             "Remnawave not configured: set REMNAWAVE_BASE_URL and REMNAWAVE_API_TOKEN"
         )
-    from remnawave.enums import TrafficLimitStrategy, UserStatus
-    from remnawave.models import UpdateUserRequestDto
-    from uuid import UUID
-
     body = UpdateUserRequestDto(uuid=UUID(uuid))
     if expire_at is not None:
         body.expire_at = expire_at
@@ -141,8 +136,6 @@ async def delete_user_hwid_device(user_uuid: str, hwid: str) -> None:
     if _sdk_instance is None:
         raise RemnawaveError("Remnawave not configured")
     try:
-        from uuid import UUID
-        from remnawave.models.hwid import DeleteUserHwidDeviceRequestDto
         body = DeleteUserHwidDeviceRequestDto(
             user_uuid=UUID(user_uuid),
             hwid=hwid

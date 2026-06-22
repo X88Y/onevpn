@@ -15,6 +15,8 @@ import httpx
 import logging
 from typing import NamedTuple, Optional, Union
 
+from mvm_bot.config import yoomoney_recurring_enabled, yoomoney_secret
+
 logger = logging.getLogger(__name__)
 
 QUICKPAY_URL = "https://yoomoney.ru/quickpay/confirm"
@@ -81,7 +83,6 @@ async def checkout_url(
     label = build_label(provider, user_id, plan_key)
     mapped_type = map_payment_type(payment_type)
 
-    from mvm_bot.config import yoomoney_secret, yoomoney_recurring_enabled
     secret = yoomoney_secret()
     if not secret:
         raise ValueError("Yoomoney/Yookassa secret is not configured.")

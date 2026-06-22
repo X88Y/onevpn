@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING
+from datetime import datetime, timezone
 
 from vkbottle import Keyboard, OpenLink, Text
+from vkbottle.bot import Bot, Message as VkMessage, MessageEvent as VkMessageEvent
+from vkbottle.tools import PhotoMessageUploader
 from vkbottle_types.events import GroupEventType
 
 from mvm_bot.constants import (
@@ -25,11 +27,11 @@ from mvm_bot.user_service import (
     start_vk_trial,
 )
 from mvm_bot.user_service.promo import check_promo_code_validity
-from mvm_bot.firebase_client import get_vk_cached_attachment, set_vk_cached_attachment
-from vkbottle.tools import PhotoMessageUploader
+from mvm_bot.firebase_client import get_vk_cached_attachment, init_firebase, set_vk_cached_attachment
 from mvm_bot.devices_ui import device_display_name, device_limit_for_tier
 from mvm_bot.promo_utils import extract_promo_candidate
 from mvm_bot.remnawave_client import get_user_hwid_devices, delete_user_hwid_device
+from mvm_bot.user_service.helpers import vk_uid
 from mvm_vk_bot.handlers_payments import handle_pay_command
 from mvm_vk_bot.handlers_start import handle_private_message
 from mvm_vk_bot.menu import (
@@ -53,14 +55,8 @@ _VK_SUPPORT_TOPIC_BY_CMD = {
     if topic.vk_cmd != "sup_not_work"
 }
 
-if TYPE_CHECKING:
-    from vkbottle.bot import Bot, Message, MessageEvent
-
 
 def register_handlers(bot: Bot) -> None:
-    from vkbottle.bot import Message as VkMessage
-    from vkbottle.bot import MessageEvent as VkMessageEvent
-
     @bot.on.private_message()
     async def start(message: VkMessage) -> None:
         await handle_private_message(message)
@@ -348,9 +344,6 @@ def register_handlers(bot: Bot) -> None:
 
         if cmd == "survey":
             reason = payload.get("r")
-            from mvm_bot.user_service.helpers import vk_uid
-            from mvm_bot.firebase_client import init_firebase
-            from datetime import datetime, timezone
             try:
                 db = init_firebase()
                 auth_uid = vk_uid(profile.id)

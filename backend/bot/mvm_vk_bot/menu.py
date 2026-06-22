@@ -2,12 +2,14 @@ import asyncio
 import logging
 from datetime import datetime, timezone
 
-from vkbottle import Callback, Keyboard, KeyboardButtonColor, OpenLink
+from vkbottle import API, Callback, Keyboard, KeyboardButtonColor, OpenLink
 from vkbottle.bot import Message, MessageEvent
 from vkbottle.tools import PhotoMessageUploader
 
 from mvm_bot.config import vk_menu_banner_path
 from mvm_bot.constants import SUBSCRIPTION_PLANS, TRIAL_FIELDS, VK_SUPPORT_URL
+from mvm_bot.firebase_client import get_vk_cached_attachment, set_vk_cached_attachment
+from mvm_bot.remnawave_client import get_user_hwid_devices
 from mvm_bot.support_content import (
     SUPPORT_ROOT_BUTTONS,
     SUPPORT_ROOT_TEXT,
@@ -33,10 +35,6 @@ async def preupload_menu_banner(tokens: list[str]) -> None:
     banner = vk_menu_banner_path()
     if not banner or not tokens:
         return
-
-    from vkbottle import API
-    from vkbottle.tools import PhotoMessageUploader
-    from mvm_bot.firebase_client import get_vk_cached_attachment, set_vk_cached_attachment
 
     for token in tokens:
         # Check Firestore cache first
@@ -265,7 +263,6 @@ async def send_main_menu(message: Message, data: dict) -> None:
     devices = []
     if rw_uuid:
         try:
-            from mvm_bot.remnawave_client import get_user_hwid_devices
             devices = await get_user_hwid_devices(rw_uuid)
         except Exception:
             logging.exception("Failed to fetch Remnawave devices for VK main menu")
@@ -279,7 +276,6 @@ async def send_main_menu(message: Message, data: dict) -> None:
 
         # Check Firestore cache if not in memory
         if not cached_photo and token:
-            from mvm_bot.firebase_client import get_vk_cached_attachment
             cached_photo = await get_vk_cached_attachment(token, [banner.name])
             if cached_photo:
                 set_cached_banner(token, cached_photo)
@@ -292,7 +288,6 @@ async def send_main_menu(message: Message, data: dict) -> None:
                 logging.exception("Failed to send main menu with cached banner")
         else:
             try:
-                from mvm_bot.firebase_client import set_vk_cached_attachment
                 uploader = PhotoMessageUploader(message.ctx_api)
                 photo = await uploader.upload(
                     file_source=str(banner),
@@ -314,7 +309,6 @@ async def send_main_menu_from_event(event: MessageEvent, data: dict) -> None:
     devices = []
     if rw_uuid:
         try:
-            from mvm_bot.remnawave_client import get_user_hwid_devices
             devices = await get_user_hwid_devices(rw_uuid)
         except Exception:
             logging.exception("Failed to fetch Remnawave devices for VK event main menu")
@@ -326,7 +320,6 @@ async def send_main_menu_from_event(event: MessageEvent, data: dict) -> None:
         token = getattr(getattr(event.ctx_api, "token_generator", None), "token", None)
         cached_photo = get_cached_banner(token) if token else None
         if not cached_photo and token:
-            from mvm_bot.firebase_client import get_vk_cached_attachment
             cached_photo = await get_vk_cached_attachment(token, [banner.name])
             if cached_photo:
                 set_cached_banner(token, cached_photo)
@@ -338,7 +331,6 @@ async def send_main_menu_from_event(event: MessageEvent, data: dict) -> None:
                 logging.exception("Failed to send main menu with cached banner from event")
         else:
             try:
-                from mvm_bot.firebase_client import set_vk_cached_attachment
                 uploader = PhotoMessageUploader(event.ctx_api)
                 photo = await uploader.upload(
                     file_source=str(banner),

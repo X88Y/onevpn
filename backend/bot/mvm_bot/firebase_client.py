@@ -1,7 +1,13 @@
+import asyncio
+import hashlib
+import logging
+
 import firebase_admin  # type: ignore[import-not-found,import-untyped]
 from firebase_admin import credentials, firestore  # type: ignore[import-not-found,import-untyped]
 
 from mvm_bot.config import service_account_path
+
+logger = logging.getLogger(__name__)
 
 
 def init_firebase() -> firestore.Client:
@@ -16,7 +22,6 @@ def init_firebase() -> firestore.Client:
 
 
 def _get_vk_cache_doc_id(token: str, keys: list[str]) -> str:
-    import hashlib
     token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
     keys_str = ",".join(sorted(keys))
     keys_hash = hashlib.sha256(keys_str.encode('utf-8')).hexdigest()
@@ -24,7 +29,6 @@ def _get_vk_cache_doc_id(token: str, keys: list[str]) -> str:
 
 
 async def get_vk_cached_attachment(token: str, keys: list[str]) -> str | None:
-    import asyncio
     db = init_firebase()
     doc_id = _get_vk_cache_doc_id(token, keys)
     try:
@@ -33,13 +37,11 @@ async def get_vk_cached_attachment(token: str, keys: list[str]) -> str | None:
         if doc.exists:
             return doc.to_dict().get("attachment_str")
     except Exception:
-        import logging
-        logging.exception(f"Failed to read from vk_attachments_cache for {doc_id}")
+        logger.exception(f"Failed to read from vk_attachments_cache for {doc_id}")
     return None
 
 
 async def set_vk_cached_attachment(token: str, keys: list[str], attachment_str: str) -> None:
-    import asyncio
     db = init_firebase()
     doc_id = _get_vk_cache_doc_id(token, keys)
     try:
@@ -52,12 +54,10 @@ async def set_vk_cached_attachment(token: str, keys: list[str], attachment_str: 
             })
         )
     except Exception:
-        import logging
-        logging.exception(f"Failed to write to vk_attachments_cache for {doc_id}")
+        logger.exception(f"Failed to write to vk_attachments_cache for {doc_id}")
 
 
 def _get_tg_cache_doc_id(token: str, keys: list[str]) -> str:
-    import hashlib
     token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
     keys_str = ",".join(sorted(keys))
     keys_hash = hashlib.sha256(keys_str.encode('utf-8')).hexdigest()
@@ -65,7 +65,6 @@ def _get_tg_cache_doc_id(token: str, keys: list[str]) -> str:
 
 
 async def get_tg_cached_attachment(token: str, keys: list[str]) -> str | None:
-    import asyncio
     db = init_firebase()
     doc_id = _get_tg_cache_doc_id(token, keys)
     try:
@@ -74,13 +73,11 @@ async def get_tg_cached_attachment(token: str, keys: list[str]) -> str | None:
         if doc.exists:
             return doc.to_dict().get("file_id")
     except Exception:
-        import logging
-        logging.exception(f"Failed to read from tg_attachments_cache for {doc_id}")
+        logger.exception(f"Failed to read from tg_attachments_cache for {doc_id}")
     return None
 
 
 async def set_tg_cached_attachment(token: str, keys: list[str], file_id: str) -> None:
-    import asyncio
     db = init_firebase()
     doc_id = _get_tg_cache_doc_id(token, keys)
     try:
@@ -93,6 +90,4 @@ async def set_tg_cached_attachment(token: str, keys: list[str], file_id: str) ->
             })
         )
     except Exception:
-        import logging
-        logging.exception(f"Failed to write to tg_attachments_cache for {doc_id}")
-
+        logger.exception(f"Failed to write to tg_attachments_cache for {doc_id}")

@@ -1,14 +1,17 @@
 """Periodically checks for expired / expiring subscriptions and notifies users via Telegram/VK."""
 
 import asyncio
+import json
 import logging
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Any, List, Optional
 
 import aiohttp
 from firebase_admin import firestore
 
 from mvm_bot.config import bot_token
+from mvm_bot.constants import BOT_DIR
 from mvm_bot.expiry_autocharge import maybe_handle_autocharge
 from mvm_bot.expiry_outbound import (
     build_vk_survey_keyboard as _build_vk_survey_keyboard,
@@ -18,8 +21,7 @@ from mvm_bot.expiry_outbound import (
     notify_vk_photo,
 )
 from mvm_bot.firebase_client import init_firebase
-from mvm_bot.constants import BOT_DIR
-from pathlib import Path
+from mvm_bot.remnawave_client import RemnawaveError, get_user_by_username
 
 logger = logging.getLogger(__name__)
 
@@ -289,9 +291,8 @@ async def check_and_send_trial_retention_messages() -> None:
                 trial_act_dt = trial_act_dt.replace(tzinfo=timezone.utc)
                 
             elapsed = now - trial_act_dt
-            
+
             from mvm_bot.user_service.helpers import _remnawave_username
-            from mvm_bot.remnawave_client import get_user_by_username, RemnawaveError
 
             username = _remnawave_username(snap.id)
             total_traffic = 0
@@ -410,7 +411,6 @@ async def check_and_send_retention_surveys() -> None:
                 }
                 token = bot_token()
                 url = f"https://api.telegram.org/bot{token}/sendMessage"
-                import json
                 payload = {
                     "chat_id": tg_id,
                     "text": text,

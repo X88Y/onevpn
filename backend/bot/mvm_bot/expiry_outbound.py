@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -6,6 +7,12 @@ from vkbottle import API
 from vkbottle.tools import PhotoMessageUploader
 
 from mvm_bot.config import bot_token, vk_bot_tokens
+from mvm_bot.firebase_client import (
+    get_tg_cached_attachment,
+    get_vk_cached_attachment,
+    set_tg_cached_attachment,
+    set_vk_cached_attachment,
+)
 
 
 async def notify_telegram(user_id: str, text: str, *, logger) -> None:
@@ -83,8 +90,6 @@ async def notify_telegram_photo(
     logger,
     reply_markup: dict | None = None,
 ) -> bool:
-    from mvm_bot.firebase_client import get_tg_cached_attachment, set_tg_cached_attachment
-
     token = bot_token()
     cached_file_id = await get_tg_cached_attachment(token, [photo_path.name])
 
@@ -97,8 +102,6 @@ async def notify_telegram_photo(
             data.add_field("parse_mode", "HTML")
             data.add_field("photo", cached_file_id)
             if reply_markup:
-                import json
-
                 data.add_field("reply_markup", json.dumps(reply_markup))
 
             async with aiohttp.ClientSession() as session:
@@ -117,8 +120,6 @@ async def notify_telegram_photo(
         data.add_field("caption", caption)
         data.add_field("parse_mode", "HTML")
         if reply_markup:
-            import json
-
             data.add_field("reply_markup", json.dumps(reply_markup))
 
         with open(photo_path, "rb") as photo_file:
@@ -147,8 +148,6 @@ async def notify_vk_photo(
     logger,
     keyboard: str | None = None,
 ) -> bool:
-    from mvm_bot.firebase_client import get_vk_cached_attachment, set_vk_cached_attachment
-
     tokens = vk_bot_tokens()
     if not tokens:
         logger.warning("vk notify photo: no tokens configured")
@@ -213,8 +212,6 @@ async def notify_vk_photo(
 
 
 def build_vk_survey_keyboard() -> str:
-    import json
-
     return json.dumps(
         {
             "inline": True,

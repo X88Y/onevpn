@@ -1,12 +1,9 @@
-from typing import TYPE_CHECKING
+from vkbottle.api import ABCAPI
 
 from mvm_bot.user_service import VkProfile
 
-if TYPE_CHECKING:
-    from vkbottle.api import ABCAPI
 
-
-async def fetch_vk_profile(api: "ABCAPI", user_id: int) -> VkProfile:
+async def fetch_vk_profile(api: ABCAPI, user_id: int) -> VkProfile:
     users = await api.users.get(user_ids=[user_id], fields=["domain"])
     u = users[0]
     domain = getattr(u, "domain", None)

@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone
 
 from aiogram import F, Router  # type: ignore[import-not-found]
 from aiogram.filters import CommandObject, CommandStart  # type: ignore[import-not-found]
@@ -11,9 +12,11 @@ from aiogram.types import (  # type: ignore[import-not-found]
 )
 
 from mvm_bot.constants import TRIAL_DAYS
+from mvm_bot.firebase_client import init_firebase
 from mvm_bot.handlers.cabinet_shared import cleanup_support_media
 from mvm_bot.main_menu import format_subscription_end, main_menu_keyboard, send_main_menu
 from mvm_bot.user_service import save_telegram_user, start_telegram_trial
+from mvm_bot.user_service.helpers import telegram_uid
 
 router = Router()
 
@@ -131,11 +134,6 @@ async def survey_callback(callback: CallbackQuery) -> None:
         return
 
     reason = callback.data.split(":")[1]
-
-    from datetime import datetime, timezone
-
-    from mvm_bot.firebase_client import init_firebase
-    from mvm_bot.user_service.helpers import telegram_uid
 
     try:
         db = init_firebase()

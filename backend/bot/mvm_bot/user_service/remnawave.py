@@ -1,16 +1,17 @@
-from mvm_bot.constants import PREMIUM_EXTERNAL_SQUAD_UUID
 import asyncio
 import logging
 from datetime import datetime, timezone
 from typing import Optional
 
+from aiogram.types import User  # type: ignore[import-not-found]
 from firebase_admin import firestore  # type: ignore[import-not-found,import-untyped]
 
 from mvm_bot.config import remnawave_internal_squad_uuid
-from mvm_bot.constants import PREMIUM_INTERNAL_SQUAD_UUID
+from mvm_bot.constants import PREMIUM_EXTERNAL_SQUAD_UUID, PREMIUM_INTERNAL_SQUAD_UUID
 from mvm_bot.datetime_utils import as_utc_datetime
 from mvm_bot.firebase_client import init_firebase
 from mvm_bot.remnawave_client import (
+    _sdk_instance,
     create_user as rw_create_user,
     update_user as rw_update_user,
     get_user_by_username as rw_get_user_by_username,
@@ -62,7 +63,6 @@ async def _apply_remnawave_status(
     current = current_status.upper()
     target = target_status.upper()
     if target == "ACTIVE" and current != "ACTIVE":
-        from mvm_bot.remnawave_client import _sdk_instance
         if _sdk_instance is not None:
             try:
                 await _sdk_instance.users.enable_user(uuid=rw_uuid)
@@ -73,7 +73,6 @@ async def _apply_remnawave_status(
                 else:
                     raise
     elif target == "DISABLED" and current == "ACTIVE":
-        from mvm_bot.remnawave_client import _sdk_instance
         if _sdk_instance is not None:
             try:
                 await _sdk_instance.users.disable_user(uuid=rw_uuid)
@@ -173,7 +172,6 @@ async def _ensure_remnawave_user(
         current_tier = user_data.get("subscriptionTier")
         try:
             # Fetch current status to decide which action endpoint to call
-            from mvm_bot.remnawave_client import _sdk_instance
             current_status = "UNKNOWN"
             if _sdk_instance is not None:
                 try:
@@ -331,7 +329,6 @@ async def _update_remnawave_subscription(
     status = "ACTIVE" if subscription_ends_at > now else "DISABLED"
     try:
         # Fetch current status to decide which action endpoint to call
-        from mvm_bot.remnawave_client import _sdk_instance
         current_status = "UNKNOWN"
         if _sdk_instance is not None:
             try:
@@ -382,9 +379,9 @@ async def get_remnawave_sub_url_tg(tg_id: int) -> Optional[str]:
         return str(sub_url)
 
     # Fallback: ensure user exists in Remnawave
-    from aiogram.types import User  # type: ignore[import-not-found]
     try:
         from mvm_bot.user_service.core import save_telegram_user
+
         _, data = await save_telegram_user(User(id=tg_id, is_bot=False, first_name=""))
         return data.get("remnawaveSubscriptionUrl")
     except Exception:
