@@ -256,6 +256,7 @@ export const yoomoneyWebhook = onRequest(
         const updateData: Record<string, unknown> = {
           subscriptionEndsAt: Timestamp.fromDate(newEnd),
           subscriptionTier: tier,
+          hasSuccessfulPurchase: true,
           updatedAt: FieldValue.serverTimestamp(),
         };
 

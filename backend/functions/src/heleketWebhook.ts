@@ -254,6 +254,7 @@ export const heleketWebhook = onRequest(
           {
             subscriptionEndsAt: Timestamp.fromDate(newEnd),
             subscriptionTier: tier,
+            hasSuccessfulPurchase: true,
             updatedAt: FieldValue.serverTimestamp(),
           },
           {merge: true}

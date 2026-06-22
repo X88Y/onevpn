@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from aiogram import Bot, F, Router  # type: ignore[import-not-found]
+from firebase_admin import firestore
 from aiogram.enums import ParseMode  # type: ignore[import-not-found]
 from aiogram.types import (  # type: ignore[import-not-found]
     CallbackQuery,
@@ -36,10 +37,12 @@ from mvm_bot.constants import CONNECT_REDIRECT_ORIGIN, SUBSCRIPTION_PLANS
 from mvm_bot.datetime_utils import as_utc_datetime
 from mvm_bot.freekassa import PAYMENT_CARD_RU, PAYMENT_SBERPAY, PAYMENT_SBP
 from mvm_bot.freekassa import checkout_url as freekassa_checkout_url
+from mvm_bot.firebase_client import init_firebase
 from mvm_bot.heleket import invoice_checkout_url
 from mvm_bot.main_menu import main_menu_keyboard
 from mvm_bot.platega import transaction_checkout_url as platega_checkout_url
 from mvm_bot.promo_utils import promo_multiplier
+from mvm_bot.user_service.helpers import telegram_uid
 from mvm_bot.user_service import (
     extend_subscription_with_tier,
     grant_purchase_referral_bonus_tg,
@@ -53,12 +56,33 @@ from mvm_bot.yoomoney import checkout_url as yoomoney_checkout_url
 router = Router()
 
 
+async def _mark_successful_purchase_tg(tg_user_id: int) -> None:
+    db = init_firebase()
+    auth_uid = telegram_uid(tg_user_id)
+    users_ref = db.collection("users")
+    user_docs = await asyncio.to_thread(
+        lambda: users_ref.where("externalTg", "in", [auth_uid, str(tg_user_id)]).limit(1).get()
+    )
+    if not user_docs:
+        return
+    await asyncio.to_thread(
+        lambda: user_docs[0].reference.set(
+            {
+                "hasSuccessfulPurchase": True,
+                "updatedAt": firestore.SERVER_TIMESTAMP,
+            },
+            merge=True,
+        )
+    )
+
+
 @router.callback_query(F.data == "menu:buy_subscription")
 async def buy_subscription_callback(callback: CallbackQuery) -> None:
     await callback.answer()
     if callback.message and isinstance(callback.message, Message):
         _, data = await save_telegram_user(callback.from_user)
-        promo_activated = data.get("promoActivated", False)
+        has_successful_purchase = data.get("hasSuccessfulPurchase") is True
+        promo_activated = data.get("promoActivated", False) and not has_successful_purchase
         promo_discount = data.get("promoDiscount")
         await callback.message.answer(
             "Доступные варианты:\n\n"
@@ -85,7 +109,8 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
         return
 
     _, data = await save_telegram_user(callback.from_user)
-    promo_activated = data.get("promoActivated", False)
+    has_successful_purchase = data.get("hasSuccessfulPurchase") is True
+    promo_activated = data.get("promoActivated", False) and not has_successful_purchase
     promo_discount = data.get("promoDiscount")
     promo_factor = promo_multiplier(
         promo_activated,
@@ -520,7 +545,8 @@ async def select_other_payment_callback(callback: CallbackQuery, bot: Bot) -> No
         return
 
     _, data = await save_telegram_user(callback.from_user)
-    promo_activated = data.get("promoActivated", False)
+    has_successful_purchase = data.get("hasSuccessfulPurchase") is True
+    promo_activated = data.get("promoActivated", False) and not has_successful_purchase
     promo_discount = data.get("promoDiscount")
 
     parts = callback.data.split(":")
@@ -568,6 +594,8 @@ async def successful_payment_handler(message: Message) -> None:
         return
 
     _, data = await extend_subscription_with_tier(message.from_user, plan_key)
+    await _mark_successful_purchase_tg(message.from_user.id)
+    _, data = await save_telegram_user(message.from_user)
 
     try:
         await grant_purchase_referral_bonus_tg(message.from_user)

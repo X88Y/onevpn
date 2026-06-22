@@ -26,6 +26,8 @@ async def _main() -> None:
             BotCommand(command="disable_server", description="Disable server <id>"),
             BotCommand(command="enable_server", description="Enable server <id>"),
             BotCommand(command="create_promocode", description="Create or update promo code"),
+            BotCommand(command="delete_promocode", description="Delete promo code by value"),
+            BotCommand(command="promo_stats", description="Show promo usage statistics"),
             BotCommand(command="create_tw_cdn", description="Create TimeWeb CDNs with token"),
             BotCommand(command="cancel", description="Cancel current flow"),
         ]

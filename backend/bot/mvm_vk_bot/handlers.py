@@ -143,7 +143,8 @@ def register_handlers(bot: Bot) -> None:
 
         if cmd == "buy":
             _, data = await save_vk_user(profile, group_id=event.group_id)
-            promo_activated = data.get("promoActivated", False)
+            has_successful_purchase = data.get("hasSuccessfulPurchase") is True
+            promo_activated = data.get("promoActivated", False) and not has_successful_purchase
             promo_discount = data.get("promoDiscount")
             await event.send_message(
                 message=(
@@ -172,7 +173,8 @@ def register_handlers(bot: Bot) -> None:
             if plan is None:
                 return
             _, data = await save_vk_user(profile, group_id=event.group_id)
-            promo_activated = data.get("promoActivated", False)
+            has_successful_purchase = data.get("hasSuccessfulPurchase") is True
+            promo_activated = data.get("promoActivated", False) and not has_successful_purchase
             promo_discount = data.get("promoDiscount")
             await event.send_message(
                 message=f"{plan['label']} — выберите способ оплаты:",
@@ -192,7 +194,8 @@ def register_handlers(bot: Bot) -> None:
             if plan is None:
                 return
             _, data = await save_vk_user(profile, group_id=event.group_id)
-            promo_activated = data.get("promoActivated", False)
+            has_successful_purchase = data.get("hasSuccessfulPurchase") is True
+            promo_activated = data.get("promoActivated", False) and not has_successful_purchase
             promo_discount = data.get("promoDiscount")
             await event.send_message(
                 message=f"{plan['label']} — другие способы оплаты:",
