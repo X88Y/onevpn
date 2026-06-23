@@ -1,6 +1,6 @@
 {
   "name": "mvmvpn",
-  "version": "5.0.3",
+  "version": "5.0.2",
   "description": "MVM VPN Mobile App",
   "scripts": {
     "ios": "fvm flutter run -d 00008130-001234E11041401C",
