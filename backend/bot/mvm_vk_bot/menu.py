@@ -140,14 +140,13 @@ def plan_selection_keyboard_json(
             )
         )
     
-    if not promo_activated:
-        kb.row()
-        kb.add(
-            Callback(
-                label="🎟️ Ввести промокод",
-                payload={"c": "promo_enter"},
-            )
+    kb.row()
+    kb.add(
+        Callback(
+            label="🎟️ Изменить промокод" if promo_activated else "🎟️ Ввести промокод",
+            payload={"c": "promo_enter"},
         )
+    )
         
     kb.row()
     kb.add(

@@ -17,6 +17,7 @@ _PROMO_INVALID = "invalid"
 _PROMO_ALREADY = "already"
 _PROMO_LIMIT = "limit"
 _PROMO_EXPIRED = "expired"
+_PROMO_PURCHASED = "purchased"
 
 
 def _parse_non_negative_int(value: object) -> int | None:
@@ -60,6 +61,24 @@ def _promo_is_expired(valid_until: object) -> bool:
     return datetime.now(timezone.utc) >= valid_until_dt
 
 
+def _extract_used_promo_codes(user_data: dict) -> set[str]:
+    used_codes: set[str] = set()
+    raw_used_codes = user_data.get("usedPromoCodes")
+    if isinstance(raw_used_codes, (list, tuple, set)):
+        for item in raw_used_codes:
+            if isinstance(item, str):
+                normalized = item.strip().upper()
+                if normalized:
+                    used_codes.add(normalized)
+
+    legacy_code = user_data.get("activatedPromoCode")
+    if isinstance(legacy_code, str):
+        normalized = legacy_code.strip().upper()
+        if normalized:
+            used_codes.add(normalized)
+    return used_codes
+
+
 def _activate_promo_transactional(*, db, user_ref, code_upper: str) -> tuple[str, float]:
     promo_ref = db.collection(PROMOCODES_COLLECTION).document(code_upper)
     transaction = db.transaction()
@@ -68,7 +87,11 @@ def _activate_promo_transactional(*, db, user_ref, code_upper: str) -> tuple[str
     def _run(transaction_obj):
         user_snapshot = user_ref.get(transaction=transaction_obj)
         user_data = user_snapshot.to_dict() or {}
-        if user_data.get("promoActivated"):
+        if user_data.get("hasSuccessfulPurchase") is True:
+            return _PROMO_PURCHASED, 0.0
+
+        used_codes = _extract_used_promo_codes(user_data)
+        if code_upper in used_codes:
             return _PROMO_ALREADY, 0.0
 
         promo_snapshot = promo_ref.get(transaction=transaction_obj)
@@ -104,6 +127,7 @@ def _activate_promo_transactional(*, db, user_ref, code_upper: str) -> tuple[str
                 "promoActivated": True,
                 "activatedPromoCode": code_upper,
                 "promoDiscount": discount,
+                "usedPromoCodes": sorted((*used_codes, code_upper)),
                 "updatedAt": firestore.SERVER_TIMESTAMP,
             },
             merge=True,
@@ -163,8 +187,8 @@ async def apply_promo_code_tg(tg_user: User, code: str) -> tuple[bool, str]:
     user_data = user_doc.to_dict() or {}
     user_ref = user_doc.reference
 
-    if user_data.get("promoActivated"):
-        return False, "Вы уже активировали промокод."
+    if user_data.get("hasSuccessfulPurchase") is True:
+        return False, "Промокод можно использовать только до первой покупки."
 
     code_upper = code.strip().upper()
     status, discount = await asyncio.to_thread(
@@ -174,11 +198,13 @@ async def apply_promo_code_tg(tg_user: User, code: str) -> tuple[bool, str]:
         code_upper=code_upper,
     )
     if status == _PROMO_ALREADY:
-        return False, "Вы уже активировали промокод."
+        return False, "Этот промокод уже был активирован."
     if status == _PROMO_LIMIT:
         return False, "Лимит активаций этого промокода исчерпан."
     if status == _PROMO_EXPIRED:
         return False, "Срок действия промокода истек."
+    if status == _PROMO_PURCHASED:
+        return False, "Промокод можно использовать только до первой покупки."
     if status != _PROMO_OK:
         return False, "Неверный или неактивный промокод."
 
@@ -200,8 +226,8 @@ async def apply_promo_code_vk(profile: VkProfile, code: str) -> tuple[bool, str]
     user_data = user_doc.to_dict() or {}
     user_ref = user_doc.reference
 
-    if user_data.get("promoActivated"):
-        return False, "Вы уже активировали промокод."
+    if user_data.get("hasSuccessfulPurchase") is True:
+        return False, "Промокод можно использовать только до первой покупки."
 
     code_upper = code.strip().upper()
     status, discount = await asyncio.to_thread(
@@ -211,11 +237,13 @@ async def apply_promo_code_vk(profile: VkProfile, code: str) -> tuple[bool, str]
         code_upper=code_upper,
     )
     if status == _PROMO_ALREADY:
-        return False, "Вы уже активировали промокод."
+        return False, "Этот промокод уже был активирован."
     if status == _PROMO_LIMIT:
         return False, "Лимит активаций этого промокода исчерпан."
     if status == _PROMO_EXPIRED:
         return False, "Срок действия промокода истек."
+    if status == _PROMO_PURCHASED:
+        return False, "Промокод можно использовать только до первой покупки."
     if status != _PROMO_OK:
         return False, "Неверный или неактивный промокод."
 

@@ -53,15 +53,14 @@ def plan_selection_keyboard(
             ]
         )
 
-    if not promo_activated:
-        rows.append(
-            [
-                InlineKeyboardButton(
-                    text="🎟️ Ввести промокод",
-                    callback_data="promo:enter_code",
-                )
-            ]
-        )
+    rows.append(
+        [
+            InlineKeyboardButton(
+                text="🎟️ Изменить промокод" if promo_activated else "🎟️ Ввести промокод",
+                callback_data="promo:enter_code",
+            )
+        ]
+    )
 
     rows.append(
         [
