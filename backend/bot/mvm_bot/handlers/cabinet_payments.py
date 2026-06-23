@@ -69,6 +69,8 @@ async def _mark_successful_purchase_tg(tg_user_id: int) -> None:
         lambda: user_docs[0].reference.set(
             {
                 "hasSuccessfulPurchase": True,
+                "promoActivated": False,
+                "promoDiscount": 0,
                 "updatedAt": firestore.SERVER_TIMESTAMP,
             },
             merge=True,
@@ -81,8 +83,7 @@ async def buy_subscription_callback(callback: CallbackQuery) -> None:
     await callback.answer()
     if callback.message and isinstance(callback.message, Message):
         _, data = await save_telegram_user(callback.from_user)
-        has_successful_purchase = data.get("hasSuccessfulPurchase") is True
-        promo_activated = data.get("promoActivated", False) and not has_successful_purchase
+        promo_activated = data.get("promoActivated", False)
         promo_discount = data.get("promoDiscount")
         await callback.message.answer(
             "Доступные варианты:\n\n"
@@ -109,8 +110,7 @@ async def select_plan_callback(callback: CallbackQuery, bot: Bot) -> None:
         return
 
     _, data = await save_telegram_user(callback.from_user)
-    has_successful_purchase = data.get("hasSuccessfulPurchase") is True
-    promo_activated = data.get("promoActivated", False) and not has_successful_purchase
+    promo_activated = data.get("promoActivated", False)
     promo_discount = data.get("promoDiscount")
     promo_factor = promo_multiplier(
         promo_activated,
@@ -545,8 +545,7 @@ async def select_other_payment_callback(callback: CallbackQuery, bot: Bot) -> No
         return
 
     _, data = await save_telegram_user(callback.from_user)
-    has_successful_purchase = data.get("hasSuccessfulPurchase") is True
-    promo_activated = data.get("promoActivated", False) and not has_successful_purchase
+    promo_activated = data.get("promoActivated", False)
     promo_discount = data.get("promoDiscount")
 
     parts = callback.data.split(":")

@@ -17,7 +17,6 @@ _PROMO_INVALID = "invalid"
 _PROMO_ALREADY = "already"
 _PROMO_LIMIT = "limit"
 _PROMO_EXPIRED = "expired"
-_PROMO_PURCHASED = "purchased"
 
 
 def _parse_non_negative_int(value: object) -> int | None:
@@ -87,8 +86,6 @@ def _activate_promo_transactional(*, db, user_ref, code_upper: str) -> tuple[str
     def _run(transaction_obj):
         user_snapshot = user_ref.get(transaction=transaction_obj)
         user_data = user_snapshot.to_dict() or {}
-        if user_data.get("hasSuccessfulPurchase") is True:
-            return _PROMO_PURCHASED, 0.0
 
         used_codes = _extract_used_promo_codes(user_data)
         if code_upper in used_codes:
@@ -184,11 +181,7 @@ async def apply_promo_code_tg(tg_user: User, code: str) -> tuple[bool, str]:
         return False, "Пользователь не найден."
 
     user_doc = user_docs[0]
-    user_data = user_doc.to_dict() or {}
     user_ref = user_doc.reference
-
-    if user_data.get("hasSuccessfulPurchase") is True:
-        return False, "Промокод можно использовать только до первой покупки."
 
     code_upper = code.strip().upper()
     status, discount = await asyncio.to_thread(
@@ -203,13 +196,11 @@ async def apply_promo_code_tg(tg_user: User, code: str) -> tuple[bool, str]:
         return False, "Лимит активаций этого промокода исчерпан."
     if status == _PROMO_EXPIRED:
         return False, "Срок действия промокода истек."
-    if status == _PROMO_PURCHASED:
-        return False, "Промокод можно использовать только до первой покупки."
     if status != _PROMO_OK:
         return False, "Неверный или неактивный промокод."
 
     discount_percent = int(discount * 100)
-    return True, f"Промокод активирован✅\n\nСкидка на первую покупку {discount_percent}%🥳"
+    return True, f"Промокод активирован✅\n\nСкидка на покупку {discount_percent}%🥳"
 
 async def apply_promo_code_vk(profile: VkProfile, code: str) -> tuple[bool, str]:
     db = init_firebase()
@@ -223,11 +214,7 @@ async def apply_promo_code_vk(profile: VkProfile, code: str) -> tuple[bool, str]
         return False, "Пользователь не найден."
 
     user_doc = user_docs[0]
-    user_data = user_doc.to_dict() or {}
     user_ref = user_doc.reference
-
-    if user_data.get("hasSuccessfulPurchase") is True:
-        return False, "Промокод можно использовать только до первой покупки."
 
     code_upper = code.strip().upper()
     status, discount = await asyncio.to_thread(
@@ -242,10 +229,8 @@ async def apply_promo_code_vk(profile: VkProfile, code: str) -> tuple[bool, str]
         return False, "Лимит активаций этого промокода исчерпан."
     if status == _PROMO_EXPIRED:
         return False, "Срок действия промокода истек."
-    if status == _PROMO_PURCHASED:
-        return False, "Промокод можно использовать только до первой покупки."
     if status != _PROMO_OK:
         return False, "Неверный или неактивный промокод."
 
     discount_percent = int(discount * 100)
-    return True, f"Промокод активирован✅\n\nСкидка на первую покупку {discount_percent}%🥳"
+    return True, f"Промокод активирован✅\n\nСкидка на покупку {discount_percent}%🥳"

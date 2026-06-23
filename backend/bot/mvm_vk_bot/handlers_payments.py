@@ -40,8 +40,7 @@ async def handle_pay_command(event, profile, payload: dict) -> bool:
 
     uid = event.user_id
     _, data = await save_vk_user(profile, group_id=event.group_id)
-    has_successful_purchase = data.get("hasSuccessfulPurchase") is True
-    promo_activated = data.get("promoActivated", False) and not has_successful_purchase
+    promo_activated = data.get("promoActivated", False)
     promo_discount = data.get("promoDiscount")
     promo_factor = promo_multiplier(
         promo_activated,

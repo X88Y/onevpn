@@ -39,9 +39,7 @@ async def handle_private_message(message) -> None:
             success, msg = await apply_promo_code_vk(profile, candidate)
             if success:
                 _, updated_data = await save_vk_user(profile, group_id=message.group_id)
-                promo_activated = updated_data.get("promoActivated", False) and (
-                    updated_data.get("hasSuccessfulPurchase") is not True
-                )
+                promo_activated = updated_data.get("promoActivated", False)
                 await message.answer(
                     message=msg,
                     keyboard=plan_selection_keyboard_json(

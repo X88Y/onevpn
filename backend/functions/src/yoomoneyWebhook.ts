@@ -257,6 +257,8 @@ export const yoomoneyWebhook = onRequest(
           subscriptionEndsAt: Timestamp.fromDate(newEnd),
           subscriptionTier: tier,
           hasSuccessfulPurchase: true,
+          promoActivated: false,
+          promoDiscount: 0,
           updatedAt: FieldValue.serverTimestamp(),
         };
 
