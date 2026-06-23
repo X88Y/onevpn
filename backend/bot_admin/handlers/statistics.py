@@ -522,7 +522,6 @@ def calculate_daily_chart_data(raw_data: Dict[str, List[Dict[str, Any]]], bins: 
 def plot_charts_to_buffer(chart_data: Dict[str, List[Any]]) -> io.BytesIO:
     labels = chart_data["labels"]
     regs = chart_data["registrations"]
-    click_conv = chart_data["click_conversions"]
     user_conv = chart_data["user_conversions"]
     std_purch = chart_data.get("standard_purchases", [0] * len(labels))
     prem_purch = chart_data.get("premium_purchases", [0] * len(labels))
@@ -536,7 +535,6 @@ def plot_charts_to_buffer(chart_data: Dict[str, List[Any]]) -> io.BytesIO:
     ax1.grid(True, linestyle="--", alpha=0.5)
     
     # Plot 2: Conversions (Top-Right)
-    ax2.plot(labels, click_conv, marker="o", color="#f59e0b", linewidth=2.5, label="Клик -> Оплата")
     ax2.plot(labels, user_conv, marker="s", color="#8b5cf6", linewidth=2.5, label="Рег -> Оплата")
     ax2.set_title("Конверсия (по дням, %)", fontsize=14, fontweight="bold", pad=10)
     ax2.grid(True, linestyle="--", alpha=0.5)
@@ -598,10 +596,6 @@ def plot_charts_to_buffer(chart_data: Dict[str, List[Any]]) -> io.BytesIO:
                              ha="center", va="bottom", fontsize=9, fontweight="bold", color="#1e3a8a")
                              
         # Annotate Conversions
-        for i, val in enumerate(click_conv):
-            if val > 0:
-                ax2.annotate(f"{val:.1f}%", xy=(i, val), xytext=(0, 7), textcoords="offset points",
-                             ha="center", va="bottom", fontsize=8, fontweight="bold", color="#d97706")
         for i, val in enumerate(user_conv):
             if val > 0:
                 ax2.annotate(f"{val:.1f}%", xy=(i, val), xytext=(0, -14), textcoords="offset points",
