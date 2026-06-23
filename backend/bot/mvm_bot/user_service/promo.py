@@ -9,7 +9,7 @@ from mvm_bot.user_service.helpers import VkProfile, telegram_uid, vk_uid
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_PROMO_CODES = {"MVM40", "PROMO40", "WELCOME40", "START40", "SALE40"}
+DEFAULT_PROMO_CODES = {"MVM10", "PROMO10", "WELCOME10", "START10", "SALE10"}
 PROMOCODES_COLLECTION = "promocodes"
 
 _PROMO_OK = "ok"
@@ -114,7 +114,7 @@ def _activate_promo_transactional(*, db, user_ref, code_upper: str) -> tuple[str
                 merge=True,
             )
         elif code_upper in DEFAULT_PROMO_CODES:
-            discount = 0.4
+            discount = 0.10
         else:
             return _PROMO_INVALID, 0.0
 
