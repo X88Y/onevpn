@@ -14,7 +14,7 @@ from aiogram.types import (  # type: ignore[import-not-found]
 from mvm_bot.constants import TRIAL_DAYS
 from mvm_bot.firebase_client import init_firebase
 from mvm_bot.handlers.cabinet_shared import cleanup_support_media
-from mvm_bot.main_menu import format_subscription_end, main_menu_keyboard, send_main_menu, connect_keyboard
+from mvm_bot.main_menu import format_subscription_end, main_menu_keyboard, send_main_menu
 from mvm_bot.user_service import save_telegram_user, start_telegram_trial
 from mvm_bot.user_service.helpers import telegram_uid
 
@@ -40,7 +40,7 @@ async def start(message: Message, command: CommandObject) -> None:
         resize_keyboard=True,
     )
     await message.answer(
-        "Добро пожаловать в MVM VPN! 🚀\n\nЕсли у вас не работает сайт подключение нажмите кнопку «Профиль» ниже, она обновит ваш ключ👇",
+        "Добро пожаловать в MVM VPN! 🚀\n\nНажмите кнопку «Профиль» ниже для доступа к личному кабинету 👇",
         reply_markup=reply_markup,
     )
     await send_main_menu(message, data)
@@ -125,29 +125,6 @@ async def how_to_connect_callback(callback: CallbackQuery) -> None:
             "https://vk.ru/clip-223445666_456239018"
         )
         await callback.message.answer(text)
-@router.callback_query(F.data == "menu:connect")
-async def connect_callback(callback: CallbackQuery) -> None:
-    if callback.from_user is None:
-        await callback.answer("Cannot identify Telegram user.")
-        return
-
-    from mvm_bot.user_service import save_telegram_user
-    _, data = await save_telegram_user(callback.from_user)
-
-    sub_url = data.get("remnawaveSubscriptionUrl")
-    if not sub_url:
-        await callback.answer("Ссылка для подключения не найдена.", show_alert=True)
-        return
-
-    await callback.answer()
-    if callback.message and isinstance(callback.message, Message):
-        try:
-            await callback.message.edit_reply_markup(
-                reply_markup=connect_keyboard(sub_url)
-            )
-        except Exception:
-            logging.exception("Failed to edit reply markup for connect options")
-
 
 
 @router.callback_query(F.data.startswith("survey:"))

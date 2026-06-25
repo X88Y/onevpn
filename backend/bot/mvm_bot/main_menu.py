@@ -83,7 +83,7 @@ async def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
             [
                 InlineKeyboardButton(
                     text="🔗 Подключить",
-                    callback_data="menu:connect",
+                    url=sub_url,
                     **{"style": "primary"},
                 )
             ]
@@ -138,56 +138,6 @@ async def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
             ],
         ]
     )
-    return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
-def connect_keyboard(sub_url: str) -> InlineKeyboardMarkup:
-    from urllib.parse import urlparse, urlunparse
-
-    def replace_domain(url: str, new_domain: str) -> str:
-        try:
-            parsed = urlparse(url)
-            new_parsed = parsed._replace(netloc=new_domain)
-            return urlunparse(new_parsed)
-        except Exception:
-            return url
-
-    rows = [
-        [
-            InlineKeyboardButton(
-                text="🔗 Подключить",
-                url=sub_url,
-                **{"style": "primary"},
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text="Подключить БС №1",
-                url=replace_domain(sub_url, "jl1x2z77a9.cdn.twcstorage.ru"),
-                **{"style": "primary"},
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text="Подключить БС №2",
-                url=replace_domain(sub_url, "gpy4me9ehp.cdn.twcstorage.ru"),
-                **{"style": "primary"},
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text="Подключить БС №3",
-                url=replace_domain(sub_url, "hd6458sp7z.cdn.twcstorage.ru"),
-                **{"style": "primary"},
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text="« Назад",
-                callback_data="menu:main",
-            )
-        ]
-    ]
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 

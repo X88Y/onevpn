@@ -25,7 +25,7 @@ async def handle_private_message(message) -> None:
         kb = Keyboard(one_time=False, inline=False)
         kb.add(Text("Профиль"))
         await message.answer(
-            message="Добро пожаловать в MVM VPN! 🚀\n\nЕсли у вас не работает сайт подключение нажмите кнопку «Профиль» ниже, она обновит ваш ключ👇",
+            message="Добро пожаловать в MVM VPN! 🚀\n\nНажмите кнопку «Профиль» ниже для перехода в личный кабинет 👇",
             keyboard=kb.get_json(),
         )
         await send_main_menu(message, data)
@@ -59,7 +59,7 @@ async def handle_private_message(message) -> None:
     kb = Keyboard(one_time=False, inline=False)
     kb.add(Text("Профиль"))
     await message.answer(
-        message="Добро пожаловать в MVM VPN! 🚀\n\nЕсли у вас не работает сайт подключение нажмите кнопку «Профиль» ниже, она обновит ваш ключ👇",
+        message="Добро пожаловать в MVM VPN! 🚀\n\nНажмите кнопку «Профиль» ниже для перехода в личный кабинет 👇",
         keyboard=kb.get_json(),
     )
     await send_main_menu(message, data)
