@@ -324,11 +324,43 @@ async def check_and_send_trial_retention_messages() -> None:
                     "https://vk.ru/clip-223445666_456239027\n\n"
                     "К белым спискам — https://vk.ru/clip-223445666_456239020"
                 )
+                
+                tg_reply_markup = None
+                vk_keyboard = None
+                sub_url = user_data.get("remnawaveSubscriptionUrl")
+                if sub_url:
+                    from urllib.parse import urlparse, urlunparse
+                    def replace_domain(url: str, new_domain: str) -> str:
+                        try:
+                            parsed = urlparse(url)
+                            new_parsed = parsed._replace(netloc=new_domain)
+                            return urlunparse(new_parsed)
+                        except Exception:
+                            return url
+
+                    tg_reply_markup = {
+                        "inline_keyboard": [
+                            [{"text": "🔗 Подключить", "url": sub_url}],
+                            [{"text": "Резерв №1", "url": replace_domain(sub_url, "jl1x2z77a9.cdn.twcstorage.ru")}],
+                            [{"text": "Резерв №2", "url": replace_domain(sub_url, "gpy4me9ehp.cdn.twcstorage.ru")}],
+                            [{"text": "Резерв №3", "url": replace_domain(sub_url, "hd6458sp7z.cdn.twcstorage.ru")}],
+                        ]
+                    }
+                    vk_keyboard = json.dumps({
+                        "inline": True,
+                        "buttons": [
+                            [{"action": {"type": "open_link", "label": "🔗 Подключить", "link": sub_url}}],
+                            [{"action": {"type": "open_link", "label": "Резерв №1", "link": replace_domain(sub_url, "jl1x2z77a9.cdn.twcstorage.ru")}}],
+                            [{"action": {"type": "open_link", "label": "Резерв №2", "link": replace_domain(sub_url, "gpy4me9ehp.cdn.twcstorage.ru")}}],
+                            [{"action": {"type": "open_link", "label": "Резерв №3", "link": replace_domain(sub_url, "hd6458sp7z.cdn.twcstorage.ru")}}],
+                        ]
+                    })
+
                 success = False
                 if tg_id:
-                    success = await _notify_telegram_photo(tg_id, trial_img, caption)
+                    success = await _notify_telegram_photo(tg_id, trial_img, caption, reply_markup=tg_reply_markup)
                 if vk_id:
-                    success_vk = await _notify_vk_photo(vk_id, trial_img, caption)
+                    success_vk = await _notify_vk_photo(vk_id, trial_img, caption, keyboard=vk_keyboard)
                     success = success or success_vk
                     
                 if success:
