@@ -79,9 +79,9 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
     sub_url = data.get("remnawaveSubscriptionUrl")
     if is_active and sub_url:
         kb.add(
-            OpenLink(
+            Callback(
                 label="🔗 Подключить",
-                link=sub_url,
+                payload={"c": "connect"},
             )
         )
         kb.row()
@@ -106,6 +106,30 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
 
     kb.add(Callback(label="❓ Как подключить", payload={"c": "how_to_connect"}))
     kb.add(Callback(label="💬 Поддержка", payload={"c": "support"}))
+    return kb.get_json()
+
+
+def connect_keyboard_json(sub_url: str) -> str:
+    from urllib.parse import urlparse, urlunparse
+
+    def replace_domain(url: str, new_domain: str) -> str:
+        try:
+            parsed = urlparse(url)
+            new_parsed = parsed._replace(netloc=new_domain)
+            return urlunparse(new_parsed)
+        except Exception:
+            return url
+
+    kb = Keyboard(inline=True)
+    kb.add(OpenLink(label="🔗 Подключить", link=sub_url))
+    kb.row()
+    kb.add(OpenLink(label="Подключить БС №1", link=replace_domain(sub_url, "jl1x2z77a9.cdn.twcstorage.ru")))
+    kb.row()
+    kb.add(OpenLink(label="Подключить БС №2", link=replace_domain(sub_url, "gpy4me9ehp.cdn.twcstorage.ru")))
+    kb.row()
+    kb.add(OpenLink(label="Подключить БС №3", link=replace_domain(sub_url, "hd6458sp7z.cdn.twcstorage.ru")))
+    kb.row()
+    kb.add(Callback(label="« Главное меню", payload={"c": "main"}))
     return kb.get_json()
 
 

@@ -43,6 +43,7 @@ from mvm_vk_bot.menu import (
     send_main_menu,
     send_main_menu_from_event,
     devices_keyboard_json,
+    connect_keyboard_json,
     send_support_menu,
     send_support_vpn_errors_menu,
     support_answer_keyboard_json,
@@ -138,6 +139,19 @@ def register_handlers(bot: Bot) -> None:
             await event.send_message(
                 message=confirm,
                 keyboard=await main_menu_keyboard_json(event.user_id, data),
+            )
+            return
+
+        if cmd == "connect":
+            _, data = await save_vk_user(profile, group_id=event.group_id)
+            sub_url = data.get("remnawaveSubscriptionUrl")
+            if not sub_url:
+                await event.send_message(message="Ссылка для подключения не найдена.")
+                return
+            kb = connect_keyboard_json(sub_url)
+            await event.send_message(
+                message="Выберите способ подключения 👇",
+                keyboard=kb,
             )
             return
 
