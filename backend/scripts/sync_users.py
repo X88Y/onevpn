@@ -118,6 +118,15 @@ async def list_all_remnawave_users(sdk) -> List[Any]:
             raise
     return all_users
 
+async def get_rw_user_by_username(sdk, username: str) -> Optional[Any]:
+    try:
+        return await sdk.users.get_user_by_username(username)
+    except Exception as exc:
+        exc_str = str(exc).lower()
+        if "404" in exc_str or "not found" in exc_str:
+            return None
+        raise
+
 async def update_rw_user(
     sdk,
     uuid_str: str,
@@ -413,15 +422,30 @@ async def main():
             target_description = await build_user_description(user_uid, user_data)
 
             if not args.dry_run:
-                resp = await create_rw_user(
-                    sdk,
-                    username=username_std,
-                    expire_at=rw_expire_at,
-                    status_str=target_status,
-                    telegram_id=tg_id,
-                    squad_uuid_str=remnawave_internal_squad_uuid(),
-                    description=target_description
-                )
+                try:
+                    resp = await create_rw_user(
+                        sdk,
+                        username=username_std,
+                        expire_at=rw_expire_at,
+                        status_str=target_status,
+                        telegram_id=tg_id,
+                        squad_uuid_str=remnawave_internal_squad_uuid(),
+                        description=target_description
+                    )
+                except Exception as e:
+                    # A019 appears when the user was created in a previous/interrupted run.
+                    if "a019" in str(e).lower() or "username already exists" in str(e).lower():
+                        existing_user = await get_rw_user_by_username(sdk, username_std)
+                        if existing_user is None:
+                            raise
+                        logger.warning(
+                            "Create conflicted for '%s', using existing Remnawave user UUID=%s",
+                            username_std,
+                            existing_user.uuid,
+                        )
+                        resp = existing_user
+                    else:
+                        raise
                 rw_uuid = str(resp.uuid)
                 rw_short = str(resp.short_uuid)
                 rw_sub_url = str(resp.subscription_url)

@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Mass send message to VK users and extend their subscription by +2 days."""
+"""Mass send a VK message with optional photo attachments."""
 
-import sys
-from pathlib import Path
-import os
 import argparse
 import asyncio
 import logging
-from datetime import datetime, timezone, timedelta
+import sys
+from datetime import datetime, time, timedelta, timezone
+from pathlib import Path
 from typing import Any, List, Optional
 import aiohttp
 from dotenv import load_dotenv
@@ -22,7 +21,8 @@ logger = logging.getLogger("mass_send_vk")
 
 # Discover directories
 script_dir = Path(__file__).resolve().parent
-bot_dir = script_dir / "bot"
+backend_dir = script_dir.parent
+bot_dir = backend_dir / "bot"
 if not bot_dir.is_dir():
     if (script_dir / "mvm_bot").is_dir():
         bot_dir = script_dir
@@ -35,7 +35,7 @@ sys.path.insert(0, str(bot_dir))
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Mass send a VK message to VK users and extend subscription by N days."
+        description="Mass send a VK message to VK users."
     )
     parser.add_argument(
         "--env",
@@ -47,12 +47,14 @@ def parse_args():
         "--message",
         type=str,
         default=(
-            "Если ВПН перестал работать, не пугайтесь❗️\n\n"
-            "Мы обновили сервера и исправили мелкие ошибки. \n\n"
-            "Что бы возобновить работу ВПН: \n"
-            "— Удалите старое подключение.\n"
-            "— Нажмите в этом сообщение на кнопку «Подключить» и добавьте подписку еще раз👇👇\n\n"
-            "В качестве извинений за предоставленные неудобства дарим вам +2 дня бесплатного пользования🫶"
+            "Уважаемые пользователи🫶\n\n"
+            "Hit VPN / Hit Wave подвергся блокировке РКН и в ближайшее время не будет работать!\n\n"
+            "Для вашего удобства, что бы Вы всегда оставались на связи и с доступом в интернет сделали отдельный MVM VPN.\n\n"
+            "Стоимость подписки поставили минимальную и в добавок 4 пробных дня.\n\n"
+            "Что бы подключиться, воспользуйтесь инструкцией - https://vk.ru/clip-223445666_456239027\n\n"
+            "❗️Также у нас на пару часов ломался сайт подключения «Ошибка 403 Forbiden» эту ошибку исправили, что бы ключ подключения обновился и сайт заработал, нажмите кнопку «Профиль» и в новом сообщение от бота все должно работать🙌\n\n"
+            "Просим прощения за доставленные неудобства и в качестве извинений прикрепляем промокод на небольшую скидку : MVM10\n\n"
+            "Спасибо за понимание🫡"
         ),
         help="Message to send to VK users."
     )
@@ -61,13 +63,7 @@ def parse_args():
         type=str,
         nargs="*",
         default=None,
-        help="List of image paths to attach (defaults to 1.jpg and 2.jpg in backend/assets)."
-    )
-    parser.add_argument(
-        "--days",
-        type=int,
-        default=2,
-        help="Number of days to add to subscription (default: 2)."
+        help="List of image paths to attach (defaults to scripts/media/prfile.jpg)."
     )
     parser.add_argument(
         "--limit",
@@ -89,7 +85,33 @@ def parse_args():
     parser.add_argument(
         "--skip-msg-failures",
         action="store_true",
-        help="If set, do not update Firestore/Remnawave for users where message failed on all tokens."
+        help="Unused compatibility flag (kept for backward-compatible CLI invocations)."
+    )
+    parser.add_argument(
+        "--since",
+        type=str,
+        default=None,
+        help=(
+            "Start of recipients activity window. "
+            "ISO format, e.g. 2026-06-23T14:00:00 or 2026-06-23 14:00:00 "
+            "(without timezone = local timezone). "
+            "Default: yesterday at 14:00 local time."
+        ),
+    )
+    parser.add_argument(
+        "--until",
+        type=str,
+        default=None,
+        help=(
+            "End of recipients activity window in ISO format. "
+            "Default: now."
+        ),
+    )
+    parser.add_argument(
+        "--sent-log",
+        type=str,
+        default=None,
+        help="Path to append VK user IDs after successful send (default: scripts/sended_group_profile.txt).",
     )
     parser.add_argument(
         "--verbose",
@@ -97,6 +119,35 @@ def parse_args():
         help="Print verbose debug logs."
     )
     return parser.parse_args()
+
+
+def _default_since_utc() -> datetime:
+    now_local = datetime.now().astimezone()
+    yesterday_local_date = (now_local - timedelta(days=1)).date()
+    since_local = datetime.combine(
+        yesterday_local_date,
+        time(hour=14, minute=0, second=0),
+        tzinfo=now_local.tzinfo,
+    )
+    return since_local.astimezone(timezone.utc)
+
+
+def _parse_dt_arg(value: str, field_name: str) -> datetime:
+    try:
+        dt = datetime.fromisoformat(value.strip())
+    except ValueError as exc:
+        raise ValueError(
+            f"Invalid {field_name}: {value!r}. Use ISO format like 2026-06-23T14:00:00."
+        ) from exc
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=datetime.now().astimezone().tzinfo)
+    return dt.astimezone(timezone.utc)
+
+
+def _append_sent_user_id(log_path: Path, vk_id: str, user_uid: str) -> None:
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with log_path.open("a", encoding="utf-8") as log_file:
+        log_file.write(f"{vk_id}\t{user_uid}\n")
 
 def _extract_provider_id(value: Any) -> Optional[str]:
     if value is None:
@@ -254,9 +305,24 @@ async def main():
     if args.images is not None:
         image_paths = [Path(p) for p in args.images]
     else:
-        # Default to 1.jpg and 2.jpg in assets/
-        assets_dir = script_dir / "assets"
-        image_paths = [assets_dir / "1.jpg", assets_dir / "2.jpg"]
+        # Default to scripts/media/prfile.jpg
+        image_paths = [script_dir / "media" / "prfile.jpg"]
+
+    # Resolve recipients activity window
+    try:
+        since_utc = _parse_dt_arg(args.since, "since") if args.since else _default_since_utc()
+        until_utc = _parse_dt_arg(args.until, "until") if args.until else datetime.now(timezone.utc)
+    except ValueError as dt_err:
+        logger.error(str(dt_err))
+        sys.exit(1)
+
+    if since_utc >= until_utc:
+        logger.error("Invalid time window: --since must be earlier than --until.")
+        sys.exit(1)
+
+    sent_log_path = Path(args.sent_log) if args.sent_log else script_dir / "sended_group_profile.txt"
+    if not args.dry_run:
+        logger.info("Successful sends will be appended to %s", sent_log_path)
 
     # Resolve env path
     env_path = args.env
@@ -266,8 +332,8 @@ async def main():
         # Try bot/.env first, then server_manager/.env
         if (bot_dir / ".env").exists():
             target_env = bot_dir / ".env"
-        elif (script_dir / "server_manager" / ".env").exists():
-            target_env = script_dir / "server_manager" / ".env"
+        elif (backend_dir / "server_manager" / ".env").exists():
+            target_env = backend_dir / "server_manager" / ".env"
         else:
             target_env = Path(".env")
 
@@ -279,11 +345,9 @@ async def main():
 
     # Import modules now that env vars are loaded
     try:
-        from firebase_admin import firestore
         from mvm_bot.firebase_client import init_firebase
         from mvm_bot.datetime_utils import as_utc_datetime
         from mvm_bot.config import vk_bot_tokens
-        from mvm_bot.user_service import _update_remnawave_subscription
     except ImportError as e:
         logger.error(f"Failed to import dependencies: {e}. Are you inside the correct virtual environment?")
         sys.exit(1)
@@ -293,6 +357,11 @@ async def main():
         logger.error("No VK_BOT_TOKENS or VK_BOT_TOKEN found in environment/env file.")
         sys.exit(1)
     logger.info(f"Loaded {len(tokens)} VK bot token(s).")
+    logger.info(
+        "Recipients activity window (UTC): %s -> %s",
+        since_utc.isoformat(),
+        until_utc.isoformat(),
+    )
 
     # Pre-upload images/attachments at startup (with retries inside _get_or_upload_attachments)
     if not args.dry_run and image_paths:
@@ -325,10 +394,9 @@ async def main():
     logger.info(f"Found {len(fb_snaps)} candidate user(s) with VK integration.")
 
     processed_count = 0
+    matched_by_time_count = 0
     success_msg_count = 0
     fail_msg_count = 0
-    updated_db_count = 0
-    skipped_db_count = 0
 
     for snap in fb_snaps:
         if args.limit and processed_count >= args.limit:
@@ -344,28 +412,30 @@ async def main():
             logger.warning(f"Skipping user {user_uid}: externalVk is invalid ({external_vk})")
             continue
 
-        processed_count += 1
-        logger.info(f"[{processed_count}/{len(fb_snaps)}] Processing user {user_uid} (VK ID: {vk_id})...")
-
-        # Check if subscription has ended
-        ends_at = as_utc_datetime(user_data.get("subscriptionEndsAt"))
-        now = datetime.now(timezone.utc)
-        if not ends_at or ends_at <= now:
-            logger.info(f"Skipping user {user_uid}: subscription has ended or is inactive.")
-            skipped_db_count += 1
+        # Filter recipients by last activity ("who wrote yesterday from 14:00")
+        updated_at = as_utc_datetime(user_data.get("updatedAt"))
+        if not updated_at:
+            logger.info(f"Skipping user {user_uid}: no updatedAt timestamp.")
+            continue
+        if updated_at < since_utc or updated_at > until_utc:
             continue
 
-        # Build keyboard with connection button if subscription URL exists
-        sub_url = user_data.get("remnawaveSubscriptionUrl")
+        matched_by_time_count += 1
+        processed_count += 1
+        logger.info(
+            f"[{processed_count}/{len(fb_snaps)}] Processing user {user_uid} "
+            f"(VK ID: {vk_id}, updatedAt={updated_at.isoformat()})..."
+        )
+
+        # Build keyboard with "Профиль" button (same as bot welcome flow)
         keyboard_json = None
-        if sub_url:
-            try:
-                from vkbottle import Keyboard, OpenLink
-                kb = Keyboard(inline=True)
-                kb.add(OpenLink(label="🔗 Подключить", link=sub_url))
-                keyboard_json = kb.get_json()
-            except Exception as kb_err:
-                logger.error(f"Failed to generate keyboard for user {user_uid}: {kb_err}")
+        try:
+            from vkbottle import Keyboard, Text
+            kb = Keyboard(one_time=False, inline=False)
+            kb.add(Text("Профиль"))
+            keyboard_json = kb.get_json()
+        except Exception as kb_err:
+            logger.error(f"Failed to generate keyboard for user {user_uid}: {kb_err}")
 
         # 1. Send VK message
         msg_sent = await send_vk_message(
@@ -378,48 +448,19 @@ async def main():
         )
         if msg_sent:
             success_msg_count += 1
+            if not args.dry_run:
+                _append_sent_user_id(sent_log_path, vk_id, user_uid)
         else:
             fail_msg_count += 1
-
-        # 2. Add days to subscription
-        if not msg_sent and args.skip_msg_failures:
-            logger.info(f"Skipping subscription extension for user {user_uid} because message failed to send.")
-            skipped_db_count += 1
-            continue
-
-        new_ends_at = ends_at + timedelta(days=args.days)
-
-        if not args.dry_run:
-            try:
-                # Update Firestore
-                await asyncio.to_thread(
-                    lambda: snap.reference.update({
-                        "subscriptionEndsAt": new_ends_at,
-                        "updatedAt": firestore.SERVER_TIMESTAMP,
-                    })
-                )
-                
-                # Update Remnawave
-                try:
-                    await _update_remnawave_subscription(user_uid, new_ends_at)
-                    logger.info(f"Successfully extended subscription by +{args.days} days and synced to Remnawave for user {user_uid}.")
-                except Exception as rw_err:
-                    logger.error(f"Firestore updated, but failed to sync to Remnawave for user {user_uid}: {rw_err}")
-                
-                updated_db_count += 1
-            except Exception as db_err:
-                logger.error(f"Failed to update Firestore for user {user_uid}: {db_err}")
-        else:
-            logger.info(f"[Dry Run] Would extend subscription by +{args.days} days for user {user_uid}. (New expiry: {new_ends_at})")
-            updated_db_count += 1
 
     # Print summary
     logger.info("=== Process Finished ===")
     logger.info(f"Total processed users: {processed_count}")
+    logger.info(f"Matched by activity window: {matched_by_time_count}")
     logger.info(f"VK Messages sent successfully: {success_msg_count}")
     logger.info(f"VK Messages failed: {fail_msg_count}")
-    logger.info(f"Subscriptions extended/updated: {updated_db_count}")
-    logger.info(f"Subscriptions skipped: {skipped_db_count}")
+    if not args.dry_run and success_msg_count:
+        logger.info("Sent user IDs saved to %s", sent_log_path)
 
 if __name__ == "__main__":
     asyncio.run(main())
