@@ -71,6 +71,7 @@ async def _mark_successful_purchase_tg(tg_user_id: int) -> None:
                 "hasSuccessfulPurchase": True,
                 "promoActivated": False,
                 "promoDiscount": 0,
+                "cardDeleted": False,
                 "updatedAt": firestore.SERVER_TIMESTAMP,
             },
             merge=True,
@@ -98,6 +99,7 @@ async def buy_subscription_callback(callback: CallbackQuery) -> None:
             reply_markup=plan_selection_keyboard(
                 promo_activated=promo_activated,
                 promo_discount=promo_discount,
+                user_data=data,
             ),
             parse_mode=ParseMode.HTML,
         )

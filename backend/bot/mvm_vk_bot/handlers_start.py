@@ -45,6 +45,7 @@ async def handle_private_message(message) -> None:
                     keyboard=plan_selection_keyboard_json(
                         promo_activated=promo_activated,
                         promo_discount=updated_data.get("promoDiscount"),
+                        user_data=updated_data,
                     ),
                 )
             else:

@@ -133,6 +133,7 @@ async def process_promo_code_input(message: Message, state: FSMContext) -> None:
             reply_markup=plan_selection_keyboard(
                 promo_activated=True,
                 promo_discount=data.get("promoDiscount"),
+                user_data=data,
             ),
             parse_mode=ParseMode.HTML,
         )
@@ -167,8 +168,47 @@ async def auto_detect_promo_from_message(message: Message, state: FSMContext) ->
             reply_markup=plan_selection_keyboard(
                 promo_activated=True,
                 promo_discount=data.get("promoDiscount"),
+                user_data=data,
             ),
             parse_mode=ParseMode.HTML,
         )
     else:
         await message.answer(f"❌ {text}")
+
+
+@router.callback_query(F.data == "promo:delete_card")
+async def delete_card_callback(callback: CallbackQuery) -> None:
+    if callback.from_user is None:
+        await callback.answer("Ошибка идентификации пользователя.", show_alert=True)
+        return
+
+    from mvm_bot.firebase_client import init_firebase
+    from mvm_bot.user_service.helpers import telegram_uid
+
+    db = init_firebase()
+    auth_uid = telegram_uid(callback.from_user.id)
+    users_ref = db.collection("users")
+
+    def perform_update():
+        docs = users_ref.where("externalTg", "in", [auth_uid, str(callback.from_user.id)]).limit(1).get()
+        if docs:
+            docs[0].reference.update({"cardDeleted": True})
+
+    await asyncio.to_thread(perform_update)
+    await callback.answer("💳 Карта успешно удалена!", show_alert=True)
+
+    _, data = await save_telegram_user(callback.from_user)
+    promo_activated = data.get("promoActivated", False)
+    promo_discount = data.get("promoDiscount")
+
+    if callback.message and isinstance(callback.message, Message):
+        try:
+            await callback.message.edit_reply_markup(
+                reply_markup=plan_selection_keyboard(
+                    promo_activated=promo_activated,
+                    promo_discount=promo_discount,
+                    user_data=data,
+                )
+            )
+        except Exception:
+            pass

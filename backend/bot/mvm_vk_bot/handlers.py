@@ -160,6 +160,7 @@ def register_handlers(bot: Bot) -> None:
                 keyboard=plan_selection_keyboard_json(
                     promo_activated=promo_activated,
                     promo_discount=promo_discount,
+                    user_data=data,
                 ),
             )
             return
@@ -207,6 +208,43 @@ def register_handlers(bot: Bot) -> None:
         if cmd == "promo_enter":
             await event.send_message(
                 message="🎟️ Чтобы активировать промокод, отправьте его в чат с приставкой promo_, например: promo_MVM40"
+            )
+            return
+
+        if cmd == "delete_card":
+            db = init_firebase()
+            auth_uid = vk_uid(profile.id)
+            users_ref = db.collection("users")
+
+            def perform_update():
+                docs = users_ref.where("externalVk", "in", [auth_uid, str(profile.id)]).limit(1).get()
+                if docs:
+                    docs[0].reference.update({"cardDeleted": True})
+
+            await asyncio.to_thread(perform_update)
+            await _ack(event, "💳 Карта успешно удалена!")
+
+            _, data = await save_vk_user(profile, group_id=event.group_id)
+            promo_activated = data.get("promoActivated", False)
+            promo_discount = data.get("promoDiscount")
+
+            await event.send_message(
+                message=(
+                    "Доступные варианты:\n\n"
+                    "🤩 Standart:\n"
+                    "— 1 устройство;\n"
+                    "— базовые ускорители при ограничениях;\n"
+                    "— 6 серверов;\n\n"
+                    "💎 Premium:\n"
+                    "— 7 устройств;\n"
+                    "— дополнительные ускорители при ограничениях;\n"
+                    "— 22 сервера;"
+                ),
+                keyboard=plan_selection_keyboard_json(
+                    promo_activated=promo_activated,
+                    promo_discount=promo_discount,
+                    user_data=data,
+                )
             )
             return
 

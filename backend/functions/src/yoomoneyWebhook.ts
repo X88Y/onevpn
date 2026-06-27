@@ -259,6 +259,7 @@ export const yoomoneyWebhook = onRequest(
           hasSuccessfulPurchase: true,
           promoActivated: false,
           promoDiscount: 0,
+          cardDeleted: false,
           updatedAt: FieldValue.serverTimestamp(),
         };
 

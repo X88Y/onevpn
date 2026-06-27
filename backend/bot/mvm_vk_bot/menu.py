@@ -112,6 +112,7 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
 def plan_selection_keyboard_json(
     promo_activated: bool = False,
     promo_discount: object | None = None,
+    user_data: dict | None = None,
 ) -> str:
     promo_factor = promo_multiplier(
         promo_activated,
@@ -141,10 +142,23 @@ def plan_selection_keyboard_json(
         )
     
     kb.row()
+    is_active = False
+    card_deleted = False
+    if user_data:
+        is_active = has_active_subscription(user_data)
+        card_deleted = user_data.get("cardDeleted", False)
+
+    if is_active and not card_deleted:
+        label_btn = "💳 Удалить карту"
+        payload_btn = {"c": "delete_card"}
+    else:
+        label_btn = "🎟️ Изменить промокод" if promo_activated else "🎟️ Ввести промокод"
+        payload_btn = {"c": "promo_enter"}
+
     kb.add(
         Callback(
-            label="🎟️ Изменить промокод" if promo_activated else "🎟️ Ввести промокод",
-            payload={"c": "promo_enter"},
+            label=label_btn,
+            payload=payload_btn,
         )
     )
         

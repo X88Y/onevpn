@@ -224,6 +224,7 @@ export const plategaWebhook = onRequest(
             hasSuccessfulPurchase: true,
             promoActivated: false,
             promoDiscount: 0,
+            cardDeleted: false,
             updatedAt: FieldValue.serverTimestamp(),
           },
           {merge: true}

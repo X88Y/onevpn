@@ -28,6 +28,7 @@ class PromoStates(StatesGroup):
 def plan_selection_keyboard(
     promo_activated: bool = False,
     promo_discount: object | None = None,
+    user_data: dict | None = None,
 ) -> InlineKeyboardMarkup:
     promo_factor = promo_multiplier(
         promo_activated,
@@ -53,11 +54,25 @@ def plan_selection_keyboard(
             ]
         )
 
+    is_active = False
+    card_deleted = False
+    if user_data:
+        from mvm_bot.main_menu import has_active_subscription
+        is_active = has_active_subscription(user_data)
+        card_deleted = user_data.get("cardDeleted", False)
+
+    if is_active and not card_deleted:
+        promo_btn_text = "💳 Удалить карту"
+        promo_callback = "promo:delete_card"
+    else:
+        promo_btn_text = "🎟️ Изменить промокод" if promo_activated else "🎟️ Ввести промокод"
+        promo_callback = "promo:enter_code"
+
     rows.append(
         [
             InlineKeyboardButton(
-                text="🎟️ Изменить промокод" if promo_activated else "🎟️ Ввести промокод",
-                callback_data="promo:enter_code",
+                text=promo_btn_text,
+                callback_data=promo_callback,
             )
         ]
     )
