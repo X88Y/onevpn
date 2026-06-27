@@ -284,6 +284,7 @@ export const syncUser = onCall(
             externalAppleId: null,
             externalTg: provider === "tg" ? rawId : null,
             externalVk: provider === "vk" ? rawId : null,
+            renewalDaysBefore: 3,
             createdAt: FieldValue.serverTimestamp(),
             updatedAt: FieldValue.serverTimestamp(),
           }, {merge: true});

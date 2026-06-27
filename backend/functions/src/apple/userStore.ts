@@ -61,6 +61,7 @@ export async function findOrCreateAppleUserRecord(
     externalAppleId,
     externalTg: null,
     externalVk: null,
+    renewalDaysBefore: 3,
   }, {merge: true});
 
   return ref.id;

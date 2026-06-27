@@ -26,7 +26,7 @@ from mvm_bot.remnawave_client import RemnawaveError, get_user_by_username
 logger = logging.getLogger(__name__)
 
 USERS_COLLECTION = "users"
-PRE_EXPIRY_HOURS = 24
+PRE_EXPIRY_HOURS = 23
 
 
 def _extract_provider_id(value: Any) -> Optional[str]:

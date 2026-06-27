@@ -176,8 +176,25 @@ async def auto_detect_promo_from_message(message: Message, state: FSMContext) ->
         await message.answer(f"❌ {text}")
 
 
-@router.callback_query(F.data == "promo:delete_card")
-async def delete_card_callback(callback: CallbackQuery) -> None:
+@router.callback_query(F.data == "promo:delete_card_confirm")
+async def delete_card_confirm_callback(callback: CallbackQuery) -> None:
+    await callback.answer()
+    if callback.message and isinstance(callback.message, Message):
+        await callback.message.answer(
+            "🗑️ Вы уверены, что хотите удалить привязанную карту?",
+            reply_markup=InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(text="✅ Да, удалить", callback_data="promo:delete_card_yes"),
+                        InlineKeyboardButton(text="🚫 Не удалять", callback_data="promo:delete_card_no"),
+                    ]
+                ]
+            ),
+        )
+
+
+@router.callback_query(F.data == "promo:delete_card_yes")
+async def delete_card_yes_callback(callback: CallbackQuery) -> None:
     if callback.from_user is None:
         await callback.answer("Ошибка идентификации пользователя.", show_alert=True)
         return
@@ -192,23 +209,244 @@ async def delete_card_callback(callback: CallbackQuery) -> None:
     def perform_update():
         docs = users_ref.where("externalTg", "in", [auth_uid, str(callback.from_user.id)]).limit(1).get()
         if docs:
-            docs[0].reference.update({"cardDeleted": True})
+            docs[0].reference.update({
+                "cardDeleted": True,
+                "autoRenewalEnabled": False
+            })
 
     await asyncio.to_thread(perform_update)
     await callback.answer("💳 Карта успешно удалена!", show_alert=True)
 
+    # Delete the confirmation message
+    if callback.message and isinstance(callback.message, Message):
+        try:
+            await callback.message.delete()
+        except Exception:
+            pass
+
+
+@router.callback_query(F.data == "promo:delete_card_no")
+async def delete_card_no_callback(callback: CallbackQuery) -> None:
+    await callback.answer()
+    # Delete the confirmation message
+    if callback.message and isinstance(callback.message, Message):
+        try:
+            await callback.message.delete()
+        except Exception:
+            pass
+
+
+
+def subscription_management_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="✅ Включить автоплатеж", callback_data="sub:toggle_on"),
+            ],
+            [
+                InlineKeyboardButton(text="❌ Выключить автоплатеж", callback_data="sub:toggle_off"),
+            ],
+            [
+                InlineKeyboardButton(text="⏰ Настроить дни", callback_data="sub:set_days"),
+            ],
+            [
+                InlineKeyboardButton(text="💳 Удалить карту", callback_data="promo:delete_card_confirm"),
+            ],
+            [
+                InlineKeyboardButton(text="« Назад", callback_data="menu:buy_subscription"),
+            ],
+        ]
+    )
+
+
+def renewal_days_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="1 день", callback_data="sub:days:1")],
+            [InlineKeyboardButton(text="3 дня", callback_data="sub:days:3")],
+            [InlineKeyboardButton(text="14 дней", callback_data="sub:days:14")],
+            [InlineKeyboardButton(text="« Назад", callback_data="sub:manage")],
+        ]
+    )
+
+
+def get_subscription_status_text(data: dict) -> str:
+    from mvm_bot.main_menu import format_subscription_end
+    sub_end = format_subscription_end(data)
+    auto_pay = "✅ Включен" if data.get("autoRenewalEnabled") is True else "❌ Выключен"
+    days_val = data.get("renewalDaysBefore", 3)
+    days_map = {1: "1 день", 3: "3 дня", 14: "14 дней"}
+    days_str = days_map.get(days_val, f"{days_val} дн.")
+
+    return (
+        "📋 <b>Управление подпиской</b>\n\n"
+        f"📅 <b>Подписка:</b> {sub_end}\n"
+        f"💳 <b>Автоплатеж:</b> {auto_pay}\n"
+        f"⏰ <b>Списание за:</b> {days_str} до окончания"
+    )
+
+
+@router.callback_query(F.data == "sub:manage")
+async def subscription_manage_callback(callback: CallbackQuery) -> None:
+    await callback.answer()
+    if callback.from_user is None:
+        return
     _, data = await save_telegram_user(callback.from_user)
-    promo_activated = data.get("promoActivated", False)
-    promo_discount = data.get("promoDiscount")
+    status_text = get_subscription_status_text(data)
 
     if callback.message and isinstance(callback.message, Message):
         try:
-            await callback.message.edit_reply_markup(
-                reply_markup=plan_selection_keyboard(
-                    promo_activated=promo_activated,
-                    promo_discount=promo_discount,
-                    user_data=data,
-                )
+            await callback.message.edit_text(
+                status_text,
+                reply_markup=subscription_management_keyboard(),
+                parse_mode=ParseMode.HTML,
             )
+        except Exception:
+            await callback.message.answer(
+                status_text,
+                reply_markup=subscription_management_keyboard(),
+                parse_mode=ParseMode.HTML,
+            )
+
+
+@router.callback_query(F.data == "sub:set_days")
+async def subscription_set_days_callback(callback: CallbackQuery) -> None:
+    await callback.answer()
+    if callback.message and isinstance(callback.message, Message):
+        try:
+            await callback.message.edit_text(
+                "⏰ Выберите за сколько дней до окончания списывать средства:",
+                reply_markup=renewal_days_keyboard(),
+            )
+        except Exception:
+            await callback.message.answer(
+                "⏰ Выберите за сколько дней до окончания списывать средства:",
+                reply_markup=renewal_days_keyboard(),
+            )
+
+
+@router.callback_query(F.data.startswith("sub:days:"))
+async def subscription_days_selected_callback(callback: CallbackQuery) -> None:
+    if callback.data is None:
+        await callback.answer()
+        return
+
+    days_str = callback.data.split(":")[-1]
+    days_map = {"1": "1 день", "3": "3 дня", "14": "14 дней"}
+    label = days_map.get(days_str, days_str)
+
+    if callback.from_user is not None:
+        from mvm_bot.firebase_client import init_firebase
+        from mvm_bot.user_service.helpers import telegram_uid
+
+        db = init_firebase()
+        auth_uid = telegram_uid(callback.from_user.id)
+        users_ref = db.collection("users")
+        tg_id_str = str(callback.from_user.id)
+
+        def save_days():
+            docs = users_ref.where("externalTg", "in", [auth_uid, tg_id_str]).limit(1).get()
+            if docs:
+                docs[0].reference.update({"renewalDaysBefore": int(days_str)})
+
+        await asyncio.to_thread(save_days)
+
+    await callback.answer(f"✅ Установлено: списывать за {label} до окончания", show_alert=True)
+    _, data = await save_telegram_user(callback.from_user)
+    status_text = get_subscription_status_text(data)
+
+    if callback.message and isinstance(callback.message, Message):
+        try:
+            await callback.message.edit_text(
+                status_text,
+                reply_markup=subscription_management_keyboard(),
+                parse_mode=ParseMode.HTML,
+            )
+        except Exception:
+            pass
+
+
+@router.callback_query(F.data == "sub:toggle_on")
+async def subscription_toggle_on_callback(callback: CallbackQuery) -> None:
+    if callback.from_user is None:
+        await callback.answer()
+        return
+
+    from mvm_bot.firebase_client import init_firebase
+    from mvm_bot.user_service.helpers import telegram_uid
+
+    db = init_firebase()
+    auth_uid = telegram_uid(callback.from_user.id)
+    users_ref = db.collection("users")
+    tg_id_str = str(callback.from_user.id)
+
+    user_docs = await asyncio.to_thread(
+        lambda: users_ref.where("externalTg", "in", [auth_uid, tg_id_str]).limit(1).get()
+    )
+    if user_docs:
+        user_data = user_docs[0].to_dict() or {}
+        if user_data.get("cardDeleted") is True:
+            await callback.answer("❌ Невозможно включить автоплатеж: карта удалена.", show_alert=True)
+            return
+
+        def save_toggle():
+            user_docs[0].reference.update({"autoRenewalEnabled": True})
+
+        await asyncio.to_thread(save_toggle)
+        await callback.answer("✅ Подписка включена!", show_alert=True)
+    else:
+        await callback.answer("❌ Пользователь не найден.", show_alert=True)
+
+
+@router.callback_query(F.data == "sub:toggle_off")
+async def subscription_toggle_off_callback(callback: CallbackQuery) -> None:
+    await callback.answer()
+    if callback.message and isinstance(callback.message, Message):
+        await callback.message.answer(
+            "🗑️ Вы уверены, что хотите выключить автоплатеж?",
+            reply_markup=InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(text="✅ Да, выключить", callback_data="sub:toggle_off_yes"),
+                        InlineKeyboardButton(text="🚫 Отмена", callback_data="sub:toggle_off_no"),
+                    ]
+                ]
+            ),
+        )
+
+
+@router.callback_query(F.data == "sub:toggle_off_yes")
+async def subscription_toggle_off_yes_callback(callback: CallbackQuery) -> None:
+    if callback.from_user is not None:
+        from mvm_bot.firebase_client import init_firebase
+        from mvm_bot.user_service.helpers import telegram_uid
+
+        db = init_firebase()
+        auth_uid = telegram_uid(callback.from_user.id)
+        users_ref = db.collection("users")
+        tg_id_str = str(callback.from_user.id)
+
+        def save_toggle():
+            docs = users_ref.where("externalTg", "in", [auth_uid, tg_id_str]).limit(1).get()
+            if docs:
+                docs[0].reference.update({"autoRenewalEnabled": False})
+
+        await asyncio.to_thread(save_toggle)
+
+    await callback.answer("❌ Подписка выключена!", show_alert=True)
+
+    if callback.message and isinstance(callback.message, Message):
+        try:
+            await callback.message.delete()
+        except Exception:
+            pass
+
+
+@router.callback_query(F.data == "sub:toggle_off_no")
+async def subscription_toggle_off_no_callback(callback: CallbackQuery) -> None:
+    await callback.answer()
+    if callback.message and isinstance(callback.message, Message):
+        try:
+            await callback.message.delete()
         except Exception:
             pass

@@ -70,6 +70,8 @@ def users_payload(
     }
     if not current_data.get("referralCode"):
         payload["referralCode"] = generate_referral_code()
+    if "renewalDaysBefore" not in current_data:
+        payload["renewalDaysBefore"] = 3
     if not exists:
         payload.update(
             {
@@ -104,6 +106,8 @@ def vk_users_document_payload(
         payload["vkGroupIds"] = firestore.ArrayUnion([str(group_id)])
     if not current_data.get("referralCode"):
         payload["referralCode"] = generate_referral_code()
+    if "renewalDaysBefore" not in current_data:
+        payload["renewalDaysBefore"] = 3
     if not exists:
         payload.update(
             {

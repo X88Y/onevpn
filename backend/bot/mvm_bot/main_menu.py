@@ -101,7 +101,7 @@ async def main_menu_keyboard(tg_id: int, data: dict) -> InlineKeyboardMarkup:
     rows.append(
         [
             InlineKeyboardButton(
-                text="💳 Купить подписку",
+                text="📋 Моя подписка" if is_active else "💳 Купить подписку",
                 callback_data="menu:buy_subscription",
                 **({"style": "success"} if not is_active else {}),
             )

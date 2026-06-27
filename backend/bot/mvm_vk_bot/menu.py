@@ -92,7 +92,7 @@ async def main_menu_keyboard_json(vk_id: int, data: dict) -> str:
             color=KeyboardButtonColor.POSITIVE,
         )
     kb.add(
-        Callback(label="💳 Купить", payload={"c": "buy"}),
+        Callback(label="📋 Моя подписка" if is_active else "💳 Купить", payload={"c": "buy"}),
         color=KeyboardButtonColor.POSITIVE if not is_active else None,
     )
     kb.row()
@@ -143,16 +143,17 @@ def plan_selection_keyboard_json(
     
     kb.row()
     is_active = False
-    card_deleted = False
     if user_data:
         is_active = has_active_subscription(user_data)
-        card_deleted = user_data.get("cardDeleted", False)
 
-    if is_active and not card_deleted:
-        label_btn = "💳 Удалить карту"
-        payload_btn = {"c": "delete_card"}
+    if is_active:
+        label_btn = "📋 Управление подпиской"
+        payload_btn = {"c": "sub_manage"}
+    elif promo_activated:
+        label_btn = "🎟️ Изменить промокод"
+        payload_btn = {"c": "promo_enter"}
     else:
-        label_btn = "🎟️ Изменить промокод" if promo_activated else "🎟️ Ввести промокод"
+        label_btn = "🎟️ Ввести промокод"
         payload_btn = {"c": "promo_enter"}
 
     kb.add(

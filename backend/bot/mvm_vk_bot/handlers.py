@@ -56,6 +56,34 @@ _VK_SUPPORT_TOPIC_BY_CMD = {
 }
 
 
+def _sub_manage_keyboard_vk() -> str:
+    from vkbottle import Callback, Keyboard
+    kb = Keyboard(inline=True)
+    kb.add(Callback(label="✅ Включить автоплатеж", payload={"c": "sub_toggle_on"}))
+    kb.row()
+    kb.add(Callback(label="❌ Выключить автоплатеж", payload={"c": "sub_toggle_off"}))
+    kb.row()
+    kb.add(Callback(label="⏰ Настроить дни", payload={"c": "sub_set_days"}))
+    kb.row()
+    kb.add(Callback(label="💳 Удалить карту", payload={"c": "delete_card_confirm"}))
+    kb.row()
+    kb.add(Callback(label="« Назад", payload={"c": "buy"}))
+    return kb.get_json()
+
+
+def _renewal_days_keyboard_vk() -> str:
+    from vkbottle import Callback, Keyboard
+    kb = Keyboard(inline=True)
+    kb.add(Callback(label="1 день", payload={"c": "sub_days", "d": 1}))
+    kb.row()
+    kb.add(Callback(label="3 дня", payload={"c": "sub_days", "d": 3}))
+    kb.row()
+    kb.add(Callback(label="14 дней", payload={"c": "sub_days", "d": 14}))
+    kb.row()
+    kb.add(Callback(label="« Назад", payload={"c": "sub_manage"}))
+    return kb.get_json()
+
+
 def register_handlers(bot: Bot) -> None:
     @bot.on.private_message()
     async def start(message: VkMessage) -> None:
@@ -211,7 +239,18 @@ def register_handlers(bot: Bot) -> None:
             )
             return
 
-        if cmd == "delete_card":
+        if cmd == "delete_card_confirm":
+            kb = Keyboard(inline=True)
+            kb.add(Callback("✅ Да, удалить", payload={"c": "delete_card_yes"}))
+            kb.row()
+            kb.add(Callback("🚫 Не удалять", payload={"c": "delete_card_no"}))
+            await event.send_message(
+                message="🗑️ Вы уверены, что хотите удалить привязанную карту?",
+                keyboard=kb.get_json(),
+            )
+            return
+
+        if cmd == "delete_card_yes":
             db = init_firebase()
             auth_uid = vk_uid(profile.id)
             users_ref = db.collection("users")
@@ -219,33 +258,166 @@ def register_handlers(bot: Bot) -> None:
             def perform_update():
                 docs = users_ref.where("externalVk", "in", [auth_uid, str(profile.id)]).limit(1).get()
                 if docs:
-                    docs[0].reference.update({"cardDeleted": True})
+                    docs[0].reference.update({
+                        "cardDeleted": True,
+                        "subscriptionEndsAt": None,
+                        "autoRenewalEnabled": False
+                    })
 
             await asyncio.to_thread(perform_update)
             await _ack(event, "💳 Карта успешно удалена!")
 
+            try:
+                await event.ctx_api.messages.delete(message_ids=[event.message_id], delete_for_all=True)
+            except Exception:
+                pass
+            return
+
+        if cmd == "delete_card_no":
+            await _ack(event)
+            try:
+                await event.ctx_api.messages.delete(message_ids=[event.message_id], delete_for_all=True)
+            except Exception:
+                pass
+            return
+
+        if cmd == "sub_manage":
             _, data = await save_vk_user(profile, group_id=event.group_id)
-            promo_activated = data.get("promoActivated", False)
-            promo_discount = data.get("promoDiscount")
+            sub_end = format_subscription_end(data)
+            auto_pay = "✅ Включен" if data.get("autoRenewalEnabled") is True else "❌ Выключен"
+            days_val = data.get("renewalDaysBefore", 3)
+            days_map = {1: "1 день", 3: "3 дня", 14: "14 дней"}
+            days_str = days_map.get(days_val, f"{days_val} дн.")
+
+            status_text = (
+                "📋 Управление подпиской\n\n"
+                f"📅 Подписка: {sub_end}\n"
+                f"💳 Автоплатеж: {auto_pay}\n"
+                f"⏰ Списание за: {days_str} до окончания"
+            )
 
             await event.send_message(
-                message=(
-                    "Доступные варианты:\n\n"
-                    "🤩 Standart:\n"
-                    "— 1 устройство;\n"
-                    "— базовые ускорители при ограничениях;\n"
-                    "— 6 серверов;\n\n"
-                    "💎 Premium:\n"
-                    "— 7 устройств;\n"
-                    "— дополнительные ускорители при ограничениях;\n"
-                    "— 22 сервера;"
-                ),
-                keyboard=plan_selection_keyboard_json(
-                    promo_activated=promo_activated,
-                    promo_discount=promo_discount,
-                    user_data=data,
-                )
+                message=status_text,
+                keyboard=_sub_manage_keyboard_vk(),
             )
+            return
+
+        if cmd == "sub_set_days":
+            await event.send_message(
+                message="⏰ Выберите за сколько дней до окончания списывать средства:",
+                keyboard=_renewal_days_keyboard_vk(),
+            )
+            return
+
+        if cmd == "sub_days":
+            days_val = payload.get("d")
+            days_map = {1: "1 день", 3: "3 дня", 14: "14 дней"}
+            label = days_map.get(days_val, str(days_val))
+            if days_val is not None:
+                db = init_firebase()
+                auth_uid = vk_uid(profile.id)
+                users_ref = db.collection("users")
+
+                def save_vk_days():
+                    docs = users_ref.where("externalVk", "in", [auth_uid, str(profile.id)]).limit(1).get()
+                    if docs:
+                        docs[0].reference.update({"renewalDaysBefore": int(days_val)})
+
+                await asyncio.to_thread(save_vk_days)
+            await _ack(event, f"✅ Установлено: списывать за {label} до окончания")
+
+            _, data = await save_vk_user(profile, group_id=event.group_id)
+            sub_end = format_subscription_end(data)
+            auto_pay = "✅ Включен" if data.get("autoRenewalEnabled") is True else "❌ Выключен"
+            days_str = days_map.get(days_val, f"{days_val} дн.") if days_val else "3 дня"
+            status_text = (
+                "📋 Управление подпиской\n\n"
+                f"📅 Подписка: {sub_end}\n"
+                f"💳 Автоплатеж: {auto_pay}\n"
+                f"⏰ Списание за: {days_str} до окончания"
+            )
+            await event.send_message(
+                message=status_text,
+                keyboard=_sub_manage_keyboard_vk(),
+            )
+            return
+
+        if cmd == "sub_toggle_on":
+            db = init_firebase()
+            auth_uid = vk_uid(profile.id)
+            users_ref = db.collection("users")
+
+            def check_and_save():
+                docs = users_ref.where("externalVk", "in", [auth_uid, str(profile.id)]).limit(1).get()
+                if docs:
+                    user_data = docs[0].to_dict() or {}
+                    if user_data.get("cardDeleted") is True:
+                        return False
+                    docs[0].reference.update({"autoRenewalEnabled": True})
+                    return True
+                return None
+
+            result = await asyncio.to_thread(check_and_save)
+            if result is False:
+                await _ack(event, "❌ Невозможно включить автоплатеж: карта удалена.")
+            elif result is True:
+                await _ack(event, "✅ Подписка включена!")
+                _, data = await save_vk_user(profile, group_id=event.group_id)
+                sub_end = format_subscription_end(data)
+                auto_pay = "✅ Включен"
+                days_val = data.get("renewalDaysBefore", 3)
+                days_map = {1: "1 день", 3: "3 дня", 14: "14 дней"}
+                days_str = days_map.get(days_val, f"{days_val} дн.")
+                status_text = (
+                    "📋 Управление подпиской\n\n"
+                    f"📅 Подписка: {sub_end}\n"
+                    f"💳 Автоплатеж: {auto_pay}\n"
+                    f"⏰ Списание за: {days_str} до окончания"
+                )
+                await event.send_message(
+                    message=status_text,
+                    keyboard=_sub_manage_keyboard_vk(),
+                )
+            else:
+                await _ack(event, "❌ Пользователь не найден.")
+            return
+
+        if cmd == "sub_toggle_off":
+            kb = Keyboard(inline=True)
+            kb.add(Callback("✅ Да, выключить", payload={"c": "sub_toggle_off_yes"}))
+            kb.row()
+            kb.add(Callback("🚫 Отмена", payload={"c": "sub_toggle_off_no"}))
+            await event.send_message(
+                message="🗑️ Вы уверены, что хотите выключить автоплатеж?",
+                keyboard=kb.get_json(),
+            )
+            return
+
+        if cmd == "sub_toggle_off_yes":
+            db = init_firebase()
+            auth_uid = vk_uid(profile.id)
+            users_ref = db.collection("users")
+
+            def save_vk_toggle_off():
+                docs = users_ref.where("externalVk", "in", [auth_uid, str(profile.id)]).limit(1).get()
+                if docs:
+                    docs[0].reference.update({"autoRenewalEnabled": False})
+
+            await asyncio.to_thread(save_vk_toggle_off)
+            await _ack(event, "❌ Подписка выключена!")
+
+            try:
+                await event.ctx_api.messages.delete(message_ids=[event.message_id], delete_for_all=True)
+            except Exception:
+                pass
+            return
+
+        if cmd == "sub_toggle_off_no":
+            await _ack(event)
+            try:
+                await event.ctx_api.messages.delete(message_ids=[event.message_id], delete_for_all=True)
+            except Exception:
+                pass
             return
 
         if cmd == "pay":

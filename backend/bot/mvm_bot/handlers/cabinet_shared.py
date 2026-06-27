@@ -55,17 +55,18 @@ def plan_selection_keyboard(
         )
 
     is_active = False
-    card_deleted = False
     if user_data:
         from mvm_bot.main_menu import has_active_subscription
         is_active = has_active_subscription(user_data)
-        card_deleted = user_data.get("cardDeleted", False)
 
-    if is_active and not card_deleted:
-        promo_btn_text = "💳 Удалить карту"
-        promo_callback = "promo:delete_card"
+    if is_active:
+        promo_btn_text = "📋 Управление подпиской"
+        promo_callback = "sub:manage"
+    elif promo_activated:
+        promo_btn_text = "🎟️ Изменить промокод"
+        promo_callback = "promo:enter_code"
     else:
-        promo_btn_text = "🎟️ Изменить промокод" if promo_activated else "🎟️ Ввести промокод"
+        promo_btn_text = "🎟️ Ввести промокод"
         promo_callback = "promo:enter_code"
 
     rows.append(
