@@ -33,18 +33,42 @@ def vk_bot_token() -> str:
 def vk_bot_tokens() -> list[str]:
     """Return all configured VK bot tokens.
 
-    Supports ``VK_BOT_TOKENS`` (comma-separated) and falls back to
-    ``VK_BOT_TOKEN`` for backward compatibility.
+    Loads them from Firebase Firestore, and also ensures that
+    tokens defined in environment variables are stored in Firebase.
     """
+    # 1. Gather tokens from environment
+    env_tokens = []
     raw = env("VK_BOT_TOKENS")
     if raw:
-        tokens = [t.strip() for t in raw.split(",") if t.strip()]
-        if tokens:
-            return tokens
-    token = env("VK_BOT_TOKEN")
-    if token:
-        return [token]
+        env_tokens = [t.strip() for t in raw.split(",") if t.strip()]
+    else:
+        token = env("VK_BOT_TOKEN")
+        if token:
+            env_tokens = [token]
+
+    # 2. Store any environment tokens in DB if they aren't already there
+    from mvm_bot.firebase_client import get_vk_tokens_from_db, store_vk_token_in_db
+    if env_tokens:
+        try:
+            for token in env_tokens:
+                store_vk_token_in_db(token)
+        except Exception as e:
+            import logging
+            logging.warning(f"Failed to migrate/store environment VK tokens in DB: {e}")
+
+    # 3. Get all tokens from DB
+    try:
+        db_tokens = get_vk_tokens_from_db()
+        if db_tokens:
+            return db_tokens
+    except Exception as e:
+        import logging
+        logging.error(f"Failed to get VK tokens from DB, falling back to environment: {e}")
+        if env_tokens:
+            return env_tokens
+
     return []
+
 
 
 def service_account_path() -> Optional[str]:

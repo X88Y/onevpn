@@ -91,3 +91,69 @@ async def set_tg_cached_attachment(token: str, keys: list[str], file_id: str) ->
         )
     except Exception:
         logger.exception(f"Failed to write to tg_attachments_cache for {doc_id}")
+
+
+def get_vk_tokens_from_db() -> list[str]:
+    db = init_firebase()
+    try:
+        docs = db.collection("vk_tokens").stream()
+        tokens = []
+        for doc in docs:
+            data = doc.to_dict()
+            if data.get("status") != "inactive" and "token" in data:
+                tokens.append(data["token"])
+        return tokens
+    except Exception:
+        logger.exception("Failed to get VK tokens from Firestore")
+        return []
+
+
+def store_vk_token_in_db(token: str) -> None:
+    db = init_firebase()
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    try:
+        doc_ref = db.collection("vk_tokens").document(token_hash)
+        doc = doc_ref.get()
+        if not doc.exists:
+            doc_ref.set({
+                "token": token,
+                "created_at": firestore.SERVER_TIMESTAMP,
+                "updated_at": firestore.SERVER_TIMESTAMP,
+                "start_identifier": None,
+                "status": "active"
+            })
+    except Exception:
+        logger.exception(f"Failed to store VK token {token[:8]} in Firestore")
+
+
+def update_vk_token_start_identifier(token: str, start_identifier: str | None) -> None:
+    db = init_firebase()
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    try:
+        doc_ref = db.collection("vk_tokens").document(token_hash)
+        doc_ref.update({
+            "start_identifier": start_identifier,
+            "updated_at": firestore.SERVER_TIMESTAMP
+        })
+    except Exception:
+        logger.exception(f"Failed to update start identifier for VK token {token[:8]}")
+
+
+def update_vk_token_group_id(token: str, group_id: int) -> None:
+    db = init_firebase()
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    try:
+        doc_ref = db.collection("vk_tokens").document(token_hash)
+        doc = doc_ref.get()
+        if doc.exists:
+            data = doc.to_dict()
+            if not data.get("group_id"):
+                doc_ref.update({
+                    "group_id": group_id,
+                    "updated_at": firestore.SERVER_TIMESTAMP
+                })
+                logger.info(f"Saved VK group_id {group_id} to Firestore for token {token[:8]}")
+    except Exception:
+        logger.exception(f"Failed to update group_id for VK token {token[:8]}")
+
+
