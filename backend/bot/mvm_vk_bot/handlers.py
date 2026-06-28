@@ -68,8 +68,6 @@ def _sub_manage_keyboard_vk(promo_activated: bool = False) -> str:
     kb.add(Callback(label="💳 Удалить карту", payload={"c": "delete_card_confirm"}))
     kb.row()
     kb.add(Callback(label="« Назад", payload={"c": "buy"}))
-    promo_label = "🎟️ Изменить промокод" if promo_activated else "🎟️ Ввести промокод"
-    kb.add(Callback(label=promo_label, payload={"c": "promo_enter"}))
     return kb.get_json()
 
 

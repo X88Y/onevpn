@@ -254,8 +254,7 @@ def subscription_management_keyboard(promo_activated: bool = False) -> InlineKey
                 InlineKeyboardButton(text="💳 Удалить карту", callback_data="promo:delete_card_confirm"),
             ],
             [
-                InlineKeyboardButton(text="« Назад", callback_data="menu:buy_subscription"),
-                InlineKeyboardButton(text=promo_btn_text, callback_data="promo:enter_code"),
+                InlineKeyboardButton(text="« Назад", callback_data="menu:buy_subscription")
             ],
         ]
     )
