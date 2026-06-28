@@ -136,46 +136,7 @@ export async function notifyReferrerOfBonus(
         );
       }
     } else {
-      const rawTokens =
-        process.env.VK_BOT_TOKENS ||
-        process.env.VK_BOT_TOKEN ||
-        VK_BOT_TOKENS;
-      const tokens = rawTokens
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean);
-      if (tokens.length === 0) {
-        logger.warn("notifyReferrerOfBonus: no VK tokens configured");
-        return;
-      }
-      for (const token of tokens) {
-        const params = new URLSearchParams({
-          user_id: userId,
-          message: text,
-          random_id: String(Date.now()),
-          access_token: token,
-          v: "5.231",
-        });
-        const resp = await fetch(
-          `https://api.vk.com/method/messages.send?${params.toString()}`,
-          {method: "POST"}
-        );
-        if (!resp.ok) {
-          const body = await resp.text();
-          logger.warn(
-            "notifyReferrerOfBonus: VK request failed",
-            {status: resp.status, body}
-          );
-          continue;
-        }
-        const json = (await resp.json()) as {
-          error?: { error_msg: string; error_code: number };
-        };
-        if (!json.error) {
-          return;
-        }
-      }
-      logger.warn("notifyReferrerOfBonus: all VK tokens failed", {userId});
+      await sendVkMessageToUserGroups(userId, text);
     }
   } catch (err) {
     logger.warn(
@@ -315,17 +276,20 @@ function buildVkKeyboard(connectUrl: string): string {
 async function sendVkMessageWithToken(
   userId: string,
   text: string,
-  keyboard: string,
+  keyboard: string | undefined,
   token: string
 ): Promise<boolean> {
-  const params = new URLSearchParams({
+  const queryParams: Record<string, string> = {
     user_id: userId,
     message: text,
     random_id: String(Date.now()),
-    keyboard,
     access_token: token,
     v: "5.231",
-  });
+  };
+  if (keyboard) {
+    queryParams.keyboard = keyboard;
+  }
+  const params = new URLSearchParams(queryParams);
   const resp = await fetch(
     `https://api.vk.com/method/messages.send?${params.toString()}`,
     {method: "POST"}
@@ -347,14 +311,86 @@ async function sendVkMessageWithToken(
   }
   return true;
 }
-// eslint-disable-next-line max-len
-const VK_BOT_TOKENS="vk1.a.4-nDv62Wbzhd8cyzenM6GWH31OAIqejV4Q78yBX6d5D2MQvdMq-kYxp-Rl2gUTzX10fIOFim_YhNgsYs5hS2qivy7W5UgVtwhZJjOxB9FIaK-VWZc9SObNPvctdwGWrjJDDCLBwPrAMAdsZ3qdWLdHtAO6X735ad6hozBl9eJaX_SLzzf8jboIFas75_0Rg2EgYkdsxvyzgqI7jNq2ud3Q,vk1.a.yCG8RlbvAvh9p8fRZxiWb8PIsw3fI3P5KQlHEA7jCMxKZPRYJBVdNdehSZMXwW83tz6uPy9Cvkkcyr-Z88it9J1OnhpIPa6YORUO-nnp__xLPKfdXtzymOkxBYwD9r_uX_QDwZaeto8aY93GQecShAjHjmANvelDDKrKWB7T-z9d1LmcNK_2r4TCP1dTNagi7ekfyxrui3u0kYgFp-WV8A,vk1.a.J-qP_B4VFuvCb63pN3WsbtLHeQuMwULBtE1jjIYcSPCUbzPxTK40f4w0hRoQAz5Fde1suVTaxlJeif0Ik5tuqvLfrqIuNN9gzMVwbvePxL2qM7az43Q-K43jOjnFzPvxslhoQFEJd_TujzvKDG9CZMrdL6iWV-pTj5QseHIkS5DRIIJg1oSuK-bO6K1kEa-2QuNdiLTEuahjay5C7Oiuzg,vk1.a.Qb3E7UwlrezOaQ_2AWjTwReYFhFKIbgTRXv-jaamJB7gAFr0jpiVzGGFq-ovrlF-z2GrnAg8Z9-jWZ3kzTXjja4Ua0BhP0WdY-uCiGcMFXJwJcT9R1SaMWLM4Ypl6yLTYAnb92n5yyYHbH05C47vLx-TRSdv6IQ8-SoEINdt2qi9WjowkQwInJP7rmUd33iIWlmhMo3Dc6dXP4AHUCZi9w,vk1.a.7vXl0_XMqSO5K3gtgHdRPfyef9CKhpxGM5smZnMUJ9lk47i1ekyeAQDaVUX3cmsk13alGGdER3qNd8Sodq4JwbFw7mr17cv47MG5zvB2mpxTUuDL0ZWMbw6QgUfM-I4uz2OhbectnzaRybxg5PS583skDvUrfIPbjWd8UKZZjpGmNMeLv5H9YXpZzXcuApnuqm2c3eSg7fL8NQU1phem-g,vk1.a.iDPTGrW2wgpg6qsm-82dRYiBpX5S_7m4Z1qIxjPhK5GC4uKJnfe7beksq3m4LhNgYdflm1ex-C-r4qaajzq6LVStu8QURL_rryOLot7qWgnkSgnGM3L9CS5EnenpN0jvIvGnPMcb1hJSuPrBARF1nvshjplSQd-t6kwmKhUcm1d7mUzc-0t95rieuqoKn1tKPpF5n3CC-3HnDzLyQ8gl8A,vk1.a.xiQBLVtxpiDUJ7YpezJ_dmdv3cK1DjKGDqWTfabHUBsLKFWPr_6u-9Jeow1Hp289GOcejd53dMxgk98DgpdZJFbxX6i5BeeHyyEso-PwTDAYZf9s1F06j3EC8YWbrKE3-BkB6BkZ-6ne5ONmiFsFl02ds0iRrGGZZzP5lDomkic9aqvrBZTnuzXhwAujKKSsNr6SoZTPj7fMh4vq5ocDqg,vk1.a.eeyFYd8Qds6ZrM0TCi4zXgADqBd5lDa7CpLm-5f_XA9Af3Vs57lvxcQzehfcTqzQfX-K4-LGgfxi_M2FCN7wLHwvRdfC99tkQZTMApxg66dhpcjdDXWqlZ7a_1IK0VgSfA2dRDqi7XH0qfTGahDchIKjPO_HUWFesyXLOUGcum2x8msDZvIwFME-dyUOgjuErfZiL4z9Us07lrC05hVeGQ,vk1.a.FAgIkQeYkBYfLrE0oCwdLMWhc_DbuFhth-aexjg2Oejk9nAGZoHSqu_APJgsK7leKzhhW1zBqmE1XYunwxDaf5uPgD62rcMCgLMjgGqjaCQvEz7uaiDLBjpK8ynmslCq5DZzKfbgjtkdmHTbr3QQ9sGL5UoSv-_bLTGxNs30u_pVeW_jPhWjxGGaRGGMG6eEXV3mukhA8Otu7RbeKuHQng,vk1.a.fZTplLMkpa_ntcMOsYogZA4f5UL2ogBtk_AqYnOeYvrf6vIvg39u800wgb3wwsGPdAlX76V7NIwSijxJtfJwTSg2lW4U7La0YUU8y-6J9fIP_D32yBeJpNYONVsfa2H_RK8Bn8Y646gJsakVSaXjAmzV32R-_Umx1OZ2O1NzIkSvXGUHx_n-xgDawwKcI20SqJguZYK3IuJ3IkjJzCEg2g,vk1.a.kwoYMfIQ6zagpNp2BHfl6yIdvFjegwP1vXbkVRxmTK0RIowVQD-HXFmiG9iWnhCc_azpiCAd0w0X60GwnlgZUQXYkrmpknvhhfNWPNzNR80YIUiuJG9lGNjHxMmWwCcqbwV9eMJlN1RatAXLnkh66jOFPtExNPAHK8nLa56IwxITnBvoN0JMheZ67uegGPVAo_Tbm1xoGgFANRvcbt3mbg,vk1.a.ZgHd8-u7zGyPbMvzztgga3jHqaJWBQV-o8kHHO0IhkIvEAlNjPbD5fzO4K8V-rNgB2nzVzp7QlBkj__vgqmAtxef4iJis59yvyjNoAapP3mHzBmR35sYIUj34oZlBwI4Y8g2qQGSsasAqhjGSad6Epcl2mAJX8aWKlnbaknOPn8txXe6FXA0Iz4XIDkxyUkGd00ojHwbJSFMz1emE-f5sQ,vk1.a.peLwquKrjvNE89bwIPgjLn9HHHyKVGNY5QkFO2ML4mcJ3Zzut4_b5nwtMF-bgjdgGlnV6Ks6dC2hl_zHMO-Qy_bwCKAPWdvr0hr_yv-0B5ywtTkEoMWzbXrbqr_28Truu_Njd5_NcDKIgVVA0RyC67DAA3wN4Ge_XymaW6utd7eWFP4JbWjlPP0SkEZchmfiExyOyx3ijqUhdwV1rYC2qQ"
 
-// const VK_BOT_TOKENS = "vk1.a.yCG8RlbvAvh9p8fRZxiWb8PIsw3fI3P5KQlHEA7jCMxKZPRYJBVdNdehSZMXwW83tz6uPy9Cvkkcyr-Z88it9J1OnhpIPa6YORUO-nnp__xLPKfdXtzymOkxBYwD9r_uX_QDwZaeto8aY93GQecShAjHjmANvelDDKrKWB7T-z9d1LmcNK_2r4TCP1dTNagi7ekfyxrui3u0kYgFp-WV8A,vk1.a.J-qP_B4VFuvCb63pN3WsbtLHeQuMwULBtE1jjIYcSPCUbzPxTK40f4w0hRoQAz5Fde1suVTaxlJeif0Ik5tuqvLfrqIuNN9gzMVwbvePxL2qM7az43Q-K43jOjnFzPvxslhoQFEJd_TujzvKDG9CZMrdL6iWV-pTj5QseHIkS5DRIIJg1oSuK-bO6K1kEa-2QuNdiLTEuahjay5C7Oiuzg,vk1.a.Qb3E7UwlrezOaQ_2AWjTwReYFhFKIbgTRXv-jaamJB7gAFr0jpiVzGGFq-ovrlF-z2GrnAg8Z9-jWZ3kzTXjja4Ua0BhP0WdY-uCiGcMFXJwJcT9R1SaMWLM4Ypl6yLTYAnb92n5yyYHbH05C47vLx-TRSdv6IQ8-SoEINdt2qi9WjowkQwInJP7rmUd33iIWlmhMo3Dc6dXP4AHUCZi9w,vk1.a.7vXl0_XMqSO5K3gtgHdRPfyef9CKhpxGM5smZnMUJ9lk47i1ekyeAQDaVUX3cmsk13alGGdER3qNd8Sodq4JwbFw7mr17cv47MG5zvB2mpxTUuDL0ZWMbw6QgUfM-I4uz2OhbectnzaRybxg5PS583skDvUrfIPbjWd8UKZZjpGmNMeLv5H9YXpZzXcuApnuqm2c3eSg7fL8NQU1phem-g,vk1.a.iDPTGrW2wgpg6qsm-82dRYiBpX5S_7m4Z1qIxjPhK5GC4uKJnfe7beksq3m4LhNgYdflm1ex-C-r4qaajzq6LVStu8QURL_rryOLot7qWgnkSgnGM3L9CS5EnenpN0jvIvGnPMcb1hJSuPrBARF1nvshjplSQd-t6kwmKhUcm1d7mUzc-0t95rieuqoKn1tKPpF5n3CC-3HnDzLyQ8gl8A,vk1.a.xiQBLVtxpiDUJ7YpezJ_dmdv3cK1DjKGDqWTfabHUBsLKFWPr_6u-9Jeow1Hp289GOcejd53dMxgk98DgpdZJFbxX6i5BeeHyyEso-PwTDAYZf9s1F06j3EC8YWbrKE3-BkB6BkZ-6ne5ONmiFsFl02ds0iRrGGZZzP5lDomkic9aqvrBZTnuzXhwAujKKSsNr6SoZTPj7fMh4vq5ocDqg,vk1.a.fZTplLMkpa_ntcMOsYogZA4f5UL2ogBtk_AqYnOeYvrf6vIvg39u800wgb3wwsGPdAlX76V7NIwSijxJtfJwTSg2lW4U7La0YUU8y-6J9fIP_D32yBeJpNYONVsfa2H_RK8Bn8Y646gJsakVSaXjAmzV32R-_Umx1OZ2O1NzIkSvXGUHx_n-xgDawwKcI20SqJguZYK3IuJ3IkjJzCEg2g";
+/**
+ * Sends a VK message to a user in all groups they texted.
+ * Retrieves group IDs from the user's document and maps them to
+ * tokens from vk_tokens.
+ * @param {string} userId VK user id.
+ * @param {string} text Message body.
+ * @param {string} [keyboard] Optional keyboard JSON.
+ * @return {Promise<void>} Resolves when done.
+ */
+async function sendVkMessageToUserGroups(
+  userId: string,
+  text: string,
+  keyboard?: string
+): Promise<void> {
+  const candidates = externalIdCandidates("vk", userId);
+  const userSnap = await db.collection("users")
+    .where("externalVk", "in", candidates)
+    .limit(1)
+    .get();
+
+  const groupIdsSet = new Set<string>();
+  if (!userSnap.empty) {
+    const userData = userSnap.docs[0].data();
+    if (Array.isArray(userData.vkGroupIds)) {
+      for (const gid of userData.vkGroupIds) {
+        if (gid !== undefined && gid !== null) {
+          groupIdsSet.add(String(gid).trim());
+        }
+      }
+    }
+    if (userData.vkGroupId !== undefined && userData.vkGroupId !== null) {
+      groupIdsSet.add(String(userData.vkGroupId).trim());
+    }
+  }
+
+  if (groupIdsSet.size === 0) {
+    logger.warn("sendVkMessageToUserGroups: user has no group IDs", {userId});
+    return;
+  }
+
+  const tokensSnap = await db.collection("vk_tokens").get();
+  const groupToToken = new Map<string, string>();
+
+  for (const doc of tokensSnap.docs) {
+    const data = doc.data();
+    if (
+      data.status !== "inactive" &&
+      typeof data.token === "string" &&
+      data.token.trim()
+    ) {
+      const token = data.token.trim();
+      const gId = data.group_id;
+      if (gId !== undefined && gId !== null) {
+        groupToToken.set(String(gId).trim(), token);
+      }
+    }
+  }
+
+  for (const groupId of groupIdsSet) {
+    const token = groupToToken.get(groupId);
+    if (token) {
+      const ok = await sendVkMessageWithToken(userId, text, keyboard, token);
+      if (!ok) {
+        logger.warn(
+          "sendVkMessageToUserGroups: failed sending to group",
+          {userId, groupId}
+        );
+      }
+    } else {
+      logger.warn(
+        "sendVkMessageToUserGroups: no token found for group in Firestore",
+        {userId, groupId}
+      );
+    }
+  }
+}
+
 /**
  * Sends a plain-text VK message to a single user id.
- * Tries all configured VK bot tokens (multi-bot support) and stops at the
- * first successful delivery.
  * @param {string} userId VK user id.
  * @param {string} text Message body.
  * @param {string} connectUrl Deep link redirect URL for account login.
@@ -365,26 +401,8 @@ async function notifyVk(
   text: string,
   connectUrl: string
 ): Promise<void> {
-  const rawTokens = VK_BOT_TOKENS;
-
-  const tokens = rawTokens
-    .split(",")
-    .map((t) => t.trim())
-    .filter(Boolean);
-
-  if (tokens.length === 0) {
-    logger.warn("notifyVk: no VK tokens configured");
-    return;
-  }
-
   const keyboard = buildVkKeyboard(connectUrl);
-  for (const token of tokens) {
-    const ok = await sendVkMessageWithToken(userId, text, keyboard, token);
-    if (ok) {
-      return;
-    }
-  }
-  logger.warn("notifyVk: all tokens failed", {userId});
+  await sendVkMessageToUserGroups(userId, text, keyboard);
 }
 
 /**
