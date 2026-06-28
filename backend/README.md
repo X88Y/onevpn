@@ -17,6 +17,8 @@ To deploy manually from your machine (using password authentication):
    SSH_PASSWORD="your_vps_password" ./backend/deploy.sh
    ```
 
+
+
 ## CI/CD Setup
 1. Go to your GitHub Repository Settings.
 2. Navigate to **Secrets and variables** > **Actions**.
