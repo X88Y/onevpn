@@ -1,3 +1,4 @@
+import asyncio
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,6 +13,7 @@ from mvm_bot.firebase_client import (
     get_vk_cached_attachment,
     set_tg_cached_attachment,
     set_vk_cached_attachment,
+    get_vk_tokens_for_user,
 )
 
 
@@ -33,53 +35,54 @@ async def notify_telegram(user_id: str, text: str, *, logger) -> None:
         logger.exception("telegram notify error for user %s", user_id)
 
 
-async def notify_vk_with_token(user_id: str, text: str, token: str, *, logger) -> bool:
-    params = {
-        "user_id": user_id,
-        "message": text,
-        "random_id": str(int(datetime.now(timezone.utc).timestamp() * 1000)),
-        "access_token": token,
-        "v": "5.231",
-    }
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                "https://api.vk.com/method/messages.send",
-                params=params,
-            ) as resp:
-                if resp.status != 200:
-                    body = await resp.text()
-                    logger.warning(
-                        "vk notify failed (token=%s...): %s %s",
-                        token[:8],
-                        resp.status,
-                        body,
-                    )
-                    return False
-                data = await resp.json()
-                if data.get("error"):
-                    logger.warning(
-                        "vk api error (token=%s...): %s",
-                        token[:8],
-                        data["error"],
-                    )
-                    return False
-                return True
-    except Exception:
-        logger.exception("vk notify error for user %s (token=%s...)", user_id, token[:8])
+async def notify_vk_with_token(user_id: str, text: str, *, logger) -> bool:
+    tokens = await asyncio.to_thread(get_vk_tokens_for_user, user_id)
+    if not tokens:
+        logger.warning("vk notify: no tokens found for user %s", user_id)
         return False
+    
+    any_success = False
+    for token in tokens:
+        params = {
+            "user_id": user_id,
+            "message": text,
+            "random_id": str(int(datetime.now(timezone.utc).timestamp() * 1000)),
+            "access_token": token,
+            "v": "5.231",
+        }
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    "https://api.vk.com/method/messages.send",
+                    params=params,
+                ) as resp:
+                    if resp.status != 200:
+                        body = await resp.text()
+                        logger.warning(
+                            "vk notify failed (token=%s...): %s %s",
+                            token[:8],
+                            resp.status,
+                            body,
+                        )
+                        continue
+                    data = await resp.json()
+                    if data.get("error"):
+                        logger.warning(
+                            "vk api error (token=%s...): %s",
+                            token[:8],
+                            data["error"],
+                        )
+                        continue
+                    any_success = True
+        except Exception:
+            logger.exception("vk notify error for user %s (token=%s...)", user_id, token[:8])
+            
+    return any_success
 
 
 async def notify_vk(user_id: str, text: str, *, logger) -> None:
-    tokens = vk_bot_tokens()
-    if not tokens:
-        logger.warning("vk notify: no tokens configured")
-        return
-    for token in tokens:
-        ok = await notify_vk_with_token(user_id, text, token, logger=logger)
-        if ok:
-            return
-    logger.warning("vk notify: all tokens failed for user %s", user_id)
+    await notify_vk_with_token(user_id, text, logger=logger)
+
 
 
 async def notify_telegram_photo(
@@ -148,11 +151,12 @@ async def notify_vk_photo(
     logger,
     keyboard: str | None = None,
 ) -> bool:
-    tokens = vk_bot_tokens()
+    tokens = await asyncio.to_thread(get_vk_tokens_for_user, user_id)
     if not tokens:
-        logger.warning("vk notify photo: no tokens configured")
+        logger.warning("vk notify photo: no tokens found for user %s", user_id)
         return False
 
+    any_success = False
     for token in tokens:
         cached_attachment = await get_vk_cached_attachment(token, [photo_path.name])
 
@@ -176,7 +180,8 @@ async def notify_vk_photo(
                         if resp.status == 200:
                             data = await resp.json()
                             if not data.get("error"):
-                                return True
+                                any_success = True
+                                continue
                             logger.warning("vk notify photo with cached attachment failed: %s", data["error"])
 
             api = API(token)
@@ -203,12 +208,14 @@ async def notify_vk_photo(
                     if resp.status == 200:
                         data = await resp.json()
                         if not data.get("error"):
-                            return True
+                            any_success = True
         except Exception:
             logger.exception("vk notify photo error for user %s (token=%s...)", user_id, token[:8])
 
-    logger.warning("vk notify photo: all tokens failed for user %s", user_id)
-    return False
+    if not any_success:
+        logger.warning("vk notify photo: all tokens failed for user %s", user_id)
+    return any_success
+
 
 
 def build_vk_survey_keyboard() -> str:
