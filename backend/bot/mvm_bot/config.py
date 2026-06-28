@@ -36,6 +36,7 @@ def vk_bot_tokens() -> list[str]:
     Loads them from Firebase Firestore, and also ensures that
     tokens defined in environment variables are stored in Firebase.
     """
+    # TODO: Delete it after migration to Firestore
     # 1. Gather tokens from environment
     env_tokens = []
     raw = env("VK_BOT_TOKENS")
