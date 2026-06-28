@@ -237,7 +237,8 @@ async def delete_card_no_callback(callback: CallbackQuery) -> None:
 
 
 
-def subscription_management_keyboard() -> InlineKeyboardMarkup:
+def subscription_management_keyboard(promo_activated: bool = False) -> InlineKeyboardMarkup:
+    promo_btn_text = "🎟️ Изменить промокод" if promo_activated else "🎟️ Ввести промокод"
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -254,6 +255,7 @@ def subscription_management_keyboard() -> InlineKeyboardMarkup:
             ],
             [
                 InlineKeyboardButton(text="« Назад", callback_data="menu:buy_subscription"),
+                InlineKeyboardButton(text=promo_btn_text, callback_data="promo:enter_code"),
             ],
         ]
     )
@@ -298,13 +300,13 @@ async def subscription_manage_callback(callback: CallbackQuery) -> None:
         try:
             await callback.message.edit_text(
                 status_text,
-                reply_markup=subscription_management_keyboard(),
+                reply_markup=subscription_management_keyboard(data.get("promoActivated", False)),
                 parse_mode=ParseMode.HTML,
             )
         except Exception:
             await callback.message.answer(
                 status_text,
-                reply_markup=subscription_management_keyboard(),
+                reply_markup=subscription_management_keyboard(data.get("promoActivated", False)),
                 parse_mode=ParseMode.HTML,
             )
 
@@ -359,7 +361,7 @@ async def subscription_days_selected_callback(callback: CallbackQuery) -> None:
         try:
             await callback.message.edit_text(
                 status_text,
-                reply_markup=subscription_management_keyboard(),
+                reply_markup=subscription_management_keyboard(data.get("promoActivated", False)),
                 parse_mode=ParseMode.HTML,
             )
         except Exception:

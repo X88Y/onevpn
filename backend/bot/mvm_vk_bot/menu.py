@@ -147,29 +147,47 @@ def plan_selection_keyboard_json(
         is_active = has_active_subscription(user_data)
 
     if is_active:
-        label_btn = "📋 Управление подпиской"
-        payload_btn = {"c": "sub_manage"}
-    elif promo_activated:
-        label_btn = "🎟️ Изменить промокод"
-        payload_btn = {"c": "promo_enter"}
+        kb.add(
+            Callback(
+                label="📋 Управление подпиской",
+                payload={"c": "sub_manage"},
+            )
+        )
+        kb.row()
+        kb.add(
+            Callback(
+                label="« Назад",
+                payload={"c": "main"},
+            )
+        )
+        promo_label = "🎟️ Изменить промокод" if promo_activated else "🎟️ Ввести промокод"
+        kb.add(
+            Callback(
+                label=promo_label,
+                payload={"c": "promo_enter"},
+            )
+        )
     else:
-        label_btn = "🎟️ Ввести промокод"
-        payload_btn = {"c": "promo_enter"}
+        if promo_activated:
+            label_btn = "🎟️ Изменить промокод"
+            payload_btn = {"c": "promo_enter"}
+        else:
+            label_btn = "🎟️ Ввести промокод"
+            payload_btn = {"c": "promo_enter"}
 
-    kb.add(
-        Callback(
-            label=label_btn,
-            payload=payload_btn,
+        kb.add(
+            Callback(
+                label=label_btn,
+                payload=payload_btn,
+            )
         )
-    )
-        
-    kb.row()
-    kb.add(
-        Callback(
-            label="« Назад",
-            payload={"c": "main"},
+        kb.row()
+        kb.add(
+            Callback(
+                label="« Назад",
+                payload={"c": "main"},
+            )
         )
-    )
     return kb.get_json()
 
 

@@ -60,32 +60,51 @@ def plan_selection_keyboard(
         is_active = has_active_subscription(user_data)
 
     if is_active:
-        promo_btn_text = "📋 Управление подпиской"
-        promo_callback = "sub:manage"
-    elif promo_activated:
-        promo_btn_text = "🎟️ Изменить промокод"
-        promo_callback = "promo:enter_code"
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text="📋 Управление подпиской",
+                    callback_data="sub:manage",
+                )
+            ]
+        )
+        promo_btn_text = "🎟️ Изменить промокод" if promo_activated else "🎟️ Ввести промокод"
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text="« Назад",
+                    callback_data="menu:main",
+                ),
+                InlineKeyboardButton(
+                    text=promo_btn_text,
+                    callback_data="promo:enter_code",
+                ),
+            ]
+        )
     else:
-        promo_btn_text = "🎟️ Ввести промокод"
-        promo_callback = "promo:enter_code"
+        if promo_activated:
+            promo_btn_text = "🎟️ Изменить промокод"
+            promo_callback = "promo:enter_code"
+        else:
+            promo_btn_text = "🎟️ Ввести промокод"
+            promo_callback = "promo:enter_code"
 
-    rows.append(
-        [
-            InlineKeyboardButton(
-                text=promo_btn_text,
-                callback_data=promo_callback,
-            )
-        ]
-    )
-
-    rows.append(
-        [
-            InlineKeyboardButton(
-                text="« Назад",
-                callback_data="menu:main",
-            )
-        ]
-    )
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=promo_btn_text,
+                    callback_data=promo_callback,
+                )
+            ]
+        )
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text="« Назад",
+                    callback_data="menu:main",
+                )
+            ]
+        )
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 

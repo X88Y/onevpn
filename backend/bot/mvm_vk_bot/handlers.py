@@ -56,7 +56,7 @@ _VK_SUPPORT_TOPIC_BY_CMD = {
 }
 
 
-def _sub_manage_keyboard_vk() -> str:
+def _sub_manage_keyboard_vk(promo_activated: bool = False) -> str:
     from vkbottle import Callback, Keyboard
     kb = Keyboard(inline=True)
     kb.add(Callback(label="✅ Включить автоплатеж", payload={"c": "sub_toggle_on"}))
@@ -68,6 +68,8 @@ def _sub_manage_keyboard_vk() -> str:
     kb.add(Callback(label="💳 Удалить карту", payload={"c": "delete_card_confirm"}))
     kb.row()
     kb.add(Callback(label="« Назад", payload={"c": "buy"}))
+    promo_label = "🎟️ Изменить промокод" if promo_activated else "🎟️ Ввести промокод"
+    kb.add(Callback(label=promo_label, payload={"c": "promo_enter"}))
     return kb.get_json()
 
 
@@ -298,7 +300,7 @@ def register_handlers(bot: Bot) -> None:
 
             await event.send_message(
                 message=status_text,
-                keyboard=_sub_manage_keyboard_vk(),
+                keyboard=_sub_manage_keyboard_vk(data.get("promoActivated", False)),
             )
             return
 
@@ -338,7 +340,7 @@ def register_handlers(bot: Bot) -> None:
             )
             await event.send_message(
                 message=status_text,
-                keyboard=_sub_manage_keyboard_vk(),
+                keyboard=_sub_manage_keyboard_vk(data.get("promoActivated", False)),
             )
             return
 
@@ -376,7 +378,7 @@ def register_handlers(bot: Bot) -> None:
                 )
                 await event.send_message(
                     message=status_text,
-                    keyboard=_sub_manage_keyboard_vk(),
+                    keyboard=_sub_manage_keyboard_vk(data.get("promoActivated", False)),
                 )
             else:
                 await _ack(event, "❌ Пользователь не найден.")
