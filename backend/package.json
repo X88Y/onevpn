@@ -1,0 +1,12 @@
+{
+  "name": "mvmvpn-backend",
+  "private": true,
+  "description": "Deploy scripts for MVM VPN backend services",
+  "scripts": {
+    "deploy:admin": "bash scripts/deploy-service.sh admin",
+    "deploy:tg": "bash scripts/deploy-service.sh tg",
+    "deploy:vk": "bash scripts/deploy-service.sh vk",
+    "deploy:server-manager": "bash scripts/deploy-service.sh server-manager",
+    "deploy:all": "bash scripts/deploy-service.sh all"
+  }
+}
