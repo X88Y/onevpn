@@ -20,7 +20,7 @@ from mvm_bot.expiry_outbound import (
     notify_vk,
     notify_vk_photo,
 )
-from mvm_bot.firebase_client import init_firebase
+from mvm_bot.firebase_client import init_firebase, get_vk_tokens_for_user
 from mvm_bot.remnawave_client import RemnawaveError, get_user_by_username
 
 logger = logging.getLogger(__name__)
@@ -456,7 +456,7 @@ async def check_and_send_retention_surveys() -> None:
                             
             if vk_id:
                 vk_kb = build_vk_survey_keyboard()
-                tokens = vk_bot_tokens()
+                tokens = await asyncio.to_thread(get_vk_tokens_for_user, vk_id)
                 for token in tokens:
                     params = {
                         "user_id": vk_id,
@@ -466,15 +466,17 @@ async def check_and_send_retention_surveys() -> None:
                         "access_token": token,
                         "v": "5.231",
                     }
-                    async with aiohttp.ClientSession() as session:
-                        async with session.post(
-                            "https://api.vk.com/method/messages.send", params=params
-                        ) as resp:
-                            if resp.status == 200:
-                                data = await resp.json()
-                                if not data.get("error"):
-                                    success = True
-                                    break
+                    try:
+                        async with aiohttp.ClientSession() as session:
+                            async with session.post(
+                                "https://api.vk.com/method/messages.send", params=params
+                            ) as resp:
+                                if resp.status == 200:
+                                    data = await resp.json()
+                                    if not data.get("error"):
+                                        success = True
+                    except Exception:
+                        logger.exception("Failed to send VK survey to user %s using token prefix %s", vk_id, token[:8])
                                     
             if success:
                 await asyncio.to_thread(ref.update, {"expirySurveySent": True})

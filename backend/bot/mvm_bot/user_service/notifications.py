@@ -1,9 +1,11 @@
+import asyncio
 import logging
 
 import httpx
 from aiogram import Bot  # type: ignore[import-not-found]
 
-from mvm_bot.config import bot_token, vk_bot_tokens
+from mvm_bot.config import bot_token
+from mvm_bot.firebase_client import get_vk_tokens_for_user
 
 logger = logging.getLogger(__name__)
 
@@ -17,9 +19,9 @@ async def notify_tg_user(tg_id: str, text: str) -> None:
 
 
 async def notify_vk_user(vk_id: str, text: str) -> None:
-    tokens = vk_bot_tokens()
+    tokens = await asyncio.to_thread(get_vk_tokens_for_user, vk_id)
     if not tokens:
-        logger.warning("No VK bot tokens configured for notification")
+        logger.warning("No VK bot tokens found for user %s", vk_id)
         return
     for token in tokens:
         try:
@@ -34,10 +36,8 @@ async def notify_vk_user(vk_id: str, text: str) -> None:
                 resp = await client.post("https://api.vk.com/method/messages.send", data=params)
                 if resp.status_code == 200:
                     data = resp.json()
-                    if "error" not in data:
-                        return
-                    else:
-                        logger.warning("VK send error: %s", data["error"])
+                    if "error" in data:
+                        logger.warning("VK send error using token prefix %s: %s", token[:8], data["error"])
         except Exception:
             logger.exception("Failed to send VK message using token prefix %s", token[:8])
 

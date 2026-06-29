@@ -91,3 +91,117 @@ async def set_tg_cached_attachment(token: str, keys: list[str], file_id: str) ->
         )
     except Exception:
         logger.exception(f"Failed to write to tg_attachments_cache for {doc_id}")
+
+
+def get_vk_tokens_from_db() -> list[str]:
+    db = init_firebase()
+    try:
+        docs = db.collection("vk_tokens").stream()
+        tokens = []
+        for doc in docs:
+            data = doc.to_dict()
+            if data.get("status") != "inactive" and "token" in data:
+                tokens.append(data["token"])
+        return tokens
+    except Exception:
+        logger.exception("Failed to get VK tokens from Firestore")
+        return []
+
+
+def store_vk_token_in_db(token: str) -> None:
+    db = init_firebase()
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    try:
+        doc_ref = db.collection("vk_tokens").document(token_hash)
+        doc = doc_ref.get()
+        if not doc.exists:
+            doc_ref.set({
+                "token": token,
+                "created_at": firestore.SERVER_TIMESTAMP,
+                "updated_at": firestore.SERVER_TIMESTAMP,
+                "start_identifier": None,
+                "status": "active"
+            })
+    except Exception:
+        logger.exception(f"Failed to store VK token {token[:8]} in Firestore")
+
+
+def update_vk_token_start_identifier(token: str, start_identifier: str | None) -> None:
+    db = init_firebase()
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    try:
+        doc_ref = db.collection("vk_tokens").document(token_hash)
+        doc_ref.update({
+            "start_identifier": start_identifier,
+            "updated_at": firestore.SERVER_TIMESTAMP
+        })
+    except Exception:
+        logger.exception(f"Failed to update start identifier for VK token {token[:8]}")
+
+
+def update_vk_token_group_id(token: str, group_id: int) -> None:
+    db = init_firebase()
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    try:
+        doc_ref = db.collection("vk_tokens").document(token_hash)
+        doc = doc_ref.get()
+        if doc.exists:
+            data = doc.to_dict()
+            if not data.get("group_id"):
+                doc_ref.update({
+                    "group_id": group_id,
+                    "updated_at": firestore.SERVER_TIMESTAMP
+                })
+                logger.info(f"Saved VK group_id {group_id} to Firestore for token {token[:8]}")
+    except Exception:
+        logger.exception(f"Failed to update group_id for VK token {token[:8]}")
+
+
+def get_vk_tokens_for_user(user_id: str) -> list[str]:
+    db = init_firebase()
+    try:
+        users_ref = db.collection("users")
+        external_candidates = [f"vk:{user_id}", str(user_id)]
+        
+        # Query by externalVk matching candidates
+        user_docs = list(users_ref.where("externalVk", "in", external_candidates).limit(1).get())
+        
+        group_ids = set()
+        user_data = None
+        if user_docs:
+            user_data = user_docs[0].to_dict() or {}
+        else:
+            doc = users_ref.document(user_id).get()
+            if doc.exists:
+                user_data = doc.to_dict() or {}
+                
+        if user_data:
+            vk_group_ids = user_data.get("vkGroupIds")
+            if isinstance(vk_group_ids, list):
+                for gid in vk_group_ids:
+                    if gid is not None:
+                        group_ids.add(str(gid).strip())
+            vk_group_id = user_data.get("vkGroupId")
+            if vk_group_id is not None:
+                group_ids.add(str(vk_group_id).strip())
+                
+        if not group_ids:
+            logger.warning("No group IDs found for VK user %s", user_id)
+            return []
+            
+        docs = db.collection("vk_tokens").get()
+        tokens = []
+        for doc in docs:
+            data = doc.to_dict()
+            if data.get("status") != "inactive" and "token" in data:
+                token = data["token"].strip()
+                g_id = data.get("group_id")
+                if g_id is not None and str(g_id).strip() in group_ids:
+                    tokens.append(token)
+        return tokens
+    except Exception:
+        logger.exception("Failed to get VK tokens for user %s from Firestore", user_id)
+        return []
+
+
+
