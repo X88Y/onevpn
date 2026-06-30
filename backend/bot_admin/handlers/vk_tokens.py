@@ -108,39 +108,66 @@ async def cmd_add_vk_token(message: Message, command: CommandObject, state: FSMC
 
     group_name = result
 
-    def save_to_db_direct():
-        db = init_firestore()
-        token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    # Check for uniqueness in Firestore
+    db = init_firestore()
+    docs_int = await asyncio.to_thread(lambda: list(db.collection("vk_tokens").where("group_id", "==", group_id).get()))
+    docs_str = await asyncio.to_thread(lambda: list(db.collection("vk_tokens").where("group_id", "==", str(group_id)).get()))
+    all_existing = docs_int + docs_str
 
-        # Enforce uniqueness
-        docs_int = db.collection("vk_tokens").where("group_id", "==", group_id).get()
-        docs_str = db.collection("vk_tokens").where("group_id", "==", str(group_id)).get()
+    if all_existing:
+        await state.update_data(token=token, group_id=group_id, group_name=group_name)
+        await state.set_state(AddVkToken.confirm_overwrite)
 
-        for doc in list(docs_int) + list(docs_str):
-            doc.reference.delete()
-
-        db.collection("vk_tokens").document(token_hash).set({
-            "token": token,
-            "group_id": group_id,
-            "status": "active",
-            "created_at": firestore.SERVER_TIMESTAMP,
-            "updated_at": firestore.SERVER_TIMESTAMP,
-            "start_identifier": None,
-        })
-        return token_hash
-
-    try:
-        token_hash = await asyncio.to_thread(save_to_db_direct)
-        await status_msg.edit_text(
-            f"✅ Successfully saved VK token!\n"
-            f"Group: <b>{group_name}</b>\n"
-            f"Group ID: <code>{group_id}</code>\n"
-            f"Document ID (Hash): <code>{token_hash}</code>",
-            parse_mode="HTML",
+        builder = InlineKeyboardBuilder()
+        builder.row(
+            InlineKeyboardButton(text="Yes, Replace", callback_data="vk_overwrite_yes"),
+            InlineKeyboardButton(text="Cancel", callback_data="vk_overwrite_no"),
         )
-    except Exception as e:
-        logger.exception("Failed to save token to database")
-        await status_msg.edit_text(f"❌ Failed to save token to database: {e}")
+
+        existing_tokens_info = []
+        for doc in all_existing:
+            data = doc.to_dict() or {}
+            t = data.get("token") or ""
+            masked = f"{t[:4]}...{t[-4:]}" if len(t) > 8 else "..."
+            existing_tokens_info.append(f"• Document ID: <code>{doc.id}</code> (Token: <code>{masked}</code>)")
+
+        existing_str = "\n".join(existing_tokens_info)
+        await status_msg.delete()
+        await message.answer(
+            f"⚠️ A token for VK group <b>{group_name}</b> (ID: <code>{group_id}</code>) already exists:\n{existing_str}\n\n"
+            f"Do you want to replace it?",
+            parse_mode="HTML",
+            reply_markup=builder.as_markup(),
+        )
+    else:
+        await status_msg.edit_text("⏳ Saving token to Firebase...")
+
+        def save_to_db():
+            token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+            db.collection("vk_tokens").document(token_hash).set({
+                "token": token,
+                "group_id": group_id,
+                "status": "active",
+                "created_at": firestore.SERVER_TIMESTAMP,
+                "updated_at": firestore.SERVER_TIMESTAMP,
+                "start_identifier": None,
+            })
+            return token_hash
+
+        try:
+            token_hash = await asyncio.to_thread(save_to_db)
+            await status_msg.edit_text(
+                f"✅ Successfully saved VK token!\n"
+                f"Group: <b>{group_name}</b>\n"
+                f"Group ID: <code>{group_id}</code>\n"
+                f"Document ID (Hash): <code>{token_hash}</code>",
+                parse_mode="HTML",
+            )
+            await state.clear()
+        except Exception as e:
+            logger.exception("Failed to save token to database")
+            await status_msg.edit_text(f"❌ Failed to save token to database: {e}")
+
 
 
 @router.message(AddVkToken.token, F.text)
