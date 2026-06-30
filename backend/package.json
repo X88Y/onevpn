@@ -7,6 +7,7 @@
     "deploy:tg": "bash scripts/deploy-service.sh tg",
     "deploy:vk": "bash scripts/deploy-service.sh vk",
     "deploy:server-manager": "bash scripts/deploy-service.sh server-manager",
+    "deploy:remnawave-webhook": "bash scripts/deploy-service.sh remnawave-webhook",
     "deploy:all": "bash scripts/deploy-service.sh all"
   }
 }
