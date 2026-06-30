@@ -123,38 +123,6 @@ apt-get update -qq
 apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # ── Deploy nginx → 200 OK ───────────────────────────────────────────────────────
-mkdir -p /root/nginx200
-cd /root/nginx200
-
-tee docker-compose.yml > /dev/null <<'EOF'
-services:
-  ok:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    restart: unless-stopped
-EOF
-
-tee nginx.conf > /dev/null <<'EOF'
-events {}
-
-http {
-  server {
-    listen 80;
-    location / {
-      return 200 'OK';
-      add_header Content-Type text/plain;
-    }
-  }
-}
-EOF
-
-docker compose down --remove-orphans 2>/dev/null || true
-docker compose up -d
-
-echo "✓ Done — nginx is live on port 80"
 
 cd /root/
 
