@@ -5,12 +5,13 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
+import httpx
+
 from mvm_bot.config import remnawave_api_token, remnawave_base_url
 
 from remnawave import RemnawaveSDK
 from remnawave.enums import TrafficLimitStrategy, UserStatus
 from remnawave.models import CreateUserRequestDto, UpdateUserRequestDto
-from remnawave.models.hwid import DeleteUserHwidDeviceRequestDto
 
 
 logger = logging.getLogger(__name__)
@@ -120,28 +121,51 @@ async def update_user(
 
 
 async def get_user_hwid_devices(user_uuid: str) -> List[Dict[str, Any]]:
-    if _sdk_instance is None:
+    if not _base or not _token:
         raise RemnawaveError("Remnawave not configured")
+    
+    url = f"{_base}/api/hwid/devices/{user_uuid}"
+    headers = {
+        "Authorization": f"Bearer {_token}",
+        "Accept": "application/json",
+    }
     try:
-        resp = await _sdk_instance.hwid.get_hwid_user(uuid=str(user_uuid))
-        return [d.model_dump(by_alias=True, mode="json") for d in resp.devices]
-    except Exception as exc:
-        if "404" in str(exc) or "not found" in str(exc).lower():
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers=headers)
+            if resp.status_code == 404:
+                return []
+            resp.raise_for_status()
+            data = resp.json()
+            return data.get("response", {}).get("devices", [])
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code == 404:
             return []
         logger.exception("Remnawave get_user_hwid_devices failed")
-        raise
+        raise RemnawaveError(f"HTTP error: {exc}")
+    except Exception as exc:
+        logger.exception("Remnawave get_user_hwid_devices failed")
+        raise RemnawaveError(f"Request failed: {exc}")
 
 
 async def delete_user_hwid_device(user_uuid: str, hwid: str) -> None:
-    if _sdk_instance is None:
+    if not _base or not _token:
         raise RemnawaveError("Remnawave not configured")
+    
+    url = f"{_base}/api/hwid/devices/delete"
+    headers = {
+        "Authorization": f"Bearer {_token}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+    payload = {
+        "userUuid": str(user_uuid),
+        "hwid": hwid,
+    }
     try:
-        body = DeleteUserHwidDeviceRequestDto(
-            user_uuid=UUID(user_uuid),
-            hwid=hwid
-        )
-        await _sdk_instance.hwid.delete_hwid_to_user(body)
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(url, headers=headers, json=payload)
+            resp.raise_for_status()
     except Exception as exc:
         logger.exception("Remnawave delete_user_hwid_device failed")
-        raise
+        raise RemnawaveError(f"Request failed: {exc}")
 
