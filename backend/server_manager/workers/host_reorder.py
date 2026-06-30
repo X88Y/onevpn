@@ -18,6 +18,8 @@ import logging
 from typing import Dict, List, Optional
 from uuid import UUID
 
+from remnawave import RemnawaveSDK
+from remnawave.models import ReorderHostItem, ReorderHostRequestDto, UpdateHostRequestDto
 from server_manager.config import settings
 
 logger = logging.getLogger(__name__)
@@ -52,23 +54,19 @@ async def _reorder_once() -> None:
     if not settings.remnawave_base_url or not settings.remnawave_api_token:
         return
 
-    try:
-        from remnawave import RemnawaveSDK
-        from remnawave.models import ReorderHostRequestDto, ReorderHostItem
-    except ImportError:
-        logger.warning("remnawave SDK not installed — host reorder skipped")
-        return
-
     sdk = RemnawaveSDK(
         base_url=settings.remnawave_base_url,
         token=settings.remnawave_api_token,
     )
 
     try:
-        # 1. Node user counts
+        # 1. Fetch nodes and construct health mapping + user counts
         nodes_resp = await sdk.nodes.get_all_nodes()
         node_users: Dict[UUID, int] = {
             node.uuid: (node.users_online or 0) for node in nodes_resp
+        }
+        node_is_healthy: Dict[UUID, bool] = {
+            node.uuid: (node.is_connected and not node.is_disabled) for node in nodes_resp
         }
 
         # 2. All hosts
@@ -78,7 +76,34 @@ async def _reorder_once() -> None:
         if not hosts:
             return
 
-        # 3. Sort
+        # 3. Update host visibility based on node health
+        for host in hosts:
+            if not host.nodes:
+                continue
+
+            # A host is healthy if all its associated nodes are healthy.
+            # If any of the host's nodes are unhealthy, it should be hidden.
+            # If a node UUID is not found in nodes, we treat it as unhealthy (safe default).
+            any_unhealthy = any(
+                not node_is_healthy.get(node_uuid, False)
+                for node_uuid in host.nodes
+            )
+            desired_hidden = any_unhealthy
+
+            if host.is_hidden != desired_hidden:
+                logger.info(
+                    "Host %s (%s) visibility mismatch. is_hidden=%s -> desired=%s. Updating...",
+                    host.uuid,
+                    host.remark,
+                    host.is_hidden,
+                    desired_hidden,
+                )
+                await sdk.hosts.update_host(
+                    UpdateHostRequestDto(uuid=host.uuid, is_hidden=desired_hidden)
+                )
+                host.is_hidden = desired_hidden
+
+        # 4. Sort
         def _host_users(h) -> int:
             return sum(node_users.get(nu, 0) for nu in h.nodes)
 
@@ -95,7 +120,7 @@ async def _reorder_once() -> None:
 
         hosts.sort(key=_sort_key)
 
-        # 4. Build reorder payload (view_position starts at 1)
+        # 5. Build reorder payload (view_position starts at 1)
         items: List[ReorderHostItem] = [
             ReorderHostItem(view_position=pos, uuid=h.uuid)
             for pos, h in enumerate(hosts, start=1)
@@ -111,7 +136,7 @@ async def _reorder_once() -> None:
                 _host_users(host),
             )
 
-        # 5. Apply
+        # 6. Apply
         await sdk.hosts.reorder_hosts(ReorderHostRequestDto(hosts=items))
         logger.info(
             "reorder_hosts: applied new order for %d hosts (nodes sampled: %d)",

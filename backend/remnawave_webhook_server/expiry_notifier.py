@@ -55,7 +55,6 @@ async def _notify_telegram(user_id: str, text: str) -> None:
 
 
 async def _notify_vk(user_id: str, text: str) -> None:
-    print(user_id)
     await notify_vk_user(user_id, text)
 
 
@@ -456,25 +455,12 @@ async def handle_expiry_webhook_event(
     data: dict,
     meta: dict,
 ) -> None:
-    if event_type == "user.expires_in_72_hours":
-        event_type = "user.expiration"
-        offset = -72
-    elif event_type == "user.expires_in_48_hours":
-        event_type = "user.expiration"
-        offset = -48
-    elif event_type == "user.expires_in_24_hours":
-        event_type = "user.expiration"
-        offset = -24
-    elif event_type == "user.expired_24_hours_ago":
-        event_type = "user.expiration"
-        offset = 24
-    else:
-        offset = meta.get("offset")
-        if offset is not None:
-            try:
-                offset = int(offset)
-            except (ValueError, TypeError):
-                pass
+    offset = meta.get("expiration")
+    if offset is not None:
+        try:
+            offset = int(offset)
+        except (ValueError, TypeError):
+            pass
 
     is_expiry = (event_type == "user.expired") or (event_type == "user.expiration" and offset == 0)
     is_pre_expiry = (event_type == "user.expiration" and isinstance(offset, int) and offset < 0)

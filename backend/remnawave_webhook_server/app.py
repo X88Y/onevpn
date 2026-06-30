@@ -97,7 +97,7 @@ async def process_user_event(payload: WebhookPayload):
         event_type = payload.event
         data = payload.data
         meta = payload.meta or {}
-        
+
         rw_uuid = data.get("uuid") or data.get("id")
         username = data.get("username")
         
