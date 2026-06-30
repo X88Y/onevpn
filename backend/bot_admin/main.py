@@ -30,6 +30,9 @@ async def _main() -> None:
             BotCommand(command="delete_promocode", description="Delete promo code by value"),
             BotCommand(command="promo_stats", description="Show promo usage statistics"),
             BotCommand(command="create_tw_cdn", description="Create TimeWeb CDNs with token"),
+            BotCommand(command="add_vk_token", description="Add VK group token with uniqueness check"),
+            BotCommand(command="list_vk_tokens", description="List registered VK group tokens"),
+            BotCommand(command="delete_vk_token", description="Delete VK group token by group ID"),
             BotCommand(command="cancel", description="Cancel current flow"),
         ]
     )

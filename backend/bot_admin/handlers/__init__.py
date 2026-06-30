@@ -6,6 +6,7 @@ from bot_admin.handlers.notifications import router as notifications_router
 from bot_admin.handlers.statistics import router as statistics_router
 from bot_admin.handlers.group_statistics import router as group_statistics_router
 from bot_admin.handlers.promocodes import router as promocodes_router
+from bot_admin.handlers.vk_tokens import router as vk_tokens_router
 
 router = Router()
 router.include_router(servers_router)
@@ -14,3 +15,4 @@ router.include_router(notifications_router)
 router.include_router(statistics_router)
 router.include_router(group_statistics_router)
 router.include_router(promocodes_router)
+router.include_router(vk_tokens_router)
