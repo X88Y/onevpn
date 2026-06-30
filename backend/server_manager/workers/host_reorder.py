@@ -31,6 +31,8 @@ _TAG_PRIORITY: List[str] = [
     "SPEED_SERVER",
     "BALANCER",
     "BYPASS_WL",
+    "BYPASS_WL_PREMIUM",
+    "RU_SERVER",
 ]
 _TAG_ORDER: Dict[str, int] = {tag: i for i, tag in enumerate(_TAG_PRIORITY)}
 _UNKNOWN_TAG_BASE: int = len(_TAG_PRIORITY)

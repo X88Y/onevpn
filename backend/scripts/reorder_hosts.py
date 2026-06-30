@@ -33,17 +33,20 @@ from typing import Dict, List, Optional, Union, get_args, get_origin
 from uuid import UUID
 
 from pydantic import BaseModel
+from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
 
 try:
     from remnawave import RemnawaveSDK
     import remnawave.models
     from remnawave.models import ReorderHostItem, ReorderHostRequestDto
+    from remnawave.models.hosts import HostResponseDto
 except ImportError:
     RemnawaveSDK = None
     remnawave = None
     ReorderHostItem = None
     ReorderHostRequestDto = None
+    HostResponseDto = None
 
 
 def _is_optional(annotation: typing.Any) -> bool:
@@ -56,8 +59,24 @@ def _is_optional(annotation: typing.Any) -> bool:
 
 
 def _patch_remnawave_models() -> None:
-    if remnawave is None or remnawave.models is None:
+    if remnawave is None or remnawave.models is None or HostResponseDto is None:
         return
+
+    # 1. Inject 'tags' field and 'tag' property into HostResponseDto
+    if "tags" not in HostResponseDto.model_fields:
+        field_info = FieldInfo(default_factory=list, alias="tags")
+        field_info.annotation = List[str]
+        HostResponseDto.model_fields["tags"] = field_info
+
+    def get_tag(self: typing.Any) -> typing.Optional[str]:
+        tags = getattr(self, "tags", None)
+        if tags:
+            return tags[0]
+        return None
+
+    HostResponseDto.tag = property(get_tag)  # type: ignore
+
+    # 2. Patch all models
     package = remnawave.models
     modules = []
     for _, module_name, _ in pkgutil.walk_packages(package.__path__, package.__name__ + "."):
@@ -123,6 +142,8 @@ TAG_PRIORITY: List[str] = [
     "SPEED_SERVER",
     "BALANCER",
     "BYPASS_WL",
+    "BYPASS_WL_PREMIUM",
+    "RU_SERVER",
 ]
 
 _TAG_ORDER: Dict[str, int] = {tag: i for i, tag in enumerate(TAG_PRIORITY)}
