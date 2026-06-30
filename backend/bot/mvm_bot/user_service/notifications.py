@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 async def notify_tg_user(tg_id: str, text: str) -> None:
+    print(tg_id)
     try:
         async with Bot(token=bot_token()) as bot:
             await bot.send_message(chat_id=int(tg_id), text=text)
@@ -19,6 +20,7 @@ async def notify_tg_user(tg_id: str, text: str) -> None:
 
 
 async def notify_vk_user(vk_id: str, text: str) -> None:
+    print(vk_id)
     tokens = await asyncio.to_thread(get_vk_tokens_for_user, vk_id)
     if not tokens:
         logger.warning("No VK bot tokens found for user %s", vk_id)

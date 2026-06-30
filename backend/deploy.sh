@@ -83,6 +83,9 @@ run_ssh $REMOTE_USER@$REMOTE_HOST << 'EOF'
     if [ -f "bot_admin/requirements.txt" ]; then
         pip install -r bot_admin/requirements.txt
     fi
+    if [ -f "remnawave_webhook_server/requirements.txt" ]; then
+        pip install -r remnawave_webhook_server/requirements.txt
+    fi
 
     # 3.5 Create new service files
     echo "Creating new service files..."
@@ -155,11 +158,28 @@ RestartSec=10
 WantedBy=multi-user.target
 EOFF
 
+    cat > /etc/systemd/system/mvm-remnawave-webhook.service << EOFF
+[Unit]
+Description=MVM Remnawave Webhook Server
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/mvm-vpn/backend
+ExecStart=/root/mvm-vpn/backend/.venv/bin/python3 -m remnawave_webhook_server
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOFF
+
     # 3.6 Enable and start services
     echo "Enabling and starting services..."
     systemctl daemon-reload
-    systemctl enable mvm-tg-bot.service mvm-vk-bot.service mvm-server-manager.service mvm-admin-bot.service
-    systemctl restart mvm-tg-bot.service mvm-vk-bot.service mvm-server-manager.service mvm-admin-bot.service
+    systemctl enable mvm-tg-bot.service mvm-vk-bot.service mvm-server-manager.service mvm-admin-bot.service mvm-remnawave-webhook.service
+    systemctl restart mvm-tg-bot.service mvm-vk-bot.service mvm-server-manager.service mvm-admin-bot.service mvm-remnawave-webhook.service
 
     echo "--- Server-side setup complete ---"
 EOF

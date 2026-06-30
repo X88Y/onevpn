@@ -81,6 +81,7 @@ async def notify_vk_with_token(user_id: str, text: str, *, logger) -> bool:
 
 
 async def notify_vk(user_id: str, text: str, *, logger) -> None:
+    print(user_id)
     await notify_vk_with_token(user_id, text, logger=logger)
 
 

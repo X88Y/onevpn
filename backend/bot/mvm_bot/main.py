@@ -14,7 +14,6 @@ from aiogram.types import BotCommand  # type: ignore[import-not-found]
 
 from mvm_bot.config import bot_token
 from mvm_bot.constants import BOT_DIR
-from mvm_bot.expiry_notifier import run_expiry_notifier_loop
 from mvm_bot.handlers import router
 from mvm_bot.main_menu import preload_menu_banner
 
@@ -33,16 +32,7 @@ async def main() -> None:
 
     await preload_menu_banner(bot)
 
-    notifier_task = asyncio.create_task(run_expiry_notifier_loop())
-
-    try:
-        await dispatcher.start_polling(bot)
-    finally:
-        notifier_task.cancel()
-        try:
-            await notifier_task
-        except asyncio.CancelledError:
-            pass
+    await dispatcher.start_polling(bot)
 
 
 def run() -> None:
