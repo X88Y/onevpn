@@ -21,12 +21,74 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import inspect
 import logging
 import os
+import pkgutil
 import sys
+import types
+import typing
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union, get_args, get_origin
 from uuid import UUID
+
+from pydantic import BaseModel
+from pydantic_core import PydanticUndefined
+
+try:
+    from remnawave import RemnawaveSDK
+    import remnawave.models
+    from remnawave.models import ReorderHostItem, ReorderHostRequestDto
+except ImportError:
+    RemnawaveSDK = None
+    remnawave = None
+    ReorderHostItem = None
+    ReorderHostRequestDto = None
+
+
+def _is_optional(annotation: typing.Any) -> bool:
+    if annotation is type(None):
+        return True
+    origin = get_origin(annotation)
+    if origin is Union or (hasattr(types, "UnionType") and origin is types.UnionType):
+        return type(None) in get_args(annotation)
+    return False
+
+
+def _patch_remnawave_models() -> None:
+    if remnawave is None or remnawave.models is None:
+        return
+    package = remnawave.models
+    modules = []
+    for _, module_name, _ in pkgutil.walk_packages(package.__path__, package.__name__ + "."):
+        try:
+            modules.append(__import__(module_name, fromlist=["*"]))
+        except Exception:
+            continue
+
+    all_models = []
+    for mod in modules:
+        for _, obj in inspect.getmembers(mod, inspect.isclass):
+            if issubclass(obj, BaseModel) and obj is not BaseModel:
+                all_models.append(obj)
+
+    # First, modify all fields across all models
+    for obj in all_models:
+        for field in obj.model_fields.values():
+            if field.default is PydanticUndefined and _is_optional(field.annotation):
+                field.default = None
+
+    # Then rebuild all models multiple times to resolve nested schemas
+    for _ in range(3):
+        for obj in all_models:
+            try:
+                obj.model_rebuild(force=True)
+            except Exception:
+                pass
+
+
+_patch_remnawave_models()
+
 
 # ---------------------------------------------------------------------------
 # Bootstrap: load .env so this script can be run standalone without the
@@ -102,10 +164,7 @@ async def reorder(*, apply: bool, env_path: Optional[str]) -> None:
         )
         sys.exit(1)
 
-    try:
-        from remnawave import RemnawaveSDK
-        from remnawave.models import ReorderHostRequestDto, ReorderHostItem
-    except ImportError:
+    if RemnawaveSDK is None or ReorderHostRequestDto is None or ReorderHostItem is None:
         logger.error("remnawave SDK not installed. Run: pip install remnawave")
         sys.exit(1)
 
