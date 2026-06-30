@@ -20,23 +20,32 @@ def _is_optional(annotation: typing.Any) -> bool:
 
 def _patch_remnawave_models() -> None:
     package = remnawave.models
+    modules = []
     for _, module_name, _ in pkgutil.walk_packages(package.__path__, package.__name__ + "."):
         try:
-            mod = __import__(module_name, fromlist=["*"])
+            modules.append(__import__(module_name, fromlist=["*"]))
         except Exception:
             continue
+
+    all_models = []
+    for mod in modules:
         for _, obj in inspect.getmembers(mod, inspect.isclass):
             if issubclass(obj, BaseModel) and obj is not BaseModel:
-                patched = False
-                for field in obj.model_fields.values():
-                    if field.default is PydanticUndefined and _is_optional(field.annotation):
-                        field.default = None
-                        patched = True
-                if patched:
-                    try:
-                        obj.model_rebuild(force=True)
-                    except Exception:
-                        pass
+                all_models.append(obj)
+
+    # First, modify all fields across all models
+    for obj in all_models:
+        for field in obj.model_fields.values():
+            if field.default is PydanticUndefined and _is_optional(field.annotation):
+                field.default = None
+
+    # Then rebuild all models multiple times to resolve nested schemas
+    for _ in range(3):
+        for obj in all_models:
+            try:
+                obj.model_rebuild(force=True)
+            except Exception:
+                pass
 
 
 _patch_remnawave_models()
