@@ -155,7 +155,7 @@ async def run_host_reorder_loop() -> None:
         logger.info("Host reorder disabled: REMNAWAVE_BASE_URL / REMNAWAVE_API_TOKEN not set")
         return
 
-    interval = max(60, getattr(settings, "host_reorder_interval_s", 300))
+    interval = max(60, getattr(settings, "host_reorder_interval_s", 30))
     logger.info("host_reorder worker started interval=%ss", interval)
 
     while True:

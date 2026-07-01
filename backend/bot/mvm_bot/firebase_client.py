@@ -93,19 +93,36 @@ async def set_tg_cached_attachment(token: str, keys: list[str], file_id: str) ->
         logger.exception(f"Failed to write to tg_attachments_cache for {doc_id}")
 
 
-def get_vk_tokens_from_db() -> list[str]:
+def get_vk_token_configs_from_db() -> list[dict]:
     db = init_firebase()
     try:
         docs = db.collection("vk_tokens").stream()
-        tokens = []
+        configs = []
         for doc in docs:
             data = doc.to_dict()
             if data.get("status") != "inactive" and "token" in data:
-                tokens.append(data["token"])
-        return tokens
+                configs.append(data)
+        return configs
     except Exception:
-        logger.exception("Failed to get VK tokens from Firestore")
+        logger.exception("Failed to get VK token configs from Firestore")
         return []
+
+
+def get_vk_tokens_from_db() -> list[str]:
+    return [config["token"] for config in get_vk_token_configs_from_db()]
+
+
+def get_vk_token_config(token: str) -> dict | None:
+    db = init_firebase()
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    try:
+        doc_ref = db.collection("vk_tokens").document(token_hash)
+        doc = doc_ref.get()
+        if doc.exists:
+            return doc.to_dict()
+    except Exception:
+        logger.exception(f"Failed to get VK token config for {token[:8]}")
+    return None
 
 
 def store_vk_token_in_db(token: str) -> None:
@@ -155,6 +172,23 @@ def update_vk_token_group_id(token: str, group_id: int) -> None:
                 logger.info(f"Saved VK group_id {group_id} to Firestore for token {token[:8]}")
     except Exception:
         logger.exception(f"Failed to update group_id for VK token {token[:8]}")
+
+
+def update_vk_token_webhook_setuped(token: str, webhook_setuped: bool, webhook_server_id: int | None = None) -> None:
+    db = init_firebase()
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    try:
+        doc_ref = db.collection("vk_tokens").document(token_hash)
+        updates = {
+            "webhook_setuped": webhook_setuped,
+            "updated_at": firestore.SERVER_TIMESTAMP
+        }
+        if webhook_server_id is not None:
+            updates["webhook_server_id"] = webhook_server_id
+        doc_ref.update(updates)
+        logger.info(f"Updated VK token {token[:8]} webhook_setuped={webhook_setuped}")
+    except Exception:
+        logger.exception(f"Failed to update webhook_setuped for VK token {token[:8]}")
 
 
 def get_vk_tokens_for_user(user_id: str) -> list[str]:
